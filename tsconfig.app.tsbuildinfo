@@ -1,0 +1,1 @@
+{"root":["./src/main.tsx","./src/app/App.tsx","./src/app/Shell.tsx","./src/features/Deck.tsx","./src/features/Galaxy.tsx","./src/features/Genesis.tsx","./src/features/Home.tsx","./src/features/Missions.tsx","./src/features/Wizard.tsx","./src/shared/Nav.tsx","./src/shared/Stars.tsx","./src/shared/Title.tsx"],"version":"5.8.3"}

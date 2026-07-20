@@ -1,0 +1,1 @@
+export function Title({k,t,p}:{k:string,t:string,p:string}){return <section className="title"><span>{k}</span><h1>{t}</h1><p>{p}</p></section>}
