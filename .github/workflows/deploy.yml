@@ -12,7 +12,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages
+  group: github-pages
   cancel-in-progress: true
 
 jobs:
@@ -21,15 +21,24 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Node.js
         uses: actions/setup-node@v5
         with:
-          node-version: 22
+          node-version: 20.12.2
+          package-manager-cache: false
+
+      - name: Use stable npm
+        run: npm install --global npm@10.8.2
+
+      - name: Show versions
+        run: |
+          node --version
+          npm --version
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci --no-audit --no-fund
 
       - name: Build project
         run: npm run build
@@ -37,7 +46,7 @@ jobs:
       - name: Setup GitHub Pages
         uses: actions/configure-pages@v5
 
-      - name: Upload build
+      - name: Upload production build
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./dist
