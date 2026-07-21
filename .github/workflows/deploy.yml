@@ -37,7 +37,7 @@ jobs:
         run: pnpm install --no-frozen-lockfile
 
       - name: Build BOBU Universe
-        run: pnpm exec vite build --base=/bobunaut/
+        run:  pnpm run build
 
       - name: Setup GitHub Pages
         uses: actions/configure-pages@v5
