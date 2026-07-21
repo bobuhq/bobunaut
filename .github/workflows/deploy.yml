@@ -23,19 +23,21 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v5
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
         with:
-          bun-version: latest
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
 
       - name: Install dependencies
-        run: bun install
-
-      - name: Type check
-        run: bun x tsc -b
+        run: pnpm install --no-frozen-lockfile
 
       - name: Build BOBU Universe
-        run: bun x vite build --base=/bobunaut/
+        run: pnpm exec vite build --base=/bobunaut/
 
       - name: Setup GitHub Pages
         uses: actions/configure-pages@v5
