@@ -229,7 +229,7 @@ button {
    NAVIGATION
    ========================================================= */
 
-header {
+.app > header {
   position: fixed;
   z-index: 20;
   top: 20px;
@@ -364,7 +364,7 @@ main {
   padding: 145px 20px 70px;
 }
 
-header,
+.app > header,
 main,
 .wizard {
   z-index: 2;
@@ -1268,7 +1268,7 @@ main,
    ========================================================= */
 
 @media (max-width: 900px) {
-  header {
+  .app > header {
     padding: 0 12px;
   }
 
@@ -1345,7 +1345,7 @@ main,
    ========================================================= */
 
 @media (max-width: 620px) {
-  header {
+  .app > header {
     top: 10px;
     padding: 0 8px;
   }
@@ -1499,4 +1499,144 @@ main,
   .planet .planet-core::before {
     animation: none !important;
   }
+}
+.nav-account {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+}
+
+.nav-auth-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 38px;
+  padding: 0 15px;
+  border: 1px solid rgba(139, 125, 255, 0.35);
+  border-radius: 12px;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(112, 82, 255, 0.24),
+      rgba(51, 157, 255, 0.16)
+    );
+  color: #ffffff;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 8px 24px rgba(49, 37, 145, 0.18);
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease;
+}
+
+.nav-auth-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(151, 139, 255, 0.68);
+  background:
+    linear-gradient(
+      135deg,
+      rgba(112, 82, 255, 0.34),
+      rgba(51, 157, 255, 0.24)
+    );
+}
+
+.nav-logout-button {
+  padding-inline: 11px;
+  color: rgba(255, 255, 255, 0.72);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.nav-user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 150px;
+}
+
+.nav-avatar {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid rgba(154, 139, 255, 0.55);
+  box-shadow: 0 0 16px rgba(112, 82, 255, 0.24);
+}
+
+.nav-avatar-fallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #6654ff, #369dff);
+  color: white;
+  font-weight: 800;
+}
+
+.nav-user-name {
+  overflow: hidden;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 12px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.auth-loading {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.cycle-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  white-space: nowrap;
+}
+
+@media (max-width: 1100px) {
+  .nav-user-name,
+  .nav-auth-button span,
+  .cycle-status {
+    display: none;
+  }
+
+  .nav-auth-button {
+    width: 38px;
+    padding: 0;
+  }
+}
+/* NAVBAR CLICK FIX */
+.app > header {
+  position: relative;
+  z-index: 1000;
+  pointer-events: auto;
+}
+
+.app > header .nav {
+  position: relative;
+  z-index: 1001;
+  pointer-events: auto;
+}
+
+.app > header .nav::before,
+.app > header .nav::after,
+.app > header .glass::before,
+.app > header .glass::after {
+  pointer-events: none;
+}
+
+.app > header .brand,
+.app > header .links,
+.app > header .links a,
+.app > header .nav-account,
+.app > header button {
+  position: relative;
+  z-index: 1002;
+  pointer-events: auto;
 }

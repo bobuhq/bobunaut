@@ -1,4 +1,4 @@
-import type {CSSProperties} from "react";
+import type { CSSProperties } from "react";
 
 type Star = {
   left: number;
@@ -14,7 +14,7 @@ function seeded(seed: number) {
   return value - Math.floor(value);
 }
 
-const stars: Star[] = Array.from({length: 170}, (_, index) => ({
+const stars: Star[] = Array.from({ length: 170 }, (_, index) => ({
   left: seeded(index + 11) * 100,
   top: seeded(index + 101) * 100,
   size: 0.8 + seeded(index + 211) * 2.2,
@@ -25,9 +25,14 @@ const stars: Star[] = Array.from({length: 170}, (_, index) => ({
 
 export function Stars() {
   return (
-    <div className="stars" aria-hidden="true">
+    <div
+      className="stars"
+      aria-hidden="true"
+      style={{ pointerEvents: "none" }}
+    >
       <div className="nebula nebula-one" />
       <div className="nebula nebula-two" />
+
       {stars.map((star, index) => {
         const style = {
           left: `${star.left}%`,
@@ -38,8 +43,10 @@ export function Stars() {
           animationDelay: `${star.delay}s`,
           animationDuration: `${star.duration}s`,
         } satisfies CSSProperties;
+
         return <i key={index} style={style} />;
       })}
+
       <span className="shooting shooting-one" />
       <span className="shooting shooting-two" />
       <span className="shooting shooting-three" />
