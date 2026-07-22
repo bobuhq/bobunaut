@@ -294,13 +294,31 @@ export function Home() {
       </motion.section>
 
       <motion.section className="stats" variants={fadeUp}>
-        {stats.map(({ label, value, suffix, decimals, icon: Icon }) => (
-          <article className="glass stat" key={label}>
-            <div className="stat-icon"><Icon size={20} /></div>
-            <strong><AnimatedCounter value={value} suffix={suffix} decimals={decimals} /></strong>
-            <span>{label}</span>
-          </article>
-        ))}
+        {stats.map((stat) => {
+          const Icon = stat.icon;
+          const decimals =
+            "decimals" in stat && typeof stat.decimals === "number"
+              ? stat.decimals
+              : 0;
+
+          return (
+            <article className="glass stat" key={stat.label}>
+              <div className="stat-icon">
+                <Icon size={20} />
+              </div>
+
+              <strong>
+                <AnimatedCounter
+                  value={stat.value}
+                  suffix={stat.suffix}
+                  decimals={decimals}
+                />
+              </strong>
+
+              <span>{stat.label}</span>
+            </article>
+          );
+        })}
       </motion.section>
 
       <motion.section className="glass transmission" variants={fadeUp}>
