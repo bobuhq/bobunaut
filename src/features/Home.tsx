@@ -170,8 +170,20 @@ export function Home() {
         .orbit-b{width:80%;height:80%;border-style:dashed;opacity:.5;animation:orbitB 28s linear infinite}
         .orbit-c{width:109%;height:62%;opacity:.42;animation:orbitC 34s linear infinite}
         .particle{position:absolute;width:8px;height:8px;top:50%;right:2%;border-radius:50%;background:#b8f4ff;box-shadow:0 0 20px #67e8f9}
-        .planet-core{position:relative;display:grid;width:48%;aspect-ratio:1;place-items:center;overflow:hidden;border:1px solid rgba(179,164,255,.14);border-radius:50%;background:radial-gradient(circle at 34% 24%,rgba(255,255,255,.28),transparent 7%),radial-gradient(circle at 68% 72%,rgba(17,24,73,.78),transparent 42%),linear-gradient(145deg,#322873,#181843 48%,#080b1b);box-shadow:-28px 14px 70px rgba(62,37,180,.25),30px 20px 80px rgba(0,0,0,.65),inset -28px -20px 54px rgba(0,0,0,.55);animation:float 6.5s ease-in-out infinite}
-        .planet-core span{color:rgba(223,216,255,.62);font:700 11px Georgia;letter-spacing:.32em}
+        .genesis-world{position:relative;z-index:3;display:grid;width:82%;min-height:470px;place-items:center;transform-style:preserve-3d}
+        .planet-atmosphere{position:absolute;width:82%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,rgba(139,92,246,.34) 0%,rgba(56,189,248,.14) 36%,transparent 70%);filter:blur(30px);animation:planetPulse 5s ease-in-out infinite}
+        .planet-core{position:relative;z-index:2;display:grid;width:58%;aspect-ratio:1;place-items:center;overflow:hidden;border:1px solid rgba(196,181,253,.2);border-radius:50%;background:radial-gradient(circle at 30% 22%,rgba(255,255,255,.34),transparent 7%),radial-gradient(circle at 66% 72%,rgba(17,24,73,.8),transparent 44%),linear-gradient(145deg,#4936a4,#1d2058 48%,#070b1c);box-shadow:-30px 14px 80px rgba(83,54,210,.34),32px 22px 90px rgba(0,0,0,.68),inset -30px -22px 58px rgba(0,0,0,.58);animation:planetFloat 7s ease-in-out infinite}
+        .planet-core:before{content:"";position:absolute;width:132%;height:38%;border:1px solid rgba(103,232,249,.26);border-radius:50%;transform:rotate(-17deg);box-shadow:0 0 34px rgba(103,232,249,.12),inset 0 0 20px rgba(139,92,246,.12)}
+        .planet-core:after{content:"";position:absolute;inset:10%;border:1px dashed rgba(196,181,253,.13);border-radius:50%;animation:innerOrbit 18s linear infinite}
+        .planet-light{position:absolute;top:17%;left:22%;width:22%;height:22%;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.26),transparent 70%);filter:blur(7px)}
+        .planet-shadow{position:absolute;right:-12%;bottom:-8%;width:82%;height:82%;border-radius:50%;background:radial-gradient(circle,rgba(0,0,0,.12),rgba(0,0,0,.72));filter:blur(5px)}
+        .planet-label{position:relative;z-index:3;color:rgba(232,226,255,.66);font:700 11px Georgia;letter-spacing:.34em}
+        .bubo-transmission{position:absolute;z-index:7;right:-30px;bottom:-10px;display:grid;grid-template-columns:72px 1fr;gap:13px;align-items:center;width:min(330px,86%);padding:12px;border-radius:19px;transform:translateZ(50px)}
+        .transmission-image{width:72px;height:82px;overflow:hidden;border:1px solid rgba(103,232,249,.2);border-radius:13px;background:rgba(7,9,20,.8)}
+        .transmission-image img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 28%;opacity:.88;filter:saturate(.9) contrast(1.05)}
+        .transmission-copy span{display:block;margin-bottom:5px;color:var(--cyan);font-size:8px;font-weight:900;letter-spacing:.15em}
+        .transmission-copy strong{display:block;color:#fff;font-size:10px;line-height:1.4;letter-spacing:.04em}
+        .transmission-copy p{margin:6px 0 0;color:#c9c1d9;font-size:10px;line-height:1.5}
         .chip{position:absolute;display:flex;align-items:center;gap:9px;padding:11px 14px;border:1px solid var(--border);border-radius:14px;color:#c8c1dc;background:rgba(12,13,25,.7);font-size:11px;font-weight:800}
         .chip-a{top:14%;left:0}.chip-b{right:-1%;bottom:24%}
         .sector{position:absolute;bottom:7%;display:flex;align-items:center;gap:9px;color:rgba(187,180,219,.53);font:700 10px Georgia;letter-spacing:.16em}
@@ -205,10 +217,10 @@ export function Home() {
         .final{margin-top:78px;padding:70px 24px;border:1px solid rgba(137,114,255,.2);border-radius:32px;text-align:center;background:radial-gradient(circle at 50% 120%,rgba(98,77,230,.24),transparent 54%),rgba(12,12,24,.85)}
         .final h2{max-width:790px;margin:16px auto 13px;font-size:clamp(39px,7vw,76px);line-height:.94}.final p{max-width:650px;margin:auto;color:var(--muted)}
         .final-actions{display:flex;justify-content:center;gap:12px;margin-top:28px}
-        @keyframes orbitA{to{transform:rotate(360deg)}}@keyframes orbitB{to{transform:rotate(-360deg)}}@keyframes orbitC{to{transform:rotate(360deg)}}@keyframes float{50%{transform:translateY(-13px)}}
+        @keyframes orbitA{to{transform:rotate(360deg)}}@keyframes orbitB{to{transform:rotate(-360deg)}}@keyframes orbitC{to{transform:rotate(360deg)}}@keyframes planetFloat{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-14px) rotate(1deg)}}@keyframes planetPulse{0%,100%{opacity:.62;transform:scale(.95)}50%{opacity:1;transform:scale(1.08)}}@keyframes innerOrbit{to{transform:rotate(360deg)}}
         @media(max-width:980px){.hero,.roadmap,.community-grid{grid-template-columns:1fr}.mission-grid{grid-template-columns:1fr 1fr}.mission-card:last-child{grid-column:1/-1}}
         @media(max-width:720px){.home-v2{width:calc(100% - 20px)}.stats,.mission-grid{grid-template-columns:1fr}.mission-card:last-child{grid-column:auto}.section-header,.transmission{align-items:flex-start;flex-direction:column}.chip{display:none}}
-        @media(max-width:520px){.hero-copy{padding:30px 14px}.actions,.final-actions{flex-direction:column}.primary,.secondary{width:100%}.planet-zone{min-height:350px}.community{padding:30px 20px}}
+        @media(max-width:520px){.hero-copy{padding:30px 14px}.actions,.final-actions{flex-direction:column}.primary,.secondary{width:100%}.planet-zone{min-height:390px}.genesis-world{width:94%;min-height:390px}.planet-core{width:62%}.bubo-transmission{right:0;bottom:0;width:94%;grid-template-columns:64px 1fr}.transmission-image{width:64px;height:74px}.community{padding:30px 20px}}
       `}</style>
 
       <motion.section
@@ -229,7 +241,7 @@ export function Home() {
         <div className="hero-copy">
           <div className="eyebrow"><span className="dot" />THE FIRST LIGHT IS ACTIVE</div>
           <h1>We are<strong>building space.</strong></h1>
-          <p>BOBU Universe is a living digital civilization shaped by Builders, missions, signals and discoveries. Every action helps expand the next sector.</p>
+          <p>Meet BUBO, the first explorer of an abandoned universe. Complete missions, uncover lost sectors and help build a new digital civilization.</p>
 
           <div className="actions">
             <Link className="primary" to="/missions">Enter Mission Center <ArrowUpRight size={18} /></Link>
@@ -252,7 +264,28 @@ export function Home() {
             <div className="orbit orbit-a"><span className="particle" /></div>
             <div className="orbit orbit-b" />
             <div className="orbit orbit-c" />
-            <div className="planet-core"><span>GENESIS</span></div>
+            <div className="genesis-world">
+              <div className="planet-atmosphere" />
+              <div className="planet-core">
+                <span className="planet-light" />
+                <span className="planet-shadow" />
+                <span className="planet-label">GENESIS</span>
+              </div>
+
+              <div className="glass bubo-transmission">
+                <div className="transmission-image">
+                  <img
+                    src={`${import.meta.env.BASE_URL}images/bubo/bubo-default.png`}
+                    alt="Transmission from BUBO"
+                  />
+                </div>
+                <div className="transmission-copy">
+                  <span>INCOMING TRANSMISSION</span>
+                  <strong>BUBO HAS ENTERED THE SECTOR</strong>
+                  <p>“Hi, Builder. I found an abandoned universe. Will you help me build it?”</p>
+                </div>
+              </div>
+            </div>
             <div className="chip chip-a"><Satellite size={15} />Signal Stable</div>
             <div className="chip chip-b"><ShieldCheck size={15} />Sector Online</div>
             <div className="sector"><Orbit size={14} />GENESIS SECTOR ONLINE</div>
@@ -370,3 +403,4 @@ export function Home() {
     </motion.main>
   );
 }
+
