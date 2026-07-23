@@ -24,14 +24,14 @@ type GalaxyMember = {
 };
 
 const members: GalaxyMember[] = [
-  { name: "Nova", level: 1, angle: 10, builders: 4, xp: 940, parent: "Mehmet" },
+  { name: "Nova", level: 1, angle: 10, builders: 4, xp: 940, parent: "Genesis" },
   {
     name: "Orion",
     level: 1,
     angle: 100,
     builders: 3,
     xp: 720,
-    parent: "Mehmet",
+    parent: "Genesis",
   },
   {
     name: "Luna",
@@ -39,7 +39,7 @@ const members: GalaxyMember[] = [
     angle: 190,
     builders: 4,
     xp: 1210,
-    parent: "Mehmet",
+    parent: "Genesis",
   },
   {
     name: "Atlas",
@@ -47,7 +47,7 @@ const members: GalaxyMember[] = [
     angle: 280,
     builders: 4,
     xp: 510,
-    parent: "Mehmet",
+    parent: "Genesis",
   },
 
   { name: "Vega", level: 2, angle: 35, builders: 2, xp: 380, parent: "Nova" },
@@ -125,7 +125,7 @@ export function Galaxy() {
   const [selectedMember, setSelectedMember] = useState<GalaxyMember | null>(
     null,
   );
-  const [activeGalaxy, setActiveGalaxy] = useState("Mehmet");
+  const [activeGalaxy, setActiveGalaxy] = useState("Genesis");
 
   const referralLink = "https://bobunaut.com/join/BOBU-7X92";
 
@@ -134,13 +134,13 @@ export function Galaxy() {
   }, [activeGalaxy]);
 
   const currentGalaxyOwner =
-    activeGalaxy === "Mehmet"
+    activeGalaxy === "Genesis"
       ? null
       : (members.find((member) => member.name === activeGalaxy) ?? null);
 
   const galaxyTitle =
-    activeGalaxy === "Mehmet"
-      ? "Commander Mehmet Galaxy"
+    activeGalaxy === "Genesis"
+      ? "Genesis Builder Galaxy"
       : `${activeGalaxy} Galaxy`;
 
   const copyReferralLink = async () => {
@@ -166,7 +166,7 @@ export function Galaxy() {
   };
 
   const returnToMyGalaxy = () => {
-    setActiveGalaxy("Mehmet");
+    setActiveGalaxy("Genesis");
     setSelectedMember(null);
   };
 
@@ -688,7 +688,7 @@ export function Galaxy() {
           <div className="galaxy-panel-heading">
             <div>
               <span className="galaxy-eyebrow">
-                {activeGalaxy === "Mehmet"
+                {activeGalaxy === "Genesis"
                   ? "Personal network"
                   : "Exploring galaxy"}
               </span>
@@ -716,7 +716,7 @@ export function Galaxy() {
               <div>
                 <Crown size={24} />
                 <strong>
-                  {activeGalaxy === "Mehmet" ? "YOU" : activeGalaxy}
+                  {activeGalaxy === "Genesis" ? "YOU" : activeGalaxy}
                 </strong>
                 <span>GALAXY CORE</span>
               </div>
@@ -771,13 +771,13 @@ export function Galaxy() {
             <h3>
               {selectedMember
                 ? selectedMember.name
-                : (currentGalaxyOwner?.name ?? "Commander Mehmet")}
+                : (currentGalaxyOwner?.name ?? "Genesis Builder")}
             </h3>
 
             <p>
               {selectedMember
                 ? `Level ${selectedMember.level} Builder`
-                : activeGalaxy === "Mehmet"
+                : activeGalaxy === "Genesis"
                   ? "Founding Builder"
                   : "Galaxy Commander"}
             </p>
@@ -786,7 +786,7 @@ export function Galaxy() {
               <Sparkles size={15} />
               {selectedMember
                 ? `Orbit Level ${selectedMember.level}`
-                : activeGalaxy === "Mehmet"
+                : activeGalaxy === "Genesis"
                   ? "Nebula Builder · Rank 07"
                   : `${visibleMembers.length} Connected Stars`}
             </div>
@@ -816,7 +816,7 @@ export function Galaxy() {
               </>
             )}
 
-            {activeGalaxy !== "Mehmet" && (
+            {activeGalaxy !== "Genesis" && (
               <button
                 type="button"
                 className="reset-selection"
