@@ -2,3 +2,10 @@ node_modules
 dist
 .DS_Store
 .env
+
+# TypeScript build cache
+*.tsbuildinfo
+
+# Local backup files
+*.backup.tsx
+*.before_*.tsx
