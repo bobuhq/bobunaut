@@ -8,6 +8,7 @@ import {
   Orbit,
   Radio,
   Rocket,
+  User,
   X,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
@@ -23,6 +24,11 @@ const navItems = [
     to: "/command-deck",
     label: "Command Deck",
     icon: Radio,
+  },
+  {
+    to: "/passport",
+    label: "Passport",
+    icon: User,
   },
   {
     to: "/missions",
