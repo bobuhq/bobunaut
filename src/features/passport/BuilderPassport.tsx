@@ -29,6 +29,9 @@ const builderProfile: BuilderProfile = {
 };
 
 export function BuilderPassport() {
+  const progress =
+    (builderProfile.currentXp / builderProfile.nextLevelXp) * 100;
+
   return (
     <main
       style={{
@@ -125,6 +128,49 @@ export function BuilderPassport() {
             label="Builder Points"
             value={builderProfile.builderPoints.toLocaleString()}
           />
+        </div>
+
+        <div
+          style={{
+            marginBottom: "24px",
+          }}
+        >
+          <p
+            style={{
+              margin: "0 0 10px",
+              fontWeight: 700,
+            }}
+          >
+            XP Progress
+          </p>
+
+          <div
+            style={{
+              height: "10px",
+              overflow: "hidden",
+              borderRadius: "999px",
+              background: "rgba(255, 255, 255, 0.08)",
+            }}
+          >
+            <div
+              style={{
+                width: `${progress}%`,
+                height: "100%",
+                borderRadius: "999px",
+                background: "linear-gradient(90deg, #14f195, #9945ff)",
+              }}
+            />
+          </div>
+
+          <p
+            style={{
+              margin: "10px 0 0",
+              color: "rgba(255, 255, 255, 0.6)",
+              fontSize: "14px",
+            }}
+          >
+            {builderProfile.currentXp} / {builderProfile.nextLevelXp} XP
+          </p>
         </div>
 
         <div
