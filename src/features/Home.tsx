@@ -22,6 +22,9 @@ import {
   Zap,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { LiveUniverse } from "../components/home/LiveUniverse";
+import { Journey } from "../components/journey/Journey";
+import { GalacticSky } from "../components/galaxy/GalacticSky";
 
 type CounterProps = {
   value: number;
@@ -30,9 +33,10 @@ type CounterProps = {
 };
 
 const stats = [
-  { label: "Active Builders", value: 12482, suffix: "", icon: Users },
-  { label: "Sectors Stabilized", value: 842, suffix: "", icon: Sparkles },
-  { label: "Signals Received", value: 2.4, suffix: "M", decimals: 1, icon: RadioTower },
+  { label: "Builders Joined", value: 127, suffix: "", icon: Users },
+  { label: "Galaxies Created", value: 24, suffix: "", icon: Orbit },
+  { label: "Alliances Formed", value: 8, suffix: "", icon: Globe2 },
+  { label: "GP Generated", value: 18420, suffix: "", icon: Gem },
 ] as const;
 
 const missions = [
@@ -187,7 +191,7 @@ export function Home() {
         .chip{position:absolute;display:flex;align-items:center;gap:9px;padding:11px 14px;border:1px solid var(--border);border-radius:14px;color:#c8c1dc;background:rgba(12,13,25,.7);font-size:11px;font-weight:800}
         .chip-a{top:14%;left:0}.chip-b{right:-1%;bottom:24%}
         .sector{position:absolute;bottom:7%;display:flex;align-items:center;gap:9px;color:rgba(187,180,219,.53);font:700 10px Georgia;letter-spacing:.16em}
-        .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:-10px;position:relative;z-index:3}
+        .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:-10px;position:relative;z-index:3}
         .stat{min-height:145px;padding:23px;border-radius:23px}
         .stat-icon{display:grid;width:39px;height:39px;place-items:center;margin-bottom:15px;border-radius:13px;color:var(--purple-light);background:rgba(139,92,246,.1)}
         .stat strong{display:block;margin-bottom:7px;font-size:32px}.stat span{color:var(--muted)}
@@ -218,7 +222,7 @@ export function Home() {
         .final h2{max-width:790px;margin:16px auto 13px;font-size:clamp(39px,7vw,76px);line-height:.94}.final p{max-width:650px;margin:auto;color:var(--muted)}
         .final-actions{display:flex;justify-content:center;gap:12px;margin-top:28px}
         @keyframes orbitA{to{transform:rotate(360deg)}}@keyframes orbitB{to{transform:rotate(-360deg)}}@keyframes orbitC{to{transform:rotate(360deg)}}@keyframes planetFloat{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-14px) rotate(1deg)}}@keyframes planetPulse{0%,100%{opacity:.62;transform:scale(.95)}50%{opacity:1;transform:scale(1.08)}}@keyframes innerOrbit{to{transform:rotate(360deg)}}
-        @media(max-width:980px){.hero,.roadmap,.community-grid{grid-template-columns:1fr}.mission-grid{grid-template-columns:1fr 1fr}.mission-card:last-child{grid-column:1/-1}}
+        @media(max-width:980px){.hero,.roadmap,.community-grid{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}mission-grid{grid-template-columns:1fr 1fr}.mission-card:last-child{grid-column:1/-1}}
         @media(max-width:720px){.home-v2{width:calc(100% - 20px)}.stats,.mission-grid{grid-template-columns:1fr}.mission-card:last-child{grid-column:auto}.section-header,.transmission{align-items:flex-start;flex-direction:column}.chip{display:none}}
         @media(max-width:520px){.hero-copy{padding:30px 14px}.actions,.final-actions{flex-direction:column}.primary,.secondary{width:100%}.planet-zone{min-height:390px}.genesis-world{width:94%;min-height:390px}.planet-core{width:62%}.bubo-transmission{right:0;bottom:0;width:94%;grid-template-columns:64px 1fr}.transmission-image{width:64px;height:74px}.community{padding:30px 20px}}
       `}</style>
@@ -292,6 +296,12 @@ export function Home() {
           </div>
         </div>
       </motion.section>
+
+      <LiveUniverse />
+
+      <Journey />
+
+      <GalacticSky builderCount={127} />
 
       <motion.section className="stats" variants={fadeUp}>
         {stats.map((stat) => {
