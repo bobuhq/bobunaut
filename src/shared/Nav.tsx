@@ -31,7 +31,7 @@ const navItems = [
   },
   {
     to: "/galaxy",
-    label: "Galactic Map",
+    label: "My Galaxy",
     icon: Compass,
   },
 ] as const;

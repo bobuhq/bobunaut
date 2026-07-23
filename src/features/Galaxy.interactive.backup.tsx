@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import {
   ArrowLeft,
@@ -14,84 +14,25 @@ import {
 } from "lucide-react";
 import { Title } from "../shared/Title";
 
-type GalaxyMember = {
-  name: string;
-  level: number;
-  angle: number;
-  builders: number;
-  xp: number;
-  parent: string;
-};
+const members = [
+  { name: "Nova", level: 1, angle: 10, builders: 12, xp: 940 },
+  { name: "Orion", level: 1, angle: 100, builders: 8, xp: 720 },
+  { name: "Luna", level: 1, angle: 190, builders: 17, xp: 1210 },
+  { name: "Atlas", level: 1, angle: 280, builders: 6, xp: 510 },
 
-const members: GalaxyMember[] = [
-  { name: "Nova", level: 1, angle: 10, builders: 4, xp: 940, parent: "Mehmet" },
-  {
-    name: "Orion",
-    level: 1,
-    angle: 100,
-    builders: 3,
-    xp: 720,
-    parent: "Mehmet",
-  },
-  {
-    name: "Luna",
-    level: 1,
-    angle: 190,
-    builders: 4,
-    xp: 1210,
-    parent: "Mehmet",
-  },
-  {
-    name: "Atlas",
-    level: 1,
-    angle: 280,
-    builders: 4,
-    xp: 510,
-    parent: "Mehmet",
-  },
+  { name: "Vega", level: 2, angle: 35, builders: 4, xp: 380 },
+  { name: "Cosmo", level: 2, angle: 105, builders: 9, xp: 670 },
+  { name: "Lyra", level: 2, angle: 175, builders: 3, xp: 260 },
+  { name: "Astro", level: 2, angle: 245, builders: 7, xp: 590 },
+  { name: "Zenith", level: 2, angle: 315, builders: 5, xp: 430 },
 
-  { name: "Vega", level: 2, angle: 35, builders: 2, xp: 380, parent: "Nova" },
-  { name: "Cosmo", level: 2, angle: 125, builders: 2, xp: 670, parent: "Nova" },
-  { name: "Lyra", level: 2, angle: 215, builders: 1, xp: 260, parent: "Orion" },
-  { name: "Astro", level: 2, angle: 305, builders: 2, xp: 590, parent: "Luna" },
-
-  {
-    name: "Zenith",
-    level: 2,
-    angle: 45,
-    builders: 2,
-    xp: 430,
-    parent: "Atlas",
-  },
-  { name: "Pixel", level: 3, angle: 135, builders: 0, xp: 160, parent: "Vega" },
-  { name: "Comet", level: 3, angle: 225, builders: 0, xp: 90, parent: "Vega" },
-  {
-    name: "Nebula",
-    level: 3,
-    angle: 315,
-    builders: 0,
-    xp: 310,
-    parent: "Cosmo",
-  },
-
-  { name: "Apollo", level: 3, angle: 60, builders: 0, xp: 180, parent: "Lyra" },
-  {
-    name: "Stellar",
-    level: 3,
-    angle: 180,
-    builders: 0,
-    xp: 240,
-    parent: "Astro",
-  },
-  {
-    name: "Voyager",
-    level: 3,
-    angle: 300,
-    builders: 0,
-    xp: 120,
-    parent: "Zenith",
-  },
-];
+  { name: "Pixel", level: 3, angle: 15, builders: 2, xp: 160 },
+  { name: "Comet", level: 3, angle: 75, builders: 1, xp: 90 },
+  { name: "Nebula", level: 3, angle: 135, builders: 4, xp: 310 },
+  { name: "Apollo", level: 3, angle: 195, builders: 2, xp: 180 },
+  { name: "Stellar", level: 3, angle: 255, builders: 3, xp: 240 },
+  { name: "Voyager", level: 3, angle: 315, builders: 1, xp: 120 },
+] as const;
 
 const stats = [
   {
@@ -120,28 +61,13 @@ const stats = [
   },
 ] as const;
 
+type Member = (typeof members)[number];
+
 export function Galaxy() {
   const [copied, setCopied] = useState(false);
-  const [selectedMember, setSelectedMember] = useState<GalaxyMember | null>(
-    null,
-  );
-  const [activeGalaxy, setActiveGalaxy] = useState("Mehmet");
+  const [selectedMember, setSelectedMember] = useState<Member | null>(null);
 
   const referralLink = "https://bobunaut.com/join/BOBU-7X92";
-
-  const visibleMembers = useMemo(() => {
-    return members.filter((member) => member.parent === activeGalaxy);
-  }, [activeGalaxy]);
-
-  const currentGalaxyOwner =
-    activeGalaxy === "Mehmet"
-      ? null
-      : (members.find((member) => member.name === activeGalaxy) ?? null);
-
-  const galaxyTitle =
-    activeGalaxy === "Mehmet"
-      ? "Commander Mehmet Galaxy"
-      : `${activeGalaxy} Galaxy`;
 
   const copyReferralLink = async () => {
     try {
@@ -154,20 +80,6 @@ export function Galaxy() {
     } catch {
       setCopied(false);
     }
-  };
-
-  const exploreGalaxy = () => {
-    if (!selectedMember) {
-      return;
-    }
-
-    setActiveGalaxy(selectedMember.name);
-    setSelectedMember(null);
-  };
-
-  const returnToMyGalaxy = () => {
-    setActiveGalaxy("Mehmet");
-    setSelectedMember(null);
   };
 
   return (
@@ -324,7 +236,6 @@ export function Galaxy() {
           border-radius: 50%;
           color: white;
           text-align: center;
-          cursor: pointer;
           transform: translate(-50%, -50%);
           background:
             radial-gradient(
@@ -426,18 +337,6 @@ export function Galaxy() {
           color: rgba(235, 238, 255, 0.72);
           font-size: 0.62rem;
           transform: translateX(-50%);
-        }
-
-        .empty-orbit {
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          width: 220px;
-          color: rgba(220, 225, 255, 0.54);
-          text-align: center;
-          font-size: 0.76rem;
-          line-height: 1.5;
-          transform: translate(-50%, 90px);
         }
 
         .galaxy-side {
@@ -661,10 +560,16 @@ export function Galaxy() {
             height: 88px;
           }
 
-          .member-node.level-1,
-          .member-node.level-2,
+          .member-node.level-1 {
+            --distance: 82px;
+          }
+
+          .member-node.level-2 {
+            --distance: 132px;
+          }
+
           .member-node.level-3 {
-            --distance: 138px;
+            --distance: 184px;
           }
 
           .member-node span {
@@ -688,12 +593,14 @@ export function Galaxy() {
           <div className="galaxy-panel-heading">
             <div>
               <span className="galaxy-eyebrow">
-                {activeGalaxy === "Mehmet"
-                  ? "Personal network"
-                  : "Exploring galaxy"}
+                {selectedMember ? "Selected Builder" : "Personal network"}
               </span>
 
-              <h2>{galaxyTitle}</h2>
+              <h2>
+                {selectedMember
+                  ? `${selectedMember.name} Galaxy`
+                  : "Commander Mehmet Galaxy"}
+              </h2>
             </div>
 
             <span className="galaxy-status">Galaxy Online</span>
@@ -715,14 +622,12 @@ export function Galaxy() {
             >
               <div>
                 <Crown size={24} />
-                <strong>
-                  {activeGalaxy === "Mehmet" ? "YOU" : activeGalaxy}
-                </strong>
+                <strong>YOU</strong>
                 <span>GALAXY CORE</span>
               </div>
             </motion.div>
 
-            {visibleMembers.map((member, index) => (
+            {members.map((member, index) => (
               <motion.div
                 className={`member-node level-${member.level} ${
                   selectedMember?.name === member.name ? "selected" : ""
@@ -730,14 +635,13 @@ export function Galaxy() {
                 style={
                   {
                     "--angle": `${member.angle}deg`,
-                    "--distance": `${115 + (index % 3) * 58}px`,
                   } as React.CSSProperties
                 }
-                key={`${activeGalaxy}-${member.name}`}
+                key={member.name}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{
-                  delay: 0.12 + index * 0.08,
+                  delay: 0.18 + index * 0.05,
                   duration: 0.45,
                 }}
                 whileHover={{
@@ -753,42 +657,28 @@ export function Galaxy() {
                   }
                 }}
               >
-                <Star size={member.level >= 3 ? 10 : 14} />
+                <Star size={member.level === 3 ? 10 : 14} />
                 <span>{member.name}</span>
               </motion.div>
             ))}
-
-            {visibleMembers.length === 0 && (
-              <div className="empty-orbit">
-                This Builder has not created any new stars yet.
-              </div>
-            )}
           </div>
         </div>
 
         <aside className="galaxy-side">
           <section className="galaxy-panel profile-card">
-            <h3>
-              {selectedMember
-                ? selectedMember.name
-                : (currentGalaxyOwner?.name ?? "Commander Mehmet")}
-            </h3>
+            <h3>{selectedMember ? selectedMember.name : "Commander Mehmet"}</h3>
 
             <p>
               {selectedMember
                 ? `Level ${selectedMember.level} Builder`
-                : activeGalaxy === "Mehmet"
-                  ? "Founding Builder"
-                  : "Galaxy Commander"}
+                : "Founding Builder"}
             </p>
 
             <div className="rank-badge">
               <Sparkles size={15} />
               {selectedMember
                 ? `Orbit Level ${selectedMember.level}`
-                : activeGalaxy === "Mehmet"
-                  ? "Nebula Builder · Rank 07"
-                  : `${visibleMembers.length} Connected Stars`}
+                : "Nebula Builder · Rank 07"}
             </div>
 
             {selectedMember && (
@@ -808,29 +698,28 @@ export function Galaxy() {
                 <button
                   type="button"
                   className="explore-button"
-                  onClick={exploreGalaxy}
+                  onClick={() =>
+                    alert(`${selectedMember.name} galaxy will open here.`)
+                  }
                 >
                   <Rocket size={16} />
                   Explore {selectedMember.name} Galaxy
                 </button>
-              </>
-            )}
 
-            {activeGalaxy !== "Mehmet" && (
-              <button
-                type="button"
-                className="reset-selection"
-                onClick={returnToMyGalaxy}
-              >
-                <ArrowLeft size={16} />
-                Return to My Galaxy
-              </button>
+                <button
+                  type="button"
+                  className="reset-selection"
+                  onClick={() => setSelectedMember(null)}
+                >
+                  <ArrowLeft size={16} />
+                  Return to My Galaxy
+                </button>
+              </>
             )}
           </section>
 
           <section className="galaxy-panel progress-card">
             <h3>Next Galaxy Level</h3>
-
             <p>
               Expand your network and complete missions to unlock the Supernova
               rank.

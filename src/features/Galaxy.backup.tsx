@@ -1,12 +1,10 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import {
-  ArrowLeft,
   Check,
   Copy,
   Crown,
   Orbit,
-  Rocket,
   Sparkles,
   Star,
   Users,
@@ -14,84 +12,25 @@ import {
 } from "lucide-react";
 import { Title } from "../shared/Title";
 
-type GalaxyMember = {
-  name: string;
-  level: number;
-  angle: number;
-  builders: number;
-  xp: number;
-  parent: string;
-};
+const members = [
+  { name: "Nova", level: 1, angle: 10 },
+  { name: "Orion", level: 1, angle: 100 },
+  { name: "Luna", level: 1, angle: 190 },
+  { name: "Atlas", level: 1, angle: 280 },
 
-const members: GalaxyMember[] = [
-  { name: "Nova", level: 1, angle: 10, builders: 4, xp: 940, parent: "Mehmet" },
-  {
-    name: "Orion",
-    level: 1,
-    angle: 100,
-    builders: 3,
-    xp: 720,
-    parent: "Mehmet",
-  },
-  {
-    name: "Luna",
-    level: 1,
-    angle: 190,
-    builders: 4,
-    xp: 1210,
-    parent: "Mehmet",
-  },
-  {
-    name: "Atlas",
-    level: 1,
-    angle: 280,
-    builders: 4,
-    xp: 510,
-    parent: "Mehmet",
-  },
+  { name: "Vega", level: 2, angle: 35 },
+  { name: "Cosmo", level: 2, angle: 105 },
+  { name: "Lyra", level: 2, angle: 175 },
+  { name: "Astro", level: 2, angle: 245 },
+  { name: "Zenith", level: 2, angle: 315 },
 
-  { name: "Vega", level: 2, angle: 35, builders: 2, xp: 380, parent: "Nova" },
-  { name: "Cosmo", level: 2, angle: 125, builders: 2, xp: 670, parent: "Nova" },
-  { name: "Lyra", level: 2, angle: 215, builders: 1, xp: 260, parent: "Orion" },
-  { name: "Astro", level: 2, angle: 305, builders: 2, xp: 590, parent: "Luna" },
-
-  {
-    name: "Zenith",
-    level: 2,
-    angle: 45,
-    builders: 2,
-    xp: 430,
-    parent: "Atlas",
-  },
-  { name: "Pixel", level: 3, angle: 135, builders: 0, xp: 160, parent: "Vega" },
-  { name: "Comet", level: 3, angle: 225, builders: 0, xp: 90, parent: "Vega" },
-  {
-    name: "Nebula",
-    level: 3,
-    angle: 315,
-    builders: 0,
-    xp: 310,
-    parent: "Cosmo",
-  },
-
-  { name: "Apollo", level: 3, angle: 60, builders: 0, xp: 180, parent: "Lyra" },
-  {
-    name: "Stellar",
-    level: 3,
-    angle: 180,
-    builders: 0,
-    xp: 240,
-    parent: "Astro",
-  },
-  {
-    name: "Voyager",
-    level: 3,
-    angle: 300,
-    builders: 0,
-    xp: 120,
-    parent: "Zenith",
-  },
-];
+  { name: "Pixel", level: 3, angle: 15 },
+  { name: "Comet", level: 3, angle: 75 },
+  { name: "Nebula", level: 3, angle: 135 },
+  { name: "Apollo", level: 3, angle: 195 },
+  { name: "Stellar", level: 3, angle: 255 },
+  { name: "Voyager", level: 3, angle: 315 },
+] as const;
 
 const stats = [
   {
@@ -122,26 +61,8 @@ const stats = [
 
 export function Galaxy() {
   const [copied, setCopied] = useState(false);
-  const [selectedMember, setSelectedMember] = useState<GalaxyMember | null>(
-    null,
-  );
-  const [activeGalaxy, setActiveGalaxy] = useState("Mehmet");
 
   const referralLink = "https://bobunaut.com/join/BOBU-7X92";
-
-  const visibleMembers = useMemo(() => {
-    return members.filter((member) => member.parent === activeGalaxy);
-  }, [activeGalaxy]);
-
-  const currentGalaxyOwner =
-    activeGalaxy === "Mehmet"
-      ? null
-      : (members.find((member) => member.name === activeGalaxy) ?? null);
-
-  const galaxyTitle =
-    activeGalaxy === "Mehmet"
-      ? "Commander Mehmet Galaxy"
-      : `${activeGalaxy} Galaxy`;
 
   const copyReferralLink = async () => {
     try {
@@ -154,20 +75,6 @@ export function Galaxy() {
     } catch {
       setCopied(false);
     }
-  };
-
-  const exploreGalaxy = () => {
-    if (!selectedMember) {
-      return;
-    }
-
-    setActiveGalaxy(selectedMember.name);
-    setSelectedMember(null);
-  };
-
-  const returnToMyGalaxy = () => {
-    setActiveGalaxy("Mehmet");
-    setSelectedMember(null);
   };
 
   return (
@@ -211,29 +118,6 @@ export function Galaxy() {
         .galaxy-visual {
           min-height: 620px;
           padding: 28px;
-        }
-
-        .galaxy-visual::before {
-          content: "";
-          position: absolute;
-          inset: 0;
-          pointer-events: none;
-          background:
-            radial-gradient(
-              circle at 50% 50%,
-              rgba(126, 83, 255, 0.16),
-              transparent 27%
-            ),
-            radial-gradient(
-              circle at 15% 18%,
-              rgba(56, 209, 255, 0.09),
-              transparent 24%
-            ),
-            radial-gradient(
-              circle at 85% 82%,
-              rgba(255, 80, 207, 0.08),
-              transparent 23%
-            );
         }
 
         .galaxy-panel-heading {
@@ -324,7 +208,6 @@ export function Galaxy() {
           border-radius: 50%;
           color: white;
           text-align: center;
-          cursor: pointer;
           transform: translate(-50%, -50%);
           background:
             radial-gradient(
@@ -364,7 +247,6 @@ export function Galaxy() {
           border: 1px solid rgba(125, 220, 255, 0.48);
           border-radius: 50%;
           color: #fff;
-          cursor: pointer;
           transform:
             translate(-50%, -50%)
             rotate(var(--angle))
@@ -380,23 +262,6 @@ export function Galaxy() {
           box-shadow:
             0 0 14px rgba(83, 186, 255, 0.34),
             0 0 26px rgba(100, 70, 255, 0.13);
-          transition:
-            filter 180ms ease,
-            box-shadow 180ms ease,
-            border-color 180ms ease;
-        }
-
-        .member-node:hover {
-          filter: brightness(1.45);
-        }
-
-        .member-node.selected {
-          border-color: rgba(255, 255, 255, 0.95);
-          filter: brightness(1.55);
-          box-shadow:
-            0 0 0 5px rgba(111, 95, 255, 0.14),
-            0 0 22px rgba(103, 211, 255, 0.78),
-            0 0 42px rgba(130, 83, 255, 0.48);
         }
 
         .member-node.level-1 {
@@ -426,18 +291,6 @@ export function Galaxy() {
           color: rgba(235, 238, 255, 0.72);
           font-size: 0.62rem;
           transform: translateX(-50%);
-        }
-
-        .empty-orbit {
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          width: 220px;
-          color: rgba(220, 225, 255, 0.54);
-          text-align: center;
-          font-size: 0.76rem;
-          line-height: 1.5;
-          transform: translate(-50%, 90px);
         }
 
         .galaxy-side {
@@ -478,69 +331,6 @@ export function Galaxy() {
           background: rgba(133, 92, 20, 0.14);
           font-size: 0.75rem;
           font-weight: 800;
-        }
-
-        .member-meta {
-          display: grid;
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-          gap: 10px;
-          margin-top: 16px;
-        }
-
-        .member-meta div {
-          padding: 12px;
-          border: 1px solid rgba(135, 160, 255, 0.12);
-          border-radius: 14px;
-          background: rgba(255, 255, 255, 0.025);
-        }
-
-        .member-meta span {
-          display: block;
-          color: rgba(222, 226, 255, 0.52);
-          font-size: 0.66rem;
-        }
-
-        .member-meta strong {
-          display: block;
-          margin-top: 4px;
-          color: white;
-          font-size: 1rem;
-        }
-
-        .explore-button,
-        .reset-selection {
-          width: 100%;
-          margin-top: 14px;
-          padding: 11px 14px;
-          border-radius: 12px;
-          font-weight: 800;
-          cursor: pointer;
-        }
-
-        .explore-button {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          gap: 8px;
-          border: 1px solid rgba(96, 218, 255, 0.34);
-          color: #d9f7ff;
-          background:
-            linear-gradient(
-              110deg,
-              rgba(109, 72, 255, 0.28),
-              rgba(47, 170, 214, 0.2)
-            );
-        }
-
-        .reset-selection {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          gap: 8px;
-          margin-top: 8px;
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          color: rgba(235, 238, 255, 0.7);
-          background: rgba(255, 255, 255, 0.04);
         }
 
         .progress-track {
@@ -661,10 +451,16 @@ export function Galaxy() {
             height: 88px;
           }
 
-          .member-node.level-1,
-          .member-node.level-2,
+          .member-node.level-1 {
+            --distance: 82px;
+          }
+
+          .member-node.level-2 {
+            --distance: 132px;
+          }
+
           .member-node.level-3 {
-            --distance: 138px;
+            --distance: 184px;
           }
 
           .member-node span {
@@ -687,13 +483,8 @@ export function Galaxy() {
         <div className="galaxy-panel galaxy-visual">
           <div className="galaxy-panel-heading">
             <div>
-              <span className="galaxy-eyebrow">
-                {activeGalaxy === "Mehmet"
-                  ? "Personal network"
-                  : "Exploring galaxy"}
-              </span>
-
-              <h2>{galaxyTitle}</h2>
+              <span className="galaxy-eyebrow">Personal network</span>
+              <h2>Commander Mehmet Galaxy</h2>
             </div>
 
             <span className="galaxy-status">Galaxy Online</span>
@@ -711,129 +502,57 @@ export function Galaxy() {
                 duration: 3,
                 repeat: Infinity,
               }}
-              onClick={() => setSelectedMember(null)}
             >
               <div>
                 <Crown size={24} />
-                <strong>
-                  {activeGalaxy === "Mehmet" ? "YOU" : activeGalaxy}
-                </strong>
+                <strong>YOU</strong>
                 <span>GALAXY CORE</span>
               </div>
             </motion.div>
 
-            {visibleMembers.map((member, index) => (
+            {members.map((member, index) => (
               <motion.div
-                className={`member-node level-${member.level} ${
-                  selectedMember?.name === member.name ? "selected" : ""
-                }`}
+                className={`member-node level-${member.level}`}
                 style={
                   {
                     "--angle": `${member.angle}deg`,
-                    "--distance": `${115 + (index % 3) * 58}px`,
                   } as React.CSSProperties
                 }
-                key={`${activeGalaxy}-${member.name}`}
+                key={member.name}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{
-                  delay: 0.12 + index * 0.08,
+                  delay: 0.18 + index * 0.05,
                   duration: 0.45,
                 }}
                 whileHover={{
                   filter: "brightness(1.45)",
                   zIndex: 20,
                 }}
-                onClick={() => setSelectedMember(member)}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter" || event.key === " ") {
-                    setSelectedMember(member);
-                  }
-                }}
               >
-                <Star size={member.level >= 3 ? 10 : 14} />
+                <Star size={member.level === 3 ? 10 : 14} />
                 <span>{member.name}</span>
               </motion.div>
             ))}
-
-            {visibleMembers.length === 0 && (
-              <div className="empty-orbit">
-                This Builder has not created any new stars yet.
-              </div>
-            )}
           </div>
         </div>
 
         <aside className="galaxy-side">
           <section className="galaxy-panel profile-card">
-            <h3>
-              {selectedMember
-                ? selectedMember.name
-                : (currentGalaxyOwner?.name ?? "Commander Mehmet")}
-            </h3>
-
-            <p>
-              {selectedMember
-                ? `Level ${selectedMember.level} Builder`
-                : activeGalaxy === "Mehmet"
-                  ? "Founding Builder"
-                  : "Galaxy Commander"}
-            </p>
+            <h3>Commander Mehmet</h3>
+            <p>Founding Builder</p>
 
             <div className="rank-badge">
               <Sparkles size={15} />
-              {selectedMember
-                ? `Orbit Level ${selectedMember.level}`
-                : activeGalaxy === "Mehmet"
-                  ? "Nebula Builder · Rank 07"
-                  : `${visibleMembers.length} Connected Stars`}
+              Nebula Builder · Rank 07
             </div>
-
-            {selectedMember && (
-              <>
-                <div className="member-meta">
-                  <div>
-                    <span>Builders</span>
-                    <strong>{selectedMember.builders}</strong>
-                  </div>
-
-                  <div>
-                    <span>Builder XP</span>
-                    <strong>{selectedMember.xp}</strong>
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  className="explore-button"
-                  onClick={exploreGalaxy}
-                >
-                  <Rocket size={16} />
-                  Explore {selectedMember.name} Galaxy
-                </button>
-              </>
-            )}
-
-            {activeGalaxy !== "Mehmet" && (
-              <button
-                type="button"
-                className="reset-selection"
-                onClick={returnToMyGalaxy}
-              >
-                <ArrowLeft size={16} />
-                Return to My Galaxy
-              </button>
-            )}
           </section>
 
           <section className="galaxy-panel progress-card">
             <h3>Next Galaxy Level</h3>
-
             <p>
-              Expand your network and complete missions to unlock the Supernova
-              rank.
+              Expand your network and complete missions to unlock the
+              Supernova rank.
             </p>
 
             <div className="progress-track">
@@ -848,10 +567,9 @@ export function Galaxy() {
 
           <section className="galaxy-panel referral-card">
             <h3>Invite New Builders</h3>
-
             <p>
-              Share your portal link. Every verified Builder becomes a new star
-              in your galaxy.
+              Share your portal link. Every verified Builder becomes a new
+              star in your galaxy.
             </p>
 
             <div className="referral-box">
@@ -861,7 +579,6 @@ export function Galaxy() {
                 className="copy-button"
                 type="button"
                 onClick={copyReferralLink}
-                aria-label="Copy referral link"
               >
                 {copied ? <Check size={17} /> : <Copy size={17} />}
               </button>
