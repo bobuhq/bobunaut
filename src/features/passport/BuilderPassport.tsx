@@ -1,3 +1,5 @@
+import BuilderPassportActions from "./BuilderPassportActions";
+import BuilderPassportShareCard from "./BuilderPassportShareCard";
 type BuilderProfile = {
   username: string;
   displayName: string;
@@ -199,6 +201,25 @@ export function BuilderPassport() {
         >
           Your identity, progress and contributions across BOBU Universe.
         </p>
+
+        <div style={{ position: "fixed", left: "-10000px", top: 0, width: "1200px" }}>
+          <BuilderPassportShareCard
+            displayName={builderProfile.displayName}
+            username={builderProfile.username}
+            level={builderProfile.level}
+            currentXp={builderProfile.currentXp}
+            nextLevelXp={builderProfile.nextLevelXp}
+            walletAddress={builderProfile.walletAddress}
+          />
+        </div>
+
+        <BuilderPassportActions
+          onDownload={() =>
+            document
+              .getElementById("builder-passport-download-trigger")
+              ?.click()
+          }
+        />
       </section>
     </main>
   );
