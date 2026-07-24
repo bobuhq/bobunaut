@@ -11,6 +11,7 @@ import {
 
 const SESSION_DURATION_MS = 24 * 60 * 60 * 1000;
 const MINING_RATE = 0.25;
+const MINING_RATE_PER_SECOND = MINING_RATE / 3600;
 
 const SESSION_STORAGE_KEY = "bobu-mining-session-end";
 const POINTS_STORAGE_KEY = "bobu-builder-points";
@@ -98,6 +99,24 @@ export default function BuilderMining() {
     }
   }, [now, sessionEnd]);
 
+  useEffect(() => {
+    if (!isActive) {
+      return;
+    }
+
+    setTotalPoints((currentPoints) => {
+      const nextPoints =
+        currentPoints + MINING_RATE_PER_SECOND;
+
+      localStorage.setItem(
+        POINTS_STORAGE_KEY,
+        String(nextPoints),
+      );
+
+      return nextPoints;
+    });
+  }, [now, isActive]);
+
   const activateMining = () => {
     if (isActive) {
       return;
@@ -136,7 +155,10 @@ export default function BuilderMining() {
     },
     {
       label: "Total Builder Points",
-      value: totalPoints.toLocaleString(),
+      value: totalPoints.toLocaleString("en-US", {
+        minimumFractionDigits: 6,
+        maximumFractionDigits: 6,
+      }),
       icon: Gem,
     },
     {
