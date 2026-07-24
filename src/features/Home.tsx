@@ -25,6 +25,8 @@ import { Link } from "react-router-dom";
 import { LiveUniverse } from "../components/home/LiveUniverse";
 import { Journey } from "../components/journey/Journey";
 import { GalacticSky } from "../components/galaxy/GalacticSky";
+import { CinematicBackground } from "../components/cinematic/CinematicBackground";
+import { ShootingStars } from "../components/cinematic/ShootingStars";
 
 type CounterProps = {
   value: number;
@@ -136,7 +138,11 @@ export function Home() {
   }
 
   return (
-    <motion.main
+    <>
+      <CinematicBackground />
+      <ShootingStars />
+
+      <motion.main
       className="home-v2"
       initial="hidden"
       animate="show"
@@ -428,7 +434,8 @@ export function Home() {
           <Link className="secondary" to="/genesis">Read the Genesis <Gem size={17} /></Link>
         </div>
       </motion.section>
-    </motion.main>
+      </motion.main>
+    </>
   );
 }
 
