@@ -6,6 +6,7 @@ import {
   LogOut,
   Menu,
   Orbit,
+  Pickaxe,
   Radio,
   Rocket,
   User,
@@ -29,6 +30,11 @@ const navItems = [
     to: "/passport",
     label: "Passport",
     icon: User,
+  },
+  {
+    to: "/mining",
+    label: "Mining",
+    icon: Pickaxe,
   },
   {
     to: "/missions",

@@ -13,6 +13,7 @@ import { Deck } from "../features/Deck";
 import { Missions } from "../features/Missions";
 import { Galaxy } from "../features/Galaxy";
 import { BuilderPassport } from "../features/passport/BuilderPassport";
+import BuilderMining from "../features/mining/BuilderMining";
 
 export function App() {
   const location = useLocation();
@@ -26,6 +27,7 @@ export function App() {
           <Route path="/" element={<Home />} />
           <Route path="/command-deck" element={<Deck />} />
           <Route path="/passport" element={<BuilderPassport />} />
+          <Route path="/mining" element={<BuilderMining />} />
           <Route path="/missions" element={<Missions />} />
           <Route path="/galaxy" element={<Galaxy />} />
         </Route>
