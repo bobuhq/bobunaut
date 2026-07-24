@@ -4,10 +4,12 @@ import {
   Flame,
   Gem,
   Orbit,
-  Pickaxe,
   Sparkles,
   Zap,
 } from "lucide-react";
+
+import MiningCore from "./components/MiningCore";
+import MiningHero from "./components/MiningHero";
 
 const SESSION_DURATION_MS = 24 * 60 * 60 * 1000;
 const MINING_RATE = 0.25;
@@ -38,30 +40,44 @@ function formatRemaining(milliseconds: number) {
 export default function BuilderMining() {
   const [now, setNow] = useState(Date.now());
 
-  const [sessionEnd, setSessionEnd] = useState<number | null>(
-    () => {
-      const storedValue = localStorage.getItem(
-        SESSION_STORAGE_KEY,
-      );
+  const [sessionEnd, setSessionEnd] = useState<
+    number | null
+  >(() => {
+    const storedValue = localStorage.getItem(
+      SESSION_STORAGE_KEY,
+    );
 
-      if (!storedValue) {
-        return null;
-      }
+    if (!storedValue) {
+      return null;
+    }
 
-      const parsedValue = Number(storedValue);
+    const parsedValue = Number(storedValue);
 
-      return parsedValue > Date.now()
-        ? parsedValue
-        : null;
-    },
-  );
+    if (
+      !Number.isFinite(parsedValue) ||
+      parsedValue <= Date.now()
+    ) {
+      localStorage.removeItem(SESSION_STORAGE_KEY);
+      return null;
+    }
+
+    return parsedValue;
+  });
 
   const [totalPoints, setTotalPoints] = useState(() => {
     const storedPoints = localStorage.getItem(
       POINTS_STORAGE_KEY,
     );
 
-    return storedPoints ? Number(storedPoints) : 4250;
+    if (!storedPoints) {
+      return 4250;
+    }
+
+    const parsedPoints = Number(storedPoints);
+
+    return Number.isFinite(parsedPoints)
+      ? parsedPoints
+      : 4250;
   });
 
   const [showActivation, setShowActivation] =
@@ -550,76 +566,21 @@ export default function BuilderMining() {
         }
       `}</style>
 
-      <div className="mining-hero">
-        <div className="mining-eyebrow">
-          <Sparkles size={16} />
-          BOBU Universe Protocol
-        </div>
-
-        <h1 className="mining-title">
-          Builder Mining
-        </h1>
-
-        <p className="mining-description">
-          Activate your daily mining session, collect
-          Builder Points and strengthen your reputation
-          across the BOBU Universe.
-        </p>
-      </div>
+      <MiningHero />
 
       <div className="mining-dashboard">
-        <div className="mining-core">
-          <div className="mining-core-content">
-            <div className="mining-orb">
-              <Pickaxe size={48} />
-            </div>
-
-            <div className="mining-status-label">
-              Mining Status
-            </div>
-
-            <div
-              className={`mining-status-value ${
-                isActive ? "active" : ""
-              }`}
-            >
-              {isActive ? "ACTIVE" : "INACTIVE"}
-            </div>
-
-            <div className="mining-timer">
-              {isActive
-                ? formatRemaining(remainingTime)
-                : "24:00:00"}
-            </div>
-
-            <div className="mining-progress-track">
-              <div
-                className="mining-progress-bar"
-                style={{
-                  width: `${sessionProgress}%`,
-                }}
-              />
-            </div>
-
-            <button
-              type="button"
-              className="mining-button"
-              onClick={activateMining}
-              disabled={isActive}
-            >
-              <Pickaxe size={19} />
-
-              {isActive
-                ? "Mining Active"
-                : "Activate Mining"}
-            </button>
-          </div>
-        </div>
+        <MiningCore
+          isActive={isActive}
+          remainingTime={formatRemaining(remainingTime)}
+          sessionProgress={sessionProgress}
+          onActivate={activateMining}
+        />
 
         <div className="mining-side">
           <div className="mining-session-panel">
             <div className="mining-panel-heading">
               <h2>Current Session</h2>
+
               <span className="mining-live-dot" />
             </div>
 
