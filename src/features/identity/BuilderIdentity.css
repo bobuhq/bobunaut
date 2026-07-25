@@ -1,0 +1,243 @@
+.builder-identity {
+  min-height: 100vh;
+  padding: 8rem 1.5rem 5rem;
+  color: #ffffff;
+}
+
+.builder-identity__hero,
+.identity-dashboard {
+  width: min(1100px, 100%);
+  margin-inline: auto;
+}
+
+.builder-identity__hero {
+  margin-bottom: 2.5rem;
+}
+
+.builder-identity__eyebrow {
+  display: block;
+  margin-bottom: 0.8rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.22em;
+  color: #a993ff;
+}
+
+.builder-identity__hero h1 {
+  margin: 0;
+  font-size: clamp(2.5rem, 7vw, 5rem);
+}
+
+.builder-identity__hero p {
+  max-width: 720px;
+  margin-top: 1rem;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.68);
+}
+
+.identity-dashboard {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.identity-summary,
+.identity-task,
+.identity-unlocks,
+.identity-test-panel {
+  border: 1px solid rgba(169, 147, 255, 0.22);
+  background: rgba(13, 10, 31, 0.72);
+  backdrop-filter: blur(18px);
+  border-radius: 22px;
+}
+
+.identity-summary {
+  padding: 1.4rem;
+}
+
+.identity-summary > div:first-child {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.identity-summary__label {
+  color: rgba(255, 255, 255, 0.64);
+}
+
+.identity-progress {
+  height: 9px;
+  margin-top: 1rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.identity-progress__bar {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #7c5cff, #32d6ff);
+  transition: width 300ms ease;
+}
+
+.identity-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.identity-task {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.4rem;
+  transition:
+    border-color 200ms ease,
+    transform 200ms ease;
+}
+
+.identity-task:hover {
+  transform: translateY(-2px);
+}
+
+.identity-task.is-complete {
+  border-color: rgba(72, 255, 173, 0.46);
+}
+
+.identity-task__status {
+  display: inline-block;
+  margin-bottom: 0.5rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #a993ff;
+}
+
+.identity-task.is-complete .identity-task__status {
+  color: #48ffad;
+}
+
+.identity-task h3 {
+  margin: 0;
+}
+
+.identity-task p {
+  margin: 0.5rem 0 0;
+  max-width: 330px;
+  color: rgba(255, 255, 255, 0.58);
+  line-height: 1.5;
+}
+
+.identity-task__button,
+.identity-test-panel button {
+  min-width: 110px;
+  padding: 0.75rem 1rem;
+  border: 1px solid rgba(169, 147, 255, 0.42);
+  border-radius: 999px;
+  background: rgba(124, 92, 255, 0.14);
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.identity-task__button:hover,
+.identity-test-panel button:hover:not(:disabled) {
+  background: rgba(124, 92, 255, 0.28);
+}
+
+.identity-test-panel button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.identity-unlocks {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  overflow: hidden;
+}
+
+.identity-unlocks > div {
+  display: grid;
+  gap: 0.4rem;
+  padding: 1.4rem;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.identity-unlocks > div:last-child {
+  border-right: 0;
+}
+
+.identity-unlocks span {
+  color: rgba(255, 255, 255, 0.58);
+}
+
+.identity-unlocks strong {
+  color: #ff738d;
+}
+
+.identity-unlocks .is-unlocked strong {
+  color: #48ffad;
+}
+
+.identity-test-panel {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.2rem 1.4rem;
+}
+
+.identity-test-panel > span {
+  margin-right: auto;
+  color: rgba(255, 255, 255, 0.58);
+}
+
+@media (max-width: 760px) {
+  .identity-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .identity-task {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .identity-unlocks {
+    grid-template-columns: 1fr;
+  }
+
+  .identity-unlocks > div {
+    border-right: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .identity-test-panel {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .identity-test-panel > span {
+    margin-right: 0;
+  }
+}
+
+.identity-task.is-disabled {
+  opacity: 0.58;
+  border-style: dashed;
+}
+
+.identity-task.is-disabled:hover {
+  transform: none;
+}
+
+.identity-task.is-disabled .identity-task__status {
+  color: rgba(255, 255, 255, 0.48);
+}
+
+.identity-task__button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.identity-task.is-complete .identity-task__button {
+  border-color: rgba(72, 255, 173, 0.36);
+  background: rgba(72, 255, 173, 0.1);
+  color: #48ffad;
+}
