@@ -8,7 +8,9 @@ interface IdentityCardProps {
   actionLabel: string;
   communityUrl?: string;
   disabled?: boolean;
-  onComplete: (provider: IdentityProvider) => void;
+  onComplete: (
+    provider: IdentityProvider,
+  ) => void | Promise<void>;
 }
 
 export function IdentityCard({
@@ -21,20 +23,12 @@ export function IdentityCard({
   disabled = false,
   onComplete,
 }: IdentityCardProps) {
-  const handleAction = (): void => {
+  const handleAction = async (): Promise<void> => {
     if (disabled) {
       return;
     }
 
-    if (communityUrl) {
-      window.open(
-        communityUrl,
-        "_blank",
-        "noopener,noreferrer",
-      );
-    }
-
-    onComplete(provider);
+    await onComplete(provider);
   };
 
   const statusLabel = disabled

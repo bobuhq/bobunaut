@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { IdentityCard } from "./components/IdentityCard";
 import { useBuilderStore } from "./hooks/useBuilderStore";
 import { builderStore } from "../../store/builderStore";
+import { supabase } from "../../lib/supabase";
 import type { IdentityProvider } from "../../core/models/Builder";
 import "./BuilderIdentity.css";
 
@@ -56,6 +58,10 @@ const communityTasks: CommunityTask[] = [
 
 export default function BuilderIdentity() {
   const builder = useBuilderStore();
+  const [telegramBotOpened, setTelegramBotOpened] =
+    useState(false);
+  const [telegramBusy, setTelegramBusy] =
+    useState(false);
 
   const requiredTasks = communityTasks.filter(
     (task) => task.required,
@@ -68,14 +74,133 @@ export default function BuilderIdentity() {
   const progress =
     (completedCount / requiredTasks.length) * 100;
 
-  const handleTaskComplete = (
+  const handleTaskComplete = async (
     provider: IdentityProvider,
-  ): void => {
+  ): Promise<void> => {
     if (provider === "wallet") {
       return;
     }
 
-    builderStore.connectIdentity(provider);
+    const task = communityTasks.find(
+      (item) => item.provider === provider,
+    );
+
+    if (provider !== "telegram") {
+      if (task?.communityUrl) {
+        window.open(
+          task.communityUrl,
+          "_blank",
+          "noopener,noreferrer",
+        );
+      }
+
+      return;
+    }
+
+    if (telegramBusy) {
+      return;
+    }
+
+    setTelegramBusy(true);
+
+    try {
+      if (!telegramBotOpened) {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+
+        if (!session?.access_token) {
+          throw new Error("Please sign in with Google first.");
+        }
+
+        const { data, error } =
+          await supabase.functions.invoke(
+            "create-telegram-link",
+            {
+              body: {},
+              headers: {
+                Authorization: `Bearer ${session.access_token}`,
+              },
+            },
+          );
+
+        if (error) {
+          throw error;
+        }
+
+        const telegramUrl =
+          data?.bot_url ??
+          data?.telegram_url ??
+          data?.url ??
+          data?.link;
+
+        if (
+          typeof telegramUrl !== "string" ||
+          telegramUrl.length === 0
+        ) {
+          throw new Error(
+            "Telegram verification link was not returned.",
+          );
+        }
+
+        window.open(
+          telegramUrl,
+          "_blank",
+          "noopener,noreferrer",
+        );
+
+        setTelegramBotOpened(true);
+
+        window.alert(
+          "Complete the verification in Telegram, then return and click Verify Telegram.",
+        );
+
+        return;
+      }
+
+      const { data, error } =
+        await supabase.functions.invoke(
+          "verify-telegram",
+          {
+            body: {},
+          },
+        );
+
+      if (error) {
+        throw error;
+      }
+
+      if (data?.verified === true) {
+        builderStore.connectIdentity("telegram");
+
+        const rewardMessage =
+          data?.rewarded === true
+            ? "Telegram verified. 5,000 GP awarded."
+            : "Telegram is already verified.";
+
+        window.alert(rewardMessage);
+        return;
+      }
+
+      window.alert(
+        data?.message ??
+          data?.error ??
+          "Telegram membership could not be verified yet.",
+      );
+    } catch (error) {
+      console.error(
+        "Telegram verification failed:",
+        error,
+      );
+
+      window.alert(
+        error instanceof Error
+          ? error.message
+          : "Telegram verification failed.",
+      );
+    } finally {
+      setTelegramBusy(false);
+    }
   };
 
   return (
@@ -127,9 +252,21 @@ export default function BuilderIdentity() {
               provider={task.provider}
               label={task.label}
               description={task.description}
-              actionLabel={task.actionLabel}
+              actionLabel={
+                task.provider === "telegram"
+                  ? telegramBusy
+                    ? "Checking..."
+                    : telegramBotOpened
+                      ? "Verify Telegram"
+                      : "Connect Telegram"
+                  : task.actionLabel
+              }
               communityUrl={task.communityUrl}
-              disabled={task.disabled}
+              disabled={
+                task.disabled ||
+                (task.provider === "telegram" &&
+                  telegramBusy)
+              }
               completed={
                 builder.identity[task.provider]
               }
