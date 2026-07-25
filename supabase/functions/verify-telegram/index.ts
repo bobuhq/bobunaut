@@ -1,7 +1,7 @@
 import "@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
-const TELEGRAM_REWARD_GP = 250;
+const TELEGRAM_REWARD_GP = 5000;
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",

@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { IdentityCard } from "./components/IdentityCard";
 import { useBuilderStore } from "./hooks/useBuilderStore";
 import { builderStore } from "../../store/builderStore";
 import { supabase } from "../../lib/supabase";
+import { builderRepository } from "../../core/builder/repository/BuilderRepository";
+import { builderMapper } from "../../core/builder/mapper/BuilderMapper";
 import type { IdentityProvider } from "../../core/models/Builder";
 import "./BuilderIdentity.css";
 
@@ -56,6 +58,26 @@ const communityTasks: CommunityTask[] = [
   },
 ];
 
+const restoreBuilderFromPersistence = async () => {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session?.user.id) {
+    return null;
+  }
+
+  const source = await builderRepository.load(
+    session.user.id,
+  );
+
+  const snapshot = builderMapper.toSnapshot(source);
+
+  builderStore.restore(snapshot);
+
+  return source;
+};
+
 export default function BuilderIdentity() {
   const builder = useBuilderStore();
   const [telegramBotOpened, setTelegramBotOpened] =
@@ -68,6 +90,81 @@ export default function BuilderIdentity() {
 
   const [instagramBusy, setInstagramBusy] =
     useState(false);
+
+  useEffect(() => {
+    const restoreIdentityPage = async (): Promise<void> => {
+      const searchParams = new URLSearchParams(
+        window.location.search,
+      );
+
+      const hasXCallback =
+        searchParams.has("code") ||
+        searchParams.get("error_code") ===
+          "identity_already_exists";
+
+      if (hasXCallback) {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+
+        if (session?.access_token) {
+          const { data, error } =
+            await supabase.functions.invoke(
+              "claim-x-reward",
+              {
+                body: {},
+                headers: {
+                  Authorization:
+                    `Bearer ${session.access_token}`,
+                },
+              },
+            );
+
+          if (error) {
+            console.error(
+              "X reward claim failed:",
+              error,
+            );
+          } else if (data?.verified !== true) {
+            console.error(
+              "X verification was not completed:",
+              data,
+            );
+          }
+        }
+
+        window.history.replaceState(
+          {},
+          document.title,
+          window.location.pathname,
+        );
+      }
+
+      const source =
+        await restoreBuilderFromPersistence();
+
+      if (!source) {
+        return;
+      }
+
+      const telegramLinked =
+        source.identities.some(
+          (identity) =>
+            identity.provider.toLowerCase() ===
+              "telegram" &&
+            identity.provider_user_id.length > 0,
+        );
+
+      setTelegramBotOpened(telegramLinked);
+    };
+
+    void restoreIdentityPage().catch((error) => {
+      console.error(
+        "Builder identity restore failed:",
+        error,
+      );
+    });
+  }, []);
 
   const requiredTasks = communityTasks.filter(
     (task) => task.required,
@@ -290,7 +387,7 @@ export default function BuilderIdentity() {
       }
 
       if (data?.verified === true) {
-        builderStore.connectIdentity("telegram");
+        await restoreBuilderFromPersistence();
 
         const rewardMessage =
           data?.rewarded === true
