@@ -18,6 +18,13 @@ export interface Builder {
   xp: number;
   gp: number;
   reputation: number;
+
+  /**
+   * Unique Builder invitation code.
+   * Used for future Builder Civilization network connections.
+   */
+  inviteCode: string;
+
   identity: BuilderIdentity;
   passportUnlocked: boolean;
   gpEnabled: boolean;
@@ -33,6 +40,9 @@ export const createInitialBuilder = (): Builder => ({
   xp: 0,
   gp: 0,
   reputation: 0,
+
+  inviteCode: "BOBU-GENESIS",
+
   identity: {
     telegram: false,
     x: false,
