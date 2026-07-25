@@ -63,6 +63,12 @@ export default function BuilderIdentity() {
   const [telegramBusy, setTelegramBusy] =
     useState(false);
 
+  const [instagramOpened, setInstagramOpened] =
+    useState(false);
+
+  const [instagramBusy, setInstagramBusy] =
+    useState(false);
+
   const requiredTasks = communityTasks.filter(
     (task) => task.required,
   );
@@ -84,6 +90,119 @@ export default function BuilderIdentity() {
     const task = communityTasks.find(
       (item) => item.provider === provider,
     );
+
+    if (provider === "x") {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session) {
+        window.alert("Please sign in with Google first.");
+        return;
+      }
+
+      const redirectTo = new URL(
+        "/identity",
+        window.location.origin,
+      ).toString();
+
+      const { error } = await supabase.auth.linkIdentity({
+        provider: "x",
+        options: {
+          redirectTo,
+        },
+      });
+
+      if (error) {
+        console.error("X connection failed:", error);
+        window.alert(`X connection failed: ${error.message}`);
+      }
+
+      return;
+    }
+
+    if (provider === "instagram") {
+      if (instagramBusy) {
+        return;
+      }
+
+      if (!instagramOpened) {
+        if (task?.communityUrl) {
+          window.open(
+            task.communityUrl,
+            "_blank",
+            "noopener,noreferrer",
+          );
+        }
+
+        setInstagramOpened(true);
+
+        window.alert(
+          "Follow BOBU on Instagram, then return and click Claim 5,000 GP.",
+        );
+
+        return;
+      }
+
+      setInstagramBusy(true);
+
+      try {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+
+        if (!session?.access_token) {
+          throw new Error("Please sign in with Google first.");
+        }
+
+        const { data, error } =
+          await supabase.functions.invoke(
+            "claim-instagram-reward",
+            {
+              body: {},
+              headers: {
+                Authorization: `Bearer ${session.access_token}`,
+              },
+            },
+          );
+
+        if (error) {
+          throw error;
+        }
+
+        if (data?.verified === true) {
+          builderStore.connectIdentity("instagram");
+
+          window.alert(
+            data?.rewarded === true
+              ? "Instagram completed. 5,000 GP awarded."
+              : "Instagram reward was already claimed.",
+          );
+
+          return;
+        }
+
+        throw new Error(
+          data?.error ??
+            "Instagram reward could not be completed.",
+        );
+      } catch (error) {
+        console.error(
+          "Instagram reward failed:",
+          error,
+        );
+
+        window.alert(
+          error instanceof Error
+            ? error.message
+            : "Instagram reward failed.",
+        );
+      } finally {
+        setInstagramBusy(false);
+      }
+
+      return;
+    }
 
     if (provider !== "telegram") {
       if (task?.communityUrl) {
@@ -259,7 +378,13 @@ export default function BuilderIdentity() {
                     : telegramBotOpened
                       ? "Verify Telegram"
                       : "Connect Telegram"
-                  : task.actionLabel
+                  : task.provider === "instagram"
+                    ? instagramBusy
+                      ? "Claiming..."
+                      : instagramOpened
+                        ? "Claim 5,000 GP"
+                        : "Follow Instagram"
+                    : task.actionLabel
               }
               communityUrl={task.communityUrl}
               disabled={
