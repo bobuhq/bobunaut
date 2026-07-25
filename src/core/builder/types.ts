@@ -44,6 +44,7 @@ export interface BuilderSocialIdentityRow {
  * Social identities therefore remain independently loadable.
  */
 export interface BuilderRepositoryResult {
+  builderId: string;
   profile: BuilderProfileRow | null;
   identities: BuilderSocialIdentityRow[];
 }

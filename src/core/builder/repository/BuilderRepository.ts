@@ -38,6 +38,7 @@ export const builderRepository = {
     }
 
     return {
+      builderId,
       profile,
       identities: identities ?? [],
     };
