@@ -14,6 +14,8 @@ import {
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { supabase } from "../lib/supabase";
+import { restoreAuthenticatedBuilder } from "../core/builder";
+import { useBuilderStore } from "../features/identity/hooks/useBuilderStore";
 
 const navItems = [
   {
@@ -64,6 +66,7 @@ export function Nav() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [logoSource, setLogoSource] = useState(buboLogoUrl);
   const [logoVisible, setLogoVisible] = useState(true);
+  const builder = useBuilderStore();
 
   useEffect(() => {
     let mounted = true;
@@ -75,6 +78,10 @@ export function Nav() {
 
       setSession(data.session);
       setLoading(false);
+
+      if (data.session?.user.id) {
+        void restoreAuthenticatedBuilder();
+      }
     });
 
     const {
@@ -86,6 +93,10 @@ export function Nav() {
 
       setSession(nextSession);
       setLoading(false);
+
+      if (nextSession?.user.id) {
+        void restoreAuthenticatedBuilder();
+      }
     });
 
     return () => {
@@ -179,9 +190,9 @@ export function Nav() {
         .bobu-nav {
           position: relative;
           display: grid;
-          grid-template-columns: minmax(220px, 1fr) auto minmax(220px, 1fr);
+          grid-template-columns: minmax(250px, 1fr) auto minmax(330px, 1fr);
           align-items: center;
-          width: min(1120px, 100%);
+          width: min(1380px, 100%);
           min-height: 76px;
           margin: 0 auto;
           padding: 9px 14px 9px 11px;
@@ -465,6 +476,7 @@ export function Nav() {
         .bobu-avatar {
           display: grid;
           flex: 0 0 31px;
+          align-self: center;
           width: 31px;
           height: 31px;
           place-items: center;
@@ -477,13 +489,59 @@ export function Nav() {
           font-weight: 800;
         }
 
+        .bobu-user-avatar-only {
+          min-width: 43px;
+          max-width: 43px;
+          width: 43px;
+          height: 43px;
+          padding: 5px;
+          justify-content: center;
+          border-radius: 50%;
+        }
+
+        .bobu-user-avatar-only .bobu-avatar {
+          width: 31px;
+          height: 31px;
+        }
+
         .bobu-user-name {
+          display: block;
+          min-width: 0;
           overflow: hidden;
           color: rgba(242, 241, 255, 0.82);
           font-size: 11px;
           font-weight: 700;
           text-overflow: ellipsis;
           white-space: nowrap;
+        }
+
+        .bobu-gp-badge {
+          display: inline-flex;
+          min-height: 41px;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+          padding: 0 12px;
+          border: 1px solid rgba(255, 208, 92, 0.22);
+          border-radius: 13px;
+          background:
+            linear-gradient(
+              135deg,
+              rgba(113, 77, 18, 0.28),
+              rgba(58, 38, 10, 0.2)
+            );
+          box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.05),
+            0 10px 22px rgba(0, 0, 0, 0.16);
+          color: #ffe18a;
+          font-size: 11px;
+          font-weight: 800;
+          white-space: nowrap;
+        }
+
+        .bobu-gp-badge strong {
+          color: #ffffff;
+          font-size: 12px;
         }
 
         .bobu-auth-button {
@@ -756,6 +814,7 @@ export function Nav() {
             max-width: none;
           }
 
+          .bobu-mobile-account .bobu-gp-badge,
           .bobu-mobile-account .bobu-auth-button {
             width: 100%;
           }
@@ -831,7 +890,34 @@ export function Nav() {
             <span className="bobu-auth-loading">•••</span>
           ) : user ? (
             <>
-              <div className="bobu-user">
+              <div
+                className="bobu-gp-badge"
+                aria-label={`${builder.gp.toLocaleString("en-US")} GP`}
+              >
+                <span>⭐</span>
+                <strong>{builder.gp.toLocaleString("en-US")}</strong>
+                <span>GP</span>
+              </div>
+
+              <button
+                type="button"
+                className="bobu-auth-button bobu-logout-button"
+                onClick={handleLogout}
+              >
+                <LogOut size={15} />
+                <span>Sign out</span>
+              </button>
+
+              <span className="bobu-cycle">
+                <i className="bobu-cycle-dot" />
+                Cycle 000001
+              </span>
+
+              <div
+                className="bobu-user bobu-user-avatar-only"
+                title={fullName}
+                aria-label={fullName}
+              >
                 {avatarUrl ? (
                   <img
                     src={avatarUrl}
@@ -844,20 +930,7 @@ export function Nav() {
                     {fullName.charAt(0).toUpperCase()}
                   </span>
                 )}
-
-                <span className="bobu-user-name">
-                  {fullName}
-                </span>
               </div>
-
-              <button
-                type="button"
-                className="bobu-auth-button bobu-logout-button"
-                onClick={handleLogout}
-              >
-                <LogOut size={15} />
-                <span>Sign out</span>
-              </button>
             </>
           ) : (
             <button
@@ -870,10 +943,12 @@ export function Nav() {
             </button>
           )}
 
-          <span className="bobu-cycle">
-            <i className="bobu-cycle-dot" />
-            Cycle 000001
-          </span>
+          {!user && (
+            <span className="bobu-cycle">
+              <i className="bobu-cycle-dot" />
+              Cycle 000001
+            </span>
+          )}
         </div>
 
         <button
@@ -934,6 +1009,15 @@ export function Nav() {
                   <span className="bobu-user-name">
                     {fullName}
                   </span>
+                </div>
+
+                <div
+                  className="bobu-gp-badge"
+                  aria-label={`${builder.gp.toLocaleString("en-US")} GP`}
+                >
+                  <span>⭐</span>
+                  <strong>{builder.gp.toLocaleString("en-US")}</strong>
+                  <span>GP</span>
                 </div>
 
                 <button
