@@ -20,14 +20,22 @@ const emitChange = (): void => {
   listeners.forEach((listener) => listener());
 };
 
+const replaceBuilderSnapshot = (
+  snapshot: Builder,
+): void => {
+  builder = applyBuilderRules(snapshot);
+  emitChange();
+};
+
 const processEvent = (event: BobuEvent): void => {
   if (event.type === "BUILDER_RESET") {
-    builder = applyBuilderRules(createInitialBuilder());
-  } else {
-    builder = applyBuilderRules(
-      reduceBuilderEvent(builder, event),
-    );
+    replaceBuilderSnapshot(createInitialBuilder());
+    return;
   }
+
+  builder = applyBuilderRules(
+    reduceBuilderEvent(builder, event),
+  );
 
   emitChange();
 };
@@ -45,6 +53,18 @@ export const builderStore = {
     return () => {
       listeners.delete(listener);
     };
+  },
+
+  /**
+   * Replaces the in-memory Builder state with an authoritative
+   * snapshot loaded from persistent storage.
+   *
+   * Restore does not publish domain events and does not calculate
+   * GP, XP or rewards. Derived access rules are recalculated from
+   * the restored source fields before notifying React subscribers.
+   */
+  restore(snapshot: Builder): void {
+    replaceBuilderSnapshot(snapshot);
   },
 
   connectIdentity(provider: IdentityProvider): void {
