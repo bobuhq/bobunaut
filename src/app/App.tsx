@@ -14,6 +14,7 @@ import { Missions } from "../features/Missions";
 import { Galaxy } from "../features/Galaxy";
 import { BuilderPassport } from "../features/passport/BuilderPassport";
 import BuilderMining from "../features/mining/BuilderMining";
+import BuilderIdentity from "../features/identity/BuilderIdentity";
 
 export function App() {
   const location = useLocation();
@@ -26,6 +27,7 @@ export function App() {
         <Route element={<Shell />}>
           <Route path="/" element={<Home />} />
           <Route path="/command-deck" element={<Deck />} />
+          <Route path="/identity" element={<BuilderIdentity />} />
           <Route path="/passport" element={<BuilderPassport />} />
           <Route path="/mining" element={<BuilderMining />} />
           <Route path="/missions" element={<Missions />} />

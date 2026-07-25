@@ -27,6 +27,11 @@ const navItems = [
     icon: Radio,
   },
   {
+    to: "/identity",
+    label: "Genesis",
+    icon: User,
+  },
+  {
     to: "/passport",
     label: "Passport",
     icon: User,
