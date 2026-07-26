@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import {
   ArrowLeft,
@@ -14,6 +14,10 @@ import {
 } from "lucide-react";
 import { Title } from "../shared/Title";
 import { useBuilderStore } from "./identity/hooks/useBuilderStore";
+import {
+  galaxyService,
+  type GalaxyMember as RealGalaxyMember,
+} from "../core/builder/services/GalaxyService";
 
 type GalaxyMember = {
   name: string;
@@ -24,110 +28,84 @@ type GalaxyMember = {
   parent: string;
 };
 
-const members: GalaxyMember[] = [
-  { name: "Nova", level: 1, angle: 10, builders: 4, xp: 940, parent: "Genesis" },
-  {
-    name: "Orion",
-    level: 1,
-    angle: 100,
-    builders: 3,
-    xp: 720,
-    parent: "Genesis",
-  },
-  {
-    name: "Luna",
-    level: 1,
-    angle: 190,
-    builders: 4,
-    xp: 1210,
-    parent: "Genesis",
-  },
-  {
-    name: "Atlas",
-    level: 1,
-    angle: 280,
-    builders: 4,
-    xp: 510,
-    parent: "Genesis",
-  },
 
-  { name: "Vega", level: 2, angle: 35, builders: 2, xp: 380, parent: "Nova" },
-  { name: "Cosmo", level: 2, angle: 125, builders: 2, xp: 670, parent: "Nova" },
-  { name: "Lyra", level: 2, angle: 215, builders: 1, xp: 260, parent: "Orion" },
-  { name: "Astro", level: 2, angle: 305, builders: 2, xp: 590, parent: "Luna" },
 
-  {
-    name: "Zenith",
-    level: 2,
-    angle: 45,
-    builders: 2,
-    xp: 430,
-    parent: "Atlas",
-  },
-  { name: "Pixel", level: 3, angle: 135, builders: 0, xp: 160, parent: "Vega" },
-  { name: "Comet", level: 3, angle: 225, builders: 0, xp: 90, parent: "Vega" },
-  {
-    name: "Nebula",
-    level: 3,
-    angle: 315,
-    builders: 0,
-    xp: 310,
-    parent: "Cosmo",
-  },
-
-  { name: "Apollo", level: 3, angle: 60, builders: 0, xp: 180, parent: "Lyra" },
-  {
-    name: "Stellar",
-    level: 3,
-    angle: 180,
-    builders: 0,
-    xp: 240,
-    parent: "Astro",
-  },
-  {
-    name: "Voyager",
-    level: 3,
-    angle: 300,
-    builders: 0,
-    xp: 120,
-    parent: "Zenith",
-  },
-];
-
-const stats = [
+const createGalaxyStats = (
+  memberCount: number,
+  activeCount: number,
+  pendingCount: number,
+  gp: number,
+) => [
   {
     label: "Galaxy Members",
-    value: "15",
-    detail: "+4 this week",
+    value: memberCount.toLocaleString(),
+    detail: `${activeCount} active · ${pendingCount} pending`,
     icon: Users,
   },
   {
-    label: "Builder XP",
-    value: "4,820",
-    detail: "680 XP to level 8",
+    label: "Builder GP",
+    value: gp.toLocaleString(),
+    detail: "Current Builder balance",
     icon: Zap,
   },
   {
-    label: "Galaxy Level",
-    value: "07",
-    detail: "Nebula Builder",
+    label: "Active Builders",
+    value: activeCount.toLocaleString(),
+    detail: "Verified Galaxy connections",
     icon: Orbit,
   },
   {
-    label: "BOBU Points",
-    value: "12,450",
-    detail: "Future ecosystem utility",
+    label: "Pending Builders",
+    value: pendingCount.toLocaleString(),
+    detail: "Awaiting activation",
     icon: Sparkles,
   },
 ] as const;
 
 export function Galaxy() {
   const builder = useBuilderStore();
+  const [galaxyMembers, setGalaxyMembers] = useState<RealGalaxyMember[]>([]);
+  const [isGalaxyLoading, setIsGalaxyLoading] = useState(true);
+  const [galaxyError, setGalaxyError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [selectedMember, setSelectedMember] = useState<GalaxyMember | null>(
     null,
   );
   const [activeGalaxy, setActiveGalaxy] = useState("Genesis");
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadGalaxy = async () => {
+      setIsGalaxyLoading(true);
+      setGalaxyError(null);
+
+      try {
+        const members = await galaxyService.loadMyGalaxy();
+
+        if (isMounted) {
+          setGalaxyMembers(members);
+        }
+      } catch (error) {
+        console.error("Galaxy data could not be loaded", error);
+
+        if (isMounted) {
+          setGalaxyMembers([]);
+          setGalaxyError("Galaxy data could not be loaded.");
+        }
+      } finally {
+        if (isMounted) {
+          setIsGalaxyLoading(false);
+        }
+      }
+    };
+
+    void loadGalaxy();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [builder.id]);
 
   const referralLink =
     builder.inviteCode && builder.inviteCode !== "BOBU-GENESIS"
@@ -137,14 +115,43 @@ export function Galaxy() {
         ).toString()
       : null;
 
-  const visibleMembers = useMemo(() => {
-    return members.filter((member) => member.parent === activeGalaxy);
-  }, [activeGalaxy]);
+  const activeMemberCount = galaxyMembers.filter(
+    (member) => member.referralStatus === "active",
+  ).length;
 
-  const currentGalaxyOwner =
-    activeGalaxy === "Genesis"
-      ? null
-      : (members.find((member) => member.name === activeGalaxy) ?? null);
+  const pendingMemberCount = galaxyMembers.filter(
+    (member) => member.referralStatus === "pending",
+  ).length;
+
+  const stats = createGalaxyStats(
+    galaxyMembers.length,
+    activeMemberCount,
+    pendingMemberCount,
+    builder.gp,
+  );
+
+  const visibleMembers = useMemo<GalaxyMember[]>(() => {
+    if (activeGalaxy !== "Genesis") {
+      return [];
+    }
+
+    return galaxyMembers.map((member, index) => ({
+      name:
+        member.displayName ??
+        member.username ??
+        `Builder ${member.builderId.slice(0, 6)}`,
+      level: 1,
+      angle:
+        galaxyMembers.length > 0
+          ? (360 / galaxyMembers.length) * index
+          : 0,
+      builders: member.referralCount,
+      xp: member.gp,
+      parent: "Genesis",
+    }));
+  }, [activeGalaxy, galaxyMembers]);
+
+  const currentGalaxyOwner: GalaxyMember | null = null;
 
   const galaxyTitle =
     activeGalaxy === "Genesis"
@@ -783,7 +790,7 @@ export function Galaxy() {
             <h3>
               {selectedMember
                 ? selectedMember.name
-                : (currentGalaxyOwner?.name ?? "Genesis Builder")}
+                : builder.username || "Genesis Builder"}
             </h3>
 
             <p>
