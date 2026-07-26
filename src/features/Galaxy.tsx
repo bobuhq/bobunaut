@@ -406,6 +406,29 @@ export function Galaxy() {
           font-size: 0.58rem;
         }
 
+        .galaxy-connection-line {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          z-index: 3;
+          height: 1px;
+          transform-origin: left center;
+          pointer-events: none;
+          background:
+            linear-gradient(
+              90deg,
+              rgba(245, 158, 11, 0.3),
+              var(--line-color)
+            );
+          box-shadow:
+            0 0 8px var(--line-color),
+            0 0 18px color-mix(
+              in srgb,
+              var(--line-color) 45%,
+              transparent
+            );
+        }
+
         .member-node {
           --distance: 110px;
           position: absolute;
@@ -779,8 +802,39 @@ export function Galaxy() {
               </div>
             </motion.div>
 
-            {visibleMembers.map((member, index) => (
-              <motion.div
+            {visibleMembers.map((member, index) => {
+              const distance = 115 + (index % 3) * 58;
+
+              return (
+                <div key={`connection-${activeGalaxy}-${member.name}`}>
+                  <motion.div
+                    className="galaxy-connection-line"
+                    style={
+                      {
+                        width: `${distance}px`,
+                        transform: `rotate(${member.angle}deg)`,
+                        "--line-color": member.theme.lineColor,
+                        opacity:
+                          member.status === "active"
+                            ? 0.82
+                            : 0.26,
+                      } as React.CSSProperties
+                    }
+                    initial={{ scaleX: 0, opacity: 0 }}
+                    animate={{
+                      scaleX: 1,
+                      opacity:
+                        member.status === "active"
+                          ? 0.82
+                          : 0.26,
+                    }}
+                    transition={{
+                      delay: 0.06 + index * 0.07,
+                      duration: 0.55,
+                    }}
+                  />
+
+                  <motion.div
                 className={`member-node level-${member.level} ${
                   selectedMember?.name === member.name ? "selected" : ""
                 }`}
@@ -820,8 +874,10 @@ export function Galaxy() {
               >
                 <Star size={member.level >= 3 ? 10 : 14} />
                 <span>{member.name}</span>
-              </motion.div>
-            ))}
+                  </motion.div>
+                </div>
+              );
+            })}
 
             {visibleMembers.length === 0 && (
               <div className="empty-orbit">
