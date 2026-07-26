@@ -344,10 +344,10 @@ export function Galaxy() {
           left: 50%;
           z-index: 10;
           display: grid;
-          width: 112px;
-          height: 112px;
+          width: 124px;
+          height: 124px;
           place-items: center;
-          border: 1px solid rgba(134, 229, 255, 0.7);
+          border: 1px solid rgba(253, 230, 138, 0.8);
           border-radius: 50%;
           color: white;
           text-align: center;
@@ -355,15 +355,43 @@ export function Galaxy() {
           transform: translate(-50%, -50%);
           background:
             radial-gradient(
-              circle at 35% 28%,
-              #a56cff,
-              #4b2eb8 48%,
-              #100d31 75%
+              circle at 34% 26%,
+              rgba(255, 236, 153, 0.98),
+              rgba(245, 158, 11, 0.94) 18%,
+              rgba(139, 92, 246, 0.94) 52%,
+              rgba(46, 16, 101, 0.98) 76%
             );
           box-shadow:
-            0 0 0 10px rgba(113, 73, 255, 0.08),
-            0 0 46px rgba(113, 73, 255, 0.72),
-            0 0 95px rgba(71, 203, 255, 0.2);
+            0 0 0 10px rgba(245, 158, 11, 0.08),
+            0 0 0 20px rgba(139, 92, 246, 0.06),
+            0 0 34px rgba(245, 158, 11, 0.78),
+            0 0 68px rgba(139, 92, 246, 0.64),
+            0 0 120px rgba(236, 72, 153, 0.22);
+        }
+
+        .galaxy-core::before {
+          content: "";
+          position: absolute;
+          inset: -18px;
+          z-index: -1;
+          border: 1px solid rgba(253, 230, 138, 0.22);
+          border-radius: 50%;
+          background:
+            conic-gradient(
+              from 0deg,
+              rgba(245, 158, 11, 0.28),
+              rgba(139, 92, 246, 0.08),
+              rgba(236, 72, 153, 0.24),
+              rgba(245, 158, 11, 0.28)
+            );
+          filter: blur(6px);
+          animation: galaxy-core-spin 12s linear infinite;
+        }
+
+        @keyframes galaxy-core-spin {
+          to {
+            transform: rotate(360deg);
+          }
         }
 
         .galaxy-core strong {
@@ -745,9 +773,9 @@ export function Galaxy() {
               <div>
                 <Crown size={24} />
                 <strong>
-                  {activeGalaxy === "Genesis" ? "YOU" : activeGalaxy}
+                  {activeGalaxy === "Genesis" ? "KING BOBU" : activeGalaxy}
                 </strong>
-                <span>GALAXY CORE</span>
+                <span>NEBULA CORE</span>
               </div>
             </motion.div>
 
