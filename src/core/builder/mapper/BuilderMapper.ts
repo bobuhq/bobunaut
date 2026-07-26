@@ -75,6 +75,9 @@ const mapProfile = (
     xp: profile.xp,
     gp: profile.gp,
     reputation: profile.reputation,
+    inviteCode:
+      profile.invite_code ??
+      initialBuilder.inviteCode,
     identity: mapIdentities(identities),
   };
 };

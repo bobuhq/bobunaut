@@ -12,6 +12,7 @@ export interface BuilderProfileRow {
   xp: number;
   gp: number;
   reputation: number;
+  invite_code: string | null;
   created_at: string;
   updated_at: string;
 }
