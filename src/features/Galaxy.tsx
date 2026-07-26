@@ -964,18 +964,25 @@ export function Galaxy() {
           </section>
 
           <section className="galaxy-panel progress-card">
-            <h3>Next Galaxy Level</h3>
+            <h3>
+              {galaxyLevelProgress >= 100
+                ? "Galaxy Level Ready"
+                : "Next Galaxy Level"}
+            </h3>
 
             <p>
-              Expand your network and complete missions to unlock the Supernova
-              rank.
+              {galaxyLevelProgress >= 100
+                ? "Your active Builder network has reached the next Galaxy level requirement."
+                : `${remainingActiveBuilders} more active Builder${
+                    remainingActiveBuilders === 1 ? "" : "s"
+                  } required to reach the next Galaxy level.`}
             </p>
 
             <div className="progress-track">
               <motion.div
                 className="progress-fill"
                 initial={{ width: 0 }}
-                animate={{ width: "74%" }}
+                animate={{ width: `${galaxyLevelProgress}%` }}
                 transition={{ duration: 1.1 }}
               />
             </div>
