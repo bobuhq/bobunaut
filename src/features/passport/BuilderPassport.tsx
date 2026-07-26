@@ -1,3 +1,4 @@
+import { useBuilderStore } from "../identity/hooks/useBuilderStore";
 import BuilderPassportActions from "./BuilderPassportActions";
 import BuilderPassportShareCard from "./BuilderPassportShareCard";
 type BuilderProfile = {
@@ -6,6 +7,7 @@ type BuilderProfile = {
   role: string;
   level: number;
   builderPoints: number;
+  inviteCode: string;
 
   currentXp: number;
   nextLevelXp: number;
@@ -15,22 +17,31 @@ type BuilderProfile = {
   status: "Active" | "Inactive";
 };
 
-const builderProfile: BuilderProfile = {
-  username: "bobu_builder",
-  displayName: "BOBU Builder",
+const createBuilderProfile = (
+  builder: ReturnType<typeof useBuilderStore>,
+): BuilderProfile => ({
+  username: builder.username,
+  displayName: builder.username || "BOBU Builder",
   role: "Universe Explorer",
-  level: 1,
-  builderPoints: 250,
+  level: builder.level,
+  builderPoints: builder.gp,
+  inviteCode: builder.inviteCode,
 
-  currentXp: 250,
+  currentXp: builder.xp,
   nextLevelXp: 1000,
 
   joinedAt: "July 2026",
-  walletAddress: "Not connected",
+  walletAddress: builder.identity.wallet
+    ? "Connected"
+    : "Not connected",
   status: "Active",
-};
+});
 
 export function BuilderPassport() {
+  const builder = useBuilderStore();
+
+  const builderProfile = createBuilderProfile(builder);
+
   const progress =
     (builderProfile.currentXp / builderProfile.nextLevelXp) * 100;
 
@@ -172,6 +183,50 @@ export function BuilderPassport() {
             }}
           >
             {builderProfile.currentXp} / {builderProfile.nextLevelXp} XP
+          </p>
+        </div>
+
+        <div
+          style={{
+            marginBottom: "24px",
+            padding: "20px",
+            borderRadius: "18px",
+            background:
+              "linear-gradient(145deg, rgba(153,69,255,0.18), rgba(20,241,149,0.08))",
+            border: "1px solid rgba(153,69,255,0.35)",
+          }}
+        >
+          <p
+            style={{
+              margin: "0 0 8px",
+              color: "#14f195",
+              fontSize: "12px",
+              fontWeight: 700,
+              letterSpacing: "0.12em",
+              textTransform: "uppercase",
+            }}
+          >
+            Builder Signal Code
+          </p>
+
+          <strong
+            style={{
+              fontSize: "26px",
+              letterSpacing: "0.08em",
+            }}
+          >
+            {builderProfile.inviteCode}
+          </strong>
+
+          <p
+            style={{
+              margin: "10px 0 0",
+              color: "rgba(255,255,255,0.6)",
+              fontSize: "14px",
+              lineHeight: 1.5,
+            }}
+          >
+            Your invitation key to expand the BOBU Civilization Network.
           </p>
         </div>
 
