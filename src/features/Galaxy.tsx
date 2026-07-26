@@ -920,7 +920,7 @@ export function Galaxy() {
                   ? "Active Builder"
                   : "Pending Activation"
                 : activeGalaxy === "Genesis"
-                  ? "Nebula Builder · Rank 07"
+                  ? `Nebula Builder · Rank ${builder.level}`
                   : `${visibleMembers.length} Connected Stars`}
             </div>
 
