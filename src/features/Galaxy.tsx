@@ -906,7 +906,9 @@ export function Galaxy() {
             <div className="rank-badge">
               <Sparkles size={15} />
               {selectedMember
-                ? `Orbit Level ${selectedMember.level}`
+                ? selectedMember.status === "active"
+                  ? "Active Builder"
+                  : "Pending Activation"
                 : activeGalaxy === "Genesis"
                   ? "Nebula Builder · Rank 07"
                   : `${visibleMembers.length} Connected Stars`}
@@ -921,8 +923,10 @@ export function Galaxy() {
                   </div>
 
                   <div>
-                    <span>Builder XP</span>
-                    <strong>{selectedMember.xp}</strong>
+                    <span>Builder GP</span>
+                    <strong>
+                      {selectedMember.xp.toLocaleString()}
+                    </strong>
                   </div>
                 </div>
 
