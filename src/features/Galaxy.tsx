@@ -13,6 +13,7 @@ import {
   Zap,
 } from "lucide-react";
 import { Title } from "../shared/Title";
+import { useBuilderStore } from "./identity/hooks/useBuilderStore";
 
 type GalaxyMember = {
   name: string;
@@ -121,13 +122,20 @@ const stats = [
 ] as const;
 
 export function Galaxy() {
+  const builder = useBuilderStore();
   const [copied, setCopied] = useState(false);
   const [selectedMember, setSelectedMember] = useState<GalaxyMember | null>(
     null,
   );
   const [activeGalaxy, setActiveGalaxy] = useState("Genesis");
 
-  const referralLink = "https://bobunaut.com/join/BOBU-7X92";
+  const referralLink =
+    builder.inviteCode && builder.inviteCode !== "BOBU-GENESIS"
+      ? new URL(
+          `join/${encodeURIComponent(builder.inviteCode)}`,
+          window.location.origin + import.meta.env.BASE_URL,
+        ).toString()
+      : null;
 
   const visibleMembers = useMemo(() => {
     return members.filter((member) => member.parent === activeGalaxy);
@@ -144,6 +152,10 @@ export function Galaxy() {
       : `${activeGalaxy} Galaxy`;
 
   const copyReferralLink = async () => {
+    if (!referralLink) {
+      return;
+    }
+
     try {
       await navigator.clipboard.writeText(referralLink);
       setCopied(true);
