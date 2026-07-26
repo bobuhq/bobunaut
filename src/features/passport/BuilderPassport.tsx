@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { useBuilderStore } from "../identity/hooks/useBuilderStore";
 import { supabase } from "../../lib/supabase";
+import { useBuilderStore } from "../identity/hooks/useBuilderStore";
 import BuilderPassportActions from "./BuilderPassportActions";
 import BuilderPassportShareCard from "./BuilderPassportShareCard";
+import BuilderSignalWidget from "./BuilderSignalWidget";
 type BuilderProfile = {
   username: string;
   displayName: string;
@@ -43,7 +44,6 @@ export function BuilderPassport() {
   const builder = useBuilderStore();
 
   const [authenticated, setAuthenticated] = useState(false);
-  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -63,52 +63,7 @@ export function BuilderPassport() {
     };
   }, []);
 
-  if (!authenticated) {
-    return (
-      <main
-        style={{
-          minHeight: "100vh",
-          padding: "120px 24px",
-          color: "white",
-          display: "flex",
-          justifyContent: "center",
-        }}
-      >
-        <section>
-          <h2>Builder Passport Locked</h2>
-          <p>
-            Sign in to activate your Builder Identity.
-          </p>
-        </section>
-      </main>
-    );
-  }
-
   const builderProfile = createBuilderProfile(builder);
-
-  const copyInviteCode = async () => {
-    await navigator.clipboard.writeText(
-      builderProfile.inviteCode,
-    );
-
-    setCopied(true);
-
-    setTimeout(() => {
-      setCopied(false);
-    }, 2000);
-  };
-
-  const shareSignal = () => {
-    const text =
-      `I just joined BOBU Universe.\n\n` +
-      `My Builder Signal: ${builderProfile.inviteCode}\n\n` +
-      `Join the Builder Civilization Network.`;
-
-    window.open(
-      `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`,
-      "_blank",
-    );
-  };
 
   const progress =
     (builderProfile.currentXp / builderProfile.nextLevelXp) * 100;
@@ -256,89 +211,6 @@ export function BuilderPassport() {
 
         <div
           style={{
-            marginBottom: "24px",
-            padding: "20px",
-            borderRadius: "18px",
-            background:
-              "linear-gradient(145deg, rgba(153,69,255,0.18), rgba(20,241,149,0.08))",
-            border: "1px solid rgba(153,69,255,0.35)",
-          }}
-        >
-          <p
-            style={{
-              margin: "0 0 8px",
-              color: "#14f195",
-              fontSize: "12px",
-              fontWeight: 700,
-              letterSpacing: "0.12em",
-              textTransform: "uppercase",
-            }}
-          >
-            Builder Signal Code
-          </p>
-
-          <strong
-            style={{
-              fontSize: "26px",
-              letterSpacing: "0.08em",
-            }}
-          >
-            {builderProfile.inviteCode}
-          </strong>
-
-          <p
-            style={{
-              margin: "10px 0 0",
-              color: "rgba(255,255,255,0.6)",
-              fontSize: "14px",
-              lineHeight: 1.5,
-            }}
-          >
-            Your invitation key to expand the BOBU Civilization Network.
-          </p>
-
-          <div
-            style={{
-              display: "flex",
-              gap: "10px",
-              marginTop: "16px",
-            }}
-          >
-            <button
-              onClick={copyInviteCode}
-              style={{
-                flex: 1,
-                padding: "10px",
-                borderRadius: "12px",
-                border: "none",
-                cursor: "pointer",
-                fontWeight: 700,
-              }}
-            >
-              {copied ? "Copied" : "Copy Code"}
-            </button>
-
-            <button
-              onClick={shareSignal}
-              style={{
-                flex: 1,
-                padding: "10px",
-                borderRadius: "12px",
-                border:
-                  "1px solid rgba(255,255,255,0.2)",
-                background: "transparent",
-                color: "white",
-                cursor: "pointer",
-                fontWeight: 700,
-              }}
-            >
-              Share Signal
-            </button>
-          </div>
-        </div>
-
-        <div
-          style={{
             display: "grid",
             gap: "14px",
             padding: "20px",
@@ -383,6 +255,14 @@ export function BuilderPassport() {
           }
         />
       </section>
+      <BuilderSignalWidget
+        authenticated={authenticated}
+        inviteCode={
+          authenticated
+            ? builderProfile.inviteCode
+            : undefined
+        }
+      />
     </main>
   );
 }
