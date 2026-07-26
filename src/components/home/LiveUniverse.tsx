@@ -58,12 +58,6 @@ const activityPool = [
     icon: Gem,
   },
   {
-    title: "Finland Sector activated",
-    detail: "New civilization signal",
-    time: "7M",
-    icon: Globe2,
-  },
-  {
     title: "Builder #0128 joined",
     detail: "Aurora Sector",
     time: "NOW",
@@ -80,12 +74,6 @@ const activityPool = [
     detail: "Community mission completed",
     time: "NOW",
     icon: Gem,
-  },
-  {
-    title: "Türkiye Sector activated",
-    detail: "New Builder signal received",
-    time: "NOW",
-    icon: Globe2,
   },
   {
     title: "Builder #0129 joined",
