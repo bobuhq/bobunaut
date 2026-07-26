@@ -18,6 +18,10 @@ import {
   galaxyService,
   type GalaxyMember as RealGalaxyMember,
 } from "../core/builder/services/GalaxyService";
+import {
+  getPrimaryBranchTheme,
+  galaxyThemes,
+} from "./galaxy/galaxyThemes";
 
 type GalaxyMember = {
   name: string;
@@ -26,6 +30,8 @@ type GalaxyMember = {
   builders: number;
   xp: number;
   parent: string;
+  status: "pending" | "active";
+  theme: ReturnType<typeof getPrimaryBranchTheme>;
 };
 
 
@@ -148,6 +154,8 @@ export function Galaxy() {
       builders: member.referralCount,
       xp: member.gp,
       parent: "Genesis",
+      status: member.referralStatus,
+      theme: getPrimaryBranchTheme(index),
     }));
   }, [activeGalaxy, galaxyMembers]);
 
@@ -380,25 +388,27 @@ export function Galaxy() {
           width: 42px;
           height: 42px;
           place-items: center;
-          border: 1px solid rgba(125, 220, 255, 0.48);
+          border: 1px solid var(--node-ring);
           border-radius: 50%;
-          color: #fff;
+          color: var(--node-text);
           cursor: pointer;
           transform:
             translate(-50%, -50%)
             rotate(var(--angle))
             translateX(var(--distance))
             rotate(calc(var(--angle) * -1));
-          background:
-            radial-gradient(
-              circle at 35% 30%,
-              #78dcff,
-              #5548ce 52%,
-              #151334 78%
-            );
+          background: var(--node-gradient);
           box-shadow:
-            0 0 14px rgba(83, 186, 255, 0.34),
-            0 0 26px rgba(100, 70, 255, 0.13);
+            0 0 16px color-mix(
+              in srgb,
+              var(--node-glow) 58%,
+              transparent
+            ),
+            0 0 34px color-mix(
+              in srgb,
+              var(--node-glow) 24%,
+              transparent
+            );
           transition:
             filter 180ms ease,
             box-shadow 180ms ease,
@@ -750,6 +760,14 @@ export function Galaxy() {
                   {
                     "--angle": `${member.angle}deg`,
                     "--distance": `${115 + (index % 3) * 58}px`,
+                    "--node-gradient": member.theme.nodeGradient,
+                    "--node-glow": member.theme.glowColor,
+                    "--node-ring": member.theme.ringColor,
+                    "--node-text": member.theme.textAccent,
+                    opacity:
+                      member.status === "active"
+                        ? 1
+                        : 0.48,
                   } as React.CSSProperties
                 }
                 key={`${activeGalaxy}-${member.name}`}
