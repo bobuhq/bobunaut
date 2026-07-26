@@ -81,6 +81,8 @@ const restoreBuilderFromPersistence = async () => {
 
 export default function BuilderIdentity() {
   const builder = useBuilderStore();
+  const [telegramCommunityOpened, setTelegramCommunityOpened] =
+    useState(false);
   const [telegramBotOpened, setTelegramBotOpened] =
     useState(false);
   const [telegramBusy, setTelegramBusy] =
@@ -327,6 +329,26 @@ export default function BuilderIdentity() {
     setTelegramBusy(true);
 
     try {
+      if (!telegramCommunityOpened) {
+        if (!task?.communityUrl) {
+          throw new Error("Telegram community link is missing.");
+        }
+
+        window.open(
+          task.communityUrl,
+          "_blank",
+          "noopener,noreferrer",
+        );
+
+        setTelegramCommunityOpened(true);
+
+        window.alert(
+          "Join the BOBU Telegram community, then return and open the verification bot.",
+        );
+
+        return;
+      }
+
       if (!telegramBotOpened) {
         const {
           data: { session },
@@ -479,9 +501,11 @@ export default function BuilderIdentity() {
                 task.provider === "telegram"
                   ? telegramBusy
                     ? "Checking..."
-                    : telegramBotOpened
-                      ? "Verify Telegram"
-                      : "Connect Telegram"
+                    : !telegramCommunityOpened
+                      ? "Join Telegram"
+                      : telegramBotOpened
+                        ? "Verify Telegram"
+                        : "Open Verify Bot"
                   : task.provider === "instagram"
                     ? instagramBusy
                       ? "Claiming..."
