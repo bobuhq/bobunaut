@@ -1,4 +1,3 @@
-import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { AnimatedCounter } from "../ui/AnimatedCounter";
 import {
@@ -38,89 +37,10 @@ const universeMetrics = [
   },
 ] as const;
 
-const activityPool = [
-  {
-    title: "Builder #0127 joined",
-    detail: "Genesis Sector",
-    time: "NOW",
-    icon: Users,
-  },
-  {
-    title: "Galaxy Aurora created",
-    detail: "Sector coordinates confirmed",
-    time: "2M",
-    icon: Orbit,
-  },
-  {
-    title: "250 GP generated",
-    detail: "Mission M-001 completed",
-    time: "4M",
-    icon: Gem,
-  },
-  {
-    title: "Builder #0128 joined",
-    detail: "Aurora Sector",
-    time: "NOW",
-    icon: Users,
-  },
-  {
-    title: "Galaxy Orion expanded",
-    detail: "Three new Stars detected",
-    time: "NOW",
-    icon: Orbit,
-  },
-  {
-    title: "420 GP generated",
-    detail: "Community mission completed",
-    time: "NOW",
-    icon: Gem,
-  },
-  {
-    title: "Builder #0129 joined",
-    detail: "Genesis Sector",
-    time: "NOW",
-    icon: Users,
-  },
-  {
-    title: "Galaxy Nova created",
-    detail: "New constellation registered",
-    time: "NOW",
-    icon: Orbit,
-  },
-];
+
 
 export function LiveUniverse() {
   const reduceMotion = useReducedMotion();
-  const feedCursor = useRef(4);
-
-  const [liveActivity, setLiveActivity] = useState(() =>
-    activityPool.slice(0, 4)
-  );
-
-  useEffect(() => {
-    if (reduceMotion) return;
-
-    const intervalId = window.setInterval(() => {
-      const nextActivity =
-        activityPool[feedCursor.current % activityPool.length];
-
-      feedCursor.current += 1;
-
-      setLiveActivity((current) => [
-        {
-          ...nextActivity,
-          time: "NOW",
-        },
-        ...current.slice(0, 3).map((item, index) => ({
-          ...item,
-          time: `${index + 1}M`,
-        })),
-      ]);
-    }, 6000);
-
-    return () => window.clearInterval(intervalId);
-  }, [reduceMotion]);
-
   return (
     <motion.section
       className="live-universe"
@@ -426,22 +346,30 @@ export function LiveUniverse() {
         </header>
 
         <div className="activity-list">
-          {liveActivity.map(({ title, detail, time, icon: Icon }, index) => (
-            <motion.div
-              className="activity-item"
-              key={`${title}-${time}-${index}`}
-              initial={{ opacity: 0, x: reduceMotion ? 0 : 18, scale: 0.98 }}
-              animate={{ opacity: 1, x: 0, scale: 1 }}
-              transition={{ duration: 0.4, delay: index * 0.06 }}
-            >
-              <div className="activity-item-icon"><Icon size={17} /></div>
-              <div>
-                <strong>{title}</strong>
-                <p>{detail}</p>
-              </div>
-              <span className="activity-time">{time}</span>
-            </motion.div>
-          ))}
+          <motion.div
+            className="activity-item"
+            initial={{
+              opacity: 0,
+              x: reduceMotion ? 0 : 18,
+              scale: 0.98,
+            }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            transition={{ duration: 0.4 }}
+          >
+            <div className="activity-item-icon">
+              <RadioTower size={17} />
+            </div>
+
+            <div>
+              <strong>Awaiting live transmissions</strong>
+              <p>
+                Verified Builder activity will appear here when
+                the live event stream is connected.
+              </p>
+            </div>
+
+            <span className="activity-time">LIVE</span>
+          </motion.div>
         </div>
 
         <div className="system-message">
