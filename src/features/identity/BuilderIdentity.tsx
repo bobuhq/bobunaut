@@ -228,84 +228,19 @@ export default function BuilderIdentity() {
     }
 
     if (provider === "instagram") {
-      if (instagramBusy) {
-        return;
+      if (task?.communityUrl) {
+        window.open(
+          task.communityUrl,
+          "_blank",
+          "noopener,noreferrer",
+        );
       }
 
-      if (!instagramOpened) {
-        if (task?.communityUrl) {
-          window.open(
-            task.communityUrl,
-            "_blank",
-            "noopener,noreferrer",
-          );
-        }
+      setInstagramOpened(true);
 
-        setInstagramOpened(true);
-
-        window.alert(
-          "Follow BOBU on Instagram, then return and click Claim 5,000 GP.",
-        );
-
-        return;
-      }
-
-      setInstagramBusy(true);
-
-      try {
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
-
-        if (!session?.access_token) {
-          throw new Error("Please sign in with Google first.");
-        }
-
-        const { data, error } =
-          await supabase.functions.invoke(
-            "claim-instagram-reward",
-            {
-              body: {},
-              headers: {
-                Authorization: `Bearer ${session.access_token}`,
-              },
-            },
-          );
-
-        if (error) {
-          throw error;
-        }
-
-        if (data?.verified === true) {
-          builderStore.connectIdentity("instagram");
-
-          window.alert(
-            data?.rewarded === true
-              ? "Instagram completed. 5,000 GP awarded."
-              : "Instagram reward was already claimed.",
-          );
-
-          return;
-        }
-
-        throw new Error(
-          data?.error ??
-            "Instagram reward could not be completed.",
-        );
-      } catch (error) {
-        console.error(
-          "Instagram reward failed:",
-          error,
-        );
-
-        window.alert(
-          error instanceof Error
-            ? error.message
-            : "Instagram reward failed.",
-        );
-      } finally {
-        setInstagramBusy(false);
-      }
+      window.alert(
+        "Instagram verification is not available yet. No GP has been awarded.",
+      );
 
       return;
     }
@@ -507,11 +442,9 @@ export default function BuilderIdentity() {
                         ? "Verify Telegram"
                         : "Open Verify Bot"
                   : task.provider === "instagram"
-                    ? instagramBusy
-                      ? "Claiming..."
-                      : instagramOpened
-                        ? "Claim 5,000 GP"
-                        : "Follow Instagram"
+                    ? instagramOpened
+                      ? "Verification Coming Soon"
+                      : "Follow Instagram"
                     : task.actionLabel
               }
               communityUrl={task.communityUrl}
