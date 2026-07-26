@@ -14,7 +14,10 @@ import {
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { supabase } from "../lib/supabase";
-import { restoreAuthenticatedBuilder } from "../core/builder";
+import {
+  attributePendingBuilderInvite,
+  restoreAuthenticatedBuilder,
+} from "../core/builder";
 import { useBuilderStore } from "../features/identity/hooks/useBuilderStore";
 
 const navItems = [
@@ -68,6 +71,19 @@ export function Nav() {
   const [logoVisible, setLogoVisible] = useState(true);
   const builder = useBuilderStore();
 
+  const restoreAuthenticatedSession = async () => {
+    try {
+      await attributePendingBuilderInvite();
+    } catch (error) {
+      console.error(
+        "Builder invite attribution failed:",
+        error,
+      );
+    }
+
+    await restoreAuthenticatedBuilder();
+  };
+
   useEffect(() => {
     let mounted = true;
 
@@ -80,7 +96,7 @@ export function Nav() {
       setLoading(false);
 
       if (data.session?.user.id) {
-        void restoreAuthenticatedBuilder();
+        void restoreAuthenticatedSession();
       }
     });
 
@@ -95,7 +111,7 @@ export function Nav() {
       setLoading(false);
 
       if (nextSession?.user.id) {
-        void restoreAuthenticatedBuilder();
+        void restoreAuthenticatedSession();
       }
     });
 

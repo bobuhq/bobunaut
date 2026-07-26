@@ -15,6 +15,7 @@ import { Galaxy } from "../features/Galaxy";
 import { BuilderPassport } from "../features/passport/BuilderPassport";
 import BuilderMining from "../features/mining/BuilderMining";
 import BuilderIdentity from "../features/identity/BuilderIdentity";
+import { BuilderInviteEntry } from "../features/invite/BuilderInviteEntry";
 
 export function App() {
   const location = useLocation();
@@ -22,6 +23,11 @@ export function App() {
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
+        <Route
+          path="/join/:inviteCode"
+          element={<BuilderInviteEntry />}
+        />
+
         <Route path="/genesis" element={<Genesis />} />
 
         <Route element={<Shell />}>
