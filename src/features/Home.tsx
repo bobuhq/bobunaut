@@ -358,7 +358,11 @@ export function Home() {
         </div>
       </motion.section>
 
-      <LiveUniverse />
+      <LiveUniverse
+        buildersJoined={universeStats.buildersJoined}
+        gpGenerated={universeStats.gpGenerated}
+        newBuildersThisWeek={universeStats.newBuildersThisWeek}
+      />
 
       <Journey />
 

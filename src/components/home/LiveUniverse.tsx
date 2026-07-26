@@ -10,7 +10,11 @@ import {
   Users,
 } from "lucide-react";
 
-const universeMetrics = [
+const createUniverseMetrics = (
+  buildersJoined: number,
+  gpGenerated: number,
+  newBuildersThisWeek: number,
+) => [
   {
     label: "Universe Status",
     value: "ONLINE",
@@ -18,29 +22,44 @@ const universeMetrics = [
     icon: RadioTower,
   },
   {
-    label: "Builders Online",
-    value: 127,
-    detail: "+18 during Genesis",
+    label: "Builders Joined",
+    value: buildersJoined,
+    detail: `${newBuildersThisWeek} joined this week`,
     icon: Users,
   },
   {
     label: "GP Generated",
-    value: 18420,
-    detail: "Mission energy accumulated",
+    value: gpGenerated,
+    detail: "Total Builder GP",
     icon: Gem,
   },
   {
     label: "Genesis Progress",
-    value: 18,
-    detail: "Building the first civilization",
+    value: newBuildersThisWeek,
+    detail: "New Builders in the last 7 days",
     icon: Rocket,
   },
 ] as const;
 
 
 
-export function LiveUniverse() {
+type LiveUniverseProps = {
+  buildersJoined: number;
+  gpGenerated: number;
+  newBuildersThisWeek: number;
+};
+
+export function LiveUniverse({
+  buildersJoined,
+  gpGenerated,
+  newBuildersThisWeek,
+}: LiveUniverseProps) {
   const reduceMotion = useReducedMotion();
+  const universeMetrics = createUniverseMetrics(
+    buildersJoined,
+    gpGenerated,
+    newBuildersThisWeek,
+  );
   return (
     <motion.section
       className="live-universe"
@@ -302,7 +321,7 @@ export function LiveUniverse() {
                   <AnimatedCounter
                     value={value}
                     suffix={label === "Genesis Progress" ? "%" : ""}
-                    live={label === "Builders Online" || label === "GP Generated"}
+                    live={label === "Builders Joined" || label === "GP Generated"}
                     liveStep={label === "GP Generated" ? 3 : 1}
                     liveInterval={label === "GP Generated" ? 2200 : 7000}
                   />
