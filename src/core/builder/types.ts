@@ -13,6 +13,7 @@ export interface BuilderProfileRow {
   gp: number;
   reputation: number;
   invite_code: string | null;
+  referral_count: number;
   created_at: string;
   updated_at: string;
 }

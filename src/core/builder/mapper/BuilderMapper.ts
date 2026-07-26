@@ -78,6 +78,7 @@ const mapProfile = (
     inviteCode:
       profile.invite_code ??
       initialBuilder.inviteCode,
+    referralCount: profile.referral_count,
     identity: mapIdentities(identities),
   };
 };
