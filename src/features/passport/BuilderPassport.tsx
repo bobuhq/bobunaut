@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useBuilderStore } from "../identity/hooks/useBuilderStore";
 import BuilderPassportActions from "./BuilderPassportActions";
 import BuilderPassportShareCard from "./BuilderPassportShareCard";
@@ -41,6 +42,32 @@ export function BuilderPassport() {
   const builder = useBuilderStore();
 
   const builderProfile = createBuilderProfile(builder);
+
+  const [copied, setCopied] = useState(false);
+
+  const copyInviteCode = async () => {
+    await navigator.clipboard.writeText(
+      builderProfile.inviteCode,
+    );
+
+    setCopied(true);
+
+    setTimeout(() => {
+      setCopied(false);
+    }, 2000);
+  };
+
+  const shareSignal = () => {
+    const text =
+      `I just joined BOBU Universe.\n\n` +
+      `My Builder Signal: ${builderProfile.inviteCode}\n\n` +
+      `Join the Builder Civilization Network.`;
+
+    window.open(
+      `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`,
+      "_blank",
+    );
+  };
 
   const progress =
     (builderProfile.currentXp / builderProfile.nextLevelXp) * 100;
@@ -228,6 +255,45 @@ export function BuilderPassport() {
           >
             Your invitation key to expand the BOBU Civilization Network.
           </p>
+
+          <div
+            style={{
+              display: "flex",
+              gap: "10px",
+              marginTop: "16px",
+            }}
+          >
+            <button
+              onClick={copyInviteCode}
+              style={{
+                flex: 1,
+                padding: "10px",
+                borderRadius: "12px",
+                border: "none",
+                cursor: "pointer",
+                fontWeight: 700,
+              }}
+            >
+              {copied ? "Copied" : "Copy Code"}
+            </button>
+
+            <button
+              onClick={shareSignal}
+              style={{
+                flex: 1,
+                padding: "10px",
+                borderRadius: "12px",
+                border:
+                  "1px solid rgba(255,255,255,0.2)",
+                background: "transparent",
+                color: "white",
+                cursor: "pointer",
+                fontWeight: 700,
+              }}
+            >
+              Share Signal
+            </button>
+          </div>
         </div>
 
         <div
