@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useBuilderStore } from "../identity/hooks/useBuilderStore";
+import { supabase } from "../../lib/supabase";
 import BuilderPassportActions from "./BuilderPassportActions";
 import BuilderPassportShareCard from "./BuilderPassportShareCard";
 type BuilderProfile = {
@@ -41,9 +42,49 @@ const createBuilderProfile = (
 export function BuilderPassport() {
   const builder = useBuilderStore();
 
-  const builderProfile = createBuilderProfile(builder);
-
+  const [authenticated, setAuthenticated] = useState(false);
   const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setAuthenticated(Boolean(data.session?.user.id));
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setAuthenticated(Boolean(session?.user.id));
+      },
+    );
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  if (!authenticated) {
+    return (
+      <main
+        style={{
+          minHeight: "100vh",
+          padding: "120px 24px",
+          color: "white",
+          display: "flex",
+          justifyContent: "center",
+        }}
+      >
+        <section>
+          <h2>Builder Passport Locked</h2>
+          <p>
+            Sign in to activate your Builder Identity.
+          </p>
+        </section>
+      </main>
+    );
+  }
+
+  const builderProfile = createBuilderProfile(builder);
 
   const copyInviteCode = async () => {
     await navigator.clipboard.writeText(
