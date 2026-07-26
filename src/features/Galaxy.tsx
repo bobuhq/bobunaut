@@ -136,6 +136,16 @@ export function Galaxy() {
     builder.gp,
   );
 
+  const galaxyLevelTarget = 10;
+  const galaxyLevelProgress = Math.min(
+    100,
+    (activeMemberCount / galaxyLevelTarget) * 100,
+  );
+  const remainingActiveBuilders = Math.max(
+    0,
+    galaxyLevelTarget - activeMemberCount,
+  );
+
   const visibleMembers = useMemo<GalaxyMember[]>(() => {
     if (activeGalaxy !== "Genesis") {
       return [];
