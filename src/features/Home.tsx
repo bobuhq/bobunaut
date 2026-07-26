@@ -27,6 +27,10 @@ import { Journey } from "../components/journey/Journey";
 import { GalacticSky } from "../components/galaxy/GalacticSky";
 import { CinematicBackground } from "../components/cinematic/CinematicBackground";
 import { ShootingStars } from "../components/cinematic/ShootingStars";
+import {
+  universeStatsService,
+  type UniverseStats,
+} from "../core/builder/services/UniverseStatsService";
 
 type CounterProps = {
   value: number;
@@ -34,11 +38,31 @@ type CounterProps = {
   decimals?: number;
 };
 
-const stats = [
-  { label: "Builders Joined", value: 127, suffix: "", icon: Users },
-  { label: "Galaxies Created", value: 24, suffix: "", icon: Orbit },
-  { label: "Alliances Formed", value: 8, suffix: "", icon: Globe2 },
-  { label: "GP Generated", value: 18420, suffix: "", icon: Gem },
+const createHomeStats = (stats: UniverseStats) => [
+  {
+    label: "Builders Joined",
+    value: stats.buildersJoined,
+    suffix: "",
+    icon: Users,
+  },
+  {
+    label: "Galaxies Created",
+    value: stats.galaxiesCreated,
+    suffix: "",
+    icon: Orbit,
+  },
+  {
+    label: "Alliances Formed",
+    value: stats.alliancesFormed,
+    suffix: "",
+    icon: Globe2,
+  },
+  {
+    label: "GP Generated",
+    value: stats.gpGenerated,
+    suffix: "",
+    icon: Gem,
+  },
 ] as const;
 
 const missions = [
@@ -124,6 +148,37 @@ function AnimatedCounter({ value, suffix = "", decimals = 0 }: CounterProps) {
 }
 
 export function Home() {
+  const [universeStats, setUniverseStats] = useState<UniverseStats>({
+    buildersJoined: 0,
+    galaxiesCreated: 0,
+    alliancesFormed: 0,
+    gpGenerated: 0,
+    newBuildersThisWeek: 0,
+  });
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadUniverseStats = async () => {
+      try {
+        const nextStats = await universeStatsService.load();
+
+        if (isMounted) {
+          setUniverseStats(nextStats);
+        }
+      } catch (error) {
+        console.error("Universe stats could not be loaded", error);
+      }
+    };
+
+    void loadUniverseStats();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const stats = createHomeStats(universeStats);
   const reduceMotion = useReducedMotion();
   const [pointer, setPointer] = useState({ x: 0, y: 0 });
 
@@ -307,7 +362,11 @@ export function Home() {
 
       <Journey />
 
-      <GalacticSky builderCount={127} />
+      <GalacticSky
+        builderCount={universeStats.buildersJoined}
+        galaxiesCreated={universeStats.galaxiesCreated}
+        newBuildersThisWeek={universeStats.newBuildersThisWeek}
+      />
 
       <motion.section className="stats" variants={fadeUp}>
         {stats.map((stat) => {

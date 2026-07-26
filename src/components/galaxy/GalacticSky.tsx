@@ -4,6 +4,8 @@ import { Orbit, Sparkles, Star, Users } from "lucide-react";
 
 type GalacticSkyProps = {
   builderCount?: number;
+  galaxiesCreated?: number;
+  newBuildersThisWeek?: number;
 };
 
 type BuilderStar = {
@@ -83,7 +85,9 @@ function createStars(count: number): BuilderStar[] {
 }
 
 export function GalacticSky({
-  builderCount = 127,
+  builderCount = 0,
+  galaxiesCreated = 0,
+  newBuildersThisWeek = 0,
 }: GalacticSkyProps) {
   const reduceMotion = useReducedMotion();
   const stars = createStars(builderCount);
@@ -990,12 +994,12 @@ export function GalacticSky({
 
         <div className="galactic-stat">
           <Orbit size={15} />
-          24 GALAXIES CREATED
+          {galaxiesCreated} GALAXIES CREATED
         </div>
 
         <div className="galactic-stat">
           <Star size={15} />
-          18 NEW STARS THIS WEEK
+          {newBuildersThisWeek} NEW STARS THIS WEEK
         </div>
       </footer>
     </section>
