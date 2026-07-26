@@ -9,46 +9,81 @@ export default function BuilderSignalWidget({
   authenticated,
   inviteCode,
 }: BuilderSignalWidgetProps) {
-  const [copied, setCopied] = useState(false);
+  const [copiedValue, setCopiedValue] = useState<
+    "code" | "link" | null
+  >(null);
 
-  const copyCode = async () => {
-    if (!inviteCode) return;
+  const inviteLink = inviteCode
+    ? new URL(
+        `join/${encodeURIComponent(inviteCode)}`,
+        window.location.origin + import.meta.env.BASE_URL,
+      ).toString()
+    : null;
 
-    await navigator.clipboard.writeText(inviteCode);
+  const copyValue = async (
+    value: string,
+    type: "code" | "link",
+  ) => {
+    await navigator.clipboard.writeText(value);
+    setCopiedValue(type);
 
-    setCopied(true);
-
-    setTimeout(() => {
-      setCopied(false);
+    window.setTimeout(() => {
+      setCopiedValue(null);
     }, 2000);
   };
 
-  const shareSignal = () => {
-    if (!inviteCode) return;
+  const shareInvite = async () => {
+    if (!inviteCode || !inviteLink) {
+      return;
+    }
 
-    const text =
-      `I just joined BOBU Universe.\n\n` +
-      `My Builder Signal: ${inviteCode}\n\n` +
-      `Join the Builder Civilization Network.`;
+    const shareData = {
+      title: "Join BOBU Universe",
+      text:
+        "Join my Builder Civilization network in BOBU Universe.",
+      url: inviteLink,
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+        return;
+      } catch (error) {
+        if (
+          error instanceof DOMException &&
+          error.name === "AbortError"
+        ) {
+          return;
+        }
+      }
+    }
+
+    const tweetText =
+      `Join my Builder Civilization network in BOBU Universe.\n\n` +
+      `${inviteLink}`;
 
     window.open(
-      `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`,
+      `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+        tweetText,
+      )}`,
       "_blank",
+      "noopener,noreferrer",
     );
   };
 
   return (
-    <div
+    <aside
+      aria-label="Builder invitation"
       style={{
         position: "fixed",
         right: "24px",
         bottom: "24px",
-        width: "260px",
+        width: "min(280px, calc(100vw - 32px))",
         padding: "18px",
         borderRadius: "20px",
         color: "white",
         background:
-          "linear-gradient(145deg, rgba(18,20,40,0.96), rgba(8,10,24,0.96))",
+          "linear-gradient(145deg, rgba(18,20,40,0.97), rgba(8,10,24,0.97))",
         border: "1px solid rgba(153,69,255,0.35)",
         boxShadow: "0 20px 60px rgba(0,0,0,0.4)",
         zIndex: 50,
@@ -60,19 +95,20 @@ export default function BuilderSignalWidget({
           color: "#14f195",
           fontSize: "12px",
           fontWeight: 700,
+          letterSpacing: "0.1em",
         }}
       >
-        BUILDER SIGNAL
+        BUILDER INVITE
       </p>
 
       {!authenticated ? (
         <p
           style={{
-            marginTop: "12px",
+            margin: "12px 0 0",
             color: "rgba(255,255,255,0.7)",
           }}
         >
-          🔒 Sign in to unlock your referral code
+          🔒 Sign in to unlock your invite code.
         </p>
       ) : (
         <>
@@ -80,30 +116,68 @@ export default function BuilderSignalWidget({
             style={{
               display: "block",
               marginTop: "12px",
-              fontSize: "22px",
+              fontSize: "21px",
               letterSpacing: "0.08em",
             }}
           >
             {inviteCode}
           </strong>
 
+          <p
+            style={{
+              margin: "8px 0 0",
+              overflowWrap: "anywhere",
+              color: "rgba(255,255,255,0.56)",
+              fontSize: "12px",
+              lineHeight: 1.5,
+            }}
+          >
+            {inviteLink}
+          </p>
+
           <div
             style={{
-              display: "flex",
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
               gap: "8px",
               marginTop: "14px",
             }}
           >
-            <button onClick={copyCode}>
-              {copied ? "Copied" : "Copy"}
+            <button
+              type="button"
+              onClick={() => {
+                if (inviteCode) {
+                  void copyValue(inviteCode, "code");
+                }
+              }}
+            >
+              {copiedValue === "code"
+                ? "Copied"
+                : "Copy code"}
             </button>
 
-            <button onClick={shareSignal}>
+            <button
+              type="button"
+              onClick={() => {
+                if (inviteLink) {
+                  void copyValue(inviteLink, "link");
+                }
+              }}
+            >
+              {copiedValue === "link"
+                ? "Copied"
+                : "Copy link"}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => void shareInvite()}
+            >
               Share
             </button>
           </div>
         </>
       )}
-    </div>
+    </aside>
   );
 }
