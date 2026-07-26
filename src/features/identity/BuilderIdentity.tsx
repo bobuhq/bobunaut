@@ -5,6 +5,7 @@ import { builderStore } from "../../store/builderStore";
 import { supabase } from "../../lib/supabase";
 import { builderRepository } from "../../core/builder/repository/BuilderRepository";
 import { builderMapper } from "../../core/builder/mapper/BuilderMapper";
+import { referralService } from "../../core/builder/services/ReferralService";
 import type { IdentityProvider } from "../../core/models/Builder";
 import "./BuilderIdentity.css";
 
@@ -93,6 +94,8 @@ export default function BuilderIdentity() {
 
   useEffect(() => {
     const restoreIdentityPage = async (): Promise<void> => {
+      referralService.captureReferralFromUrl();
+
       const searchParams = new URLSearchParams(
         window.location.search,
       );
@@ -146,6 +149,10 @@ export default function BuilderIdentity() {
       if (!source) {
         return;
       }
+
+      await referralService.connectReferral(
+        source.builderId,
+      );
 
       const telegramLinked =
         source.identities.some(
