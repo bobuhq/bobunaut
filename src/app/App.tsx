@@ -11,10 +11,29 @@ import {
 } from "react-router-dom";
 
 import { Shell } from "./Shell";
-import { Genesis } from "../features/Genesis";
-import { Home } from "../features/Home";
-import { Deck } from "../features/Deck";
-import { Missions } from "../features/Missions";
+const Genesis = lazy(() =>
+  import("../features/Genesis").then((module) => ({
+    default: module.Genesis,
+  })),
+);
+
+const Home = lazy(() =>
+  import("../features/Home").then((module) => ({
+    default: module.Home,
+  })),
+);
+
+const Deck = lazy(() =>
+  import("../features/Deck").then((module) => ({
+    default: module.Deck,
+  })),
+);
+
+const Missions = lazy(() =>
+  import("../features/Missions").then((module) => ({
+    default: module.Missions,
+  })),
+);
 const Galaxy = lazy(() =>
   import("../features/Galaxy").then((module) => ({
     default: module.Galaxy,
@@ -32,7 +51,9 @@ const BuilderPassport = lazy(() =>
 const BuilderMining = lazy(
   () => import("../features/mining/BuilderMining"),
 );
-import BuilderIdentity from "../features/identity/BuilderIdentity";
+const BuilderIdentity = lazy(
+  () => import("../features/identity/BuilderIdentity"),
+);
 import { BuilderInviteEntry } from "../features/invite/BuilderInviteEntry";
 
 export function App() {
