@@ -319,215 +319,222 @@ export function Galaxy() {
 
         .galaxy-canvas {
           position: relative;
-          width: min(530px, 92%);
-          aspect-ratio: 1;
-          margin: 18px auto 0;
+          display: flex;
+          min-height: 470px;
+          flex-direction: column;
+          align-items: center;
+          padding: 34px 24px 28px;
+          overflow-x: auto;
         }
 
-        .orbit-ring {
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          border: 1px solid rgba(133, 181, 255, 0.16);
-          border-radius: 50%;
-          transform: translate(-50%, -50%);
-        }
-
-        .orbit-ring.one {
-          width: 42%;
-          height: 42%;
-        }
-
-        .orbit-ring.two {
-          width: 68%;
-          height: 68%;
-        }
-
-        .orbit-ring.three {
-          width: 94%;
-          height: 94%;
-        }
-
-        .galaxy-core {
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          z-index: 10;
+        .galaxy-tree-root {
+          position: relative;
+          z-index: 3;
           display: grid;
-          width: 124px;
-          height: 124px;
+          width: 150px;
+          min-height: 104px;
           place-items: center;
-          border: 1px solid rgba(253, 230, 138, 0.8);
-          border-radius: 50%;
+          border: 1px solid rgba(253, 230, 138, 0.72);
+          border-radius: 22px;
           color: white;
           text-align: center;
           cursor: pointer;
-          transform: translate(-50%, -50%);
           background:
             radial-gradient(
-              circle at 34% 26%,
-              rgba(255, 236, 153, 0.98),
-              rgba(245, 158, 11, 0.94) 18%,
-              rgba(139, 92, 246, 0.94) 52%,
-              rgba(46, 16, 101, 0.98) 76%
+              circle at 35% 18%,
+              rgba(255, 239, 168, 0.98),
+              rgba(245, 158, 11, 0.88) 20%,
+              rgba(111, 67, 231, 0.94) 58%,
+              rgba(35, 15, 85, 0.98) 100%
             );
           box-shadow:
-            0 0 0 10px rgba(245, 158, 11, 0.08),
-            0 0 0 20px rgba(139, 92, 246, 0.06),
-            0 0 34px rgba(245, 158, 11, 0.78),
-            0 0 68px rgba(139, 92, 246, 0.64),
-            0 0 120px rgba(236, 72, 153, 0.22);
+            0 0 0 7px rgba(245, 158, 11, 0.06),
+            0 0 30px rgba(245, 158, 11, 0.42),
+            0 0 62px rgba(139, 92, 246, 0.34);
         }
 
-        .galaxy-core::before {
+        .galaxy-tree-root strong {
+          display: block;
+          margin-top: 6px;
+          font-size: 0.9rem;
+          letter-spacing: 0.05em;
+        }
+
+        .galaxy-tree-root span {
+          display: block;
+          margin-top: 3px;
+          color: #e5d9ff;
+          font-size: 0.58rem;
+          letter-spacing: 0.12em;
+        }
+
+        .galaxy-tree-trunk {
+          width: 1px;
+          height: 58px;
+          background: linear-gradient(
+            rgba(245, 158, 11, 0.72),
+            rgba(111, 95, 255, 0.62)
+          );
+          box-shadow: 0 0 12px rgba(139, 92, 246, 0.58);
+        }
+
+        .galaxy-tree-members {
+          position: relative;
+          display: grid;
+          width: max-content;
+          min-width: min(100%, 260px);
+          grid-template-columns: repeat(
+            auto-fit,
+            minmax(170px, 190px)
+          );
+          justify-content: center;
+          gap: 42px 28px;
+          padding: 32px 14px 10px;
+        }
+
+        .galaxy-tree-members::before {
           content: "";
           position: absolute;
-          inset: -18px;
-          z-index: -1;
-          border: 1px solid rgba(253, 230, 138, 0.22);
-          border-radius: 50%;
-          background:
-            conic-gradient(
-              from 0deg,
-              rgba(245, 158, 11, 0.28),
-              rgba(139, 92, 246, 0.08),
-              rgba(236, 72, 153, 0.24),
-              rgba(245, 158, 11, 0.28)
-            );
-          filter: blur(6px);
-          animation: galaxy-core-spin 12s linear infinite;
-        }
-
-        @keyframes galaxy-core-spin {
-          to {
-            transform: rotate(360deg);
-          }
-        }
-
-        .galaxy-core strong {
-          display: block;
-          font-size: 0.9rem;
-        }
-
-        .galaxy-core span {
-          display: block;
-          margin-top: 2px;
-          color: #d9c9ff;
-          font-size: 0.58rem;
-        }
-
-        .galaxy-connection-line {
-          position: absolute;
-          top: 50%;
+          top: 0;
           left: 50%;
-          z-index: 3;
+          width: min(82%, 760px);
           height: 1px;
-          transform-origin: left center;
-          pointer-events: none;
+          transform: translateX(-50%);
+          background: linear-gradient(
+            90deg,
+            transparent,
+            rgba(111, 95, 255, 0.62) 12%,
+            rgba(103, 211, 255, 0.7) 50%,
+            rgba(111, 95, 255, 0.62) 88%,
+            transparent
+          );
+          box-shadow: 0 0 12px rgba(103, 211, 255, 0.36);
+        }
+
+        .galaxy-tree-member-wrap {
+          position: relative;
+          display: flex;
+          justify-content: center;
+        }
+
+        .galaxy-tree-member-wrap::before {
+          content: "";
+          position: absolute;
+          top: -32px;
+          left: 50%;
+          width: 1px;
+          height: 32px;
+          transform: translateX(-50%);
+          background: rgba(103, 211, 255, 0.5);
+          box-shadow: 0 0 10px rgba(103, 211, 255, 0.34);
+        }
+
+        .member-card {
+          position: relative;
+          z-index: 2;
+          display: grid;
+          width: 100%;
+          min-height: 124px;
+          align-content: center;
+          justify-items: center;
+          gap: 7px;
+          padding: 18px 14px;
+          border: 1px solid var(--node-ring);
+          border-radius: 18px;
+          color: white;
+          text-align: center;
+          cursor: pointer;
           background:
             linear-gradient(
-              90deg,
-              rgba(245, 158, 11, 0.3),
-              var(--line-color)
+              145deg,
+              rgba(22, 24, 59, 0.96),
+              rgba(12, 14, 38, 0.98)
             );
           box-shadow:
-            0 0 8px var(--line-color),
-            0 0 18px color-mix(
+            0 0 22px color-mix(
               in srgb,
-              var(--line-color) 45%,
+              var(--node-glow) 24%,
               transparent
-            );
+            ),
+            inset 0 1px rgba(255, 255, 255, 0.05);
+          transition:
+            transform 180ms ease,
+            filter 180ms ease,
+            border-color 180ms ease;
         }
 
-        .member-node {
-          --distance: 110px;
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          z-index: 6;
+        .member-card:hover {
+          filter: brightness(1.18);
+          transform: translateY(-3px);
+        }
+
+        .member-card.selected {
+          border-color: rgba(255, 255, 255, 0.94);
+          box-shadow:
+            0 0 0 4px rgba(111, 95, 255, 0.12),
+            0 0 28px rgba(103, 211, 255, 0.48);
+        }
+
+        .member-card-icon {
           display: grid;
-          width: 42px;
-          height: 42px;
+          width: 36px;
+          height: 36px;
           place-items: center;
           border: 1px solid var(--node-ring);
           border-radius: 50%;
           color: var(--node-text);
-          cursor: pointer;
-          transform:
-            translate(-50%, -50%)
-            rotate(var(--angle))
-            translateX(var(--distance))
-            rotate(calc(var(--angle) * -1));
           background: var(--node-gradient);
-          box-shadow:
-            0 0 16px color-mix(
-              in srgb,
-              var(--node-glow) 58%,
-              transparent
-            ),
-            0 0 34px color-mix(
-              in srgb,
-              var(--node-glow) 24%,
-              transparent
-            );
-          transition:
-            filter 180ms ease,
-            box-shadow 180ms ease,
-            border-color 180ms ease;
+          box-shadow: 0 0 16px var(--node-glow);
         }
 
-        .member-node:hover {
-          filter: brightness(1.45);
+        .member-card strong {
+          max-width: 155px;
+          overflow: hidden;
+          font-size: 0.78rem;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
 
-        .member-node.selected {
-          border-color: rgba(255, 255, 255, 0.95);
-          filter: brightness(1.55);
-          box-shadow:
-            0 0 0 5px rgba(111, 95, 255, 0.14),
-            0 0 22px rgba(103, 211, 255, 0.78),
-            0 0 42px rgba(130, 83, 255, 0.48);
-        }
-
-        .member-node.level-1 {
-          --distance: 110px;
-          width: 46px;
-          height: 46px;
-        }
-
-        .member-node.level-2 {
-          --distance: 180px;
-          width: 38px;
-          height: 38px;
-        }
-
-        .member-node.level-3 {
-          --distance: 248px;
-          width: 30px;
-          height: 30px;
-          opacity: 0.8;
-        }
-
-        .member-node span {
-          position: absolute;
-          top: calc(100% + 7px);
-          left: 50%;
-          width: max-content;
-          color: rgba(235, 238, 255, 0.72);
+        .member-card-meta {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          color: rgba(225, 230, 255, 0.6);
           font-size: 0.62rem;
-          transform: translateX(-50%);
+        }
+
+        .member-card-status {
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          color: #7dffc2;
+          font-size: 0.58rem;
+          font-weight: 800;
+          text-transform: uppercase;
+        }
+
+        .member-card-status::before {
+          content: "";
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: currentColor;
+          box-shadow: 0 0 8px currentColor;
+        }
+
+        .member-card-status.pending {
+          color: #f6c46b;
         }
 
         .empty-orbit {
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          width: 220px;
+          max-width: 280px;
+          padding: 24px;
+          border: 1px dashed rgba(131, 143, 209, 0.2);
+          border-radius: 18px;
           color: rgba(220, 225, 255, 0.54);
           text-align: center;
           font-size: 0.76rem;
           line-height: 1.5;
-          transform: translate(-50%, 90px);
         }
 
         .galaxy-side {
@@ -746,19 +753,24 @@ export function Galaxy() {
             min-height: 500px;
           }
 
-          .galaxy-core {
-            width: 88px;
-            height: 88px;
+          .galaxy-canvas {
+            min-height: 430px;
+            padding-inline: 10px;
           }
 
-          .member-node.level-1,
-          .member-node.level-2,
-          .member-node.level-3 {
-            --distance: 138px;
+          .galaxy-tree-root {
+            width: 132px;
+            min-height: 92px;
           }
 
-          .member-node span {
-            display: none;
+          .galaxy-tree-members {
+            width: 100%;
+            grid-template-columns: 1fr;
+          }
+
+          .galaxy-tree-members::before {
+            width: 1px;
+            height: 100%;
           }
 
           .galaxy-stats {
@@ -790,13 +802,9 @@ export function Galaxy() {
           </div>
 
           <div className="galaxy-canvas">
-            <div className="orbit-ring one" />
-            <div className="orbit-ring two" />
-            <div className="orbit-ring three" />
-
             <motion.div
-              className="galaxy-core"
-              animate={{ scale: [1, 1.04, 1] }}
+              className="galaxy-tree-root"
+              animate={{ y: [0, -3, 0] }}
               transition={{
                 duration: 3,
                 repeat: Infinity,
@@ -804,94 +812,101 @@ export function Galaxy() {
               onClick={() => setSelectedMember(null)}
             >
               <div>
-                <Crown size={24} />
+                <Crown size={25} />
                 <strong>
-                  {activeGalaxy === "Genesis" ? "KING BOBU" : activeGalaxy}
+                  {activeGalaxy === "Genesis"
+                    ? "KING BOBU"
+                    : activeGalaxy}
                 </strong>
-                <span>NEBULA CORE</span>
+                <span>YOU · NEBULA CORE</span>
               </div>
             </motion.div>
 
-            {visibleMembers.map((member, index) => {
-              const distance = 115 + (index % 3) * 58;
+            <div className="galaxy-tree-trunk" />
 
-              return (
-                <div key={`connection-${activeGalaxy}-${member.name}`}>
+            {visibleMembers.length > 0 ? (
+              <div className="galaxy-tree-members">
+                {visibleMembers.map((member, index) => (
                   <motion.div
-                    className="galaxy-connection-line"
-                    style={
-                      {
-                        width: `${distance}px`,
-                        transform: `rotate(${member.angle}deg)`,
-                        "--line-color": member.theme.lineColor,
-                        opacity:
-                          member.status === "active"
-                            ? 0.82
-                            : 0.26,
-                      } as React.CSSProperties
-                    }
-                    initial={{ scaleX: 0, opacity: 0 }}
-                    animate={{
-                      scaleX: 1,
-                      opacity:
-                        member.status === "active"
-                          ? 0.82
-                          : 0.26,
-                    }}
+                    className="galaxy-tree-member-wrap"
+                    key={`${activeGalaxy}-${member.name}`}
+                    initial={{ opacity: 0, y: 18 }}
+                    animate={{ opacity: 1, y: 0 }}
                     transition={{
-                      delay: 0.06 + index * 0.07,
-                      duration: 0.55,
+                      delay: 0.08 + index * 0.07,
+                      duration: 0.4,
                     }}
-                  />
+                  >
+                    <div
+                      className={`member-card ${
+                        selectedMember?.name === member.name
+                          ? "selected"
+                          : ""
+                      }`}
+                      style={
+                        {
+                          "--node-gradient":
+                            member.theme.nodeGradient,
+                          "--node-glow":
+                            member.theme.glowColor,
+                          "--node-ring":
+                            member.theme.ringColor,
+                          "--node-text":
+                            member.theme.textAccent,
+                          opacity:
+                            member.status === "active"
+                              ? 1
+                              : 0.62,
+                        } as React.CSSProperties
+                      }
+                      onClick={() =>
+                        setSelectedMember(member)
+                      }
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(event) => {
+                        if (
+                          event.key === "Enter" ||
+                          event.key === " "
+                        ) {
+                          setSelectedMember(member);
+                        }
+                      }}
+                    >
+                      <div className="member-card-icon">
+                        <Star size={15} />
+                      </div>
 
-                  <motion.div
-                className={`member-node level-${member.level} ${
-                  selectedMember?.name === member.name ? "selected" : ""
-                }`}
-                style={
-                  {
-                    "--angle": `${member.angle}deg`,
-                    "--distance": `${115 + (index % 3) * 58}px`,
-                    "--node-gradient": member.theme.nodeGradient,
-                    "--node-glow": member.theme.glowColor,
-                    "--node-ring": member.theme.ringColor,
-                    "--node-text": member.theme.textAccent,
-                    opacity:
-                      member.status === "active"
-                        ? 1
-                        : 0.48,
-                  } as React.CSSProperties
-                }
-                key={`${activeGalaxy}-${member.name}`}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{
-                  delay: 0.12 + index * 0.08,
-                  duration: 0.45,
-                }}
-                whileHover={{
-                  filter: "brightness(1.45)",
-                  zIndex: 20,
-                }}
-                onClick={() => setSelectedMember(member)}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter" || event.key === " ") {
-                    setSelectedMember(member);
-                  }
-                }}
-              >
-                <Star size={member.level >= 3 ? 10 : 14} />
-                <span>{member.name}</span>
+                      <strong>{member.name}</strong>
+
+                      <div className="member-card-meta">
+                        <span>
+                          {member.gp.toLocaleString("tr-TR")} GP
+                        </span>
+                        <span>·</span>
+                        <span>
+                          {member.builders} Builders
+                        </span>
+                      </div>
+
+                      <span
+                        className={`member-card-status ${
+                          member.status === "active"
+                            ? ""
+                            : "pending"
+                        }`}
+                      >
+                        {member.status === "active"
+                          ? "Active"
+                          : "Pending"}
+                      </span>
+                    </div>
                   </motion.div>
-                </div>
-              );
-            })}
-
-            {visibleMembers.length === 0 && (
+                ))}
+              </div>
+            ) : (
               <div className="empty-orbit">
-                This Builder has not created any new stars yet.
+                This Builder has not invited any Builders yet.
               </div>
             )}
           </div>
