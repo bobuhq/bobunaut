@@ -28,7 +28,7 @@ type GalaxyMember = {
   level: number;
   angle: number;
   builders: number;
-  xp: number;
+  gp: number;
   parent: string;
   status: "pending" | "active";
   theme: ReturnType<typeof getPrimaryBranchTheme>;
@@ -162,7 +162,7 @@ export function Galaxy() {
           ? (360 / galaxyMembers.length) * index
           : 0,
       builders: member.referralCount,
-      xp: member.gp,
+      gp: member.gp,
       parent: "Genesis",
       status: member.referralStatus,
       theme: getPrimaryBranchTheme(index),
@@ -935,7 +935,7 @@ export function Galaxy() {
                   <div>
                     <span>Builder GP</span>
                     <strong>
-                      {selectedMember.xp.toLocaleString()}
+                      {selectedMember.gp.toLocaleString("tr-TR")}
                     </strong>
                   </div>
                 </div>
