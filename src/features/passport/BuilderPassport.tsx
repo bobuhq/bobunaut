@@ -12,9 +12,6 @@ type BuilderProfile = {
   builderPoints: number;
   inviteCode: string;
 
-  currentXp: number;
-  nextLevelXp: number;
-
   joinedAt: string;
   walletAddress: string;
   status: "Active" | "Inactive";
@@ -29,9 +26,6 @@ const createBuilderProfile = (
   level: builder.level,
   builderPoints: builder.gp,
   inviteCode: builder.inviteCode,
-
-  currentXp: builder.xp,
-  nextLevelXp: 1000,
 
   joinedAt: "July 2026",
   walletAddress: builder.identity.wallet
@@ -64,9 +58,6 @@ export function BuilderPassport() {
   }, []);
 
   const builderProfile = createBuilderProfile(builder);
-
-  const progress =
-    (builderProfile.currentXp / builderProfile.nextLevelXp) * 100;
 
   return (
     <main
@@ -161,89 +152,8 @@ export function BuilderPassport() {
         >
           <StatCard label="Level" value={builderProfile.level.toString()} />
           <StatCard
-            label="Builder Points"
+            label="GP Balance"
             value={builderProfile.builderPoints.toLocaleString()}
-          />
-        </div>
-
-        <div
-          style={{
-            marginBottom: "24px",
-          }}
-        >
-          <p
-            style={{
-              margin: "0 0 10px",
-              fontWeight: 700,
-            }}
-          >
-            XP Progress
-          </p>
-
-          <div
-            style={{
-              height: "10px",
-              overflow: "hidden",
-              borderRadius: "999px",
-              background: "rgba(255, 255, 255, 0.08)",
-            }}
-          >
-            <div
-              style={{
-                width: `${progress}%`,
-                height: "100%",
-                borderRadius: "999px",
-                background: "linear-gradient(90deg, #14f195, #9945ff)",
-              }}
-            />
-          </div>
-
-          <p
-            style={{
-              margin: "10px 0 0",
-              color: "rgba(255, 255, 255, 0.6)",
-              fontSize: "14px",
-            }}
-          >
-            {builderProfile.currentXp} / {builderProfile.nextLevelXp} XP
-          </p>
-        </div>
-
-        <div
-          style={{
-            display: "grid",
-            gap: "14px",
-            padding: "20px",
-            borderRadius: "18px",
-            background: "rgba(255, 255, 255, 0.045)",
-          }}
-        >
-          <ProfileRow label="Role" value={builderProfile.role} />
-          <ProfileRow label="Joined" value={builderProfile.joinedAt} />
-          <ProfileRow label="Wallet" value={builderProfile.walletAddress} />
-          <ProfileRow label="Status" value={builderProfile.status} />
-        </div>
-
-        <p
-          style={{
-            margin: "24px 0 0",
-            color: "rgba(255, 255, 255, 0.54)",
-            fontSize: "14px",
-            lineHeight: 1.6,
-            textAlign: "center",
-          }}
-        >
-          Your identity, progress and contributions across BOBU Universe.
-        </p>
-
-        <div style={{ position: "fixed", left: "-10000px", top: 0, width: "1200px" }}>
-          <BuilderPassportShareCard
-            displayName={builderProfile.displayName}
-            username={builderProfile.username}
-            level={builderProfile.level}
-            currentXp={builderProfile.currentXp}
-            nextLevelXp={builderProfile.nextLevelXp}
-            walletAddress={builderProfile.walletAddress}
           />
         </div>
 
