@@ -1,3 +1,7 @@
+import {
+  lazy,
+  Suspense,
+} from "react";
 import { AnimatePresence } from "framer-motion";
 import {
   Navigate,
@@ -11,9 +15,23 @@ import { Genesis } from "../features/Genesis";
 import { Home } from "../features/Home";
 import { Deck } from "../features/Deck";
 import { Missions } from "../features/Missions";
-import { Galaxy } from "../features/Galaxy";
-import { BuilderPassport } from "../features/passport/BuilderPassport";
-import BuilderMining from "../features/mining/BuilderMining";
+const Galaxy = lazy(() =>
+  import("../features/Galaxy").then((module) => ({
+    default: module.Galaxy,
+  })),
+);
+
+const BuilderPassport = lazy(() =>
+  import(
+    "../features/passport/BuilderPassport"
+  ).then((module) => ({
+    default: module.BuilderPassport,
+  })),
+);
+
+const BuilderMining = lazy(
+  () => import("../features/mining/BuilderMining"),
+);
 import BuilderIdentity from "../features/identity/BuilderIdentity";
 import { BuilderInviteEntry } from "../features/invite/BuilderInviteEntry";
 
@@ -22,7 +40,21 @@ export function App() {
 
   return (
     <AnimatePresence mode="wait">
-      <Routes location={location} key={location.pathname}>
+      <Suspense
+        fallback={
+          <div
+            style={{
+              minHeight: "100vh",
+              display: "grid",
+              placeItems: "center",
+              color: "rgba(235, 238, 255, 0.72)",
+            }}
+          >
+            Loading BOBU Universe…
+          </div>
+        }
+      >
+        <Routes location={location} key={location.pathname}>
         <Route
           path="/join/:inviteCode"
           element={<BuilderInviteEntry />}
@@ -40,8 +72,12 @@ export function App() {
           <Route path="/galaxy" element={<Galaxy />} />
         </Route>
 
-        <Route path="*" element={<Navigate to="/genesis" replace />} />
-      </Routes>
+          <Route
+            path="*"
+            element={<Navigate to="/genesis" replace />}
+          />
+        </Routes>
+      </Suspense>
     </AnimatePresence>
   );
 }
