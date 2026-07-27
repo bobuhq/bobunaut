@@ -1,83 +1,47 @@
-import { useEffect, useMemo, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+  type CSSProperties,
+} from "react";
 import { motion } from "framer-motion";
 import {
-  ArrowLeft,
   Check,
   Copy,
   Crown,
-  Orbit,
-  Rocket,
   Sparkles,
   Star,
-  Users,
-  Zap,
 } from "lucide-react";
-import { Title } from "../shared/Title";
 import { useBuilderStore } from "./identity/hooks/useBuilderStore";
 import {
   galaxyService,
   type GalaxyMember as RealGalaxyMember,
 } from "../core/builder/services/GalaxyService";
-import {
-  getPrimaryBranchTheme,
-  galaxyThemes,
-} from "./galaxy/galaxyThemes";
+import { getPrimaryBranchTheme } from "./galaxy/galaxyThemes";
 
 type GalaxyMember = {
+  builderId: string;
   name: string;
-  level: number;
-  angle: number;
   builders: number;
   gp: number;
-  parent: string;
   status: "pending" | "active";
   theme: ReturnType<typeof getPrimaryBranchTheme>;
 };
 
-
-
-const createGalaxyStats = (
-  memberCount: number,
-  activeCount: number,
-  pendingCount: number,
-  gp: number,
-) => [
-  {
-    label: "Galaxy Members",
-    value: memberCount.toLocaleString(),
-    detail: `${activeCount} active · ${pendingCount} pending`,
-    icon: Users,
-  },
-  {
-    label: "Builder GP",
-    value: gp.toLocaleString(),
-    detail: "Current Builder balance",
-    icon: Zap,
-  },
-  {
-    label: "Active Builders",
-    value: activeCount.toLocaleString(),
-    detail: "Verified Galaxy connections",
-    icon: Orbit,
-  },
-  {
-    label: "Pending Builders",
-    value: pendingCount.toLocaleString(),
-    detail: "Awaiting activation",
-    icon: Sparkles,
-  },
-] as const;
-
 export function Galaxy() {
   const builder = useBuilderStore();
-  const [galaxyMembers, setGalaxyMembers] = useState<RealGalaxyMember[]>([]);
-  const [isGalaxyLoading, setIsGalaxyLoading] = useState(true);
-  const [galaxyError, setGalaxyError] = useState<string | null>(null);
+
+  const [galaxyMembers, setGalaxyMembers] = useState<
+    RealGalaxyMember[]
+  >([]);
+  const [isGalaxyLoading, setIsGalaxyLoading] =
+    useState(true);
+  const [galaxyError, setGalaxyError] = useState<
+    string | null
+  >(null);
+  const [selectedMemberId, setSelectedMemberId] =
+    useState<string | null>(null);
   const [copied, setCopied] = useState(false);
-  const [selectedMember, setSelectedMember] = useState<GalaxyMember | null>(
-    null,
-  );
-  const [activeGalaxy, setActiveGalaxy] = useState("Genesis");
 
   useEffect(() => {
     let isMounted = true;
@@ -93,11 +57,16 @@ export function Galaxy() {
           setGalaxyMembers(members);
         }
       } catch (error) {
-        console.error("Galaxy data could not be loaded", error);
+        console.error(
+          "Galaxy data could not be loaded",
+          error,
+        );
 
         if (isMounted) {
           setGalaxyMembers([]);
-          setGalaxyError("Galaxy data could not be loaded.");
+          setGalaxyError(
+            "Galaxy data could not be loaded.",
+          );
         }
       } finally {
         if (isMounted) {
@@ -114,67 +83,49 @@ export function Galaxy() {
   }, [builder.id]);
 
   const referralLink =
-    builder.inviteCode && builder.inviteCode !== "BOBU-GENESIS"
+    builder.inviteCode &&
+    builder.inviteCode !== "BOBU-GENESIS"
       ? new URL(
-          `join/${encodeURIComponent(builder.inviteCode)}`,
-          window.location.origin + import.meta.env.BASE_URL,
+          `join/${encodeURIComponent(
+            builder.inviteCode,
+          )}`,
+          window.location.origin +
+            import.meta.env.BASE_URL,
         ).toString()
       : null;
 
   const activeMemberCount = galaxyMembers.filter(
-    (member) => member.referralStatus === "active",
+    (member) =>
+      member.referralStatus === "active",
   ).length;
 
   const pendingMemberCount = galaxyMembers.filter(
-    (member) => member.referralStatus === "pending",
+    (member) =>
+      member.referralStatus === "pending",
   ).length;
 
-  const stats = createGalaxyStats(
-    galaxyMembers.length,
-    activeMemberCount,
-    pendingMemberCount,
-    builder.gp,
-  );
-
   const galaxyLevelTarget = 10;
-  const galaxyLevelProgress = Math.min(
-    100,
-    (activeMemberCount / galaxyLevelTarget) * 100,
-  );
+
   const remainingActiveBuilders = Math.max(
     0,
     galaxyLevelTarget - activeMemberCount,
   );
 
-  const visibleMembers = useMemo<GalaxyMember[]>(() => {
-    if (activeGalaxy !== "Genesis") {
-      return [];
-    }
-
-    return galaxyMembers.map((member, index) => ({
-      name:
-        member.displayName ??
-        member.username ??
-        `Builder ${member.builderId.slice(0, 6)}`,
-      level: 1,
-      angle:
-        galaxyMembers.length > 0
-          ? (360 / galaxyMembers.length) * index
-          : 0,
-      builders: member.referralCount,
-      gp: member.gp,
-      parent: "Genesis",
-      status: member.referralStatus,
-      theme: getPrimaryBranchTheme(index),
-    }));
-  }, [activeGalaxy, galaxyMembers]);
-
-  const currentGalaxyOwner: GalaxyMember | null = null;
-
-  const galaxyTitle =
-    activeGalaxy === "Genesis"
-      ? "Genesis Builder Galaxy"
-      : `${activeGalaxy} Galaxy`;
+  const visibleMembers = useMemo<GalaxyMember[]>(
+    () =>
+      galaxyMembers.map((member, index) => ({
+        builderId: member.builderId,
+        name:
+          member.displayName ??
+          member.username ??
+          `Builder ${member.builderId.slice(0, 6)}`,
+        builders: member.referralCount,
+        gp: member.gp,
+        status: member.referralStatus,
+        theme: getPrimaryBranchTheme(index),
+      })),
+    [galaxyMembers],
+  );
 
   const copyReferralLink = async () => {
     if (!referralLink) {
@@ -182,7 +133,9 @@ export function Galaxy() {
     }
 
     try {
-      await navigator.clipboard.writeText(referralLink);
+      await navigator.clipboard.writeText(
+        referralLink,
+      );
       setCopied(true);
 
       window.setTimeout(() => {
@@ -191,20 +144,6 @@ export function Galaxy() {
     } catch {
       setCopied(false);
     }
-  };
-
-  const exploreGalaxy = () => {
-    if (!selectedMember) {
-      return;
-    }
-
-    setActiveGalaxy(selectedMember.name);
-    setSelectedMember(null);
-  };
-
-  const returnToMyGalaxy = () => {
-    setActiveGalaxy("Genesis");
-    setSelectedMember(null);
   };
 
   return (
@@ -216,834 +155,951 @@ export function Galaxy() {
     >
       <style>{`
         .my-galaxy-page {
-          width: min(1240px, calc(100% - 32px));
+          width: min(1440px, calc(100% - 28px));
           margin: 0 auto;
-          padding: 130px 0 80px;
+          padding: 112px 0 60px;
+          color: white;
         }
 
-        .galaxy-dashboard-grid {
+        .galaxy-shell {
           display: grid;
-          grid-template-columns: minmax(0, 1.55fr) minmax(300px, 0.75fr);
-          gap: 22px;
-          margin-top: 28px;
-        }
-
-        .galaxy-panel {
-          position: relative;
+          grid-template-columns:
+            250px minmax(0, 1fr);
+          min-height: 760px;
           overflow: hidden;
-          border: 1px solid rgba(151, 118, 255, 0.2);
-          border-radius: 28px;
+          border:
+            1px solid rgba(132, 108, 255, 0.24);
+          border-radius: 26px;
           background:
+            radial-gradient(
+              circle at 65% 22%,
+              rgba(72, 87, 255, 0.12),
+              transparent 32%
+            ),
             linear-gradient(
               145deg,
-              rgba(18, 14, 48, 0.84),
-              rgba(6, 12, 30, 0.9)
+              rgba(12, 14, 39, 0.97),
+              rgba(5, 9, 25, 0.98)
             );
           box-shadow:
-            0 28px 80px rgba(0, 0, 0, 0.38),
-            inset 0 1px 0 rgba(255, 255, 255, 0.045);
-          backdrop-filter: blur(24px);
+            0 34px 100px rgba(0, 0, 0, 0.46),
+            inset 0 1px
+              rgba(255, 255, 255, 0.04);
         }
 
-        .galaxy-visual {
-          min-height: 620px;
-          padding: 28px;
-        }
-
-        .galaxy-visual::before {
-          content: "";
-          position: absolute;
-          inset: 0;
-          pointer-events: none;
+        .galaxy-sidebar {
+          display: flex;
+          flex-direction: column;
+          padding: 26px 20px;
+          border-right:
+            1px solid rgba(133, 145, 222, 0.12);
           background:
-            radial-gradient(
-              circle at 50% 50%,
-              rgba(126, 83, 255, 0.16),
-              transparent 27%
-            ),
-            radial-gradient(
-              circle at 15% 18%,
-              rgba(56, 209, 255, 0.09),
-              transparent 24%
-            ),
-            radial-gradient(
-              circle at 85% 82%,
-              rgba(255, 80, 207, 0.08),
-              transparent 23%
+            linear-gradient(
+              180deg,
+              rgba(24, 22, 62, 0.7),
+              rgba(8, 11, 31, 0.72)
             );
         }
 
-        .galaxy-panel-heading {
-          position: relative;
-          z-index: 5;
-          display: flex;
-          justify-content: space-between;
-          gap: 20px;
+        .galaxy-profile {
+          padding-bottom: 22px;
+          border-bottom:
+            1px solid rgba(133, 145, 222, 0.12);
+          text-align: center;
         }
 
-        .galaxy-panel-heading h2 {
-          margin: 6px 0 0;
-          color: #fff;
-          font-size: clamp(1.25rem, 2vw, 1.75rem);
+        .galaxy-avatar {
+          display: grid;
+          width: 72px;
+          height: 72px;
+          margin: 0 auto 13px;
+          place-items: center;
+          border:
+            1px solid rgba(255, 218, 114, 0.72);
+          border-radius: 22px;
+          color: #ffe598;
+          background:
+            radial-gradient(
+              circle at 35% 25%,
+              rgba(255, 229, 129, 0.95),
+              rgba(150, 84, 250, 0.92) 48%,
+              rgba(38, 21, 91, 0.98)
+            );
+          box-shadow:
+            0 0 24px rgba(255, 193, 77, 0.3),
+            0 0 44px rgba(128, 91, 255, 0.28);
         }
 
-        .galaxy-eyebrow {
-          color: #81e8ff;
-          font-size: 0.7rem;
+        .galaxy-profile h2 {
+          margin: 0;
+          overflow: hidden;
+          font-size: 0.94rem;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .galaxy-profile p {
+          margin: 5px 0 0;
+          color: rgba(218, 224, 255, 0.48);
+          font-size: 0.64rem;
+        }
+
+        .galaxy-rank {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          margin-top: 12px;
+          padding: 7px 10px;
+          border:
+            1px solid rgba(255, 210, 101, 0.18);
+          border-radius: 999px;
+          color: #ffdf85;
+          background: rgba(170, 108, 26, 0.12);
+          font-size: 0.64rem;
           font-weight: 800;
-          letter-spacing: 0.18em;
+        }
+
+        .galaxy-side-stats {
+          display: grid;
+          gap: 9px;
+          margin-top: 20px;
+        }
+
+        .galaxy-side-stat {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+          padding: 11px 12px;
+          border:
+            1px solid rgba(129, 145, 225, 0.1);
+          border-radius: 12px;
+          background: rgba(255, 255, 255, 0.025);
+        }
+
+        .galaxy-side-stat span {
+          color: rgba(218, 224, 255, 0.5);
+          font-size: 0.64rem;
+        }
+
+        .galaxy-side-stat strong {
+          max-width: 130px;
+          overflow: hidden;
+          font-size: 0.76rem;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .galaxy-invite {
+          margin-top: auto;
+          padding-top: 20px;
+        }
+
+        .galaxy-invite h3 {
+          margin: 0 0 6px;
+          font-size: 0.8rem;
+        }
+
+        .galaxy-invite p {
+          margin: 0;
+          color: rgba(218, 224, 255, 0.48);
+          font-size: 0.63rem;
+          line-height: 1.45;
+        }
+
+        .galaxy-referral-box {
+          display: flex;
+          align-items: center;
+          gap: 7px;
+          margin-top: 12px;
+          padding: 7px;
+          border:
+            1px solid rgba(108, 201, 255, 0.16);
+          border-radius: 11px;
+          background: rgba(0, 0, 0, 0.2);
+        }
+
+        .galaxy-referral-box code {
+          min-width: 0;
+          overflow: hidden;
+          flex: 1;
+          color: #b9d9ff;
+          font-size: 0.57rem;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .galaxy-copy {
+          display: grid;
+          width: 32px;
+          height: 32px;
+          flex: 0 0 auto;
+          place-items: center;
+          border:
+            1px solid rgba(97, 213, 255, 0.23);
+          border-radius: 9px;
+          color: #9be8ff;
+          cursor: pointer;
+          background: rgba(54, 151, 194, 0.11);
+        }
+
+        .galaxy-copy:disabled {
+          cursor: not-allowed;
+          opacity: 0.4;
+        }
+
+        .galaxy-main {
+          min-width: 0;
+          padding: 22px;
+        }
+
+        .galaxy-topbar {
+          display: grid;
+          grid-template-columns:
+            repeat(4, minmax(0, 1fr));
+          overflow: hidden;
+          border:
+            1px solid rgba(135, 145, 220, 0.12);
+          border-radius: 17px;
+          background: rgba(255, 255, 255, 0.025);
+        }
+
+        .galaxy-top-stat {
+          min-width: 0;
+          padding: 16px 18px;
+          border-right:
+            1px solid rgba(135, 145, 220, 0.1);
+        }
+
+        .galaxy-top-stat:last-child {
+          border-right: 0;
+        }
+
+        .galaxy-top-stat span {
+          display: block;
+          color: rgba(217, 223, 255, 0.48);
+          font-size: 0.61rem;
+          letter-spacing: 0.08em;
           text-transform: uppercase;
         }
 
-        .galaxy-status {
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          padding: 8px 12px;
-          border: 1px solid rgba(91, 255, 181, 0.22);
-          border-radius: 999px;
-          color: #7dffc2;
-          background: rgba(33, 152, 103, 0.1);
-          font-size: 0.72rem;
-          font-weight: 800;
+        .galaxy-top-stat strong {
+          display: block;
+          margin-top: 7px;
+          font-size: 1.12rem;
         }
 
-        .galaxy-status::before {
+        .galaxy-network {
+          position: relative;
+          min-height: 500px;
+          margin-top: 18px;
+          padding: 22px 18px 26px;
+          overflow: auto;
+          border:
+            1px solid rgba(135, 145, 220, 0.12);
+          border-radius: 20px;
+          background:
+            radial-gradient(
+              circle at 50% 24%,
+              rgba(113, 79, 255, 0.13),
+              transparent 29%
+            ),
+            linear-gradient(
+              rgba(255, 255, 255, 0.018),
+              rgba(255, 255, 255, 0.008)
+            );
+        }
+
+        .galaxy-network-heading {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 16px;
+        }
+
+        .galaxy-network-heading h1 {
+          margin: 0;
+          font-size: clamp(1rem, 2vw, 1.35rem);
+        }
+
+        .galaxy-network-heading p {
+          margin: 5px 0 0;
+          color: rgba(217, 223, 255, 0.48);
+          font-size: 0.66rem;
+        }
+
+        .galaxy-online {
+          display: inline-flex;
+          align-items: center;
+          gap: 7px;
+          color: #78ffc0;
+          font-size: 0.64rem;
+          font-weight: 800;
+          white-space: nowrap;
+        }
+
+        .galaxy-online::before {
           content: "";
           width: 7px;
           height: 7px;
           border-radius: 50%;
           background: currentColor;
-          box-shadow: 0 0 12px currentColor;
+          box-shadow: 0 0 10px currentColor;
         }
 
-        .galaxy-canvas {
-          position: relative;
+        .galaxy-tree {
           display: flex;
-          min-height: 470px;
+          min-width: 650px;
           flex-direction: column;
           align-items: center;
-          padding: 34px 24px 28px;
-          overflow-x: auto;
+          padding: 34px 8px 8px;
         }
 
-        .galaxy-tree-root {
-          position: relative;
-          z-index: 3;
+        .galaxy-root-card {
           display: grid;
-          width: 150px;
-          min-height: 104px;
+          width: 190px;
+          min-height: 108px;
           place-items: center;
-          border: 1px solid rgba(253, 230, 138, 0.72);
-          border-radius: 22px;
-          color: white;
+          border:
+            1px solid rgba(255, 220, 120, 0.66);
+          border-radius: 18px;
           text-align: center;
           cursor: pointer;
           background:
             radial-gradient(
-              circle at 35% 18%,
-              rgba(255, 239, 168, 0.98),
-              rgba(245, 158, 11, 0.88) 20%,
-              rgba(111, 67, 231, 0.94) 58%,
-              rgba(35, 15, 85, 0.98) 100%
+              circle at 35% 20%,
+              rgba(255, 235, 158, 0.98),
+              rgba(238, 157, 55, 0.88) 22%,
+              rgba(121, 70, 230, 0.94) 58%,
+              rgba(38, 21, 91, 0.98)
             );
           box-shadow:
-            0 0 0 7px rgba(245, 158, 11, 0.06),
-            0 0 30px rgba(245, 158, 11, 0.42),
-            0 0 62px rgba(139, 92, 246, 0.34);
+            0 0 26px rgba(255, 193, 77, 0.34),
+            0 0 50px rgba(128, 91, 255, 0.3);
         }
 
-        .galaxy-tree-root strong {
+        .galaxy-root-card strong {
           display: block;
-          margin-top: 6px;
-          font-size: 0.9rem;
-          letter-spacing: 0.05em;
-        }
-
-        .galaxy-tree-root span {
-          display: block;
-          margin-top: 3px;
-          color: #e5d9ff;
-          font-size: 0.58rem;
-          letter-spacing: 0.12em;
-        }
-
-        .galaxy-tree-trunk {
-          width: 1px;
-          height: 58px;
-          background: linear-gradient(
-            rgba(245, 158, 11, 0.72),
-            rgba(111, 95, 255, 0.62)
-          );
-          box-shadow: 0 0 12px rgba(139, 92, 246, 0.58);
-        }
-
-        .galaxy-tree-members {
-          position: relative;
-          display: grid;
-          width: max-content;
-          min-width: min(100%, 260px);
-          grid-template-columns: repeat(
-            auto-fit,
-            minmax(170px, 190px)
-          );
-          justify-content: center;
-          gap: 42px 28px;
-          padding: 32px 14px 10px;
-        }
-
-        .galaxy-tree-members::before {
-          content: "";
-          position: absolute;
-          top: 0;
-          left: 50%;
-          width: min(82%, 760px);
-          height: 1px;
-          transform: translateX(-50%);
-          background: linear-gradient(
-            90deg,
-            transparent,
-            rgba(111, 95, 255, 0.62) 12%,
-            rgba(103, 211, 255, 0.7) 50%,
-            rgba(111, 95, 255, 0.62) 88%,
-            transparent
-          );
-          box-shadow: 0 0 12px rgba(103, 211, 255, 0.36);
-        }
-
-        .galaxy-tree-member-wrap {
-          position: relative;
-          display: flex;
-          justify-content: center;
-        }
-
-        .galaxy-tree-member-wrap::before {
-          content: "";
-          position: absolute;
-          top: -32px;
-          left: 50%;
-          width: 1px;
-          height: 32px;
-          transform: translateX(-50%);
-          background: rgba(103, 211, 255, 0.5);
-          box-shadow: 0 0 10px rgba(103, 211, 255, 0.34);
-        }
-
-        .member-card {
-          position: relative;
-          z-index: 2;
-          display: grid;
-          width: 100%;
-          min-height: 124px;
-          align-content: center;
-          justify-items: center;
-          gap: 7px;
-          padding: 18px 14px;
-          border: 1px solid var(--node-ring);
-          border-radius: 18px;
-          color: white;
-          text-align: center;
-          cursor: pointer;
-          background:
-            linear-gradient(
-              145deg,
-              rgba(22, 24, 59, 0.96),
-              rgba(12, 14, 38, 0.98)
-            );
-          box-shadow:
-            0 0 22px color-mix(
-              in srgb,
-              var(--node-glow) 24%,
-              transparent
-            ),
-            inset 0 1px rgba(255, 255, 255, 0.05);
-          transition:
-            transform 180ms ease,
-            filter 180ms ease,
-            border-color 180ms ease;
-        }
-
-        .member-card:hover {
-          filter: brightness(1.18);
-          transform: translateY(-3px);
-        }
-
-        .member-card.selected {
-          border-color: rgba(255, 255, 255, 0.94);
-          box-shadow:
-            0 0 0 4px rgba(111, 95, 255, 0.12),
-            0 0 28px rgba(103, 211, 255, 0.48);
-        }
-
-        .member-card-icon {
-          display: grid;
-          width: 36px;
-          height: 36px;
-          place-items: center;
-          border: 1px solid var(--node-ring);
-          border-radius: 50%;
-          color: var(--node-text);
-          background: var(--node-gradient);
-          box-shadow: 0 0 16px var(--node-glow);
-        }
-
-        .member-card strong {
-          max-width: 155px;
+          max-width: 165px;
+          margin-top: 5px;
           overflow: hidden;
-          font-size: 0.78rem;
+          font-size: 0.82rem;
           text-overflow: ellipsis;
           white-space: nowrap;
         }
 
-        .member-card-meta {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          color: rgba(225, 230, 255, 0.6);
-          font-size: 0.62rem;
+        .galaxy-root-card span {
+          display: block;
+          margin-top: 3px;
+          color: #e8ddff;
+          font-size: 0.55rem;
+          letter-spacing: 0.11em;
         }
 
-        .member-card-status {
+        .galaxy-tree-trunk {
+          width: 1px;
+          height: 52px;
+          background:
+            linear-gradient(
+              rgba(255, 198, 77, 0.72),
+              rgba(109, 90, 255, 0.62)
+            );
+          box-shadow:
+            0 0 10px rgba(118, 88, 255, 0.58);
+        }
+
+        .galaxy-member-grid {
+          position: relative;
+          display: grid;
+          width: 100%;
+          grid-template-columns:
+            repeat(auto-fit, minmax(145px, 1fr));
+          gap: 42px 18px;
+          padding: 30px 0 0;
+        }
+
+        .galaxy-member-grid::before {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: 8%;
+          width: 84%;
+          height: 1px;
+          background:
+            linear-gradient(
+              90deg,
+              transparent,
+              rgba(101, 205, 255, 0.62) 12%,
+              rgba(138, 101, 255, 0.72) 50%,
+              rgba(101, 205, 255, 0.62) 88%,
+              transparent
+            );
+          box-shadow:
+            0 0 10px rgba(101, 205, 255, 0.34);
+        }
+
+        .galaxy-member-branch {
+          position: relative;
+          display: flex;
+          justify-content: center;
+        }
+
+        .galaxy-member-branch::before {
+          content: "";
+          position: absolute;
+          top: -30px;
+          left: 50%;
+          width: 1px;
+          height: 30px;
+          background: var(--branch-color);
+          box-shadow: 0 0 9px var(--branch-color);
+        }
+
+        .galaxy-member-card {
+          width: min(100%, 168px);
+          min-height: 112px;
+          padding: 14px 12px;
+          border: 1px solid var(--node-ring);
+          border-radius: 15px;
+          text-align: center;
+          cursor: pointer;
+          background:
+            radial-gradient(
+              circle at 50% 0%,
+              color-mix(
+                in srgb,
+                var(--node-glow) 22%,
+                transparent
+              ),
+              transparent 58%
+            ),
+            linear-gradient(
+              145deg,
+              color-mix(
+                in srgb,
+                var(--node-glow) 10%,
+                rgba(25, 27, 62, 0.97)
+              ),
+              rgba(10, 13, 36, 0.98)
+            );
+          box-shadow:
+            0 0 20px
+              color-mix(
+                in srgb,
+                var(--node-glow) 26%,
+                transparent
+              ),
+            inset 0 1px
+              rgba(255, 255, 255, 0.04);
+          transition:
+            transform 180ms ease,
+            filter 180ms ease;
+        }
+
+        .galaxy-member-card:hover {
+          filter: brightness(1.16);
+          transform: translateY(-3px);
+        }
+
+        .galaxy-member-card.selected {
+          border-color: rgba(255, 255, 255, 0.92);
+          box-shadow:
+            0 0 0 4px
+              rgba(116, 91, 255, 0.1),
+            0 0 26px var(--node-glow);
+        }
+
+        .galaxy-member-icon {
+          display: grid;
+          width: 34px;
+          height: 34px;
+          margin: 0 auto 8px;
+          place-items: center;
+          border: 1px solid var(--node-ring);
+          border-radius: 11px;
+          color: var(--node-text);
+          background: var(--node-gradient);
+          box-shadow: 0 0 15px var(--node-glow);
+        }
+
+        .galaxy-member-card strong {
+          display: block;
+          overflow: hidden;
+          font-size: 0.7rem;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .galaxy-member-meta {
+          margin-top: 6px;
+          color: rgba(220, 226, 255, 0.48);
+          font-size: 0.55rem;
+        }
+
+        .galaxy-member-status {
           display: inline-flex;
           align-items: center;
           gap: 5px;
-          color: #7dffc2;
-          font-size: 0.58rem;
+          margin-top: 8px;
+          color: #70ffc0;
+          font-size: 0.52rem;
           font-weight: 800;
           text-transform: uppercase;
         }
 
-        .member-card-status::before {
+        .galaxy-member-status::before {
           content: "";
-          width: 6px;
-          height: 6px;
+          width: 5px;
+          height: 5px;
+          border-radius: 50%;
+          background: currentColor;
+          box-shadow: 0 0 7px currentColor;
+        }
+
+        .galaxy-member-status.pending {
+          color: #ffc76d;
+        }
+
+        .galaxy-empty {
+          margin-top: 28px;
+          padding: 20px;
+          border:
+            1px dashed rgba(131, 143, 209, 0.18);
+          border-radius: 14px;
+          color: rgba(220, 225, 255, 0.5);
+          text-align: center;
+          font-size: 0.67rem;
+        }
+
+        .galaxy-footer-grid {
+          display: grid;
+          grid-template-columns: 1fr 1.5fr;
+          gap: 16px;
+          margin-top: 18px;
+        }
+
+        .galaxy-footer-card {
+          padding: 17px;
+          border:
+            1px solid rgba(135, 145, 220, 0.12);
+          border-radius: 17px;
+          background: rgba(255, 255, 255, 0.025);
+        }
+
+        .galaxy-footer-card h3 {
+          margin: 0;
+          font-size: 0.76rem;
+        }
+
+        .galaxy-legend {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 14px;
+          margin-top: 13px;
+        }
+
+        .galaxy-legend span {
+          display: inline-flex;
+          align-items: center;
+          gap: 7px;
+          color: rgba(220, 226, 255, 0.54);
+          font-size: 0.61rem;
+        }
+
+        .galaxy-legend i {
+          width: 8px;
+          height: 8px;
           border-radius: 50%;
           background: currentColor;
           box-shadow: 0 0 8px currentColor;
         }
 
-        .member-card-status.pending {
-          color: #f6c46b;
-        }
-
-        .empty-orbit {
-          max-width: 280px;
-          padding: 24px;
-          border: 1px dashed rgba(131, 143, 209, 0.2);
-          border-radius: 18px;
-          color: rgba(220, 225, 255, 0.54);
-          text-align: center;
-          font-size: 0.76rem;
-          line-height: 1.5;
-        }
-
-        .galaxy-side {
+        .galaxy-summary {
           display: grid;
-          align-content: start;
-          gap: 18px;
-        }
-
-        .profile-card,
-        .referral-card,
-        .progress-card {
-          padding: 22px;
-        }
-
-        .profile-card h3,
-        .referral-card h3,
-        .progress-card h3 {
-          margin: 0;
-          color: white;
-        }
-
-        .profile-card p,
-        .referral-card p,
-        .progress-card p {
-          color: rgba(222, 226, 255, 0.62);
-          font-size: 0.78rem;
-          line-height: 1.55;
-        }
-
-        .rank-badge {
-          display: inline-flex;
-          align-items: center;
-          gap: 7px;
-          margin-top: 16px;
-          padding: 9px 12px;
-          border-radius: 12px;
-          color: #ffdb7d;
-          background: rgba(133, 92, 20, 0.14);
-          font-size: 0.75rem;
-          font-weight: 800;
-        }
-
-        .member-meta {
-          display: grid;
-          grid-template-columns: repeat(2, minmax(0, 1fr));
+          grid-template-columns: repeat(3, 1fr);
           gap: 10px;
-          margin-top: 16px;
+          margin-top: 13px;
         }
 
-        .member-meta div {
-          padding: 12px;
-          border: 1px solid rgba(135, 160, 255, 0.12);
-          border-radius: 14px;
+        .galaxy-summary div {
+          padding: 10px;
+          border-radius: 11px;
           background: rgba(255, 255, 255, 0.025);
         }
 
-        .member-meta span {
+        .galaxy-summary span {
           display: block;
-          color: rgba(222, 226, 255, 0.52);
-          font-size: 0.66rem;
+          color: rgba(220, 226, 255, 0.46);
+          font-size: 0.55rem;
         }
 
-        .member-meta strong {
+        .galaxy-summary strong {
           display: block;
-          margin-top: 4px;
-          color: white;
-          font-size: 1rem;
-        }
-
-        .explore-button,
-        .reset-selection {
-          width: 100%;
-          margin-top: 14px;
-          padding: 11px 14px;
-          border-radius: 12px;
-          font-weight: 800;
-          cursor: pointer;
-        }
-
-        .explore-button {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          gap: 8px;
-          border: 1px solid rgba(96, 218, 255, 0.34);
-          color: #d9f7ff;
-          background:
-            linear-gradient(
-              110deg,
-              rgba(109, 72, 255, 0.28),
-              rgba(47, 170, 214, 0.2)
-            );
-        }
-
-        .reset-selection {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          gap: 8px;
-          margin-top: 8px;
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          color: rgba(235, 238, 255, 0.7);
-          background: rgba(255, 255, 255, 0.04);
-        }
-
-        .progress-track {
-          height: 9px;
-          margin-top: 14px;
-          overflow: hidden;
-          border-radius: 999px;
-          background: rgba(255, 255, 255, 0.06);
-        }
-
-        .progress-fill {
-          width: 74%;
-          height: 100%;
-          border-radius: inherit;
-          background:
-            linear-gradient(
-              90deg,
-              #7356ff,
-              #4fc4ff,
-              #70ffd0
-            );
-        }
-
-        .referral-box {
-          display: flex;
-          gap: 9px;
-          margin-top: 16px;
-          padding: 8px;
-          border: 1px solid rgba(137, 160, 255, 0.18);
-          border-radius: 14px;
-          background: rgba(0, 0, 0, 0.18);
-        }
-
-        .referral-box code {
-          min-width: 0;
-          overflow: hidden;
-          flex: 1;
-          color: #c9d8ff;
-          font-size: 0.68rem;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-        }
-
-        .copy-button {
-          display: inline-grid;
-          width: 38px;
-          height: 38px;
-          place-items: center;
-          border: 1px solid rgba(98, 220, 255, 0.25);
-          border-radius: 11px;
-          color: #aeeeff;
-          cursor: pointer;
-          background: rgba(66, 151, 191, 0.12);
-        }
-
-        .galaxy-stats {
-          display: grid;
-          grid-template-columns: repeat(4, minmax(0, 1fr));
-          gap: 16px;
-          margin-top: 22px;
-        }
-
-        .galaxy-stat {
-          min-height: 150px;
-          padding: 20px;
-        }
-
-        .galaxy-stat-icon {
-          display: grid;
-          width: 38px;
-          height: 38px;
-          place-items: center;
-          border-radius: 12px;
-          color: #87e3ff;
-          background: rgba(65, 154, 206, 0.1);
-        }
-
-        .galaxy-stat strong {
-          display: block;
-          margin-top: 18px;
-          color: white;
-          font-size: 1.8rem;
-        }
-
-        .galaxy-stat h3 {
-          margin: 5px 0 0;
-          color: rgba(235, 238, 255, 0.84);
-          font-size: 0.79rem;
-        }
-
-        .galaxy-stat p {
-          color: rgba(223, 229, 255, 0.48);
-          font-size: 0.68rem;
+          margin-top: 5px;
+          font-size: 0.75rem;
         }
 
         @media (max-width: 980px) {
-          .galaxy-dashboard-grid {
+          .galaxy-shell {
             grid-template-columns: 1fr;
           }
 
-          .galaxy-stats {
-            grid-template-columns: repeat(2, 1fr);
+          .galaxy-sidebar {
+            border-right: 0;
+            border-bottom:
+              1px solid rgba(133, 145, 222, 0.12);
+          }
+
+          .galaxy-side-stats {
+            grid-template-columns: repeat(3, 1fr);
+          }
+
+          .galaxy-invite {
+            margin-top: 18px;
           }
         }
 
         @media (max-width: 720px) {
           .my-galaxy-page {
-            width: min(100% - 20px, 1240px);
-            padding-top: 112px;
+            width: min(100% - 16px, 1440px);
+            padding-top: 104px;
           }
 
-          .galaxy-visual {
-            min-height: 500px;
+          .galaxy-main {
+            padding: 13px;
           }
 
-          .galaxy-canvas {
-            min-height: 430px;
-            padding-inline: 10px;
+          .galaxy-topbar {
+            grid-template-columns: repeat(2, 1fr);
           }
 
-          .galaxy-tree-root {
-            width: 132px;
-            min-height: 92px;
+          .galaxy-top-stat:nth-child(2) {
+            border-right: 0;
           }
 
-          .galaxy-tree-members {
-            width: 100%;
+          .galaxy-top-stat:nth-child(-n + 2) {
+            border-bottom:
+              1px solid rgba(135, 145, 220, 0.1);
+          }
+
+          .galaxy-network-heading {
+            align-items: flex-start;
+            flex-direction: column;
+          }
+
+          .galaxy-footer-grid {
             grid-template-columns: 1fr;
           }
 
-          .galaxy-tree-members::before {
-            width: 1px;
-            height: 100%;
+          .galaxy-summary {
+            grid-template-columns: 1fr;
           }
 
-          .galaxy-stats {
+          .galaxy-side-stats {
             grid-template-columns: 1fr;
           }
         }
       `}</style>
 
-      <Title
-        k="MY GALAXY"
-        t="Build a universe that grows with you."
-        p="Every Builder you invite becomes part of your expanding BOBU Galaxy."
-      />
-
-      <section className="galaxy-dashboard-grid">
-        <div className="galaxy-panel galaxy-visual">
-          <div className="galaxy-panel-heading">
-            <div>
-              <span className="galaxy-eyebrow">
-                {activeGalaxy === "Genesis"
-                  ? "Personal network"
-                  : "Exploring galaxy"}
-              </span>
-
-              <h2>{galaxyTitle}</h2>
+      <section className="galaxy-shell">
+        <aside className="galaxy-sidebar">
+          <div className="galaxy-profile">
+            <div className="galaxy-avatar">
+              <Crown size={28} />
             </div>
 
-            <span className="galaxy-status">Galaxy Online</span>
-          </div>
-
-          <div className="galaxy-canvas">
-            <motion.div
-              className="galaxy-tree-root"
-              animate={{ y: [0, -3, 0] }}
-              transition={{
-                duration: 3,
-                repeat: Infinity,
-              }}
-              onClick={() => setSelectedMember(null)}
-            >
-              <div>
-                <Crown size={25} />
-                <strong>
-                  {activeGalaxy === "Genesis"
-                    ? "KING BOBU"
-                    : activeGalaxy}
-                </strong>
-                <span>YOU · NEBULA CORE</span>
-              </div>
-            </motion.div>
-
-            <div className="galaxy-tree-trunk" />
-
-            {visibleMembers.length > 0 ? (
-              <div className="galaxy-tree-members">
-                {visibleMembers.map((member, index) => (
-                  <motion.div
-                    className="galaxy-tree-member-wrap"
-                    key={`${activeGalaxy}-${member.name}`}
-                    initial={{ opacity: 0, y: 18 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{
-                      delay: 0.08 + index * 0.07,
-                      duration: 0.4,
-                    }}
-                  >
-                    <div
-                      className={`member-card ${
-                        selectedMember?.name === member.name
-                          ? "selected"
-                          : ""
-                      }`}
-                      style={
-                        {
-                          "--node-gradient":
-                            member.theme.nodeGradient,
-                          "--node-glow":
-                            member.theme.glowColor,
-                          "--node-ring":
-                            member.theme.ringColor,
-                          "--node-text":
-                            member.theme.textAccent,
-                          opacity:
-                            member.status === "active"
-                              ? 1
-                              : 0.62,
-                        } as React.CSSProperties
-                      }
-                      onClick={() =>
-                        setSelectedMember(member)
-                      }
-                      role="button"
-                      tabIndex={0}
-                      onKeyDown={(event) => {
-                        if (
-                          event.key === "Enter" ||
-                          event.key === " "
-                        ) {
-                          setSelectedMember(member);
-                        }
-                      }}
-                    >
-                      <div className="member-card-icon">
-                        <Star size={15} />
-                      </div>
-
-                      <strong>{member.name}</strong>
-
-                      <div className="member-card-meta">
-                        <span>
-                          {member.gp.toLocaleString("tr-TR")} GP
-                        </span>
-                        <span>·</span>
-                        <span>
-                          {member.builders} Builders
-                        </span>
-                      </div>
-
-                      <span
-                        className={`member-card-status ${
-                          member.status === "active"
-                            ? ""
-                            : "pending"
-                        }`}
-                      >
-                        {member.status === "active"
-                          ? "Active"
-                          : "Pending"}
-                      </span>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            ) : (
-              <div className="empty-orbit">
-                This Builder has not invited any Builders yet.
-              </div>
-            )}
-          </div>
-        </div>
-
-        <aside className="galaxy-side">
-          <section className="galaxy-panel profile-card">
-            <h3>
-              {selectedMember
-                ? selectedMember.name
-                : builder.username || "Genesis Builder"}
-            </h3>
+            <h2>
+              {builder.username || "Genesis Builder"}
+            </h2>
 
             <p>
-              {selectedMember
-                ? `Level ${selectedMember.level} Builder`
-                : activeGalaxy === "Genesis"
-                  ? "Founding Builder"
-                  : "Galaxy Commander"}
+              BOBU Builder · Level {builder.level}
             </p>
 
-            <div className="rank-badge">
-              <Sparkles size={15} />
-              {selectedMember
-                ? selectedMember.status === "active"
-                  ? "Active Builder"
-                  : "Pending Activation"
-                : activeGalaxy === "Genesis"
-                  ? `Nebula Builder · Rank ${builder.level}`
-                  : `${visibleMembers.length} Connected Stars`}
+            <div className="galaxy-rank">
+              <Sparkles size={13} />
+              Nebula Rank {builder.level}
+            </div>
+          </div>
+
+          <div className="galaxy-side-stats">
+            <div className="galaxy-side-stat">
+              <span>Builder GP</span>
+              <strong>
+                {builder.gp.toLocaleString("tr-TR")}
+              </strong>
             </div>
 
-            {selectedMember && (
-              <>
-                <div className="member-meta">
-                  <div>
-                    <span>Builders</span>
-                    <strong>{selectedMember.builders}</strong>
-                  </div>
-
-                  <div>
-                    <span>Builder GP</span>
-                    <strong>
-                      {selectedMember.gp.toLocaleString("tr-TR")}
-                    </strong>
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  className="explore-button"
-                  onClick={exploreGalaxy}
-                >
-                  <Rocket size={16} />
-                  Explore {selectedMember.name} Galaxy
-                </button>
-              </>
-            )}
-
-            {activeGalaxy !== "Genesis" && (
-              <button
-                type="button"
-                className="reset-selection"
-                onClick={returnToMyGalaxy}
-              >
-                <ArrowLeft size={16} />
-                Return to My Galaxy
-              </button>
-            )}
-          </section>
-
-          <section className="galaxy-panel progress-card">
-            <h3>
-              {galaxyLevelProgress >= 100
-                ? "Galaxy Level Ready"
-                : "Next Galaxy Level"}
-            </h3>
-
-            <p>
-              {galaxyLevelProgress >= 100
-                ? "Your active Builder network has reached the next Galaxy level requirement."
-                : `${remainingActiveBuilders} more active Builder${
-                    remainingActiveBuilders === 1 ? "" : "s"
-                  } required to reach the next Galaxy level.`}
-            </p>
-
-            <div className="progress-track">
-              <motion.div
-                className="progress-fill"
-                initial={{ width: 0 }}
-                animate={{ width: `${galaxyLevelProgress}%` }}
-                transition={{ duration: 1.1 }}
-              />
+            <div className="galaxy-side-stat">
+              <span>Invite Code</span>
+              <strong>
+                {builder.inviteCode || "—"}
+              </strong>
             </div>
-          </section>
 
-          <section className="galaxy-panel referral-card">
+            <div className="galaxy-side-stat">
+              <span>Active Circle</span>
+              <strong>{activeMemberCount}</strong>
+            </div>
+          </div>
+
+          <div className="galaxy-invite">
             <h3>Invite New Builders</h3>
 
             <p>
-              Share your portal link. Every verified Builder becomes a new star
-              in your galaxy.
+              Share your portal link. Every verified
+              Builder becomes a new branch in your
+              Galaxy.
             </p>
 
-            <div className="referral-box">
-              <code>{referralLink}</code>
+            <div className="galaxy-referral-box">
+              <code>
+                {referralLink ||
+                  "Referral link unavailable"}
+              </code>
 
               <button
-                className="copy-button"
                 type="button"
+                className="galaxy-copy"
                 onClick={copyReferralLink}
+                disabled={!referralLink}
                 aria-label="Copy referral link"
               >
-                {copied ? <Check size={17} /> : <Copy size={17} />}
+                {copied ? (
+                  <Check size={15} />
+                ) : (
+                  <Copy size={15} />
+                )}
               </button>
             </div>
-          </section>
+          </div>
         </aside>
-      </section>
 
-      <section className="galaxy-stats">
-        {stats.map(({ label, value, detail, icon: Icon }) => (
-          <motion.article
-            className="galaxy-panel galaxy-stat"
-            key={label}
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            <div className="galaxy-stat-icon">
-              <Icon size={19} />
+        <main className="galaxy-main">
+          <section className="galaxy-topbar">
+            <div className="galaxy-top-stat">
+              <span>Total Builders</span>
+              <strong>{galaxyMembers.length}</strong>
             </div>
 
-            <strong>{value}</strong>
-            <h3>{label}</h3>
-            <p>{detail}</p>
-          </motion.article>
-        ))}
+            <div className="galaxy-top-stat">
+              <span>Active Now</span>
+              <strong>{activeMemberCount}</strong>
+            </div>
+
+            <div className="galaxy-top-stat">
+              <span>Total GP</span>
+              <strong>
+                {builder.gp.toLocaleString("tr-TR")}
+              </strong>
+            </div>
+
+            <div className="galaxy-top-stat">
+              <span>Galaxy Rank</span>
+              <strong>#{builder.level}</strong>
+            </div>
+          </section>
+
+          <section className="galaxy-network">
+            <div className="galaxy-network-heading">
+              <div>
+                <h1>Galaxy Network</h1>
+                <p>
+                  Your complete Builder referral universe.
+                </p>
+              </div>
+
+              <span className="galaxy-online">
+                Galaxy Online
+              </span>
+            </div>
+
+            <div className="galaxy-tree">
+              <motion.div
+                className="galaxy-root-card"
+                animate={{ y: [0, -3, 0] }}
+                transition={{
+                  duration: 3,
+                  repeat: Infinity,
+                }}
+                onClick={() =>
+                  setSelectedMemberId(null)
+                }
+              >
+                <div>
+                  <Crown size={25} />
+
+                  <strong>
+                    {builder.username || "KING BOBU"}
+                  </strong>
+
+                  <span>YOU · NEBULA CORE</span>
+                </div>
+              </motion.div>
+
+              <div className="galaxy-tree-trunk" />
+
+              {isGalaxyLoading ? (
+                <div className="galaxy-empty">
+                  Loading Galaxy network…
+                </div>
+              ) : galaxyError ? (
+                <div className="galaxy-empty">
+                  {galaxyError}
+                </div>
+              ) : visibleMembers.length > 0 ? (
+                <div className="galaxy-member-grid">
+                  {visibleMembers.map(
+                    (member, index) => (
+                      <motion.div
+                        className="galaxy-member-branch"
+                        key={member.builderId}
+                        style={
+                          {
+                            "--branch-color":
+                              member.theme.lineColor,
+                          } as CSSProperties
+                        }
+                        initial={{
+                          opacity: 0,
+                          y: 14,
+                        }}
+                        animate={{
+                          opacity: 1,
+                          y: 0,
+                        }}
+                        transition={{
+                          delay:
+                            0.06 + index * 0.06,
+                          duration: 0.38,
+                        }}
+                      >
+                        <article
+                          className={`galaxy-member-card ${
+                            selectedMemberId ===
+                            member.builderId
+                              ? "selected"
+                              : ""
+                          }`}
+                          style={
+                            {
+                              "--node-gradient":
+                                member.theme
+                                  .nodeGradient,
+                              "--node-glow":
+                                member.theme.glowColor,
+                              "--node-ring":
+                                member.theme.ringColor,
+                              "--node-text":
+                                member.theme.textAccent,
+                              opacity:
+                                member.status ===
+                                "active"
+                                  ? 1
+                                  : 0.66,
+                            } as CSSProperties
+                          }
+                          onClick={() =>
+                            setSelectedMemberId(
+                              member.builderId,
+                            )
+                          }
+                        >
+                          <div className="galaxy-member-icon">
+                            <Star size={14} />
+                          </div>
+
+                          <strong>
+                            {member.name}
+                          </strong>
+
+                          <div className="galaxy-member-meta">
+                            {member.gp.toLocaleString(
+                              "tr-TR",
+                            )}{" "}
+                            GP · {member.builders} Builders
+                          </div>
+
+                          <span
+                            className={`galaxy-member-status ${
+                              member.status ===
+                              "active"
+                                ? ""
+                                : "pending"
+                            }`}
+                          >
+                            {member.status === "active"
+                              ? "Active"
+                              : "Pending"}
+                          </span>
+                        </article>
+                      </motion.div>
+                    ),
+                  )}
+                </div>
+              ) : (
+                <div className="galaxy-empty">
+                  You have not invited any Builders yet.
+                </div>
+              )}
+            </div>
+          </section>
+
+          <section className="galaxy-footer-grid">
+            <article className="galaxy-footer-card">
+              <h3>Network Status</h3>
+
+              <div className="galaxy-legend">
+                <span style={{ color: "#70ffc0" }}>
+                  <i />
+                  Active Builder
+                </span>
+
+                <span style={{ color: "#ffc76d" }}>
+                  <i />
+                  Pending Activation
+                </span>
+
+                <span style={{ color: "#8f7cff" }}>
+                  <i />
+                  Referral Branch
+                </span>
+              </div>
+            </article>
+
+            <article className="galaxy-footer-card">
+              <h3>Network Summary</h3>
+
+              <div className="galaxy-summary">
+                <div>
+                  <span>Total Network</span>
+                  <strong>
+                    {galaxyMembers.length} Builders
+                  </strong>
+                </div>
+
+                <div>
+                  <span>Verified Connections</span>
+                  <strong>{activeMemberCount}</strong>
+                </div>
+
+                <div>
+                  <span>Pending Builders</span>
+                  <strong>{pendingMemberCount}</strong>
+                </div>
+
+                <div>
+                  <span>Next Galaxy Level</span>
+                  <strong>
+                    {remainingActiveBuilders === 0
+                      ? "Ready"
+                      : `${remainingActiveBuilders} remaining`}
+                  </strong>
+                </div>
+              </div>
+            </article>
+          </section>
+        </main>
       </section>
     </motion.div>
   );
