@@ -46,7 +46,7 @@ const communityTasks: CommunityTask[] = [
     actionLabel: "Follow Instagram",
     communityUrl:
       "https://www.instagram.com/bobu_universe?igsh=eGViZGJiOXFhNnR5&utm_source=qr",
-    required: true,
+    required: false,
   },
   {
     provider: "wallet",
