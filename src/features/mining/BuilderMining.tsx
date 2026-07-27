@@ -1,22 +1,19 @@
 import { useEffect, useState } from "react";
 import {
   Clock3,
-  Flame,
   Gem,
   Orbit,
   Sparkles,
   Zap,
 } from "lucide-react";
 
+import {
+  builderMiningService,
+  type BuilderMiningState,
+} from "../../core/builder/services/BuilderMiningService";
+import { restoreAuthenticatedBuilder } from "../../core/builder/services/BuilderRestoreService";
 import MiningCore from "./components/MiningCore";
 import MiningHero from "./components/MiningHero";
-
-const SESSION_DURATION_MS = 24 * 60 * 60 * 1000;
-const MINING_RATE = 0.25;
-const MINING_RATE_PER_SECOND = MINING_RATE / 3600;
-
-const SESSION_STORAGE_KEY = "bobu-mining-session-end";
-const POINTS_STORAGE_KEY = "bobu-builder-points";
 
 function formatRemaining(milliseconds: number) {
   const totalSeconds = Math.max(
@@ -25,11 +22,9 @@ function formatRemaining(milliseconds: number) {
   );
 
   const hours = Math.floor(totalSeconds / 3600);
-
   const minutes = Math.floor(
     (totalSeconds % 3600) / 60,
   );
-
   const seconds = totalSeconds % 60;
 
   return [hours, minutes, seconds]
@@ -38,154 +33,171 @@ function formatRemaining(milliseconds: number) {
 }
 
 export default function BuilderMining() {
+  const [miningState, setMiningState] =
+    useState<BuilderMiningState | null>(null);
   const [now, setNow] = useState(Date.now());
-
-  const [sessionEnd, setSessionEnd] = useState<
-    number | null
-  >(() => {
-    const storedValue = localStorage.getItem(
-      SESSION_STORAGE_KEY,
-    );
-
-    if (!storedValue) {
-      return null;
-    }
-
-    const parsedValue = Number(storedValue);
-
-    if (
-      !Number.isFinite(parsedValue) ||
-      parsedValue <= Date.now()
-    ) {
-      localStorage.removeItem(SESSION_STORAGE_KEY);
-      return null;
-    }
-
-    return parsedValue;
-  });
-
-  const [totalPoints, setTotalPoints] = useState(() => {
-    const storedPoints = localStorage.getItem(
-      POINTS_STORAGE_KEY,
-    );
-
-    if (!storedPoints) {
-      return 4250;
-    }
-
-    const parsedPoints = Number(storedPoints);
-
-    return Number.isFinite(parsedPoints)
-      ? parsedPoints
-      : 4250;
-  });
-
+  const [serverOffsetMs, setServerOffsetMs] =
+    useState(0);
+  const [busy, setBusy] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] =
+    useState<string | null>(null);
   const [showActivation, setShowActivation] =
     useState(false);
 
-  const remainingTime = sessionEnd
-    ? Math.max(0, sessionEnd - now)
-    : 0;
+  const applyMiningState = (
+    nextState: BuilderMiningState,
+  ): void => {
+    setMiningState(nextState);
 
-  const isActive = remainingTime > 0;
+    const serverTime = Date.parse(nextState.serverNow);
 
-  const sessionProgress = isActive
-    ? Math.min(
-        100,
-        ((SESSION_DURATION_MS - remainingTime) /
-          SESSION_DURATION_MS) *
-          100,
-      )
-    : 0;
+    if (Number.isFinite(serverTime)) {
+      setServerOffsetMs(serverTime - Date.now());
+      setNow(serverTime);
+    }
+  };
+
+  const loadMiningState = async (): Promise<void> => {
+    setLoading(true);
+    setErrorMessage(null);
+
+    try {
+      const nextState =
+        await builderMiningService.getState();
+
+      applyMiningState(nextState);
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "Mining state could not be loaded.",
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    void loadMiningState();
+  }, []);
 
   useEffect(() => {
     const timer = window.setInterval(() => {
-      setNow(Date.now());
+      setNow(Date.now() + serverOffsetMs);
     }, 1000);
 
     return () => {
       window.clearInterval(timer);
     };
-  }, []);
+  }, [serverOffsetMs]);
 
-  useEffect(() => {
-    if (sessionEnd && sessionEnd <= now) {
-      localStorage.removeItem(SESSION_STORAGE_KEY);
-      setSessionEnd(null);
-    }
-  }, [now, sessionEnd]);
+  const sessionStart = miningState?.startedAt
+    ? Date.parse(miningState.startedAt)
+    : null;
 
-  useEffect(() => {
-    if (!isActive) {
+  const sessionEnd = miningState?.endsAt
+    ? Date.parse(miningState.endsAt)
+    : null;
+
+  const remainingTime =
+    sessionEnd && miningState?.active
+      ? Math.max(0, sessionEnd - now)
+      : 0;
+
+  const sessionDuration =
+    sessionStart && sessionEnd
+      ? Math.max(sessionEnd - sessionStart, 1)
+      : 24 * 60 * 60 * 1000;
+
+  const sessionProgress = miningState?.claimable
+    ? 100
+    : miningState?.active
+      ? Math.min(
+          100,
+          Math.max(
+            0,
+            ((sessionDuration - remainingTime) /
+              sessionDuration) *
+              100,
+          ),
+        )
+      : 0;
+
+  const isActive =
+    miningState?.active === true &&
+    remainingTime > 0;
+
+  const claimable =
+    miningState?.claimable === true ||
+    (
+      miningState?.active === true &&
+      sessionEnd !== null &&
+      sessionEnd <= now
+    );
+
+  const handleMiningAction = async (): Promise<void> => {
+    if (busy || isActive) {
       return;
     }
 
-    setTotalPoints((currentPoints) => {
-      const nextPoints =
-        currentPoints + MINING_RATE_PER_SECOND;
+    setBusy(true);
+    setErrorMessage(null);
 
-      localStorage.setItem(
-        POINTS_STORAGE_KEY,
-        String(nextPoints),
-      );
+    try {
+      const nextState = claimable
+        ? await builderMiningService.claim()
+        : await builderMiningService.start();
 
-      return nextPoints;
-    });
-  }, [now, isActive]);
+      applyMiningState(nextState);
+      await restoreAuthenticatedBuilder();
 
-  const activateMining = () => {
-    if (isActive) {
-      return;
+      setShowActivation(true);
+
+      window.setTimeout(() => {
+        setShowActivation(false);
+      }, 2200);
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Mining action failed.";
+
+      setErrorMessage(message);
+      window.alert(message);
+    } finally {
+      setBusy(false);
     }
-
-    const nextSessionEnd =
-      Date.now() + SESSION_DURATION_MS;
-
-    const nextPoints = totalPoints + 1;
-
-    localStorage.setItem(
-      SESSION_STORAGE_KEY,
-      String(nextSessionEnd),
-    );
-
-    localStorage.setItem(
-      POINTS_STORAGE_KEY,
-      String(nextPoints),
-    );
-
-    setSessionEnd(nextSessionEnd);
-    setTotalPoints(nextPoints);
-    setNow(Date.now());
-    setShowActivation(true);
-
-    window.setTimeout(() => {
-      setShowActivation(false);
-    }, 2200);
   };
 
   const statCards = [
     {
       label: "Mining Rate",
-      value: `${MINING_RATE.toFixed(2)} BP / hour`,
+      value: `${(
+        miningState?.totalRatePerHour ?? 0.25
+      ).toFixed(2)} GP / hour`,
       icon: Zap,
     },
     {
-      label: "Total Builder Points",
-      value: totalPoints.toLocaleString("en-US", {
-        minimumFractionDigits: 6,
-        maximumFractionDigits: 6,
-      }),
+      label: "Wallet GP",
+      value: (
+        miningState?.walletGp ?? 0
+      ).toLocaleString("tr-TR"),
       icon: Gem,
     },
     {
-      label: "Daily Streak",
-      value: "16 Days",
-      icon: Flame,
+      label: "Active Circle",
+      value: `${
+        miningState?.activeReferralCount ?? 0
+      } / 25 Builders`,
+      icon: Orbit,
     },
     {
-      label: "Galaxy Bonus",
-      value: "+12%",
-      icon: Orbit,
+      label: "Session Reward",
+      value: `${
+        miningState?.rewardGp ?? 0
+      } GP / 24h`,
+      icon: Clock3,
     },
   ];
 
@@ -571,9 +583,11 @@ export default function BuilderMining() {
       <div className="mining-dashboard">
         <MiningCore
           isActive={isActive}
+          claimable={claimable}
+          busy={busy || loading}
           remainingTime={formatRemaining(remainingTime)}
           sessionProgress={sessionProgress}
-          onActivate={activateMining}
+          onAction={handleMiningAction}
         />
 
         <div className="mining-side">
@@ -585,19 +599,31 @@ export default function BuilderMining() {
             </div>
 
             <p className="mining-session-copy">
-              {isActive
-                ? "Your Builder Mining session is active. Keep exploring, completing missions and growing your galaxy."
-                : "Activate your 24-hour session to begin earning Builder Points."}
+              {errorMessage
+                ? errorMessage
+                : claimable
+                  ? "Your 24-hour mining session is complete. Claim the earned GP to your Builder wallet."
+                  : isActive
+                    ? `Mining is active with ${
+                        miningState?.activeReferralCount ?? 0
+                      } active Builders boosting your rate.`
+                    : "Activate a server-verified 24-hour session. Active direct Builders increase your GP mining rate."}
             </p>
 
             <div className="mining-session-meta">
               <Clock3 size={18} />
 
-              {isActive
-                ? `${formatRemaining(
-                    remainingTime,
-                  )} remaining`
-                : "Ready for activation"}
+              {loading
+                ? "Synchronizing with the Universe..."
+                : claimable
+                  ? `${
+                      miningState?.rewardGp ?? 0
+                    } GP ready to claim`
+                  : isActive
+                    ? `${formatRemaining(
+                        remainingTime,
+                      )} remaining`
+                    : "Ready for activation"}
             </div>
           </div>
         </div>
@@ -633,11 +659,16 @@ export default function BuilderMining() {
               <Sparkles size={48} />
             </div>
 
-            <h2>Mining Session Activated</h2>
+            <h2>
+              {claimable
+                ? "Mining GP Claimed"
+                : "Mining Session Activated"}
+            </h2>
 
             <p>
-              Your 24-hour Builder Mining journey has
-              begun.
+              {claimable
+                ? "Your verified mining reward has been added to your GP wallet."
+                : "Your server-verified 24-hour Builder Mining session has begun."}
             </p>
           </div>
         </div>

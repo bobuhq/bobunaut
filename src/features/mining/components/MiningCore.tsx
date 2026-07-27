@@ -1,23 +1,45 @@
-import { Pickaxe } from "lucide-react";
+import { CheckCircle2, Pickaxe } from "lucide-react";
 
 type MiningCoreProps = {
   isActive: boolean;
+  claimable: boolean;
+  busy: boolean;
   remainingTime: string;
   sessionProgress: number;
-  onActivate: () => void;
+  onAction: () => void;
 };
 
 export default function MiningCore({
   isActive,
+  claimable,
+  busy,
   remainingTime,
   sessionProgress,
-  onActivate,
+  onAction,
 }: MiningCoreProps) {
+  const status = claimable
+    ? "COMPLETED"
+    : isActive
+      ? "ACTIVE"
+      : "INACTIVE";
+
+  const buttonLabel = busy
+    ? "Processing..."
+    : claimable
+      ? "Claim GP"
+      : isActive
+        ? "Mining Active"
+        : "Activate Mining";
+
   return (
     <div className="mining-core">
       <div className="mining-core-content">
         <div className="mining-orb">
-          <Pickaxe size={48} />
+          {claimable ? (
+            <CheckCircle2 size={48} />
+          ) : (
+            <Pickaxe size={48} />
+          )}
         </div>
 
         <div className="mining-status-label">
@@ -26,21 +48,25 @@ export default function MiningCore({
 
         <div
           className={`mining-status-value ${
-            isActive ? "active" : ""
+            isActive || claimable ? "active" : ""
           }`}
         >
-          {isActive ? "ACTIVE" : "INACTIVE"}
+          {status}
         </div>
 
         <div className="mining-timer">
-          {isActive ? remainingTime : "24:00:00"}
+          {isActive
+            ? remainingTime
+            : claimable
+              ? "00:00:00"
+              : "24:00:00"}
         </div>
 
         <div className="mining-progress-track">
           <div
             className="mining-progress-bar"
             style={{
-              width: `${sessionProgress}%`,
+              width: `${claimable ? 100 : sessionProgress}%`,
             }}
           />
         </div>
@@ -48,14 +74,16 @@ export default function MiningCore({
         <button
           type="button"
           className="mining-button"
-          onClick={onActivate}
-          disabled={isActive}
+          onClick={onAction}
+          disabled={busy || isActive}
         >
-          <Pickaxe size={19} />
+          {claimable ? (
+            <CheckCircle2 size={19} />
+          ) : (
+            <Pickaxe size={19} />
+          )}
 
-          {isActive
-            ? "Mining Active"
-            : "Activate Mining"}
+          {buttonLabel}
         </button>
       </div>
     </div>
