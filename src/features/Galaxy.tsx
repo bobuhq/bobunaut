@@ -153,7 +153,7 @@ export function Galaxy() {
     >
       <style>{`
         .my-galaxy-page {
-          width: min(1440px, calc(100% - 28px));
+          width: min(1520px, calc(100% - 22px));
           margin: 0 auto;
           padding: 112px 0 60px;
           color: white;
@@ -162,7 +162,7 @@ export function Galaxy() {
         .galaxy-shell {
           display: grid;
           grid-template-columns:
-            250px minmax(0, 1fr);
+            285px minmax(0, 1fr);
           min-height: 760px;
           overflow: hidden;
           border:
@@ -187,8 +187,10 @@ export function Galaxy() {
 
         .galaxy-sidebar {
           display: flex;
+          align-self: start;
           flex-direction: column;
-          padding: 26px 20px;
+          min-height: 760px;
+          padding: 22px 18px;
           border-right:
             1px solid rgba(133, 145, 222, 0.12);
           background:
@@ -209,13 +211,13 @@ export function Galaxy() {
         .galaxy-avatar {
           display: grid;
           overflow: hidden;
-          width: 72px;
-          height: 72px;
-          margin: 0 auto 13px;
+          width: 154px;
+          height: 154px;
+          margin: 0 auto 16px;
           place-items: center;
           border:
-            1px solid rgba(255, 218, 114, 0.72);
-          border-radius: 22px;
+            2px solid rgba(191, 108, 255, 0.72);
+          border-radius: 50%;
           color: #ffe598;
           background:
             radial-gradient(
@@ -238,7 +240,7 @@ export function Galaxy() {
         .galaxy-profile h2 {
           margin: 0;
           overflow: hidden;
-          font-size: 0.94rem;
+          font-size: 1.65rem;
           text-overflow: ellipsis;
           white-space: nowrap;
         }
@@ -246,7 +248,7 @@ export function Galaxy() {
         .galaxy-profile p {
           margin: 5px 0 0;
           color: rgba(218, 224, 255, 0.48);
-          font-size: 0.64rem;
+          font-size: 1.05rem;
         }
 
         .galaxy-rank {
@@ -355,7 +357,7 @@ export function Galaxy() {
 
         .galaxy-main {
           min-width: 0;
-          padding: 22px;
+          padding: 18px 22px 22px;
         }
 
         .galaxy-topbar {
@@ -371,7 +373,7 @@ export function Galaxy() {
 
         .galaxy-top-stat {
           min-width: 0;
-          padding: 16px 18px;
+          padding: 19px 24px;
           border-right:
             1px solid rgba(135, 145, 220, 0.1);
         }
@@ -383,7 +385,7 @@ export function Galaxy() {
         .galaxy-top-stat span {
           display: block;
           color: rgba(217, 223, 255, 0.48);
-          font-size: 0.61rem;
+          font-size: 0.72rem;
           letter-spacing: 0.08em;
           text-transform: uppercase;
         }
@@ -391,27 +393,43 @@ export function Galaxy() {
         .galaxy-top-stat strong {
           display: block;
           margin-top: 7px;
-          font-size: 1.12rem;
+          font-size: 1.55rem;
         }
 
         .galaxy-network {
           position: relative;
-          min-height: 500px;
-          margin-top: 18px;
-          padding: 22px 18px 26px;
+          min-height: 520px;
+          margin-top: 14px;
+          padding: 18px 22px 20px;
           overflow: auto;
           border:
             1px solid rgba(135, 145, 220, 0.12);
           border-radius: 20px;
           background:
             radial-gradient(
-              circle at 50% 24%,
-              rgba(113, 79, 255, 0.13),
-              transparent 29%
+              ellipse at 50% 20%,
+              rgba(214, 76, 255, 0.26),
+              transparent 27%
+            ),
+            radial-gradient(
+              ellipse at 25% 58%,
+              rgba(38, 117, 255, 0.19),
+              transparent 31%
+            ),
+            radial-gradient(
+              ellipse at 77% 59%,
+              rgba(255, 55, 190, 0.18),
+              transparent 31%
+            ),
+            radial-gradient(
+              circle at 50% 50%,
+              rgba(92, 55, 205, 0.15),
+              transparent 55%
             ),
             linear-gradient(
-              rgba(255, 255, 255, 0.018),
-              rgba(255, 255, 255, 0.008)
+              180deg,
+              rgba(5, 7, 28, 0.54),
+              rgba(3, 5, 20, 0.78)
             );
         }
 
@@ -454,45 +472,36 @@ export function Galaxy() {
 
         .galaxy-tree {
           display: flex;
-          min-width: 650px;
+          min-width: 760px;
           flex-direction: column;
           align-items: center;
-          padding: 34px 8px 8px;
+          padding: 12px 20px 6px;
         }
 
         .galaxy-root-card {
           display: grid;
           width: 190px;
-          min-height: 210px;
+          min-height: 205px;
           place-items: center;
-          border:
-            1px solid rgba(255, 220, 120, 0.66);
-          border-radius: 18px;
+          border: 0;
+          border-radius: 0;
           text-align: center;
           cursor: pointer;
-          background:
-            radial-gradient(
-              circle at 35% 20%,
-              rgba(255, 235, 158, 0.98),
-              rgba(238, 157, 55, 0.88) 22%,
-              rgba(121, 70, 230, 0.94) 58%,
-              rgba(38, 21, 91, 0.98)
-            );
-          box-shadow:
-            0 0 26px rgba(255, 193, 77, 0.34),
-            0 0 50px rgba(128, 91, 255, 0.3);
+          background: transparent;
+          box-shadow: none;
         }
 
         .galaxy-root-image {
-          width: 128px;
-          height: 128px;
-          margin: 0 auto 8px;
-          border: 1px solid rgba(255, 225, 145, 0.5);
-          border-radius: 24px;
+          width: 150px;
+          height: 150px;
+          margin: 0 auto 10px;
+          border: 3px solid rgba(211, 104, 255, 0.82);
+          border-radius: 50%;
           object-fit: cover;
           box-shadow:
-            0 0 24px rgba(255, 193, 77, 0.36),
-            0 0 42px rgba(128, 91, 255, 0.4);
+            0 0 0 8px rgba(125, 76, 255, 0.1),
+            0 0 30px rgba(210, 84, 255, 0.68),
+            0 0 62px rgba(111, 81, 255, 0.48);
         }
 
         .galaxy-root-card strong {
@@ -509,13 +518,13 @@ export function Galaxy() {
           display: block;
           margin-top: 3px;
           color: #e8ddff;
-          font-size: 0.55rem;
+          font-size: 0.66rem;
           letter-spacing: 0.11em;
         }
 
         .galaxy-tree-trunk {
           width: 1px;
-          height: 52px;
+          height: 44px;
           background:
             linear-gradient(
               rgba(255, 198, 77, 0.72),
@@ -530,8 +539,8 @@ export function Galaxy() {
           display: grid;
           width: 100%;
           grid-template-columns:
-            repeat(auto-fit, minmax(145px, 1fr));
-          gap: 42px 18px;
+            repeat(auto-fit, minmax(120px, 1fr));
+          gap: 38px 20px;
           padding: 30px 0 0;
         }
 
@@ -541,7 +550,7 @@ export function Galaxy() {
           top: 0;
           left: 8%;
           width: 84%;
-          height: 1px;
+          height: 2px;
           background:
             linear-gradient(
               90deg,
@@ -551,8 +560,7 @@ export function Galaxy() {
               rgba(101, 205, 255, 0.62) 88%,
               transparent
             );
-          box-shadow:
-            0 0 10px rgba(101, 205, 255, 0.34);
+          box-shadow: 0 0 12px rgba(101, 205, 255, 0.42);
         }
 
         .galaxy-member-branch {
@@ -566,75 +574,59 @@ export function Galaxy() {
           position: absolute;
           top: -30px;
           left: 50%;
-          width: 1px;
+          width: 2px;
           height: 30px;
           background: var(--branch-color);
-          box-shadow: 0 0 9px var(--branch-color);
+          box-shadow: 0 0 10px var(--branch-color);
         }
 
         .galaxy-member-card {
-          width: min(100%, 168px);
-          min-height: 112px;
-          padding: 14px 12px;
-          border: 1px solid var(--node-ring);
-          border-radius: 15px;
+          display: grid;
+          width: 126px;
+          min-height: 150px;
+          justify-items: center;
+          align-content: start;
+          padding: 0;
+          border: 0;
+          border-radius: 0;
           text-align: center;
           cursor: pointer;
-          background:
-            radial-gradient(
-              circle at 50% 0%,
-              color-mix(
-                in srgb,
-                var(--node-glow) 22%,
-                transparent
-              ),
-              transparent 58%
-            ),
-            linear-gradient(
-              145deg,
-              color-mix(
-                in srgb,
-                var(--node-glow) 10%,
-                rgba(25, 27, 62, 0.97)
-              ),
-              rgba(10, 13, 36, 0.98)
-            );
-          box-shadow:
-            0 0 20px
-              color-mix(
-                in srgb,
-                var(--node-glow) 26%,
-                transparent
-              ),
-            inset 0 1px
-              rgba(255, 255, 255, 0.04);
+          background: transparent;
+          box-shadow: none;
           transition:
             transform 180ms ease,
             filter 180ms ease;
         }
 
         .galaxy-member-card:hover {
-          filter: brightness(1.16);
+          filter: brightness(1.15);
           transform: translateY(-3px);
         }
 
-        .galaxy-member-card.selected {
-          border-color: rgba(255, 255, 255, 0.92);
+        .galaxy-member-card.selected
+        .galaxy-member-icon {
+          border-color: rgba(255, 255, 255, 0.95);
           box-shadow:
-            0 0 0 4px
-              rgba(116, 91, 255, 0.1),
-            0 0 26px var(--node-glow);
+            0 0 0 5px rgba(116, 91, 255, 0.12),
+            0 0 28px var(--node-glow);
         }
 
         .galaxy-member-icon {
-          width: 74px;
-          height: 74px;
+          width: 92px;
+          height: 92px;
           margin: 0 auto 10px;
           overflow: hidden;
-          border: 1px solid var(--node-ring);
-          border-radius: 16px;
+          border: 2px solid var(--node-ring);
+          border-radius: 50%;
           background: var(--node-gradient);
-          box-shadow: 0 0 18px var(--node-glow);
+          box-shadow:
+            0 0 16px var(--node-glow),
+            0 0 32px
+              color-mix(
+                in srgb,
+                var(--node-glow) 36%,
+                transparent
+              );
         }
 
         .galaxy-member-icon img {
@@ -674,8 +666,10 @@ export function Galaxy() {
 
         .galaxy-member-card strong {
           display: block;
+          width: 126px;
           overflow: hidden;
-          font-size: 0.7rem;
+          color: white;
+          font-size: 0.76rem;
           text-overflow: ellipsis;
           white-space: nowrap;
         }
@@ -690,9 +684,9 @@ export function Galaxy() {
           display: inline-flex;
           align-items: center;
           gap: 5px;
-          margin-top: 8px;
+          margin-top: 6px;
           color: #70ffc0;
-          font-size: 0.52rem;
+          font-size: 0.62rem;
           font-weight: 800;
           text-transform: uppercase;
         }
@@ -723,9 +717,9 @@ export function Galaxy() {
 
         .galaxy-footer-grid {
           display: grid;
-          grid-template-columns: 1fr 1.5fr;
+          grid-template-columns: 0.9fr 1.6fr;
           gap: 16px;
-          margin-top: 18px;
+          margin-top: 12px;
         }
 
         .galaxy-footer-card {
@@ -757,11 +751,39 @@ export function Galaxy() {
         }
 
         .galaxy-legend i {
-          width: 8px;
-          height: 8px;
-          border-radius: 50%;
-          background: currentColor;
-          box-shadow: 0 0 8px currentColor;
+          position: relative;
+          display: inline-grid;
+          width: 22px;
+          height: 22px;
+          place-items: center;
+          border: 1px solid currentColor;
+          border-radius: 7px;
+          background:
+            color-mix(
+              in srgb,
+              currentColor 14%,
+              transparent
+            );
+          box-shadow: 0 0 12px currentColor;
+        }
+
+        .galaxy-legend i::after {
+          content: "✦";
+          color: currentColor;
+          font-size: 0.72rem;
+          line-height: 1;
+        }
+
+        .galaxy-legend span:nth-child(1) i::after {
+          content: "●";
+        }
+
+        .galaxy-legend span:nth-child(2) i::after {
+          content: "○";
+        }
+
+        .galaxy-legend span:nth-child(3) i::after {
+          content: "⚡";
         }
 
         .galaxy-summary {
