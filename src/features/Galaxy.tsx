@@ -213,7 +213,7 @@ export function Galaxy() {
               className={`bobu-tone-${
                 memberIndex % 4
               }`}
-              src="/images/galaxy/bobu-builder-space.png"
+              src="/images/galaxy/bobu-builder-space.webp"
               alt={`${member.name} BOBU`}
             />
           </div>
@@ -1044,7 +1044,7 @@ export function Galaxy() {
           <div className="galaxy-profile">
             <div className="galaxy-avatar">
               <img
-                src="/images/galaxy/bobu-builder-space.png"
+                src="/images/galaxy/bobu-builder-space.webp"
                 alt="BOBU Builder"
               />
             </div>
@@ -1170,7 +1170,7 @@ export function Galaxy() {
                 <div>
                   <img
                     className="galaxy-root-image"
-                    src="/images/galaxy/bobu-builder-space.png"
+                    src="/images/galaxy/bobu-builder-space.webp"
                     alt="King BOBU"
                   />
 
