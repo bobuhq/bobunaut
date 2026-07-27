@@ -5,8 +5,7 @@ type BuilderPassportShareCardProps = {
   displayName: string;
   username: string;
   level: number;
-  currentXp: number;
-  nextLevelXp: number;
+  gpBalance: number;
   walletAddress: string;
 };
 
@@ -14,17 +13,11 @@ export default function BuilderPassportShareCard({
   displayName,
   username,
   level,
-  currentXp,
-  nextLevelXp,
+  gpBalance,
   walletAddress,
 }: BuilderPassportShareCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [isDownloading, setIsDownloading] = useState(false);
-
-  const progress =
-    nextLevelXp > 0
-      ? Math.min((currentXp / nextLevelXp) * 100, 100)
-      : 0;
 
   const handleDownload = async () => {
     if (!cardRef.current || isDownloading) return;
@@ -123,27 +116,16 @@ export default function BuilderPassportShareCard({
           >
             <strong>LEVEL {level}</strong>
             <span>
-              {currentXp} / {nextLevelXp} XP
+              {gpBalance.toLocaleString("tr-TR")} GP
             </span>
           </div>
 
           <div
             style={{
-              height: 8,
-              overflow: "hidden",
-              borderRadius: 999,
-              background: "rgba(255, 255, 255, 0.12)",
+              height: 1,
+              background: "rgba(255, 255, 255, 0.14)",
             }}
-          >
-            <div
-              style={{
-                width: `${progress}%`,
-                height: "100%",
-                borderRadius: 999,
-                background: "linear-gradient(90deg, #14f195, #9945ff)",
-              }}
-            />
-          </div>
+          />
 
           <p
             style={{
