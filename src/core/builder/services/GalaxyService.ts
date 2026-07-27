@@ -6,6 +6,7 @@ export type GalaxyReferralStatus =
 
 export interface GalaxyMember {
   builderId: string;
+  parentBuilderId: string;
   username: string | null;
   displayName: string | null;
   level: number;
@@ -13,10 +14,12 @@ export interface GalaxyMember {
   referralCount: number;
   referralStatus: GalaxyReferralStatus;
   joinedAt: string;
+  depth: number;
 }
 
 interface GalaxyMemberRow {
   builder_id: string;
+  parent_builder_id: string;
   username: string | null;
   display_name: string | null;
   level: number;
@@ -24,6 +27,7 @@ interface GalaxyMemberRow {
   referral_count: number;
   referral_status: GalaxyReferralStatus;
   joined_at: string;
+  depth: number;
 }
 
 export const galaxyService = {
@@ -42,6 +46,7 @@ export const galaxyService = {
 
     return rows.map((member) => ({
       builderId: member.builder_id,
+      parentBuilderId: member.parent_builder_id,
       username: member.username,
       displayName: member.display_name,
       level: member.level,
@@ -49,6 +54,7 @@ export const galaxyService = {
       referralCount: member.referral_count,
       referralStatus: member.referral_status,
       joinedAt: member.joined_at,
+      depth: member.depth,
     }));
   },
 };

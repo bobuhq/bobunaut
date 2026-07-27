@@ -3,6 +3,7 @@ import {
   useMemo,
   useState,
   type CSSProperties,
+  type ReactNode,
 } from "react";
 import { motion } from "framer-motion";
 import {
@@ -19,6 +20,8 @@ import { getPrimaryBranchTheme } from "./galaxy/galaxyThemes";
 
 type GalaxyMember = {
   builderId: string;
+  parentBuilderId: string;
+  depth: number;
   name: string;
   builders: number;
   gp: number;
@@ -113,6 +116,8 @@ export function Galaxy() {
     () =>
       galaxyMembers.map((member, index) => ({
         builderId: member.builderId,
+        parentBuilderId: member.parentBuilderId,
+        depth: member.depth,
         name:
           member.displayName ??
           member.username ??
@@ -124,6 +129,126 @@ export function Galaxy() {
       })),
     [galaxyMembers],
   );
+
+  const childrenByParent = useMemo(() => {
+    const children = new Map<string, GalaxyMember[]>();
+
+    for (const member of visibleMembers) {
+      const siblings =
+        children.get(member.parentBuilderId) ?? [];
+
+      siblings.push(member);
+      children.set(member.parentBuilderId, siblings);
+    }
+
+    return children;
+  }, [visibleMembers]);
+
+  const memberOrder = useMemo(
+    () =>
+      new Map(
+        visibleMembers.map((member, index) => [
+          member.builderId,
+          index,
+        ]),
+      ),
+    [visibleMembers],
+  );
+
+  const renderGalaxyBranch = (
+    member: GalaxyMember,
+  ): ReactNode => {
+    const children =
+      childrenByParent.get(member.builderId) ?? [];
+    const memberIndex =
+      memberOrder.get(member.builderId) ?? 0;
+
+    return (
+      <motion.div
+        className="galaxy-tree-branch"
+        key={member.builderId}
+        style={
+          {
+            "--branch-color":
+              member.theme.lineColor,
+          } as CSSProperties
+        }
+        initial={{ opacity: 0, y: 14 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{
+          delay:
+            0.05 +
+            Math.min(member.depth, 8) * 0.06,
+          duration: 0.38,
+        }}
+      >
+        <article
+          className={`galaxy-member-card ${
+            selectedMemberId === member.builderId
+              ? "selected"
+              : ""
+          }`}
+          style={
+            {
+              "--node-gradient":
+                member.theme.nodeGradient,
+              "--node-glow":
+                member.theme.glowColor,
+              "--node-ring":
+                member.theme.ringColor,
+              "--node-text":
+                member.theme.textAccent,
+              opacity:
+                member.status === "active"
+                  ? 1
+                  : 0.66,
+            } as CSSProperties
+          }
+          onClick={() =>
+            setSelectedMemberId(member.builderId)
+          }
+        >
+          <div className="galaxy-member-icon">
+            <img
+              className={`bobu-tone-${
+                memberIndex % 4
+              }`}
+              src="/images/galaxy/bobu-builder-space.png"
+              alt={`${member.name} BOBU`}
+            />
+          </div>
+
+          <strong>{member.name}</strong>
+
+          <div className="galaxy-member-meta">
+            {member.gp.toLocaleString("tr-TR")} GP
+            {" · "}
+            {member.builders} Builders
+          </div>
+
+          <span
+            className={`galaxy-member-status ${
+              member.status === "active"
+                ? ""
+                : "pending"
+            }`}
+          >
+            {member.status === "active"
+              ? "Active"
+              : "Pending"}
+          </span>
+        </article>
+
+        {children.length > 0 && (
+          <div className="galaxy-children">
+            {children.map((child) =>
+              renderGalaxyBranch(child),
+            )}
+          </div>
+        )}
+      </motion.div>
+    );
+  };
 
   const copyReferralLink = async () => {
     if (!referralLink) {
@@ -534,17 +659,18 @@ export function Galaxy() {
             0 0 10px rgba(118, 88, 255, 0.58);
         }
 
-        .galaxy-member-grid {
+        .galaxy-forest {
           position: relative;
-          display: grid;
-          width: 100%;
-          grid-template-columns:
-            repeat(auto-fit, minmax(120px, 1fr));
-          gap: 38px 20px;
-          padding: 30px 0 0;
+          display: flex;
+          width: max-content;
+          min-width: 100%;
+          align-items: flex-start;
+          justify-content: center;
+          gap: 34px;
+          padding: 30px 28px 10px;
         }
 
-        .galaxy-member-grid::before {
+        .galaxy-forest::before {
           content: "";
           position: absolute;
           top: 0;
@@ -560,16 +686,19 @@ export function Galaxy() {
               rgba(101, 205, 255, 0.62) 88%,
               transparent
             );
-          box-shadow: 0 0 12px rgba(101, 205, 255, 0.42);
+          box-shadow:
+            0 0 12px rgba(101, 205, 255, 0.42);
         }
 
-        .galaxy-member-branch {
+        .galaxy-tree-branch {
           position: relative;
           display: flex;
-          justify-content: center;
+          flex-direction: column;
+          align-items: center;
+          flex: 0 0 auto;
         }
 
-        .galaxy-member-branch::before {
+        .galaxy-tree-branch::before {
           content: "";
           position: absolute;
           top: -30px;
@@ -577,7 +706,44 @@ export function Galaxy() {
           width: 2px;
           height: 30px;
           background: var(--branch-color);
-          box-shadow: 0 0 10px var(--branch-color);
+          box-shadow:
+            0 0 10px var(--branch-color);
+          transform: translateX(-50%);
+        }
+
+        .galaxy-children {
+          position: relative;
+          display: flex;
+          align-items: flex-start;
+          justify-content: center;
+          gap: 26px;
+          margin-top: 18px;
+          padding: 38px 14px 0;
+        }
+
+        .galaxy-children::before {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: 10%;
+          width: 80%;
+          height: 2px;
+          background:
+            linear-gradient(
+              90deg,
+              transparent,
+              var(--branch-color),
+              transparent
+            );
+          box-shadow:
+            0 0 10px var(--branch-color);
+          opacity: 0.68;
+        }
+
+        .galaxy-children >
+        .galaxy-tree-branch::before {
+          top: -38px;
+          height: 38px;
         }
 
         .galaxy-member-card {
@@ -1027,98 +1193,11 @@ export function Galaxy() {
                   {galaxyError}
                 </div>
               ) : visibleMembers.length > 0 ? (
-                <div className="galaxy-member-grid">
-                  {visibleMembers.map(
-                    (member, index) => (
-                      <motion.div
-                        className="galaxy-member-branch"
-                        key={member.builderId}
-                        style={
-                          {
-                            "--branch-color":
-                              member.theme.lineColor,
-                          } as CSSProperties
-                        }
-                        initial={{
-                          opacity: 0,
-                          y: 14,
-                        }}
-                        animate={{
-                          opacity: 1,
-                          y: 0,
-                        }}
-                        transition={{
-                          delay:
-                            0.06 + index * 0.06,
-                          duration: 0.38,
-                        }}
-                      >
-                        <article
-                          className={`galaxy-member-card ${
-                            selectedMemberId ===
-                            member.builderId
-                              ? "selected"
-                              : ""
-                          }`}
-                          style={
-                            {
-                              "--node-gradient":
-                                member.theme
-                                  .nodeGradient,
-                              "--node-glow":
-                                member.theme.glowColor,
-                              "--node-ring":
-                                member.theme.ringColor,
-                              "--node-text":
-                                member.theme.textAccent,
-                              opacity:
-                                member.status ===
-                                "active"
-                                  ? 1
-                                  : 0.66,
-                            } as CSSProperties
-                          }
-                          onClick={() =>
-                            setSelectedMemberId(
-                              member.builderId,
-                            )
-                          }
-                        >
-                          <div className="galaxy-member-icon">
-                            <img
-                              className={`bobu-tone-${index % 4}`}
-                              src="/images/galaxy/bobu-builder-space.png"
-                              alt={`${member.name} BOBU`}
-                            />
-                          </div>
-
-                          <strong>
-                            {member.name}
-                          </strong>
-
-                          <div className="galaxy-member-meta">
-                            {member.gp.toLocaleString(
-                              "tr-TR",
-                            )}{" "}
-                            GP · {member.builders} Builders
-                          </div>
-
-                          <span
-                            className={`galaxy-member-status ${
-                              member.status ===
-                              "active"
-                                ? ""
-                                : "pending"
-                            }`}
-                          >
-                            {member.status === "active"
-                              ? "Active"
-                              : "Pending"}
-                          </span>
-                        </article>
-                      </motion.div>
-                    ),
-                  )}
+                <div className="galaxy-forest">
+                  {(childrenByParent.get(builder.id) ?? [])
+                    .map((member) =>
+                      renderGalaxyBranch(member),
+                    )}
                 </div>
               ) : (
                 <div className="galaxy-empty">
