@@ -8,9 +8,7 @@ import { motion } from "framer-motion";
 import {
   Check,
   Copy,
-  Crown,
   Sparkles,
-  Star,
 } from "lucide-react";
 import { useBuilderStore } from "./identity/hooks/useBuilderStore";
 import {
@@ -210,6 +208,7 @@ export function Galaxy() {
 
         .galaxy-avatar {
           display: grid;
+          overflow: hidden;
           width: 72px;
           height: 72px;
           margin: 0 auto 13px;
@@ -228,6 +227,12 @@ export function Galaxy() {
           box-shadow:
             0 0 24px rgba(255, 193, 77, 0.3),
             0 0 44px rgba(128, 91, 255, 0.28);
+        }
+
+        .galaxy-avatar img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
         }
 
         .galaxy-profile h2 {
@@ -458,7 +463,7 @@ export function Galaxy() {
         .galaxy-root-card {
           display: grid;
           width: 190px;
-          min-height: 108px;
+          min-height: 210px;
           place-items: center;
           border:
             1px solid rgba(255, 220, 120, 0.66);
@@ -476,6 +481,18 @@ export function Galaxy() {
           box-shadow:
             0 0 26px rgba(255, 193, 77, 0.34),
             0 0 50px rgba(128, 91, 255, 0.3);
+        }
+
+        .galaxy-root-image {
+          width: 128px;
+          height: 128px;
+          margin: 0 auto 8px;
+          border: 1px solid rgba(255, 225, 145, 0.5);
+          border-radius: 24px;
+          object-fit: cover;
+          box-shadow:
+            0 0 24px rgba(255, 193, 77, 0.36),
+            0 0 42px rgba(128, 91, 255, 0.4);
         }
 
         .galaxy-root-card strong {
@@ -610,16 +627,49 @@ export function Galaxy() {
         }
 
         .galaxy-member-icon {
-          display: grid;
-          width: 34px;
-          height: 34px;
-          margin: 0 auto 8px;
-          place-items: center;
+          width: 74px;
+          height: 74px;
+          margin: 0 auto 10px;
+          overflow: hidden;
           border: 1px solid var(--node-ring);
-          border-radius: 11px;
-          color: var(--node-text);
+          border-radius: 16px;
           background: var(--node-gradient);
-          box-shadow: 0 0 15px var(--node-glow);
+          box-shadow: 0 0 18px var(--node-glow);
+        }
+
+        .galaxy-member-icon img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          transition: filter 180ms ease;
+        }
+
+        .bobu-tone-0 {
+          filter:
+            hue-rotate(35deg)
+            saturate(1.35)
+            brightness(1.05);
+        }
+
+        .bobu-tone-1 {
+          filter:
+            hue-rotate(105deg)
+            saturate(1.45)
+            brightness(1.04);
+        }
+
+        .bobu-tone-2 {
+          filter:
+            hue-rotate(310deg)
+            saturate(1.45)
+            brightness(1.06);
+        }
+
+        .bobu-tone-3 {
+          filter:
+            hue-rotate(150deg)
+            saturate(1.5)
+            brightness(1.08);
         }
 
         .galaxy-member-card strong {
@@ -805,7 +855,10 @@ export function Galaxy() {
         <aside className="galaxy-sidebar">
           <div className="galaxy-profile">
             <div className="galaxy-avatar">
-              <Crown size={28} />
+              <img
+                src="/images/galaxy/bobu-builder-space.png"
+                alt="BOBU Builder"
+              />
             </div>
 
             <h2>
@@ -927,7 +980,11 @@ export function Galaxy() {
                 }
               >
                 <div>
-                  <Crown size={25} />
+                  <img
+                    className="galaxy-root-image"
+                    src="/images/galaxy/bobu-builder-space.png"
+                    alt="King BOBU"
+                  />
 
                   <strong>
                     {builder.username || "KING BOBU"}
@@ -1006,7 +1063,11 @@ export function Galaxy() {
                           }
                         >
                           <div className="galaxy-member-icon">
-                            <Star size={14} />
+                            <img
+                              className={`bobu-tone-${index % 4}`}
+                              src="/images/galaxy/bobu-builder-space.png"
+                              alt={`${member.name} BOBU`}
+                            />
                           </div>
 
                           <strong>
