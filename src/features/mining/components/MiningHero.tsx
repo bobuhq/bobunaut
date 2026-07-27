@@ -14,7 +14,7 @@ export default function MiningHero() {
 
       <p className="mining-description">
         Activate your daily mining session, collect
-        Builder Points and strengthen your reputation
+        GP and strengthen your reputation
         across the BOBU Universe.
       </p>
     </div>
