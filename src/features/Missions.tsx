@@ -35,7 +35,6 @@ type Mission = {
   title: string;
   description: string;
   reward: string;
-  gems: number;
   difficulty: string;
   duration: string;
   status: MissionStatus;
@@ -50,8 +49,7 @@ const missions: Mission[] = [
     title: "Restore the BOBU Signal",
     description:
       "Check Mission Control and reconnect with the latest signal from BOBU Universe.",
-    reward: "250 XP",
-    gems: 20,
+    reward: "250 GP",
     difficulty: "Easy",
     duration: "1 min",
     status: "available",
@@ -64,8 +62,7 @@ const missions: Mission[] = [
     title: "Join Official Channels",
     description:
       "Connect with the official BOBU community across X, Telegram and Instagram.",
-    reward: "600 XP",
-    gems: 50,
+    reward: "600 GP",
     difficulty: "Easy",
     duration: "3 min",
     status: "available",
@@ -78,8 +75,7 @@ const missions: Mission[] = [
     title: "Create Your First BOBU Meme",
     description:
       "Create an original BOBU meme and prepare it for an upcoming community challenge.",
-    reward: "900 XP",
-    gems: 75,
+    reward: "900 GP",
     difficulty: "Medium",
     duration: "10 min",
     status: "available",
@@ -93,7 +89,6 @@ const missions: Mission[] = [
     description:
       "The first playable BOBU mission will unlock during the next development cycle.",
     reward: "Classified",
-    gems: 0,
     difficulty: "Unknown",
     duration: "Coming Soon",
     status: "locked",
@@ -177,20 +172,13 @@ export function Missions() {
     (mission) => mission.status !== "locked",
   ).length;
 
-  const totalXp = useMemo(() => {
+  const totalMissionGp = useMemo(() => {
     return completedMissionIds.reduce((total, id) => {
       const mission = missions.find((item) => item.id === id);
       if (!mission) return total;
 
       const value = Number.parseInt(mission.reward.replace(/\D/g, ""), 10);
       return total + (Number.isNaN(value) ? 0 : value);
-    }, 0);
-  }, [completedMissionIds]);
-
-  const totalGems = useMemo(() => {
-    return completedMissionIds.reduce((total, id) => {
-      const mission = missions.find((item) => item.id === id);
-      return total + (mission?.gems ?? 0);
     }, 0);
   }, [completedMissionIds]);
 
@@ -1117,8 +1105,8 @@ export function Missions() {
               <Zap size={22} />
             </div>
             <div>
-              <span>TOTAL XP</span>
-              <strong>{totalXp.toLocaleString()}</strong>
+              <span>MISSION GP</span>
+              <strong>{totalMissionGp.toLocaleString()}</strong>
             </div>
           </article>
 
@@ -1127,8 +1115,8 @@ export function Missions() {
               <Gem size={22} />
             </div>
             <div>
-              <span>BOBU GEMS</span>
-              <strong>{totalGems}</strong>
+              <span>REWARD STATUS</span>
+              <strong>PREVIEW</strong>
             </div>
           </article>
 
@@ -1227,17 +1215,15 @@ export function Missions() {
                     </div>
 
                     <div className="mc-meta-item">
-                      <span>GEMS</span>
-                      <strong>
-                        {mission.gems > 0 ? `+${mission.gems}` : "—"}
-                      </strong>
+                      <span>REWARD</span>
+                      <strong>{mission.reward}</strong>
                     </div>
                   </div>
 
                   <footer className="mc-mission-footer">
                     <div className="mc-reward">
                       <Star size={17} />
-                      {mission.reward}
+                      GP reward preview
                     </div>
 
                     <button
