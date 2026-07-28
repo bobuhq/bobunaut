@@ -54,6 +54,10 @@ const BuilderMining = lazy(
 const BuilderIdentity = lazy(
   () => import("../features/identity/BuilderIdentity"),
 );
+
+const BuilderWallet = lazy(
+  () => import("../features/wallet/BuilderWallet"),
+);
 import { BuilderInviteEntry } from "../features/invite/BuilderInviteEntry";
 
 export function App() {
@@ -88,6 +92,7 @@ export function App() {
           <Route path="/command-deck" element={<Deck />} />
           <Route path="/identity" element={<BuilderIdentity />} />
           <Route path="/passport" element={<BuilderPassport />} />
+          <Route path="/wallet" element={<BuilderWallet />} />
           <Route path="/mining" element={<BuilderMining />} />
           <Route path="/missions" element={<Missions />} />
           <Route path="/galaxy" element={<Galaxy />} />
