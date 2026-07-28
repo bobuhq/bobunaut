@@ -11,6 +11,11 @@ import {
 } from "../../../core/builder/services/BuilderMiningService";
 import { restoreAuthenticatedBuilder } from "../../../core/builder/services/BuilderRestoreService";
 
+import {
+  createEventTimestamp,
+  eventEngine,
+} from "../../../core/engine/eventEngine";
+
 const DEFAULT_SESSION_DURATION_MS =
   24 * 60 * 60 * 1000;
 
@@ -210,6 +215,19 @@ export function useBuilderMiningSession():
           : await builderMiningService.start();
 
         applyMiningState(nextState);
+
+        if (session.claimable) {
+          eventEngine.publish({
+            type: "CLAIM_SUCCESS",
+            amount: nextState.rewardGp,
+            occurredAt: createEventTimestamp(),
+          });
+        } else {
+          eventEngine.publish({
+            type: "MINING_STARTED",
+            occurredAt: createEventTimestamp(),
+          });
+        }
 
         await restoreAuthenticatedBuilder();
 
