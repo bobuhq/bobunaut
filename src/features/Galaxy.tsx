@@ -998,7 +998,7 @@ export function Galaxy() {
           display: flex;
           flex-direction: column;
           align-items: center;
-          gap: 8px;
+          gap: 14px;
           text-align: center;
           background: transparent;
           border: none;
@@ -1051,7 +1051,14 @@ export function Galaxy() {
             0 0 10px rgba(105, 130, 255, 0.34);
         }
 
-        @media (max-width: 980px) {
+        
+
+        .galaxy-root-image-compact {
+          width: 84px !important;
+          height: 84px !important;
+        }
+
+@media (max-width: 980px) {
           .galaxy-shell {
             grid-template-columns: 1fr;
           }
@@ -1282,7 +1289,7 @@ export function Galaxy() {
               >
                 <div>
                   <img
-                    className="galaxy-root-image"
+                    className="galaxy-root-image galaxy-root-image-compact"
                     src="/images/galaxy/bobu-builder-space.webp"
                     alt="King BOBU"
                   />
@@ -1291,7 +1298,7 @@ export function Galaxy() {
                     {builder.username || "KING BOBU"}
                   </strong>
 
-                  <span>YOU · NEBULA CORE</span>
+                  <span>NEBULA CORE</span>
                 </div>
               </motion.div>
 
