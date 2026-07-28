@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import {
   Compass,
+  LockKeyhole,
   LogIn,
   LogOut,
   Menu,
@@ -9,6 +10,7 @@ import {
   Radio,
   Rocket,
   User,
+  WalletCards,
   X,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
@@ -21,36 +23,49 @@ const navItems = [
     to: "/",
     label: "Orbit",
     icon: Orbit,
+    locked: false,
   },
   {
     to: "/command-deck",
     label: "Command Deck",
     icon: Radio,
+    locked: false,
   },
   {
     to: "/identity",
     label: "Genesis",
     icon: User,
+    locked: false,
   },
   {
     to: "/passport",
     label: "Passport",
     icon: User,
+    locked: false,
+  },
+  {
+    to: "/wallet",
+    label: "Wallet",
+    icon: WalletCards,
+    locked: true,
   },
   {
     to: "/mining",
     label: "Mining",
     icon: Pickaxe,
+    locked: false,
   },
   {
     to: "/missions",
     label: "Missions",
     icon: Rocket,
+    locked: false,
   },
   {
     to: "/galaxy",
     label: "My Galaxy",
     icon: Compass,
+    locked: false,
   },
 ] as const;
 
@@ -371,6 +386,33 @@ export function Nav() {
             border-color 180ms ease,
             transform 180ms ease,
             box-shadow 180ms ease;
+        }
+
+        .bobu-nav-link.bobu-nav-link--locked {
+          opacity: 0.42;
+          cursor: not-allowed;
+          user-select: none;
+          filter: saturate(0.55);
+        }
+
+        .bobu-nav-link.bobu-nav-link--locked:hover {
+          color: inherit;
+          background: transparent;
+          transform: none;
+          box-shadow: none;
+        }
+
+        .bobu-nav-link.bobu-nav-link--locked:hover svg {
+          transform: none;
+        }
+
+        .bobu-nav-lock {
+          width: 13px;
+          height: 13px;
+          margin-left: -3px;
+          opacity: 1;
+          color: #25F89A;
+          filter: drop-shadow(0 0 6px rgba(37,248,154,.45));
         }
 
         .bobu-nav-link svg {
@@ -830,19 +872,37 @@ export function Nav() {
         </NavLink>
 
         <div className="bobu-nav-links">
-          {navItems.map(({ to, label, icon: Icon }) => (
-            <NavLink
-              key={to}
-              to={to}
-              end={to === "/"}
-              className={({ isActive }) =>
-                `bobu-nav-link${isActive ? " active" : ""}`
-              }
-            >
-              <Icon size={16} strokeWidth={1.8} />
-              <span>{label}</span>
-            </NavLink>
-          ))}
+          {navItems.map(({ to, label, icon: Icon, locked }) =>
+            locked ? (
+              <span
+                key={to}
+                className="bobu-nav-link bobu-nav-link--locked"
+                title="Builder Wallet — Under Development"
+                aria-label={`${label} — Locked, under development`}
+                aria-disabled="true"
+              >
+                <Icon size={16} strokeWidth={1.8} />
+                <span>{label}</span>
+                <LockKeyhole
+                  className="bobu-nav-lock"
+                  strokeWidth={2}
+                  aria-hidden="true"
+                />
+              </span>
+            ) : (
+              <NavLink
+                key={to}
+                to={to}
+                end={to === "/"}
+                className={({ isActive }) =>
+                  `bobu-nav-link${isActive ? " active" : ""}`
+                }
+              >
+                <Icon size={16} strokeWidth={1.8} />
+                <span>{label}</span>
+              </NavLink>
+            ),
+          )}
         </div>
 
         <div className="bobu-account">
@@ -931,20 +991,38 @@ export function Nav() {
           }`}
         >
           <div className="bobu-mobile-links">
-            {navItems.map(({ to, label, icon: Icon }) => (
-              <NavLink
-                key={to}
-                to={to}
-                end={to === "/"}
-                className={({ isActive }) =>
-                  `bobu-nav-link${isActive ? " active" : ""}`
-                }
-                onClick={closeMobileMenu}
-              >
-                <Icon size={17} strokeWidth={1.8} />
-                <span>{label}</span>
-              </NavLink>
-            ))}
+            {navItems.map(({ to, label, icon: Icon, locked }) =>
+              locked ? (
+                <span
+                  key={to}
+                  className="bobu-nav-link bobu-nav-link--locked"
+                  title="Builder Wallet — Under Development"
+                  aria-label={`${label} — Locked, under development`}
+                  aria-disabled="true"
+                >
+                  <Icon size={17} strokeWidth={1.8} />
+                  <span>{label}</span>
+                  <LockKeyhole
+                    className="bobu-nav-lock"
+                    strokeWidth={2}
+                    aria-hidden="true"
+                  />
+                </span>
+              ) : (
+                <NavLink
+                  key={to}
+                  to={to}
+                  end={to === "/"}
+                  className={({ isActive }) =>
+                    `bobu-nav-link${isActive ? " active" : ""}`
+                  }
+                  onClick={closeMobileMenu}
+                >
+                  <Icon size={17} strokeWidth={1.8} />
+                  <span>{label}</span>
+                </NavLink>
+              ),
+            )}
           </div>
 
           <div className="bobu-mobile-account">
