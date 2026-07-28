@@ -424,60 +424,29 @@ export default function BuilderMining() {
           z-index: 3;
           display: grid;
           width: 154px;
-          height: 154px;
-          place-items: center;
-          overflow: hidden;
-          border: 2px solid
-            rgba(205, 139, 255, 0.78);
-          border-radius: 50%;
-          background:
-            radial-gradient(
-              circle at 50% 45%,
-              rgba(130, 71, 255, 0.32),
-              rgba(20, 10, 52, 0.94) 72%
-            );
-          box-shadow:
-            0 0 18px rgba(173, 83, 255, 0.58),
-            0 0 48px rgba(102, 58, 255, 0.4),
-            inset 0 0 25px
-              rgba(181, 107, 255, 0.22);
+          height: 174px;
+          place-items: end center;
           animation:
             bobu-float 3.4s
             ease-in-out infinite;
         }
 
-        .mining-bobu-shell::before {
-          content: "";
-          position: absolute;
-          inset: -7px;
-          z-index: -1;
-          border: 1px solid
-            rgba(189, 104, 255, 0.52);
-          border-radius: 50%;
-          box-shadow:
-            0 0 26px
-              rgba(158, 72, 255, 0.52);
-          animation:
-            bobu-avatar-pulse 3s
-            ease-in-out infinite;
-        }
-
         .mining-bobu-character {
           display: block;
-          width: 100%;
-          height: 100%;
-          border-radius: 50%;
-          object-fit: cover;
-          object-position: center;
+          width: 154px;
+          height: 174px;
+          object-fit: contain;
+          object-position: center bottom;
           user-select: none;
           pointer-events: none;
-          transform: scale(1.03);
           filter:
-            saturate(1.08)
-            contrast(1.04)
             drop-shadow(
-              0 0 12px
-              rgba(160, 83, 255, 0.38)
+              0 0 14px
+              rgba(139, 82, 255, 0.42)
+            )
+            drop-shadow(
+              0 15px 20px
+              rgba(0, 0, 0, 0.45)
             );
         }
 
@@ -539,19 +508,6 @@ export default function BuilderMining() {
 
           50% {
             transform: translateY(-5px);
-          }
-        }
-
-        @keyframes bobu-avatar-pulse {
-          0%,
-          100% {
-            opacity: 0.62;
-            transform: scale(0.97);
-          }
-
-          50% {
-            opacity: 1;
-            transform: scale(1.04);
           }
         }
 

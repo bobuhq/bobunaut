@@ -60,7 +60,7 @@ export default function MiningCore({
           <div className="mining-bobu-shell">
             <img
               className="mining-bobu-character"
-              src="/images/galaxy/bobu-builder-space.webp"
+              src="/images/bubo/bubo-default.png"
               alt="BOBU"
               draggable={false}
             />

@@ -36,55 +36,38 @@ export default function BuilderMining() {
     showActivation,
     remainingTime,
     sessionProgress,
-    sessionEarnedGp,
-    gpPerHour,
-    gpPerSecond,
     isActive,
     claimable,
     handleMiningAction,
   } = useBuilderMiningSession();
 
-  const activeReferralCount = Math.min(
-    Math.max(
-      miningState?.activeReferralCount ?? 0,
-      0,
-    ),
-    25,
-  );
-
-  const referralBoostGp =
-    activeReferralCount * 2;
-
   const statCards = [
     {
       label: "Mining Rate",
-      value: `${gpPerHour.toFixed(2)} GP / hour`,
-      detail: `${gpPerSecond.toFixed(
-        6,
-      )} GP / second`,
+      value: `${(
+        miningState?.totalRatePerHour ?? 0.25
+      ).toFixed(2)} GP / hour`,
       icon: Zap,
     },
     {
       label: "Wallet GP",
       value: (
         miningState?.walletGp ?? 0
-      ).toLocaleString("en-US"),
-      detail: "Available Builder balance",
+      ).toLocaleString("tr-TR"),
       icon: Gem,
     },
     {
-      label: "Referral Boost",
-      value: `+${referralBoostGp} GP / 24h`,
-      detail:
-        `${activeReferralCount} / 25 active Builders`,
+      label: "Active Circle",
+      value: `${
+        miningState?.activeReferralCount ?? 0
+      } / 25 Builders`,
       icon: Orbit,
     },
     {
-      label: "Total Reward",
+      label: "Session Reward",
       value: `${
-        miningState?.rewardGp ?? 25
+        miningState?.rewardGp ?? 0
       } GP / 24h`,
-      detail: "Base reward + referral boost",
       icon: Clock3,
     },
   ];
@@ -172,7 +155,7 @@ export default function BuilderMining() {
         .mining-core {
           position: relative;
           display: grid;
-          min-height: 560px;
+          min-height: 430px;
           place-items: center;
           overflow: hidden;
           padding: 36px;
@@ -199,381 +182,23 @@ export default function BuilderMining() {
           text-align: center;
         }
 
-        .mining-orbit-system {
-          position: relative;
+        .mining-orb {
           display: grid;
-          width: 250px;
-          height: 210px;
+          width: 118px;
+          height: 118px;
           place-items: center;
-          isolation: isolate;
-        }
-
-        .mining-orbit-glow {
-          position: absolute;
-          inset: 16px 30px;
+          border: 1px solid rgba(130, 230, 255, 0.56);
           border-radius: 50%;
           background:
             radial-gradient(
-              circle,
-              rgba(118, 75, 255, 0.3),
-              rgba(54, 219, 255, 0.09) 42%,
-              transparent 72%
-            );
-          filter: blur(14px);
-          pointer-events: none;
-        }
-
-        .mining-orbit-ring {
-          position: absolute;
-          left: 50%;
-          top: 50%;
-          border: 1px solid rgba(150, 122, 255, 0.46);
-          border-radius: 50%;
-          transform-origin: center;
-          pointer-events: none;
-        }
-
-        .mining-orbit-ring::before {
-          content: "";
-          position: absolute;
-          inset: -2px;
-          border-radius: inherit;
-          background:
-            conic-gradient(
-              from 0deg,
-              #5de0ff,
-              #795cff,
-              #ff4f8f,
-              #ffb43c,
-              #5df59b,
-              #5de0ff
-            );
-          opacity: 0.62;
-          filter: blur(2px);
-          mask:
-            linear-gradient(#000 0 0)
-              content-box,
-            linear-gradient(#000 0 0);
-          -webkit-mask:
-            linear-gradient(#000 0 0)
-              content-box,
-            linear-gradient(#000 0 0);
-          mask-composite: exclude;
-          -webkit-mask-composite: xor;
-          padding: 1px;
-        }
-
-        .mining-orbit-ring-outer {
-          width: 232px;
-          height: 166px;
-          margin-left: -116px;
-          margin-top: -83px;
-          transform: rotate(-8deg);
-          animation:
-            bobu-orbit-clockwise 26s
-            linear infinite;
-        }
-
-        .mining-orbit-ring-inner {
-          width: 184px;
-          height: 128px;
-          margin-left: -92px;
-          margin-top: -64px;
-          border-color:
-            rgba(77, 218, 255, 0.34);
-          transform: rotate(13deg);
-          animation:
-            bobu-orbit-counterclockwise 19s
-            linear infinite;
-        }
-
-        .mining-planet {
-          position: absolute;
-          display: block;
-          width: 18px;
-          height: 18px;
-          border: 1px solid
-            rgba(255, 255, 255, 0.55);
-          border-radius: 50%;
-          box-shadow:
-            inset -4px -4px 8px
-              rgba(0, 0, 0, 0.32),
-            0 0 16px currentColor;
-        }
-
-        .mining-planet::after {
-          content: "";
-          position: absolute;
-          left: 3px;
-          top: 3px;
-          width: 5px;
-          height: 5px;
-          border-radius: 50%;
-          background:
-            rgba(255, 255, 255, 0.72);
-          filter: blur(0.5px);
-        }
-
-        .mining-planet-green {
-          left: 12px;
-          top: 18px;
-          width: 25px;
-          height: 25px;
-          color: #4cf29c;
-          background:
-            radial-gradient(
               circle at 35% 30%,
-              #b8ffd8,
-              #2ee77e 42%,
-              #075837
-            );
-        }
-
-        .mining-planet-red {
-          right: 8px;
-          top: 25px;
-          width: 23px;
-          height: 23px;
-          color: #ff594f;
-          background:
-            radial-gradient(
-              circle at 35% 30%,
-              #ffd0c9,
-              #ff4b40 42%,
-              #731812
-            );
-        }
-
-        .mining-planet-blue {
-          left: 0;
-          bottom: 29px;
-          width: 22px;
-          height: 22px;
-          color: #3c9dff;
-          background:
-            radial-gradient(
-              circle at 35% 30%,
-              #d6f1ff,
-              #278dff 42%,
-              #123375
-            );
-        }
-
-        .mining-planet-orange {
-          right: 41px;
-          bottom: -4px;
-          width: 26px;
-          height: 26px;
-          color: #ffae32;
-          background:
-            radial-gradient(
-              circle at 35% 30%,
-              #fff0b8,
-              #ff9e1f 42%,
-              #74400a
-            );
-        }
-
-        .mining-planet-purple {
-          right: -7px;
-          top: 46px;
-          width: 24px;
-          height: 24px;
-          color: #bf67ff;
-          background:
-            radial-gradient(
-              circle at 35% 30%,
-              #f0d2ff,
-              #a947f3 42%,
-              #43206d
-            );
-        }
-
-        .mining-planet-cyan {
-          left: 13px;
-          bottom: 22px;
-          width: 14px;
-          height: 14px;
-          color: #41e8ff;
-          background:
-            radial-gradient(
-              circle at 35% 30%,
-              #ddfbff,
-              #28d9f5 45%,
-              #0d5260
-            );
-        }
-
-        .mining-planet-pink {
-          left: 78px;
-          top: -8px;
-          width: 12px;
-          height: 12px;
-          color: #ff62c7;
-          background:
-            radial-gradient(
-              circle at 35% 30%,
-              #ffe0f6,
-              #ff4ab9 45%,
-              #6e174f
-            );
-        }
-
-        .mining-bobu-shell {
-          position: relative;
-          z-index: 3;
-          display: grid;
-          width: 154px;
-          height: 154px;
-          place-items: center;
-          overflow: hidden;
-          border: 2px solid
-            rgba(205, 139, 255, 0.78);
-          border-radius: 50%;
-          background:
-            radial-gradient(
-              circle at 50% 45%,
-              rgba(130, 71, 255, 0.32),
-              rgba(20, 10, 52, 0.94) 72%
+              rgba(212, 174, 255, 0.95),
+              rgba(116, 70, 255, 0.56) 36%,
+              rgba(22, 25, 73, 0.96) 74%
             );
           box-shadow:
-            0 0 18px rgba(173, 83, 255, 0.58),
-            0 0 48px rgba(102, 58, 255, 0.4),
-            inset 0 0 25px
-              rgba(181, 107, 255, 0.22);
-          animation:
-            bobu-float 3.4s
-            ease-in-out infinite;
-        }
-
-        .mining-bobu-shell::before {
-          content: "";
-          position: absolute;
-          inset: -7px;
-          z-index: -1;
-          border: 1px solid
-            rgba(189, 104, 255, 0.52);
-          border-radius: 50%;
-          box-shadow:
-            0 0 26px
-              rgba(158, 72, 255, 0.52);
-          animation:
-            bobu-avatar-pulse 3s
-            ease-in-out infinite;
-        }
-
-        .mining-bobu-character {
-          display: block;
-          width: 100%;
-          height: 100%;
-          border-radius: 50%;
-          object-fit: cover;
-          object-position: center;
-          user-select: none;
-          pointer-events: none;
-          transform: scale(1.03);
-          filter:
-            saturate(1.08)
-            contrast(1.04)
-            drop-shadow(
-              0 0 12px
-              rgba(160, 83, 255, 0.38)
-            );
-        }
-
-        .mining-claim-badge {
-          position: absolute;
-          right: 7px;
-          bottom: 21px;
-          display: grid;
-          width: 42px;
-          height: 42px;
-          place-items: center;
-          border: 1px solid
-            rgba(255, 255, 255, 0.62);
-          border-radius: 50%;
-          color: #ffffff;
-          background:
-            linear-gradient(
-              135deg,
-              #48e3a2,
-              #368dff
-            );
-          box-shadow:
-            0 0 25px
-              rgba(72, 227, 162, 0.62);
-        }
-
-        .mining-orbit-system.is-active
-        .mining-orbit-glow {
-          animation:
-            bobu-glow-pulse 2.8s
-            ease-in-out infinite;
-        }
-
-        @keyframes bobu-orbit-clockwise {
-          from {
-            transform: rotate(-8deg);
-          }
-
-          to {
-            transform: rotate(352deg);
-          }
-        }
-
-        @keyframes bobu-orbit-counterclockwise {
-          from {
-            transform: rotate(13deg);
-          }
-
-          to {
-            transform: rotate(-347deg);
-          }
-        }
-
-        @keyframes bobu-float {
-          0%,
-          100% {
-            transform: translateY(0);
-          }
-
-          50% {
-            transform: translateY(-5px);
-          }
-        }
-
-        @keyframes bobu-avatar-pulse {
-          0%,
-          100% {
-            opacity: 0.62;
-            transform: scale(0.97);
-          }
-
-          50% {
-            opacity: 1;
-            transform: scale(1.04);
-          }
-        }
-
-        @keyframes bobu-glow-pulse {
-          0%,
-          100% {
-            opacity: 0.72;
-            transform: scale(0.96);
-          }
-
-          50% {
-            opacity: 1;
-            transform: scale(1.04);
-          }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-          .mining-orbit-ring,
-          .mining-bobu-shell,
-          .mining-orbit-glow {
-            animation: none !important;
-          }
+            0 0 42px rgba(118, 83, 255, 0.5),
+            0 0 85px rgba(77, 211, 255, 0.14);
         }
 
         .mining-status-label {
@@ -603,49 +228,6 @@ export default function BuilderMining() {
           font-size: clamp(38px, 6vw, 62px);
           font-weight: 900;
           letter-spacing: 0.05em;
-        }
-
-        .mining-live-earned {
-          display: grid;
-          gap: 6px;
-          margin-top: 18px;
-          text-align: center;
-        }
-
-        .mining-live-earned span {
-          color: rgba(225, 231, 255, 0.56);
-          font-size: 11px;
-          font-weight: 800;
-          letter-spacing: 0.18em;
-          text-transform: uppercase;
-        }
-
-        .mining-live-earned strong {
-          color: #72f7c5;
-          font-size: 22px;
-          font-weight: 900;
-          font-variant-numeric: tabular-nums;
-          text-shadow:
-            0 0 18px rgba(114, 247, 197, 0.28);
-        }
-
-        .mining-progress-meta {
-          display: flex;
-          width: min(380px, 100%);
-          align-items: center;
-          justify-content: space-between;
-          gap: 16px;
-          margin-top: 20px;
-          color: rgba(225, 231, 255, 0.54);
-          font-size: 11px;
-          font-weight: 800;
-          letter-spacing: 0.08em;
-          text-transform: uppercase;
-        }
-
-        .mining-progress-meta strong {
-          color: #8de7ff;
-          font-variant-numeric: tabular-nums;
         }
 
         .mining-progress-track {
@@ -788,14 +370,6 @@ export default function BuilderMining() {
           text-transform: uppercase;
         }
 
-        .mining-stat-detail {
-          display: block;
-          margin-top: 7px;
-          color: rgba(216, 223, 255, 0.48);
-          font-size: 11px;
-          line-height: 1.4;
-        }
-
         .mining-stat-value {
           margin-top: 7px;
           font-size: 21px;
@@ -884,7 +458,6 @@ export default function BuilderMining() {
           busy={busy || loading}
           remainingTime={formatRemaining(remainingTime)}
           sessionProgress={sessionProgress}
-          sessionEarnedGp={sessionEarnedGp}
           onAction={handleMiningAction}
         />
 
