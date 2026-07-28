@@ -483,31 +483,6 @@ export default function BuilderIdentity() {
           </div>
         </div>
 
-        <div className="identity-test-panel">
-          <span>Genesis Engine Test</span>
-
-          <button
-            type="button"
-            disabled={!builder.gpEnabled}
-            onClick={() =>
-              builderStore.addGp(
-                50,
-                "genesis-checkpoint-test",
-              )
-            }
-          >
-            Add 50 GP
-          </button>
-
-          <strong>{builder.gp} GP</strong>
-
-          <button
-            type="button"
-            onClick={builderStore.reset}
-          >
-            Reset Builder
-          </button>
-        </div>
       </section>
     </main>
   );

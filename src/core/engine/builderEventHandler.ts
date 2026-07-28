@@ -23,21 +23,6 @@ export const reduceBuilderEvent = (
           [event.provider]: false,
         },
       };
-
-    case "GP_EARNED":
-      if (
-        !builder.gpEnabled ||
-        !Number.isFinite(event.amount) ||
-        event.amount <= 0
-      ) {
-        return builder;
-      }
-
-      return {
-        ...builder,
-        gp: builder.gp + Math.floor(event.amount),
-      };
-
     case "XP_EARNED":
       if (!Number.isFinite(event.amount) || event.amount <= 0) {
         return builder;

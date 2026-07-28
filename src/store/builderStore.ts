@@ -95,15 +95,6 @@ export const builderStore = {
     });
   },
 
-  addGp(amount: number, source = "unknown"): void {
-    eventEngine.publish({
-      type: "GP_EARNED",
-      amount,
-      source,
-      occurredAt: createEventTimestamp(),
-    });
-  },
-
   addXp(amount: number, source = "unknown"): void {
     eventEngine.publish({
       type: "XP_EARNED",
