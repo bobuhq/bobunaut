@@ -16,6 +16,7 @@ import {
 } from "../../core/builder";
 import { useAuthSession } from "../../core/auth/useAuthSession";
 import { useBuilderStore } from "../identity/hooks/useBuilderStore";
+import { BuilderStatusPanel } from "../status/components/BuilderStatusPanel";
 
 import { WalletAnalytics } from "./components/WalletAnalytics";
 import { WalletFutureModules } from "./components/WalletFutureModules";
@@ -222,6 +223,22 @@ export default function BuilderWallet() {
           </div>
         </div>
       </section>
+
+      <BuilderStatusPanel
+        status={{
+          builderId,
+          username: builder.username,
+          level: builder.level,
+          gp: currentGp,
+          lifetimeEarnedGp:
+            wallet?.lifetimeEarnedGp ?? currentGp,
+          walletStatus: wallet ? "synced" : "pending",
+          genesisStatus:
+            builderId.length > 0 ? "active" : "pending",
+          miningStatus: "pending",
+        }}
+        formatGp={formatGp}
+      />
 
       <WalletAnalytics
         ledger={wallet?.ledger ?? []}
