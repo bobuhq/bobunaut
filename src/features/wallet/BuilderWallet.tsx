@@ -21,6 +21,8 @@ import { WalletAnalytics } from "./components/WalletAnalytics";
 import { WalletFutureModules } from "./components/WalletFutureModules";
 import { WalletLedger } from "./components/WalletLedger";
 import { WalletStatCards } from "./components/WalletStatCards";
+import { WalletTransactionDrawer } from "./components/WalletTransactionDrawer";
+import { useWalletTransactionDrawer } from "./hooks/useWalletTransactionDrawer";
 
 import "./BuilderWallet.css";
 
@@ -63,6 +65,12 @@ export default function BuilderWallet() {
   const [loading, setLoading] = useState(false);
   const [error, setError] =
     useState<string | null>(null);
+
+  const {
+    selectedEntry,
+    openTransaction,
+    closeTransaction,
+  } = useWalletTransactionDrawer();
 
   const builderId = session?.user.id ?? "";
 
@@ -232,10 +240,19 @@ export default function BuilderWallet() {
           formatGp={formatGp}
           formatDate={formatDate}
           formatRewardLabel={formatRewardLabel}
+          onSelectEntry={openTransaction}
         />
 
         <WalletFutureModules />
       </section>
+
+      <WalletTransactionDrawer
+        entry={selectedEntry}
+        onClose={closeTransaction}
+        formatGp={formatGp}
+        formatDate={formatDate}
+        formatRewardLabel={formatRewardLabel}
+      />
     </main>
   );
 }

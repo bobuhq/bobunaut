@@ -19,6 +19,9 @@ type WalletLedgerProps = {
   formatRewardLabel: (
     entry: BuilderWalletEntry,
   ) => string;
+  onSelectEntry: (
+    entry: BuilderWalletEntry,
+  ) => void;
 };
 
 type WalletLedgerFilter =
@@ -113,6 +116,7 @@ export function WalletLedger({
   formatGp,
   formatDate,
   formatRewardLabel,
+  onSelectEntry,
 }: WalletLedgerProps) {
   const [activeFilter, setActiveFilter] =
     useState<WalletLedgerFilter>("all");
@@ -207,12 +211,17 @@ export function WalletLedger({
           className="builder-wallet-entry-list builder-wallet-entry-list--animated"
         >
           {filteredEntries.map((entry, index) => (
-            <div
+            <button
               key={entry.id}
+              type="button"
               className="builder-wallet-entry"
+              aria-label={`Open ${formatRewardLabel(entry)} transaction details`}
               style={{
                 animationDelay: `${index * 35}ms`,
               }}
+              onClick={() =>
+                onSelectEntry(entry)
+              }
             >
               <span
                 className={`builder-wallet-entry-icon builder-wallet-entry-icon--${entry.type}`}
@@ -235,7 +244,7 @@ export function WalletLedger({
                 {entry.type === "credit" ? "+" : "-"}
                 {formatGp(entry.amount)} GP
               </strong>
-            </div>
+            </button>
           ))}
         </div>
       ) : (
