@@ -17,6 +17,7 @@ import {
 import { useAuthSession } from "../../core/auth/useAuthSession";
 import { useBuilderStore } from "../identity/hooks/useBuilderStore";
 
+import { WalletAnalytics } from "./components/WalletAnalytics";
 import { WalletFutureModules } from "./components/WalletFutureModules";
 import { WalletLedger } from "./components/WalletLedger";
 import { WalletStatCards } from "./components/WalletStatCards";
@@ -213,6 +214,11 @@ export default function BuilderWallet() {
           </div>
         </div>
       </section>
+
+      <WalletAnalytics
+        ledger={wallet?.ledger ?? []}
+        formatGp={formatGp}
+      />
 
       <WalletStatCards
         wallet={wallet}
