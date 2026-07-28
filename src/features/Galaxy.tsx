@@ -35,6 +35,8 @@ export function Galaxy() {
   const [galaxyMembers, setGalaxyMembers] = useState<
     RealGalaxyMember[]
   >([]);
+  const [inviter, setInviter] =
+    useState<RealGalaxyMember | null>(null);
   const [isGalaxyLoading, setIsGalaxyLoading] =
     useState(true);
   const [galaxyError, setGalaxyError] = useState<
@@ -52,10 +54,21 @@ export function Galaxy() {
       setGalaxyError(null);
 
       try {
-        const members = await galaxyService.loadMyGalaxy();
+        const [members, loadedInviter] = await Promise.all([
+          galaxyService.loadMyGalaxy(),
+          galaxyService.loadMyInviter().catch((error) => {
+            console.error(
+              "Galaxy inviter could not be loaded",
+              error,
+            );
+
+            return null;
+          }),
+        ]);
 
         if (isMounted) {
           setGalaxyMembers(members);
+          setInviter(loadedInviter);
         }
       } catch (error) {
         console.error(
@@ -65,6 +78,7 @@ export function Galaxy() {
 
         if (isMounted) {
           setGalaxyMembers([]);
+          setInviter(null);
           setGalaxyError(
             "Galaxy data could not be loaded.",
           );
@@ -977,6 +991,66 @@ export function Galaxy() {
           font-size: 0.75rem;
         }
 
+        .galaxy-inviter-card {
+          position: relative;
+          z-index: 2;
+          margin: 0 auto;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 8px;
+          text-align: center;
+          background: transparent;
+          border: none;
+          box-shadow: none;
+          padding: 0;
+        }
+
+        .galaxy-inviter-card img {
+          width: 74px;
+          height: 74px;
+          object-fit: cover;
+          border-radius: 50%;
+          border: 3px solid rgba(171, 128, 255, 0.72);
+          box-shadow:
+            0 0 18px rgba(160, 110, 255, 0.55),
+            0 0 42px rgba(110, 70, 255, 0.35),
+            inset 0 0 18px rgba(255,255,255,0.12);
+        }
+
+        .galaxy-inviter-card strong {
+          color: #f4f6ff;
+          font-size: 0.94rem;
+          line-height: 1.25;
+        }
+
+        .galaxy-inviter-card small {
+          color: rgba(207, 213, 255, 0.68);
+          font-size: 0.72rem;
+        }
+
+        .galaxy-inviter-label {
+          color: rgba(173, 188, 255, 0.86);
+          font-size: 0.63rem;
+          font-weight: 800;
+          letter-spacing: 0.15em;
+          text-transform: uppercase;
+        }
+
+        .galaxy-inviter-line {
+          width: 1px;
+          height: 30px;
+          margin: 0 auto;
+          background:
+            linear-gradient(
+              to bottom,
+              rgba(137, 158, 255, 0.7),
+              rgba(137, 158, 255, 0.18)
+            );
+          box-shadow:
+            0 0 10px rgba(105, 130, 255, 0.34);
+        }
+
         @media (max-width: 980px) {
           .galaxy-shell {
             grid-template-columns: 1fr;
@@ -1156,6 +1230,45 @@ export function Galaxy() {
             </div>
 
             <div className="galaxy-tree">
+              {inviter ? (
+                <>
+                  <motion.div
+                    className="galaxy-inviter-card"
+                    initial={{ opacity: 0, y: -12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4 }}
+                  >
+                    <span className="galaxy-inviter-label">
+                      Invited By
+                    </span>
+
+                    <img
+                      src="/images/galaxy/bobu-builder-space.webp"
+                      alt="Inviting BOBU Builder"
+                    />
+
+                    <strong>
+                      {inviter.displayName ??
+                        inviter.username ??
+                        `Builder ${inviter.builderId.slice(
+                          0,
+                          6,
+                        )}`}
+                    </strong>
+
+                    <small>
+                      Level {inviter.level} ·{" "}
+                      {inviter.gp.toLocaleString(
+                        "tr-TR",
+                      )}{" "}
+                      GP
+                    </small>
+                  </motion.div>
+
+                  <div className="galaxy-inviter-line" />
+                </>
+              ) : null}
+
               <motion.div
                 className="galaxy-root-card"
                 animate={{ y: [0, -3, 0] }}

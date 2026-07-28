@@ -57,4 +57,35 @@ export const galaxyService = {
       depth: member.depth,
     }));
   },
+
+  async loadMyInviter(): Promise<GalaxyMember | null> {
+    const { data, error } = await supabase
+      .rpc("get_my_inviter")
+      .returns<GalaxyMemberRow[]>();
+
+    if (error) {
+      throw error;
+    }
+
+    const row = Array.isArray(data)
+      ? data[0]
+      : null;
+
+    if (!row) {
+      return null;
+    }
+
+    return {
+      builderId: row.builder_id,
+      parentBuilderId: row.parent_builder_id,
+      username: row.username,
+      displayName: row.display_name,
+      level: row.level,
+      gp: row.gp,
+      referralCount: row.referral_count,
+      referralStatus: row.referral_status,
+      joinedAt: row.joined_at,
+      depth: row.depth,
+    };
+  },
 };
