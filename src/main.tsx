@@ -4,6 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 
 import { App } from "./app/App";
 import { AuthSessionProvider } from "./core/auth/useAuthSession";
+import { BuilderBootstrap } from "./core/builder/BuilderBootstrap";
 import "./styles/global.css";
 
 const rootElement = document.getElementById("root");
@@ -15,9 +16,11 @@ if (!rootElement) {
 createRoot(rootElement).render(
   <StrictMode>
     <AuthSessionProvider>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
+      <BuilderBootstrap>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </BuilderBootstrap>
     </AuthSessionProvider>
   </StrictMode>
 );

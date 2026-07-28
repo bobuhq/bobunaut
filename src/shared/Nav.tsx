@@ -14,10 +14,6 @@ import {
 import { NavLink } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { useAuthSession } from "../core/auth/useAuthSession";
-import {
-  attributePendingBuilderInvite,
-  restoreAuthenticatedBuilder,
-} from "../core/builder";
 import { useBuilderStore } from "../features/identity/hooks/useBuilderStore";
 
 const navItems = [
@@ -69,32 +65,6 @@ export function Nav() {
   const [logoSource, setLogoSource] = useState(buboLogoUrl);
   const [logoVisible, setLogoVisible] = useState(true);
   const builder = useBuilderStore();
-
-  const restoreAuthenticatedSession = async () => {
-    try {
-      await attributePendingBuilderInvite();
-    } catch (error) {
-      console.error(
-        "Builder invite attribution failed:",
-        error,
-      );
-    }
-
-    await restoreAuthenticatedBuilder();
-  };
-
-  useEffect(() => {
-    if (!session?.user.id) {
-      return;
-    }
-
-    void restoreAuthenticatedSession().catch((error) => {
-      console.error(
-        "Authenticated Builder restore failed:",
-        error,
-      );
-    });
-  }, [session?.user.id]);
 
   useEffect(() => {
     const closeMenu = () => {
