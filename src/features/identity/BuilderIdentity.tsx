@@ -3,8 +3,7 @@ import { IdentityCard } from "./components/IdentityCard";
 import { useBuilderStore } from "./hooks/useBuilderStore";
 import { builderStore } from "../../store/builderStore";
 import { supabase } from "../../lib/supabase";
-import { builderRepository } from "../../core/builder/repository/BuilderRepository";
-import { builderMapper } from "../../core/builder/mapper/BuilderMapper";
+import { restoreAuthenticatedBuilder } from "../../core/builder/services/BuilderRestoreService";
 import { referralService } from "../../core/builder/services/ReferralService";
 import type { IdentityProvider } from "../../core/models/Builder";
 import "./BuilderIdentity.css";
@@ -58,26 +57,6 @@ const communityTasks: CommunityTask[] = [
     required: false,
   },
 ];
-
-const restoreBuilderFromPersistence = async () => {
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-
-  if (!session?.user.id) {
-    return null;
-  }
-
-  const source = await builderRepository.load(
-    session.user.id,
-  );
-
-  const snapshot = builderMapper.toSnapshot(source);
-
-  builderStore.restore(snapshot);
-
-  return source;
-};
 
 export default function BuilderIdentity() {
   const builder = useBuilderStore();
@@ -146,7 +125,7 @@ export default function BuilderIdentity() {
       }
 
       const source =
-        await restoreBuilderFromPersistence();
+        await restoreAuthenticatedBuilder();
 
       if (!source) {
         return;
@@ -351,7 +330,7 @@ export default function BuilderIdentity() {
       }
 
       if (data?.verified === true) {
-        await restoreBuilderFromPersistence();
+        await restoreAuthenticatedBuilder();
 
         const rewardMessage =
           data?.rewarded === true
