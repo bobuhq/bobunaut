@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import { supabase } from "../../lib/supabase";
+import { useAuthSession } from "../../core/auth/useAuthSession";
 import { useBuilderStore } from "../identity/hooks/useBuilderStore";
 import BuilderPassportActions from "./BuilderPassportActions";
 import BuilderPassportShareCard from "./BuilderPassportShareCard";
@@ -37,25 +36,7 @@ const createBuilderProfile = (
 export function BuilderPassport() {
   const builder = useBuilderStore();
 
-  const [authenticated, setAuthenticated] = useState(false);
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      setAuthenticated(Boolean(data.session?.user.id));
-    });
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setAuthenticated(Boolean(session?.user.id));
-      },
-    );
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, []);
+  const { authenticated } = useAuthSession();
 
   const builderProfile = createBuilderProfile(builder);
 

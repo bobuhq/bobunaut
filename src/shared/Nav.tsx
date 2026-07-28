@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import type { Session } from "@supabase/supabase-js";
 import {
   Compass,
   LogIn,
@@ -14,6 +13,7 @@ import {
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { supabase } from "../lib/supabase";
+import { useAuthSession } from "../core/auth/useAuthSession";
 import {
   attributePendingBuilderInvite,
   restoreAuthenticatedBuilder,
@@ -64,8 +64,7 @@ const buboLogoUrl = `${baseUrl}images/bubo/bubo-logo.png`;
 const buboFallbackUrl = `${baseUrl}images/bubo/bubo-default.png`;
 
 export function Nav() {
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { session, loading } = useAuthSession();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [logoSource, setLogoSource] = useState(buboLogoUrl);
   const [logoVisible, setLogoVisible] = useState(true);
@@ -85,41 +84,17 @@ export function Nav() {
   };
 
   useEffect(() => {
-    let mounted = true;
+    if (!session?.user.id) {
+      return;
+    }
 
-    supabase.auth.getSession().then(({ data }) => {
-      if (!mounted) {
-        return;
-      }
-
-      setSession(data.session);
-      setLoading(false);
-
-      if (data.session?.user.id) {
-        void restoreAuthenticatedSession();
-      }
+    void restoreAuthenticatedSession().catch((error) => {
+      console.error(
+        "Authenticated Builder restore failed:",
+        error,
+      );
     });
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      if (!mounted) {
-        return;
-      }
-
-      setSession(nextSession);
-      setLoading(false);
-
-      if (nextSession?.user.id) {
-        void restoreAuthenticatedSession();
-      }
-    });
-
-    return () => {
-      mounted = false;
-      subscription.unsubscribe();
-    };
-  }, []);
+  }, [session?.user.id]);
 
   useEffect(() => {
     const closeMenu = () => {
@@ -170,7 +145,6 @@ export function Nav() {
       return;
     }
 
-    setSession(null);
     setMobileOpen(false);
     window.location.href = import.meta.env.BASE_URL;
   };
