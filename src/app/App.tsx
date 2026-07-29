@@ -13,6 +13,7 @@ import {
 import { Shell } from "./Shell";
 import { useLanguage } from "../core/language";
 import { AdminRoute } from "../core/admin/AdminRoute";
+import { useGameEngine } from "../core/game";
 const Genesis = lazy(() =>
   import("../features/Genesis").then((module) => ({
     default: module.Genesis,
@@ -99,6 +100,8 @@ const AdminLogin = lazy(
 import { BuilderInviteEntry } from "../features/invite/BuilderInviteEntry";
 
 export function App() {
+  useGameEngine();
+
   const location = useLocation();
   const { t } = useLanguage();
 
