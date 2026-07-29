@@ -185,7 +185,8 @@ export function Nav() {
         .bobu-nav {
           position: relative;
           display: grid;
-          grid-template-columns: minmax(250px, 1fr) auto minmax(330px, 1fr);
+          grid-template-columns: 175px minmax(0, 1fr) max-content;
+          column-gap: 10px;
           align-items: center;
           width: min(1380px, 100%);
           min-height: 76px;
@@ -233,10 +234,13 @@ export function Nav() {
 
         .bobu-brand {
           display: inline-flex;
+          width: 175px;
+          max-width: 175px;
+          min-width: 0;
           align-items: center;
           justify-self: start;
-          min-width: 0;
-          gap: 13px;
+          gap: 8px;
+          overflow: hidden;
           color: white;
           text-decoration: none;
         }
@@ -244,9 +248,9 @@ export function Nav() {
         .bobu-brand-logo {
           position: relative;
           display: grid;
-          flex: 0 0 58px;
-          width: 58px;
-          height: 58px;
+          flex: 0 0 50px;
+          width: 50px;
+          height: 50px;
           place-items: center;
           overflow: hidden;
           border: 1px solid rgba(100, 222, 255, 0.58);
@@ -326,7 +330,7 @@ export function Nav() {
         .bobu-logo-fallback {
           position: relative;
           z-index: 2;
-          font-size: 21px;
+          font-size: 18px;
           font-weight: 950;
           letter-spacing: -0.04em;
           color: #ffffff;
@@ -337,7 +341,9 @@ export function Nav() {
 
         .bobu-brand-copy {
           display: flex;
-          min-width: 128px;
+          width: 112px;
+          min-width: 0;
+          overflow: hidden;
           flex-direction: column;
           align-items: flex-start;
           justify-content: center;
@@ -358,7 +364,7 @@ export function Nav() {
           display: block;
           margin-top: 5px;
           color: rgba(231, 228, 255, 0.94);
-          font-size: 10px;
+          font-size: 9px;
           font-weight: 800;
           letter-spacing: 0.31em;
           line-height: 1;
@@ -376,10 +382,12 @@ export function Nav() {
 
         .bobu-nav-links {
           display: flex;
+          min-width: 0;
           align-items: center;
           justify-content: center;
-          gap: 5px;
-          padding: 5px;
+          justify-self: stretch;
+          gap: 2px;
+          padding: 4px;
           border: 1px solid rgba(160, 136, 255, 0.075);
           border-radius: 17px;
           background: rgba(8, 10, 27, 0.3);
@@ -391,12 +399,12 @@ export function Nav() {
           align-items: center;
           justify-content: center;
           min-height: 43px;
-          gap: 8px;
-          padding: 0 15px;
+          gap: 5px;
+          padding: 0 9px;
           border: 1px solid transparent;
           border-radius: 13px;
           color: rgba(220, 221, 240, 0.72);
-          font-size: 12px;
+          font-size: 10.5px;
           font-weight: 650;
           white-space: nowrap;
           text-decoration: none;
@@ -471,14 +479,18 @@ export function Nav() {
 
         .bobu-account {
           display: flex;
+          min-width: max-content;
           align-items: center;
           justify-self: end;
-          gap: 9px;
+          margin-left: 4px;
+          gap: 6px;
+          flex-wrap: nowrap;
         }
 
         .bobu-language-control {
           position: relative;
           display: inline-flex;
+          flex: 0 0 auto;
           min-height: 41px;
           align-items: center;
           gap: 6px;
@@ -497,11 +509,13 @@ export function Nav() {
         .bobu-language-control svg {
           flex: 0 0 auto;
           color: rgba(105, 221, 255, 0.88);
+          width: 14px;
+          height: 14px;
           pointer-events: none;
         }
 
         .bobu-language-select {
-          width: 82px;
+          width: 40px;
           min-height: 32px;
           padding: 0 3px;
           border: 0;
@@ -582,6 +596,7 @@ export function Nav() {
 
         .bobu-gp-badge {
           display: inline-flex;
+          flex: 0 0 auto;
           min-height: 41px;
           align-items: center;
           justify-content: center;
@@ -611,6 +626,7 @@ export function Nav() {
 
         .bobu-auth-button {
           display: inline-flex;
+          flex: 0 0 auto;
           min-height: 43px;
           align-items: center;
           justify-content: center;
