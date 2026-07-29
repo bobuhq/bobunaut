@@ -1,4 +1,4 @@
-import type { SupportedLanguage } from "../language";
+import type { SupportedLanguage } from "../language/types";
 
 export type ThemePreference =
   | "system"

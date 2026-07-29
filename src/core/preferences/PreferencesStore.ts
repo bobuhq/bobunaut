@@ -1,4 +1,4 @@
-import { LanguageService } from "../language";
+import { LanguageService } from "../language/LanguageService";
 import type {
   BuilderPreferences,
   BuilderPreferencesPatch,
