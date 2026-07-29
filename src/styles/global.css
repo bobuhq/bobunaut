@@ -8,6 +8,27 @@
   --p: #5b3df5;
   --b: #3ea6ff;
   --m: #91a0b8;
+
+  --universe-primary: #5b3df5;
+  --universe-secondary: #3ea6ff;
+  --universe-accent: #d9efff;
+  --universe-glow: rgba(91, 61, 245, 0.72);
+
+  --universe-background-start: #05070b;
+  --universe-background-middle: #07101c;
+  --universe-background-end: #03050a;
+
+  --universe-nebula-primary: rgba(91, 61, 245, 0.25);
+  --universe-nebula-secondary: rgba(62, 166, 255, 0.15);
+
+  --universe-meteor-primary: #72dcff;
+  --universe-meteor-secondary: #7862ff;
+  --universe-meteor-accent: #ffffff;
+
+  --universe-meteor-density: 1;
+  --universe-particle-density: 1;
+  --universe-glow-intensity: 1;
+  --universe-celebration-intensity: 0.5;
 }
 
 * {

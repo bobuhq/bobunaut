@@ -9,6 +9,7 @@ import {
   Pickaxe,
   Radio,
   Rocket,
+  Trophy,
   User,
   WalletCards,
   X,
@@ -65,6 +66,12 @@ const navItems = [
     to: "/galaxy",
     label: "My Galaxy",
     icon: Compass,
+    locked: false,
+  },
+  {
+    to: "/leaderboard",
+    label: "Leaderboard",
+    icon: Trophy,
     locked: false,
   },
 ] as const;

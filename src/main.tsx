@@ -5,6 +5,7 @@ import { BrowserRouter } from "react-router-dom";
 import { App } from "./app/App";
 import { AuthSessionProvider } from "./core/auth/useAuthSession";
 import { BuilderBootstrap } from "./core/builder/BuilderBootstrap";
+import { UniverseThemeProvider } from "./core/universe/theme";
 import "./styles/global.css";
 
 const rootElement = document.getElementById("root");
@@ -17,9 +18,11 @@ createRoot(rootElement).render(
   <StrictMode>
     <AuthSessionProvider>
       <BuilderBootstrap>
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
+        <UniverseThemeProvider>
+          <BrowserRouter>
+            <App />
+          </BrowserRouter>
+        </UniverseThemeProvider>
       </BuilderBootstrap>
     </AuthSessionProvider>
   </StrictMode>

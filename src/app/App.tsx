@@ -11,6 +11,7 @@ import {
 } from "react-router-dom";
 
 import { Shell } from "./Shell";
+import { AdminRoute } from "../core/admin/AdminRoute";
 const Genesis = lazy(() =>
   import("../features/Genesis").then((module) => ({
     default: module.Genesis,
@@ -58,6 +59,42 @@ const BuilderIdentity = lazy(
 const BuilderWallet = lazy(
   () => import("../features/wallet/BuilderWallet"),
 );
+
+const Leaderboard = lazy(
+  () => import("../features/leaderboard/Leaderboard"),
+);
+
+const AdminDashboard = lazy(
+  () => import("../features/admin/AdminDashboard"),
+);
+
+const AdminBuilders = lazy(
+  () => import("../features/admin/AdminBuilders"),
+);
+
+const AdminRewardLedger = lazy(
+  () => import("../features/admin/AdminRewardLedger"),
+);
+
+const AdminMiningSessions = lazy(
+  () => import("../features/admin/AdminMiningSessions"),
+);
+
+const AdminSecurityCenter = lazy(
+  () => import("../features/admin/AdminSecurityCenter"),
+);
+
+const AdminAuditLogs = lazy(
+  () => import("../features/admin/AdminAuditLogs"),
+);
+
+const AdminAnalytics = lazy(
+  () => import("../features/admin/AdminAnalytics"),
+);
+
+const AdminLogin = lazy(
+  () => import("../features/admin/AdminLogin"),
+);
 import { BuilderInviteEntry } from "../features/invite/BuilderInviteEntry";
 
 export function App() {
@@ -96,7 +133,80 @@ export function App() {
           <Route path="/mining" element={<BuilderMining />} />
           <Route path="/missions" element={<Missions />} />
           <Route path="/galaxy" element={<Galaxy />} />
+          <Route
+            path="/leaderboard"
+            element={<Leaderboard />}
+          />
+
         </Route>
+
+        <Route
+          path="/admin/login"
+          element={<AdminLogin />}
+        />
+
+        <Route
+          path="/admin"
+          element={
+            <AdminRoute>
+              <AdminDashboard />
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin/builders"
+          element={
+            <AdminRoute>
+              <AdminBuilders />
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin/reward-ledger"
+          element={
+            <AdminRoute>
+              <AdminRewardLedger />
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin/mining-sessions"
+          element={
+            <AdminRoute>
+              <AdminMiningSessions />
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin/security"
+          element={
+            <AdminRoute>
+              <AdminSecurityCenter />
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin/audit-logs"
+          element={
+            <AdminRoute>
+              <AdminAuditLogs />
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin/analytics"
+          element={
+            <AdminRoute>
+              <AdminAnalytics />
+            </AdminRoute>
+          }
+        />
 
           <Route
             path="*"

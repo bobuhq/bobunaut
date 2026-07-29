@@ -5,3 +5,4 @@ export * from "./OrbitController";
 export * from "./ParticleEngine";
 export * from "./WeatherEngine";
 export * from "./useUniverse";
+export * from "./theme";

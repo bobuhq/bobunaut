@@ -9,3 +9,8 @@ dist
 # Local backup files
 *.backup.tsx
 *.before_*.tsx
+
+# Local backups
+backups/
+*.bak
+*.bak2
