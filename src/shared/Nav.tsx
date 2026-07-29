@@ -488,22 +488,10 @@ export function Nav() {
         }
 
         .bobu-language-control {
-          position: relative;
           display: inline-flex;
-          flex: 0 0 auto;
-          min-height: 41px;
           align-items: center;
+          justify-content: center;
           gap: 6px;
-          padding: 0 8px;
-          border: 1px solid rgba(105, 221, 255, 0.16);
-          border-radius: 13px;
-          background:
-            linear-gradient(
-              135deg,
-              rgba(33, 69, 105, 0.22),
-              rgba(46, 31, 91, 0.2)
-            );
-          color: rgba(232, 241, 255, 0.88);
         }
 
         .bobu-language-control svg {
@@ -515,16 +503,15 @@ export function Nav() {
         }
 
         .bobu-language-select {
-          width: 40px;
-          min-height: 32px;
-          padding: 0 3px;
-          border: 0;
-          outline: 0;
+          appearance: none;
+          border: none;
           background: transparent;
           color: inherit;
-          font: inherit;
-          font-size: 11px;
           font-weight: 700;
+          text-align: center;
+          text-align-last: center;
+          min-width: 42px;
+          padding: 0 18px 0 8px;
           cursor: pointer;
         }
 
@@ -993,6 +980,8 @@ export function Nav() {
         </div>
 
         <div className="bobu-account">
+
+
           <label
             className="bobu-language-control"
             aria-label={t("language.selectorLabel")}
@@ -1014,26 +1003,18 @@ export function Nav() {
                   key={option.code}
                   value={option.code}
                 >
-                  {option.nativeLabel}
+                  {option.code.toUpperCase()}
                 </option>
               ))}
             </select>
           </label>
 
+
           {loading ? (
             <span className="bobu-auth-loading">•••</span>
           ) : user ? (
             <>
-              <div
-                className="bobu-gp-badge"
-                aria-label={`${formattedGp} GP`}
-              >
-                <span>⭐</span>
-                <strong>{formattedGp}</strong>
-                <span>GP</span>
-              </div>
-
-              <button
+<button
                 type="button"
                 className="bobu-auth-button bobu-logout-button"
                 onClick={handleLogout}
