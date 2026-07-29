@@ -11,6 +11,7 @@ import {
 } from "react-router-dom";
 
 import { Shell } from "./Shell";
+import { useLanguage } from "../core/language";
 import { AdminRoute } from "../core/admin/AdminRoute";
 const Genesis = lazy(() =>
   import("../features/Genesis").then((module) => ({
@@ -99,6 +100,7 @@ import { BuilderInviteEntry } from "../features/invite/BuilderInviteEntry";
 
 export function App() {
   const location = useLocation();
+  const { t } = useLanguage();
 
   return (
     <AnimatePresence mode="wait">
@@ -112,7 +114,7 @@ export function App() {
               color: "rgba(235, 238, 255, 0.72)",
             }}
           >
-            Loading BOBU Universe…
+            {t("app.loading")}
           </div>
         }
       >
