@@ -67,7 +67,7 @@ export function ApplicationBootstrap({
 
         const restoreResults =
           await Promise.allSettled([
-            restoreAuthenticatedBuilder(),
+            restoreAuthenticatedBuilder(builderId),
             preferencesService.restore(builderId),
           ]);
 

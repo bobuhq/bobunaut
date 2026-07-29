@@ -9,20 +9,45 @@ import { builderRepository } from "../repository/BuilderRepository";
  *
  * Returns null when there is no authenticated user.
  */
-export const restoreAuthenticatedBuilder = async () => {
+export const restoreAuthenticatedBuilder = async (
+  expectedBuilderId?: string,
+) => {
   const {
-    data: { session },
+    data: { session: initialSession },
   } = await supabase.auth.getSession();
 
-  if (!session?.user.id) {
+  const builderId =
+    expectedBuilderId ?? initialSession?.user.id;
+
+  if (!builderId) {
     return null;
   }
 
-  const source = await builderRepository.load(
-    session.user.id,
-  );
+  /*
+   * When the caller supplies an expected Builder ID, reject a
+   * mismatching active session before reading persistent state.
+   */
+  if (
+    expectedBuilderId &&
+    initialSession?.user.id !== expectedBuilderId
+  ) {
+    return null;
+  }
 
+  const source = await builderRepository.load(builderId);
   const snapshot = builderMapper.toSnapshot(source);
+
+  /*
+   * The session may change while Supabase queries are running.
+   * Verify ownership again before publishing the snapshot.
+   */
+  const {
+    data: { session: currentSession },
+  } = await supabase.auth.getSession();
+
+  if (currentSession?.user.id !== builderId) {
+    return null;
+  }
 
   builderStore.restore(snapshot);
 
