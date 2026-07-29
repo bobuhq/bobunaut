@@ -4,8 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 
 import { App } from "./app/App";
 import { AuthSessionProvider } from "./core/auth/useAuthSession";
-import { ApplicationBootstrap } from "./core/bootstrap";
-import { LanguageProvider } from "./core/language";
+import { BuilderBootstrap } from "./core/builder/BuilderBootstrap";
 import { UniverseThemeProvider } from "./core/universe/theme";
 import "./styles/global.css";
 
@@ -17,16 +16,14 @@ if (!rootElement) {
 
 createRoot(rootElement).render(
   <StrictMode>
-    <LanguageProvider>
-      <AuthSessionProvider>
-        <ApplicationBootstrap>
-          <UniverseThemeProvider>
-            <BrowserRouter>
-              <App />
-            </BrowserRouter>
-          </UniverseThemeProvider>
-        </ApplicationBootstrap>
-      </AuthSessionProvider>
-    </LanguageProvider>
+    <AuthSessionProvider>
+      <BuilderBootstrap>
+        <UniverseThemeProvider>
+          <BrowserRouter>
+            <App />
+          </BrowserRouter>
+        </UniverseThemeProvider>
+      </BuilderBootstrap>
+    </AuthSessionProvider>
   </StrictMode>
 );

@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import {
   Compass,
-  Globe2,
   LockKeyhole,
   LogIn,
   LogOut,
@@ -19,61 +18,59 @@ import { NavLink } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { useAuthSession } from "../core/auth/useAuthSession";
 import { useBuilderStore } from "../features/identity/hooks/useBuilderStore";
-import { useLanguage } from "../core/language";
-import type { SupportedLanguage } from "../core/language";
 
 const navItems = [
   {
     to: "/",
-    labelKey: "nav.orbit",
+    label: "Orbit",
     icon: Orbit,
     locked: false,
   },
   {
     to: "/command-deck",
-    labelKey: "nav.commandDeck",
+    label: "Command Deck",
     icon: Radio,
     locked: false,
   },
   {
     to: "/identity",
-    labelKey: "nav.genesis",
+    label: "Genesis",
     icon: User,
     locked: false,
   },
   {
     to: "/passport",
-    labelKey: "nav.passport",
+    label: "Passport",
     icon: User,
     locked: false,
   },
   {
     to: "/wallet",
-    labelKey: "nav.wallet",
+    label: "Wallet",
     icon: WalletCards,
     locked: true,
   },
   {
     to: "/mining",
-    labelKey: "nav.mining",
+    label: "Mining",
     icon: Pickaxe,
     locked: false,
   },
   {
     to: "/missions",
-    labelKey: "nav.missions",
+    label: "Missions",
     icon: Rocket,
     locked: false,
   },
   {
     to: "/galaxy",
-    labelKey: "nav.galaxy",
+    label: "My Galaxy",
     icon: Compass,
     locked: false,
   },
   {
     to: "/leaderboard",
-    labelKey: "nav.leaderboard",
+    label: "Leaderboard",
     icon: Trophy,
     locked: false,
   },
@@ -86,12 +83,6 @@ const buboFallbackUrl = `${baseUrl}images/bubo/bubo-default.png`;
 
 export function Nav() {
   const { session, loading } = useAuthSession();
-  const {
-    language,
-    languages,
-    setLanguage,
-    t,
-  } = useLanguage();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [logoSource, setLogoSource] = useState(buboLogoUrl);
   const [logoVisible, setLogoVisible] = useState(true);
@@ -132,7 +123,7 @@ export function Nav() {
     });
 
     if (error) {
-      alert(t("auth.googleLoginError", { message: error.message }));
+      alert(`Google giriş hatası: ${error.message}`);
     }
   };
 
@@ -142,7 +133,7 @@ export function Nav() {
     });
 
     if (error) {
-      alert(t("auth.logoutError", { message: error.message }));
+      alert(`Çıkış hatası: ${error.message}`);
       return;
     }
 
@@ -163,11 +154,7 @@ export function Nav() {
   const fullName =
     (user?.user_metadata?.full_name as string | undefined) ||
     user?.email?.split("@")[0] ||
-    t("auth.commander");
-
-  const formattedGp = new Intl.NumberFormat(
-    language,
-  ).format(builder.gp);
+    "Commander";
 
   return (
     <header className="bobu-header">
@@ -474,49 +461,6 @@ export function Nav() {
           align-items: center;
           justify-self: end;
           gap: 9px;
-        }
-
-        .bobu-language-control {
-          position: relative;
-          display: inline-flex;
-          min-height: 41px;
-          align-items: center;
-          gap: 6px;
-          padding: 0 8px;
-          border: 1px solid rgba(105, 221, 255, 0.16);
-          border-radius: 13px;
-          background:
-            linear-gradient(
-              135deg,
-              rgba(33, 69, 105, 0.22),
-              rgba(46, 31, 91, 0.2)
-            );
-          color: rgba(232, 241, 255, 0.88);
-        }
-
-        .bobu-language-control svg {
-          flex: 0 0 auto;
-          color: rgba(105, 221, 255, 0.88);
-          pointer-events: none;
-        }
-
-        .bobu-language-select {
-          width: 82px;
-          min-height: 32px;
-          padding: 0 3px;
-          border: 0;
-          outline: 0;
-          background: transparent;
-          color: inherit;
-          font: inherit;
-          font-size: 11px;
-          font-weight: 700;
-          cursor: pointer;
-        }
-
-        .bobu-language-select option {
-          background: #0d1025;
-          color: #ffffff;
         }
 
         .bobu-auth-loading {
@@ -880,12 +824,7 @@ export function Nav() {
           }
 
           .bobu-mobile-account .bobu-gp-badge,
-          .bobu-mobile-account .bobu-auth-button,
-          .bobu-mobile-account .bobu-language-control {
-            width: 100%;
-          }
-
-          .bobu-mobile-account .bobu-language-select {
+          .bobu-mobile-account .bobu-auth-button {
             width: 100%;
           }
 
@@ -905,11 +844,11 @@ export function Nav() {
         }
       `}</style>
 
-      <nav className="bobu-nav" aria-label={t("nav.mainNavigation")}>
+      <nav className="bobu-nav" aria-label="Main navigation">
         <NavLink
           to="/"
           className="bobu-brand"
-          aria-label={t("nav.home")}
+          aria-label="BOBU Universe home"
           onClick={closeMobileMenu}
         >
           <span className="bobu-brand-logo">
@@ -940,20 +879,17 @@ export function Nav() {
         </NavLink>
 
         <div className="bobu-nav-links">
-          {navItems.map(({ to, labelKey, icon: Icon, locked }) =>
+          {navItems.map(({ to, label, icon: Icon, locked }) =>
             locked ? (
               <span
                 key={to}
                 className="bobu-nav-link bobu-nav-link--locked"
-                title={t("nav.walletUnderDevelopment")}
-                aria-label={t(
-                  "nav.lockedUnderDevelopment",
-                  { label: t(labelKey) },
-                )}
+                title="Builder Wallet — Under Development"
+                aria-label={`${label} — Locked, under development`}
                 aria-disabled="true"
               >
                 <Icon size={16} strokeWidth={1.8} />
-                <span>{t(labelKey)}</span>
+                <span>{label}</span>
                 <LockKeyhole
                   className="bobu-nav-lock"
                   strokeWidth={2}
@@ -970,50 +906,23 @@ export function Nav() {
                 }
               >
                 <Icon size={16} strokeWidth={1.8} />
-                <span>{t(labelKey)}</span>
+                <span>{label}</span>
               </NavLink>
             ),
           )}
         </div>
 
         <div className="bobu-account">
-          <label
-            className="bobu-language-control"
-            aria-label={t("language.selectorLabel")}
-          >
-            <Globe2 size={15} aria-hidden="true" />
-
-            <select
-              className="bobu-language-select"
-              value={language}
-              aria-label={t("language.selectorLabel")}
-              onChange={(event) =>
-                setLanguage(
-                  event.target.value as SupportedLanguage,
-                )
-              }
-            >
-              {languages.map((option) => (
-                <option
-                  key={option.code}
-                  value={option.code}
-                >
-                  {option.nativeLabel}
-                </option>
-              ))}
-            </select>
-          </label>
-
           {loading ? (
             <span className="bobu-auth-loading">•••</span>
           ) : user ? (
             <>
               <div
                 className="bobu-gp-badge"
-                aria-label={`${formattedGp} GP`}
+                aria-label={`${builder.gp.toLocaleString("en-US")} GP`}
               >
                 <span>⭐</span>
-                <strong>{formattedGp}</strong>
+                <strong>{builder.gp.toLocaleString("en-US")}</strong>
                 <span>GP</span>
               </div>
 
@@ -1023,12 +932,12 @@ export function Nav() {
                 onClick={handleLogout}
               >
                 <LogOut size={15} />
-                <span>{t("auth.logout")}</span>
+                <span>Sign out</span>
               </button>
 
               <span className="bobu-cycle">
                 <i className="bobu-cycle-dot" />
-                {t("common.cycle")} 000001
+                Cycle 000001
               </span>
 
               <div
@@ -1057,14 +966,14 @@ export function Nav() {
               onClick={handleGoogleLogin}
             >
               <LogIn size={16} />
-              <span>{t("auth.login")}</span>
+              <span>Sign in</span>
             </button>
           )}
 
           {!user && (
             <span className="bobu-cycle">
               <i className="bobu-cycle-dot" />
-              {t("common.cycle")} 000001
+              Cycle 000001
             </span>
           )}
         </div>
@@ -1074,8 +983,8 @@ export function Nav() {
           className="bobu-mobile-button"
           aria-label={
             mobileOpen
-              ? t("nav.closeMobileMenu")
-              : t("nav.openMobileMenu")
+              ? "Close navigation menu"
+              : "Open navigation menu"
           }
           aria-expanded={mobileOpen}
           onClick={() => setMobileOpen((current) => !current)}
@@ -1089,20 +998,17 @@ export function Nav() {
           }`}
         >
           <div className="bobu-mobile-links">
-            {navItems.map(({ to, labelKey, icon: Icon, locked }) =>
+            {navItems.map(({ to, label, icon: Icon, locked }) =>
               locked ? (
                 <span
                   key={to}
                   className="bobu-nav-link bobu-nav-link--locked"
-                  title={t("nav.walletUnderDevelopment")}
-                  aria-label={t(
-                  "nav.lockedUnderDevelopment",
-                  { label: t(labelKey) },
-                )}
+                  title="Builder Wallet — Under Development"
+                  aria-label={`${label} — Locked, under development`}
                   aria-disabled="true"
                 >
                   <Icon size={17} strokeWidth={1.8} />
-                  <span>{t(labelKey)}</span>
+                  <span>{label}</span>
                   <LockKeyhole
                     className="bobu-nav-lock"
                     strokeWidth={2}
@@ -1120,40 +1026,13 @@ export function Nav() {
                   onClick={closeMobileMenu}
                 >
                   <Icon size={17} strokeWidth={1.8} />
-                  <span>{t(labelKey)}</span>
+                  <span>{label}</span>
                 </NavLink>
               ),
             )}
           </div>
 
           <div className="bobu-mobile-account">
-            <label
-              className="bobu-language-control"
-              aria-label={t("language.selectorLabel")}
-            >
-              <Globe2 size={16} aria-hidden="true" />
-
-              <select
-                className="bobu-language-select"
-                value={language}
-                aria-label={t("language.selectorLabel")}
-                onChange={(event) =>
-                  setLanguage(
-                    event.target.value as SupportedLanguage,
-                  )
-                }
-              >
-                {languages.map((option) => (
-                  <option
-                    key={option.code}
-                    value={option.code}
-                  >
-                    {option.nativeLabel}
-                  </option>
-                ))}
-              </select>
-            </label>
-
             {loading ? (
               <span className="bobu-auth-loading">•••</span>
             ) : user ? (
@@ -1179,10 +1058,10 @@ export function Nav() {
 
                 <div
                   className="bobu-gp-badge"
-                  aria-label={`${formattedGp} GP`}
+                  aria-label={`${builder.gp.toLocaleString("en-US")} GP`}
                 >
                   <span>⭐</span>
-                  <strong>{formattedGp}</strong>
+                  <strong>{builder.gp.toLocaleString("en-US")}</strong>
                   <span>GP</span>
                 </div>
 
@@ -1192,7 +1071,7 @@ export function Nav() {
                   onClick={handleLogout}
                 >
                   <LogOut size={15} />
-                  <span>{t("auth.logout")}</span>
+                  <span>Sign out</span>
                 </button>
               </>
             ) : (
@@ -1202,13 +1081,13 @@ export function Nav() {
                 onClick={handleGoogleLogin}
               >
                 <LogIn size={16} />
-                <span>{t("auth.login")}</span>
+                <span>Sign in</span>
               </button>
             )}
 
             <span className="bobu-cycle">
               <i className="bobu-cycle-dot" />
-              {t("common.cycle")} 000001
+              Cycle 000001
             </span>
           </div>
         </div>

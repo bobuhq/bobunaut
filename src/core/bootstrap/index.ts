@@ -1,3 +1,0 @@
-export {
-  ApplicationBootstrap,
-} from "./ApplicationBootstrap";
