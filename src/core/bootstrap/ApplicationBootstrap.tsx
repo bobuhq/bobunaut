@@ -9,6 +9,7 @@ import {
   restoreAuthenticatedBuilder,
 } from "../builder";
 import { preferencesService } from "../preferences";
+import { missionProgressRestoreService } from "../game/services/MissionProgressRestoreService";
 import { builderStore } from "../../store/builderStore";
 
 interface ApplicationBootstrapProps {
@@ -69,6 +70,7 @@ export function ApplicationBootstrap({
           await Promise.allSettled([
             restoreAuthenticatedBuilder(builderId),
             preferencesService.restore(builderId),
+            missionProgressRestoreService.restore(builderId),
           ]);
 
         if (cancelled) {
@@ -78,6 +80,7 @@ export function ApplicationBootstrap({
         const [
           builderRestore,
           preferencesRestore,
+          missionRestore,
         ] = restoreResults;
 
         if (builderRestore.status === "rejected") {
@@ -93,6 +96,15 @@ export function ApplicationBootstrap({
           console.error(
             "Authenticated preferences restore failed:",
             preferencesRestore.reason,
+          );
+        }
+
+        if (
+          missionRestore.status === "rejected"
+        ) {
+          console.error(
+            "Mission progress restore failed:",
+            missionRestore.reason,
           );
         }
       };
