@@ -159,6 +159,32 @@ export class MissionRepository {
     return { ...stored };
   }
 
+
+
+  restoreBuilderProgress(
+    builderId: string,
+    progress: readonly MissionProgress[],
+  ): void {
+    const restored = new Map<
+      string,
+      MissionProgress
+    >();
+
+    for (const item of progress) {
+      restored.set(
+        item.missionId,
+        { ...item },
+      );
+    }
+
+    this.progressByBuilder.set(
+      builderId,
+      restored,
+    );
+
+    this.emitChange();
+  }
+
   getBuilderProgress(
     builderId: string,
   ): MissionProgress[] {
