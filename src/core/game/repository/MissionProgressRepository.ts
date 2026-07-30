@@ -136,6 +136,53 @@ export const missionProgressRepository = {
     );
   },
 
+  async saveMine(
+    progress: MissionProgress,
+  ): Promise<MissionProgress> {
+    const missionId =
+      requireMissionId(progress.missionId);
+
+    const cycleKey =
+      requireCycleKey(progress.cycleKey);
+
+    const { data, error } = await supabase.rpc(
+      "save_my_mission_progress",
+      {
+        p_mission_id: missionId,
+        p_cycle_key: cycleKey,
+        p_status: progress.status,
+        p_progress: progress.progress,
+        p_version: progress.version,
+        p_last_event_at:
+          progress.lastEventAt ?? null,
+        p_completed_at:
+          progress.completedAt ?? null,
+        p_claimed_at:
+          progress.claimedAt ?? null,
+      },
+    );
+
+    if (error) {
+      throw new Error(
+        `Mission progress could not be saved: ${error.message}`,
+      );
+    }
+
+    const normalizedData = Array.isArray(data)
+      ? data[0]
+      : data;
+
+    if (!normalizedData) {
+      throw new Error(
+        "Mission progress save returned no data.",
+      );
+    }
+
+    return mapMissionProgressRow(
+      normalizedData as MissionProgressRow,
+    );
+  },
+
   async loadOne(
     builderId: string,
     missionId: string,
