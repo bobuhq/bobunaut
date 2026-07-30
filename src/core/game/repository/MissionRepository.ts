@@ -106,8 +106,10 @@ export class MissionRepository {
 
     const created: MissionProgress = {
       missionId,
+      cycleKey: "default",
       status: "available",
       progress: 0,
+      version: 1,
     };
 
     return this.saveProgress(

@@ -47,8 +47,11 @@ export interface MissionDefinition {
 
 export interface MissionProgress {
   missionId: string;
+  cycleKey: string;
   status: MissionStatus;
   progress: number;
+  version: number;
+  lastEventAt?: string;
   completedAt?: string;
   claimedAt?: string;
 }
