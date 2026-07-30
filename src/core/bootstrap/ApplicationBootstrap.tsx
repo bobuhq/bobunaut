@@ -70,7 +70,6 @@ export function ApplicationBootstrap({
           await Promise.allSettled([
             restoreAuthenticatedBuilder(builderId),
             preferencesService.restore(builderId),
-            missionProgressRestoreService.restore(builderId),
           ]);
 
         if (cancelled) {
@@ -80,7 +79,6 @@ export function ApplicationBootstrap({
         const [
           builderRestore,
           preferencesRestore,
-          missionRestore,
         ] = restoreResults;
 
         if (builderRestore.status === "rejected") {
@@ -99,12 +97,18 @@ export function ApplicationBootstrap({
           );
         }
 
-        if (
-          missionRestore.status === "rejected"
-        ) {
+        if (cancelled) {
+          return;
+        }
+
+        try {
+          await missionProgressRestoreService.restore(
+            builderId,
+          );
+        } catch (error) {
           console.error(
             "Mission progress restore failed:",
-            missionRestore.reason,
+            error,
           );
         }
       };
