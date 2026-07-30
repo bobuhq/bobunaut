@@ -1,13 +1,5 @@
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-
-import {
-  useMissionProgress,
-} from "../core/game/hooks/useMissionProgress";
-
-import {
-  createMissionViewModels,
-} from "../core/game/view-model";
 import {
   Award,
   Check,
@@ -172,28 +164,11 @@ const activity = [
 ];
 
 export function Missions() {
-  const {
-    definitions,
-    progress: missionProgress,
-  } = useMissionProgress();
-
-  const missionCards = useMemo(
-    () =>
-      createMissionViewModels(
-        definitions,
-        missionProgress,
-      ),
-    [
-      definitions,
-      missionProgress,
-    ],
-  );
-
   const [completedMissionIds, setCompletedMissionIds] = useState<string[]>([]);
   const [showChannels, setShowChannels] = useState(false);
 
   const completedCount = completedMissionIds.length;
-  const totalAvailable = missionCards.filter(
+  const totalAvailable = missions.filter(
     (mission) => mission.status !== "locked",
   ).length;
 
