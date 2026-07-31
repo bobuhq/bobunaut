@@ -8,3 +8,7 @@ export * from "./services/AchievementService";
 export * from "./useGameEngine";
 export * from "./hooks";
 export * from "./repository/AchievementProgressRepository";
+
+export * from "./services/AchievementProgressRestoreService";
+
+export * from "./services/AchievementRewardService";
