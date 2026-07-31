@@ -35,75 +35,6 @@ import {
   Zap,
 } from "lucide-react";
 
-type MissionStatus = "available" | "completed" | "locked";
-
-type Mission = {
-  id: string;
-  category: string;
-  title: string;
-  description: string;
-  reward: string;
-  difficulty: string;
-  duration: string;
-  status: MissionStatus;
-  icon: typeof RadioTower;
-  action?: string;
-};
-
-const missions: Mission[] = [
-  {
-    id: "M-001",
-    category: "DAILY SIGNAL",
-    title: "Restore the BOBU Signal",
-    description:
-      "Check Mission Control and reconnect with the latest signal from BOBU Universe.",
-    reward: "250 GP",
-    difficulty: "Easy",
-    duration: "1 min",
-    status: "available",
-    icon: RadioTower,
-    action: "Complete Mission",
-  },
-  {
-    id: "M-002",
-    category: "COMMUNITY",
-    title: "Join Official Channels",
-    description:
-      "Connect with the official BOBU community across X, Telegram and Instagram.",
-    reward: "600 GP",
-    difficulty: "Easy",
-    duration: "3 min",
-    status: "available",
-    icon: Users,
-    action: "Open Channels",
-  },
-  {
-    id: "M-003",
-    category: "CREATOR MISSION",
-    title: "Create Your First BOBU Meme",
-    description:
-      "Create an original BOBU meme and prepare it for an upcoming community challenge.",
-    reward: "900 GP",
-    difficulty: "Medium",
-    duration: "10 min",
-    status: "available",
-    icon: Sparkles,
-    action: "Start Creating",
-  },
-  {
-    id: "M-004",
-    category: "ARCADE",
-    title: "Enter Arcade Orbit",
-    description:
-      "The first playable BOBU mission will unlock during the next development cycle.",
-    reward: "Classified",
-    difficulty: "Unknown",
-    duration: "Coming Soon",
-    status: "locked",
-    icon: Gamepad2,
-  },
-];
-
 const rewards = [
   {
     title: "Gift Card Campaigns",
@@ -189,51 +120,55 @@ export function Missions() {
     ],
   );
 
-  const [completedMissionIds, setCompletedMissionIds] = useState<string[]>([]);
-  const [showChannels, setShowChannels] = useState(false);
+  const [showChannels, setShowChannels] =
+    useState(false);
 
-  const completedCount = completedMissionIds.length;
-  const totalAvailable = missionCards.filter(
-    (mission) => mission.status !== "locked",
+  const completedCount = missionCards.filter(
+    (mission) =>
+      mission.status === "completed",
   ).length;
 
-  const totalMissionGp = useMemo(() => {
-    return completedMissionIds.reduce((total, id) => {
-      const mission = missions.find((item) => item.id === id);
-      if (!mission) return total;
+  const totalAvailable = missionCards.filter(
+    (mission) =>
+      mission.status !== "locked",
+  ).length;
 
-      const value = Number.parseInt(mission.reward.replace(/\D/g, ""), 10);
-      return total + (Number.isNaN(value) ? 0 : value);
-    }, 0);
-  }, [completedMissionIds]);
+  const totalMissionGp = useMemo(
+    () =>
+      missionCards
+        .filter(
+          (mission) =>
+            mission.status === "completed",
+        )
+        .reduce(
+          (total, mission) =>
+            total + mission.rewardGp,
+          0,
+        ),
+    [missionCards],
+  );
 
   const progress =
     totalAvailable === 0
       ? 0
-      : Math.round((completedCount / totalAvailable) * 100);
+      : Math.round(
+          (completedCount / totalAvailable) *
+            100,
+        );
 
-  function handleMission(mission: Mission) {
-    if (mission.status === "locked") return;
-
-    if (mission.id === "M-002") {
-      setShowChannels((current) => !current);
+  function handleMissionAction(
+    missionId: string,
+  ): void {
+    if (missionId === "start-mining") {
+      window.location.assign("/mining");
       return;
     }
 
-    setCompletedMissionIds((current) => {
-      if (current.includes(mission.id)) {
-        return current.filter((id) => id !== mission.id);
-      }
-
-      return [...current, mission.id];
-    });
-  }
-
-  function markCommunityMissionCompleted() {
-    setCompletedMissionIds((current) => {
-      if (current.includes("M-002")) return current;
-      return [...current, "M-002"];
-    });
+    if (missionId === "join-community") {
+      setShowChannels(
+        (current) => !current,
+      );
+    }
   }
 
   return (
@@ -1184,16 +1119,14 @@ export function Missions() {
           </header>
 
           <div className="mc-mission-grid">
-            {missions.map((mission, index) => {
+            {missionCards.map((mission, index) => {
               const Icon = mission.icon;
-              const completed = completedMissionIds.includes(mission.id);
-              const locked = mission.status === "locked";
-
-              const displayStatus = locked
-                ? "locked"
-                : completed
-                  ? "completed"
-                  : "available";
+              const completed =
+                mission.status === "completed";
+              const locked =
+                mission.status === "locked";
+              const displayStatus =
+                mission.displayStatus;
 
               return (
                 <motion.article
@@ -1255,7 +1188,11 @@ export function Missions() {
                       className={`mc-mission-button ${displayStatus}`}
                       type="button"
                       disabled={locked}
-                      onClick={() => handleMission(mission)}
+                      onClick={() =>
+                        handleMissionAction(
+                          mission.id,
+                        )
+                      }
                     >
                       {locked ? (
                         <>
@@ -1276,7 +1213,7 @@ export function Missions() {
                     </button>
                   </footer>
 
-                  {mission.id === "M-002" && showChannels && (
+                  {mission.id === "join-community" && showChannels && (
                     <motion.div
                       className="mc-channels"
                       initial={{ opacity: 0, height: 0 }}
@@ -1308,10 +1245,12 @@ export function Missions() {
                       <button
                         className="mc-primary-button mc-channel-complete"
                         type="button"
-                        onClick={markCommunityMissionCompleted}
+                        onClick={() =>
+                          setShowChannels(false)
+                        }
                       >
                         <CheckCircle2 size={17} />
-                        Mark Mission Complete
+                        Close Channels
                       </button>
                     </motion.div>
                   )}

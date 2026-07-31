@@ -11,6 +11,10 @@ import {
   missionRepository,
 } from "../repository/MissionRepository";
 
+import {
+  missionProgressRepository,
+} from "../repository/MissionProgressRepository";
+
 export interface MissionUpdate {
   definition: MissionDefinition;
   progress: MissionProgress;
@@ -93,6 +97,17 @@ export class MissionService {
           builderId,
           updated,
         );
+
+      void missionProgressRepository
+        .saveMine(saved)
+        .catch((error) => {
+          console.error(
+            "Mission progress auto-save failed:",
+            builderId,
+            definition.id,
+            error,
+          );
+        });
 
       updates.push({
         definition,
