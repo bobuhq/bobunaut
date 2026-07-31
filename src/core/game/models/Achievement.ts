@@ -29,6 +29,8 @@ export interface AchievementProgress {
   achievementId: string;
   status: AchievementStatus;
   progress: number;
+  version: number;
+  lastEventAt?: string;
   unlockedAt?: string;
   claimedAt?: string;
 }
