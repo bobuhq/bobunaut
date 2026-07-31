@@ -1,4 +1,5 @@
 import { gameEngine } from "../game";
+import { gpEngine } from "../gp";
 
 export class CoreEngine {
   private started = false;
@@ -10,6 +11,7 @@ export class CoreEngine {
 
     this.started = true;
 
+    gpEngine.start();
     gameEngine.start();
   }
 
@@ -19,6 +21,7 @@ export class CoreEngine {
     }
 
     gameEngine.stop();
+    gpEngine.stop();
 
     this.started = false;
   }
