@@ -8,6 +8,10 @@ import {
 import {
   createMissionViewModels,
 } from "../core/game/view-model";
+
+import {
+  missionRewardService,
+} from "../core/game/services";
 import {
   Award,
   Check,
@@ -104,6 +108,7 @@ const activity = [
 
 export function Missions() {
   const {
+    builderId,
     definitions,
     progress: missionProgress,
   } = useMissionProgress();
@@ -123,9 +128,23 @@ export function Missions() {
   const [showChannels, setShowChannels] =
     useState(false);
 
+  const [
+    claimingMissionId,
+    setClaimingMissionId,
+  ] = useState<string | null>(null);
+
+  const [
+    claimError,
+    setClaimError,
+  ] = useState<{
+    missionId: string;
+    message: string;
+  } | null>(null);
+
   const completedCount = missionCards.filter(
     (mission) =>
-      mission.status === "completed",
+      mission.status === "completed" ||
+      mission.status === "claimed",
   ).length;
 
   const totalAvailable = missionCards.filter(
@@ -138,7 +157,8 @@ export function Missions() {
       missionCards
         .filter(
           (mission) =>
-            mission.status === "completed",
+            mission.status === "completed" ||
+            mission.status === "claimed",
         )
         .reduce(
           (total, mission) =>
@@ -155,6 +175,41 @@ export function Missions() {
           (completedCount / totalAvailable) *
             100,
         );
+
+  async function handleClaimReward(
+    missionId: string,
+    cycleKey: string,
+  ): Promise<void> {
+    if (
+      !builderId ||
+      claimingMissionId !== null
+    ) {
+      return;
+    }
+
+    setClaimError(null);
+    setClaimingMissionId(missionId);
+
+    try {
+      await missionRewardService.claim(
+        builderId,
+        missionId,
+        cycleKey,
+      );
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Mission reward could not be claimed.";
+
+      setClaimError({
+        missionId,
+        message,
+      });
+    } finally {
+      setClaimingMissionId(null);
+    }
+  }
 
   function handleMissionAction(
     missionId: string,
@@ -696,10 +751,28 @@ export function Missions() {
           background: rgba(74, 222, 128, 0.08);
         }
 
+.mc-mission-button.claimed {
+          color: var(--mc-cyan);
+          border: 1px solid rgba(34,211,238,.28);
+          background: rgba(34,211,238,.08);
+          cursor: default;
+        }
+
         .mc-mission-button.locked {
           cursor: not-allowed;
           color: var(--mc-muted);
           background: rgba(255, 255, 255, 0.05);
+        }
+
+        .mc-mission-button:disabled {
+          transform: none;
+        }
+
+        .mc-claim-error {
+          margin: 12px 0 0;
+          color: var(--mc-red);
+          font-size: 12px;
+          line-height: 1.5;
         }
 
         .mc-channels {
@@ -1122,11 +1195,19 @@ export function Missions() {
             {missionCards.map((mission, index) => {
               const Icon = mission.icon;
               const completed =
-                mission.status === "completed";
+                mission.rawStatus === "completed";
+
+              const claimed =
+                mission.rawStatus === "claimed";
+
               const locked =
-                mission.status === "locked";
+                mission.rawStatus === "locked";
+
               const displayStatus =
                 mission.displayStatus;
+
+              const claiming =
+                claimingMissionId === mission.id;
 
               return (
                 <motion.article
@@ -1187,22 +1268,50 @@ export function Missions() {
                     <button
                       className={`mc-mission-button ${displayStatus}`}
                       type="button"
-                      disabled={locked}
-                      onClick={() =>
+                      disabled={
+                        locked ||
+                        claimed ||
+                        claiming ||
+                        claimingMissionId !== null
+                      }
+                      onClick={() => {
+                        if (completed) {
+                          void handleClaimReward(
+                            mission.id,
+                            mission.cycleKey,
+                          );
+
+                          return;
+                        }
+
                         handleMissionAction(
                           mission.id,
-                        )
-                      }
+                        );
+                      }}
                     >
                       {locked ? (
                         <>
                           <LockKeyhole size={16} />
                           Locked
                         </>
-                      ) : completed ? (
+                      ) : claimed ? (
                         <>
                           <CheckCircle2 size={16} />
-                          Completed
+                          Claimed
+                        </>
+                      ) : completed ? (
+                        <>
+                          {claiming ? (
+                            <>
+                              <Clock3 size={16} />
+                              Claiming...
+                            </>
+                          ) : (
+                            <>
+                              <Gift size={16} />
+                              Claim Reward
+                            </>
+                          )}
                         </>
                       ) : (
                         <>
@@ -1212,6 +1321,15 @@ export function Missions() {
                       )}
                     </button>
                   </footer>
+
+                  {claimError?.missionId === mission.id && (
+                    <p
+                      className="mc-claim-error"
+                      role="alert"
+                    >
+                      {claimError.message}
+                    </p>
+                  )}
 
                   {mission.id === "join-community" && showChannels && (
                     <motion.div

@@ -15,10 +15,12 @@ import {
 export type MissionDisplayStatus =
   | "locked"
   | "available"
-  | "completed";
+  | "completed"
+  | "claimed";
 
 export interface MissionViewModel {
   id: string;
+  cycleKey: string;
   category: string;
   title: string;
   description: string;
@@ -52,8 +54,11 @@ function getDisplayStatus(
   status: MissionStatus,
 ): MissionDisplayStatus {
   switch (status) {
-    case "completed":
+
     case "claimed":
+      return "claimed";
+
+    case "completed":
       return "completed";
 
     case "locked":
@@ -97,6 +102,7 @@ export function createMissionViewModel(
 
   return {
     id: definition.id,
+    cycleKey: progress?.cycleKey ?? "default",
     category: presentation.category,
     title: definition.title,
     description: definition.description,
