@@ -11,6 +11,7 @@ import {
 import { preferencesService } from "../preferences";
 import { missionProgressRestoreService } from "../game/services/MissionProgressRestoreService";
 import { builderStore } from "../../store/builderStore";
+import { coreEngine } from "../engine";
 
 interface ApplicationBootstrapProps {
   children: ReactNode;
@@ -39,8 +40,11 @@ export function ApplicationBootstrap({
     }
 
     if (!builderId) {
+      coreEngine.stop();
+
       builderStore.reset();
       preferencesService.reset();
+
       return;
     }
 
@@ -105,6 +109,8 @@ export function ApplicationBootstrap({
           await missionProgressRestoreService.restore(
             builderId,
           );
+
+          coreEngine.start();
         } catch (error) {
           console.error(
             "Mission progress restore failed:",
