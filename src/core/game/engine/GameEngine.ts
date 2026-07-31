@@ -2,8 +2,18 @@ import {
   eventEngine,
   type BobuEvent,
 } from "../../engine/eventEngine";
-import { builderStore } from "../../../store/builderStore";
-import { missionService } from "../services/MissionService";
+
+import {
+  builderStore,
+} from "../../../store/builderStore";
+
+import {
+  missionService,
+} from "../services/MissionService";
+
+import {
+  achievementService,
+} from "../services/AchievementService";
 
 const INITIAL_BUILDER_ID = "builder-001";
 
@@ -34,6 +44,11 @@ export class GameEngine {
         }
 
         missionService.handle(
+          builder.id,
+          event,
+        );
+
+        achievementService.handle(
           builder.id,
           event,
         );

@@ -11,6 +11,10 @@ import {
   achievementRepository,
 } from "../repository/AchievementRepository";
 
+import {
+  achievementProgressRepository,
+} from "../repository/AchievementProgressRepository";
+
 export interface AchievementUpdate {
   definition: AchievementDefinition;
   progress: AchievementProgress;
@@ -46,7 +50,8 @@ export class AchievementService {
       );
 
     const updates: AchievementUpdate[] = [];
-    const increment = getEventIncrement(event);
+    const increment =
+      getEventIncrement(event);
 
     for (const definition of definitions) {
       const current =
@@ -90,11 +95,30 @@ export class AchievementService {
           updated,
         );
 
+      void achievementProgressRepository
+        .saveMine(saved)
+        .catch((error) => {
+          console.error(
+            "Achievement progress auto-save failed:",
+            builderId,
+            definition.id,
+            error,
+          );
+        });
+
       updates.push({
         definition,
         progress: saved,
         unlockedNow,
       });
+
+      if (unlockedNow) {
+        console.info(
+          "[Achievement Unlocked]",
+          builderId,
+          definition.id,
+        );
+      }
     }
 
     return updates;
