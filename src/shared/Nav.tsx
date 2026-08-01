@@ -1,4 +1,9 @@
-import { useEffect, useState } from "react";
+import {
+  lazy,
+  Suspense,
+  useEffect,
+  useState,
+} from "react";
 import {
   Compass,
   Globe2,
@@ -17,11 +22,14 @@ import {
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { supabase } from "../lib/supabase";
-import BuilderAuthDialog from "../features/auth/BuilderAuthDialog";
 import { useAuthSession } from "../core/auth/useAuthSession";
 import { useBuilderStore } from "../features/identity/hooks/useBuilderStore";
 import { useLanguage } from "../core/language";
 import type { SupportedLanguage } from "../core/language";
+
+const BuilderAuthDialog = lazy(
+  () => import("../features/auth/BuilderAuthDialog"),
+);
 
 const navItems = [
   {
@@ -1202,10 +1210,16 @@ export function Nav() {
         </div>
       </nav>
 
-      <BuilderAuthDialog
-        open={authDialogOpen}
-        onClose={() => setAuthDialogOpen(false)}
-      />
+      {authDialogOpen && (
+        <Suspense fallback={null}>
+          <BuilderAuthDialog
+            open
+            onClose={() =>
+              setAuthDialogOpen(false)
+            }
+          />
+        </Suspense>
+      )}
     </header>
   );
 }
