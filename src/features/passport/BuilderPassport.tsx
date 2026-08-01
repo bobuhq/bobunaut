@@ -8,7 +8,10 @@ type BuilderProfile = {
   displayName: string;
   role: string;
   level: number;
-  builderPoints: number;
+  personalGp: number;
+  pendingNetworkGp: number;
+  eligibleNetworkGp: number;
+  totalGp: number;
   inviteCode: string;
 
   joinedAt: string;
@@ -23,7 +26,10 @@ const createBuilderProfile = (
   displayName: builder.username || "BOBU Builder",
   role: "Universe Explorer",
   level: builder.level,
-  builderPoints: builder.gp,
+  personalGp: builder.personalGp,
+  pendingNetworkGp: builder.pendingNetworkGp,
+  eligibleNetworkGp: builder.eligibleNetworkGp,
+  totalGp: builder.gp,
   inviteCode: builder.inviteCode,
 
   joinedAt: "July 2026",
@@ -131,10 +137,30 @@ export function BuilderPassport() {
             marginBottom: "24px",
           }}
         >
-          <StatCard label="Level" value={builderProfile.level.toString()} />
           <StatCard
-            label="GP Balance"
-            value={builderProfile.builderPoints.toLocaleString()}
+            label="Level"
+            value={builderProfile.level.toString()}
+          />
+
+          <StatCard
+            label="Personal GP"
+            value={builderProfile.personalGp.toLocaleString()}
+          />
+
+          <StatCard
+            label="Pending Network GP"
+            value={builderProfile.pendingNetworkGp.toLocaleString()}
+          />
+
+          <StatCard
+            label="Eligible Network GP"
+            value={builderProfile.eligibleNetworkGp.toLocaleString()}
+          />
+
+          <StatCard
+            label="Total GP"
+            value={builderProfile.totalGp.toLocaleString()}
+            emphasized
           />
         </div>
 
@@ -161,16 +187,25 @@ export function BuilderPassport() {
 type StatCardProps = {
   label: string;
   value: string;
+  emphasized?: boolean;
 };
 
-function StatCard({ label, value }: StatCardProps) {
+function StatCard({
+  label,
+  value,
+  emphasized = false,
+}: StatCardProps) {
   return (
     <div
       style={{
         padding: "18px",
         borderRadius: "16px",
-        background: "rgba(255, 255, 255, 0.06)",
-        border: "1px solid rgba(255, 255, 255, 0.08)",
+        background: emphasized
+          ? "linear-gradient(135deg, rgba(153, 69, 255, 0.18), rgba(20, 241, 149, 0.12))"
+          : "rgba(255, 255, 255, 0.06)",
+        border: emphasized
+          ? "1px solid rgba(20, 241, 149, 0.32)"
+          : "1px solid rgba(255, 255, 255, 0.08)",
       }}
     >
       <p
