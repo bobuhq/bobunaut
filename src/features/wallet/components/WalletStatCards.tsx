@@ -1,21 +1,33 @@
 import {
-  ArrowDownRight,
-  ArrowUpRight,
+  CircleDollarSign,
   Coins,
-  History,
+  LockKeyhole,
+  Network,
+  ShieldCheck,
+  WalletCards,
 } from "lucide-react";
 
 import type { BuilderWalletSnapshot } from "../../../core/builder";
 
 type WalletStatCardsProps = {
   wallet: BuilderWalletSnapshot | null;
-  currentGp: number;
+  personalGp: number;
+  pendingNetworkGp: number;
+  eligibleNetworkGp: number;
+  totalGp: number;
+  availableGp: number;
+  lockedGp: number;
   formatGp: (value: number) => string;
 };
 
 export function WalletStatCards({
   wallet,
-  currentGp,
+  personalGp,
+  pendingNetworkGp,
+  eligibleNetworkGp,
+  totalGp,
+  availableGp,
+  lockedGp,
   formatGp,
 }: WalletStatCardsProps) {
   return (
@@ -26,14 +38,69 @@ export function WalletStatCards({
         </span>
 
         <div>
-          <span>Current Balance</span>
-          <strong>{formatGp(currentGp)} GP</strong>
+          <span>Personal GP</span>
+          <strong>{formatGp(personalGp)} GP</strong>
         </div>
       </article>
 
       <article className="builder-wallet-stat">
         <span className="builder-wallet-stat-icon">
-          <ArrowUpRight size={19} />
+          <Network size={19} />
+        </span>
+
+        <div>
+          <span>Eligible Network GP</span>
+          <strong>{formatGp(eligibleNetworkGp)} GP</strong>
+        </div>
+      </article>
+
+      <article className="builder-wallet-stat">
+        <span className="builder-wallet-stat-icon">
+          <ShieldCheck size={19} />
+        </span>
+
+        <div>
+          <span>Pending Network GP</span>
+          <strong>{formatGp(pendingNetworkGp)} GP</strong>
+        </div>
+      </article>
+
+      <article className="builder-wallet-stat">
+        <span className="builder-wallet-stat-icon">
+          <CircleDollarSign size={19} />
+        </span>
+
+        <div>
+          <span>Total GP</span>
+          <strong>{formatGp(totalGp)} GP</strong>
+        </div>
+      </article>
+
+      <article className="builder-wallet-stat">
+        <span className="builder-wallet-stat-icon">
+          <LockKeyhole size={19} />
+        </span>
+
+        <div>
+          <span>Locked GP</span>
+          <strong>{formatGp(lockedGp)} GP</strong>
+        </div>
+      </article>
+
+      <article className="builder-wallet-stat">
+        <span className="builder-wallet-stat-icon">
+          <WalletCards size={19} />
+        </span>
+
+        <div>
+          <span>Available GP</span>
+          <strong>{formatGp(availableGp)} GP</strong>
+        </div>
+      </article>
+
+      <article className="builder-wallet-stat">
+        <span className="builder-wallet-stat-icon">
+          <Coins size={19} />
         </span>
 
         <div>
@@ -46,24 +113,11 @@ export function WalletStatCards({
 
       <article className="builder-wallet-stat">
         <span className="builder-wallet-stat-icon">
-          <ArrowDownRight size={19} />
+          <WalletCards size={19} />
         </span>
 
         <div>
-          <span>Spent GP</span>
-          <strong>
-            {formatGp(wallet?.lifetimeSpentGp ?? 0)} GP
-          </strong>
-        </div>
-      </article>
-
-      <article className="builder-wallet-stat">
-        <span className="builder-wallet-stat-icon">
-          <History size={19} />
-        </span>
-
-        <div>
-          <span>Loaded Transactions</span>
+          <span>Transactions</span>
           <strong>{wallet?.transactionCount ?? 0}</strong>
         </div>
       </article>

@@ -24,10 +24,22 @@ export interface BuilderWalletEntry {
 
 export interface BuilderWalletSnapshot {
   builderId: string;
-  currentGp: number;
+
+  /**
+   * Authoritative GP Storage v2 balances.
+   */
+  personalGp: number;
+  pendingNetworkGp: number;
+  eligibleNetworkGp: number;
+  totalGp: number;
+
+  /**
+   * Wallet operations remain unavailable until activation.
+   * No GP is considered transferable at this stage.
+   */
   availableGp: number;
   lockedGp: number;
-  pendingNetworkGp: number;
+
   lifetimeEarnedGp: number;
   lifetimeSpentGp: number;
   transactionCount: number;
@@ -83,11 +95,16 @@ export const builderWalletService = {
     ] = await Promise.all([
       supabase
         .from("builder_profiles")
-        .select("builder_id,gp")
+        .select(
+          "builder_id,personal_gp,pending_network_gp,eligible_network_gp,gp",
+        )
         .eq("builder_id", normalizedBuilderId)
         .maybeSingle<{
           builder_id: string;
-          gp: number | string;
+          personal_gp: number | string | null;
+          pending_network_gp: number | string | null;
+          eligible_network_gp: number | string | null;
+          gp: number | string | null;
         }>(),
 
       supabase
@@ -123,14 +140,32 @@ export const builderWalletService = {
       0,
     );
 
-    const currentGp = toNumber(profile?.gp);
+    const personalGp =
+      toNumber(profile?.personal_gp);
+
+    const pendingNetworkGp =
+      toNumber(profile?.pending_network_gp);
+
+    const eligibleNetworkGp =
+      toNumber(profile?.eligible_network_gp);
+
+    const totalGp =
+      toNumber(profile?.gp);
 
     return {
       builderId: normalizedBuilderId,
-      currentGp,
-      availableGp: currentGp,
-      lockedGp: 0,
-      pendingNetworkGp: 0,
+      personalGp,
+      pendingNetworkGp,
+      eligibleNetworkGp,
+      totalGp,
+
+      /*
+       * Wallet activation and migration are not live yet.
+       * All currently counted GP remains non-transferable.
+       */
+      availableGp: 0,
+      lockedGp: totalGp,
+
       lifetimeEarnedGp,
       lifetimeSpentGp,
       transactionCount: ledger.length,

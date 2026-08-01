@@ -174,8 +174,25 @@ export default function BuilderWallet() {
     );
   }
 
-  const currentGp = wallet?.currentGp ?? builder.gp;
-  const availableGp = wallet?.availableGp ?? builder.gp;
+  const personalGp =
+    wallet?.personalGp ?? builder.personalGp;
+
+  const pendingNetworkGp =
+    wallet?.pendingNetworkGp ??
+    builder.pendingNetworkGp;
+
+  const eligibleNetworkGp =
+    wallet?.eligibleNetworkGp ??
+    builder.eligibleNetworkGp;
+
+  const totalGp =
+    wallet?.totalGp ?? builder.gp;
+
+  const availableGp =
+    wallet?.availableGp ?? 0;
+
+  const lockedGp =
+    wallet?.lockedGp ?? totalGp;
 
   return (
     <main className="builder-wallet-page">
@@ -212,9 +229,9 @@ export default function BuilderWallet() {
           </div>
 
           <div className="builder-wallet-balance-content">
-            <span>Available GP</span>
-            <strong>{formatGp(availableGp)}</strong>
-            <small>GP</small>
+            <span>Total GP</span>
+            <strong>{formatGp(totalGp)}</strong>
+            <small>GP · Preview Mode</small>
           </div>
 
           <div className="builder-wallet-live">
@@ -229,9 +246,9 @@ export default function BuilderWallet() {
           builderId,
           username: builder.username,
           level: builder.level,
-          gp: currentGp,
+          gp: totalGp,
           lifetimeEarnedGp:
-            wallet?.lifetimeEarnedGp ?? currentGp,
+            wallet?.lifetimeEarnedGp ?? totalGp,
           walletStatus: wallet ? "synced" : "pending",
           genesisStatus:
             builderId.length > 0 ? "active" : "pending",
@@ -247,7 +264,12 @@ export default function BuilderWallet() {
 
       <WalletStatCards
         wallet={wallet}
-        currentGp={currentGp}
+        personalGp={personalGp}
+        pendingNetworkGp={pendingNetworkGp}
+        eligibleNetworkGp={eligibleNetworkGp}
+        totalGp={totalGp}
+        availableGp={availableGp}
+        lockedGp={lockedGp}
         formatGp={formatGp}
       />
 
