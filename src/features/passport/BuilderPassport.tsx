@@ -1,267 +1,550 @@
+import { useState } from "react";
+import {
+  Award,
+  BadgeCheck,
+  CircleDot,
+  Copy,
+  Fingerprint,
+  Gem,
+  Globe2,
+  LockKeyhole,
+  Network,
+  Orbit,
+  Rocket,
+  ShieldCheck,
+  Sparkles,
+  Star,
+  Trophy,
+  UserRoundCheck,
+  WalletCards,
+  Zap,
+} from "lucide-react";
+
 import { useAuthSession } from "../../core/auth/useAuthSession";
 import { useBuilderStore } from "../identity/hooks/useBuilderStore";
 import BuilderPassportActions from "./BuilderPassportActions";
 import BuilderPassportShareCard from "./BuilderPassportShareCard";
-import BuilderSignalWidget from "./BuilderSignalWidget";
-type BuilderProfile = {
-  username: string;
-  displayName: string;
-  role: string;
-  level: number;
-  personalGp: number;
-  pendingNetworkGp: number;
-  eligibleNetworkGp: number;
-  totalGp: number;
-  inviteCode: string;
+import "./BuilderPassport.css";
 
-  joinedAt: string;
-  walletAddress: string;
-  status: "Active" | "Inactive";
+const formatGp = (value: number): string =>
+  value.toLocaleString("en-US");
+
+const getBuilderTitle = (level: number): string => {
+  if (level >= 50) return "Master Architect";
+  if (level >= 25) return "Galaxy Commander";
+  if (level >= 10) return "Navigator";
+  if (level >= 5) return "Explorer";
+  return "New Builder";
 };
 
-const createBuilderProfile = (
-  builder: ReturnType<typeof useBuilderStore>,
-): BuilderProfile => ({
-  username: builder.username,
-  displayName: builder.username || "BOBU Builder",
-  role: "Universe Explorer",
-  level: builder.level,
-  personalGp: builder.personalGp,
-  pendingNetworkGp: builder.pendingNetworkGp,
-  eligibleNetworkGp: builder.eligibleNetworkGp,
-  totalGp: builder.gp,
-  inviteCode: builder.inviteCode,
+const shortenBuilderId = (builderId: string): string => {
+  if (builderId.length <= 18) {
+    return builderId;
+  }
 
-  joinedAt: "July 2026",
-  walletAddress: builder.identity.wallet
-    ? "Connected"
-    : "Not connected",
-  status: "Active",
-});
+  return `${builderId.slice(0, 9)}…${builderId.slice(-7)}`;
+};
 
 export function BuilderPassport() {
   const builder = useBuilderStore();
-
   const { authenticated } = useAuthSession();
 
-  const builderProfile = createBuilderProfile(builder);
+  const [copiedBuilderId, setCopiedBuilderId] =
+    useState(false);
+
+  const [copiedInviteCode, setCopiedInviteCode] =
+    useState(false);
+
+  const verified =
+    builder.identity.telegram &&
+    builder.identity.x;
+
+  const genesisBuilder = verified;
+  const builderTitle = getBuilderTitle(builder.level);
+
+  const passportUrl = new URL(
+    "passport",
+    window.location.origin + import.meta.env.BASE_URL,
+  ).toString();
+
+  const copyBuilderId = async () => {
+    await navigator.clipboard.writeText(builder.id);
+    setCopiedBuilderId(true);
+
+    window.setTimeout(() => {
+      setCopiedBuilderId(false);
+    }, 1800);
+  };
+
+  const copyInviteCode = async () => {
+    await navigator.clipboard.writeText(builder.inviteCode);
+    setCopiedInviteCode(true);
+
+    window.setTimeout(() => {
+      setCopiedInviteCode(false);
+    }, 1800);
+  };
+
+  const sharePassport = async () => {
+    const data = {
+      title: `${builder.username} — BOBU Builder Passport`,
+      text:
+        "Explore my Builder Passport in BOBU Universe — " +
+        "the world's first explorable Web3 social universe.",
+      url: passportUrl,
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(data);
+        return;
+      } catch (error) {
+        if (
+          error instanceof DOMException &&
+          error.name === "AbortError"
+        ) {
+          return;
+        }
+      }
+    }
+
+    await navigator.clipboard.writeText(passportUrl);
+    window.alert("Passport link copied.");
+  };
+
+  const identityItems = [
+    {
+      label: "Telegram",
+      verified: builder.identity.telegram,
+      icon: Globe2,
+    },
+    {
+      label: "X",
+      verified: builder.identity.x,
+      icon: Sparkles,
+    },
+    {
+      label: "Instagram",
+      verified: builder.identity.instagram,
+      icon: CircleDot,
+    },
+    {
+      label: "BOBU Wallet",
+      verified: builder.identity.wallet,
+      icon: WalletCards,
+    },
+  ];
+
+  const journeyItems = [
+    {
+      label: "Builder Passport",
+      complete: builder.passportUnlocked,
+    },
+    {
+      label: "Telegram Identity",
+      complete: builder.identity.telegram,
+    },
+    {
+      label: "X Identity",
+      complete: builder.identity.x,
+    },
+    {
+      label: "Genesis Status",
+      complete: genesisBuilder,
+    },
+    {
+      label: "Wallet Activation",
+      complete: builder.identity.wallet,
+    },
+  ];
+
+  const achievements = [
+    {
+      label: "Genesis Builder",
+      description: "Telegram + X",
+      unlocked: genesisBuilder,
+      icon: Gem,
+    },
+    {
+      label: "Identity Verified",
+      description: "Trusted identity",
+      unlocked: verified,
+      icon: BadgeCheck,
+    },
+    {
+      label: "Network Builder",
+      description: "Invite network",
+      unlocked: builder.referralCount > 0,
+      icon: Network,
+    },
+    {
+      label: "Wallet Ready",
+      description: "Wallet identity",
+      unlocked: builder.identity.wallet,
+      icon: WalletCards,
+    },
+  ];
 
   return (
-    <main
-      style={{
-        minHeight: "100vh",
-        padding: "120px 24px 60px",
-        color: "white",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "flex-start",
-      }}
-    >
-      <section
-        style={{
-          width: "100%",
-          maxWidth: "520px",
-          padding: "32px",
-          border: "1px solid rgba(255, 255, 255, 0.14)",
-          borderRadius: "24px",
-          background:
-            "linear-gradient(145deg, rgba(18, 20, 40, 0.96), rgba(8, 10, 24, 0.96))",
-          boxShadow: "0 24px 80px rgba(0, 0, 0, 0.35)",
-        }}
-      >
-        <header
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "18px",
-            marginBottom: "28px",
-          }}
-        >
-          <div
-            aria-hidden="true"
-            style={{
-              width: "72px",
-              height: "72px",
-              borderRadius: "20px",
-              display: "grid",
-              placeItems: "center",
-              fontSize: "34px",
-              background:
-                "linear-gradient(135deg, rgba(153, 69, 255, 0.9), rgba(20, 241, 149, 0.9))",
-              boxShadow: "0 12px 32px rgba(153, 69, 255, 0.28)",
-            }}
-          >
-            🚀
+    <main className="builder-passport-page">
+      <div className="builder-passport-shell">
+        <section className="builder-passport-hero">
+          <div className="builder-passport-identity">
+            <div className="builder-passport-avatar">
+              <img
+                src="/images/galaxy/bobu-builder-space.webp"
+                alt="BOBU Builder"
+              />
+              <span className="builder-passport-avatar-status" />
+            </div>
+
+            <div>
+              <p className="builder-passport-eyebrow">
+                Builder Passport
+              </p>
+
+              <h1 className="builder-passport-name">
+                {builder.username || "BOBU Builder"}
+              </h1>
+
+              <p className="builder-passport-handle">
+                @{builder.username || "builder"}
+              </p>
+
+              <span className="builder-passport-title">
+                <Rocket size={13} />
+                {builderTitle}
+              </span>
+
+              <div className="builder-passport-badges">
+                <span className="builder-passport-badge is-positive">
+                  <Zap size={12} />
+                  Active Builder
+                </span>
+
+                <span
+                  className={
+                    genesisBuilder
+                      ? "builder-passport-badge is-genesis"
+                      : "builder-passport-badge"
+                  }
+                >
+                  <Gem size={12} />
+                  {genesisBuilder
+                    ? "Genesis Builder"
+                    : "Genesis Pending"}
+                </span>
+
+                <span
+                  className={
+                    verified
+                      ? "builder-passport-badge is-positive"
+                      : "builder-passport-badge"
+                  }
+                >
+                  <ShieldCheck size={12} />
+                  {verified ? "Verified" : "Verification Pending"}
+                </span>
+              </div>
+            </div>
           </div>
 
-          <div>
-            <p
-              style={{
-                margin: "0 0 6px",
-                color: "#14f195",
-                fontSize: "13px",
-                fontWeight: 700,
-                letterSpacing: "0.12em",
-                textTransform: "uppercase",
-              }}
-            >
-              Builder Passport
-            </p>
+          <aside className="builder-passport-id-card">
+            <div>
+              <span className="builder-passport-id-label">
+                Builder ID
+              </span>
 
-            <h1
-              style={{
-                margin: 0,
-                fontSize: "30px",
-                lineHeight: 1.1,
-              }}
-            >
-              {builderProfile.displayName}
-            </h1>
+              <strong className="builder-passport-id-value">
+                {shortenBuilderId(builder.id)}
+              </strong>
+            </div>
 
-            <p
-              style={{
-                margin: "8px 0 0",
-                color: "rgba(255, 255, 255, 0.62)",
-              }}
-            >
-              @{builderProfile.username}
-            </p>
+            <div className="builder-passport-id-meta">
+              <div>
+                <span className="builder-passport-id-label">
+                  Passport
+                </span>
+                <strong>
+                  {builder.passportUnlocked
+                    ? "Unlocked"
+                    : "Initializing"}
+                </strong>
+              </div>
+
+              <div>
+                <span className="builder-passport-id-label">
+                  Status
+                </span>
+                <strong>
+                  {authenticated ? "Online" : "Guest"}
+                </strong>
+              </div>
+            </div>
+          </aside>
+        </section>
+
+        <div className="builder-passport-grid">
+          <div className="builder-passport-main-column">
+            <section className="builder-passport-panel">
+              <div className="builder-passport-panel-heading">
+                <div className="builder-passport-panel-title">
+                  <Orbit size={18} />
+                  <h2>GP Command Center</h2>
+                </div>
+
+                <span className="builder-passport-panel-subtitle">
+                  Storage v2
+                </span>
+              </div>
+
+              <div className="builder-passport-gp-grid">
+                <article className="builder-passport-gp-card is-personal">
+                  <span>Personal GP</span>
+                  <strong>{formatGp(builder.personalGp)}</strong>
+                  <small>Earned directly by you</small>
+                </article>
+
+                <article className="builder-passport-gp-card is-pending">
+                  <span>Pending Network GP</span>
+                  <strong>
+                    {formatGp(builder.pendingNetworkGp)}
+                  </strong>
+                  <small>Locked until eligibility</small>
+                </article>
+
+                <article className="builder-passport-gp-card is-eligible">
+                  <span>Eligible Network GP</span>
+                  <strong>
+                    {formatGp(builder.eligibleNetworkGp)}
+                  </strong>
+                  <small>Counts toward Total GP</small>
+                </article>
+
+                <article className="builder-passport-gp-card is-total">
+                  <span>Total GP</span>
+                  <strong>{formatGp(builder.gp)}</strong>
+                  <small>Authoritative Builder balance</small>
+                </article>
+              </div>
+            </section>
+
+            <section className="builder-passport-panel">
+              <div className="builder-passport-panel-heading">
+                <div className="builder-passport-panel-title">
+                  <Trophy size={18} />
+                  <h2>Builder Progression</h2>
+                </div>
+
+                <span className="builder-passport-panel-subtitle">
+                  Live Core Data
+                </span>
+              </div>
+
+              <div className="builder-passport-progression">
+                <article className="builder-passport-progress-card">
+                  <span>Level</span>
+                  <strong>{builder.level}</strong>
+                </article>
+
+                <article className="builder-passport-progress-card">
+                  <span>Reputation</span>
+                  <strong>{formatGp(builder.reputation)}</strong>
+                </article>
+
+                <article className="builder-passport-progress-card">
+                  <span>Network</span>
+                  <strong>{builder.referralCount}</strong>
+                </article>
+              </div>
+            </section>
+
+            <section className="builder-passport-panel">
+              <div className="builder-passport-panel-heading">
+                <div className="builder-passport-panel-title">
+                  <Award size={18} />
+                  <h2>Achievement Vault</h2>
+                </div>
+
+                <span className="builder-passport-panel-subtitle">
+                  Builder Milestones
+                </span>
+              </div>
+
+              <div className="builder-passport-achievements">
+                {achievements.map((achievement) => {
+                  const Icon = achievement.icon;
+
+                  return (
+                    <article
+                      key={achievement.label}
+                      className={
+                        achievement.unlocked
+                          ? "builder-passport-achievement is-unlocked"
+                          : "builder-passport-achievement"
+                      }
+                    >
+                      <span className="builder-passport-achievement-icon">
+                        {achievement.unlocked ? (
+                          <Icon size={20} />
+                        ) : (
+                          <LockKeyhole size={18} />
+                        )}
+                      </span>
+
+                      <strong>{achievement.label}</strong>
+                      <small>{achievement.description}</small>
+                    </article>
+                  );
+                })}
+              </div>
+            </section>
           </div>
-        </header>
 
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-            gap: "12px",
-            marginBottom: "24px",
-          }}
-        >
-          <StatCard
-            label="Level"
-            value={builderProfile.level.toString()}
-          />
+          <div className="builder-passport-side-column">
+            <section className="builder-passport-panel">
+              <div className="builder-passport-panel-heading">
+                <div className="builder-passport-panel-title">
+                  <Fingerprint size={18} />
+                  <h2>Identity Matrix</h2>
+                </div>
+              </div>
 
-          <StatCard
-            label="Personal GP"
-            value={builderProfile.personalGp.toLocaleString()}
-          />
+              <div className="builder-passport-identity-list">
+                {identityItems.map((identity) => {
+                  const Icon = identity.icon;
 
-          <StatCard
-            label="Pending Network GP"
-            value={builderProfile.pendingNetworkGp.toLocaleString()}
-          />
+                  return (
+                    <div
+                      key={identity.label}
+                      className="builder-passport-identity-row"
+                    >
+                      <span className="builder-passport-identity-name">
+                        <Icon size={15} />
+                        {identity.label}
+                      </span>
 
-          <StatCard
-            label="Eligible Network GP"
-            value={builderProfile.eligibleNetworkGp.toLocaleString()}
-          />
+                      <span
+                        className={
+                          identity.verified
+                            ? "builder-passport-status is-complete"
+                            : "builder-passport-status"
+                        }
+                      >
+                        {identity.verified ? (
+                          <BadgeCheck size={14} />
+                        ) : (
+                          <CircleDot size={13} />
+                        )}
 
-          <StatCard
-            label="Total GP"
-            value={builderProfile.totalGp.toLocaleString()}
-            emphasized
-          />
+                        {identity.verified
+                          ? "Verified"
+                          : "Pending"}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+
+            <section className="builder-passport-panel">
+              <div className="builder-passport-panel-heading">
+                <div className="builder-passport-panel-title">
+                  <Star size={18} />
+                  <h2>Genesis Journey</h2>
+                </div>
+              </div>
+
+              <div className="builder-passport-journey">
+                {journeyItems.map((journey) => (
+                  <div
+                    key={journey.label}
+                    className="builder-passport-journey-row"
+                  >
+                    <span className="builder-passport-journey-name">
+                      {journey.complete ? (
+                        <UserRoundCheck size={15} />
+                      ) : (
+                        <CircleDot size={14} />
+                      )}
+                      {journey.label}
+                    </span>
+
+                    <span
+                      className={
+                        journey.complete
+                          ? "builder-passport-status is-complete"
+                          : "builder-passport-status"
+                      }
+                    >
+                      {journey.complete ? "Complete" : "Pending"}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            <section className="builder-passport-panel">
+              <div className="builder-passport-panel-heading">
+                <div className="builder-passport-panel-title">
+                  <Network size={18} />
+                  <h2>Builder Network</h2>
+                </div>
+              </div>
+
+              <div className="builder-passport-invite-code">
+                <div>
+                  <span className="builder-passport-id-label">
+                    Invite Code
+                  </span>
+                  <code>{builder.inviteCode}</code>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => void copyInviteCode()}
+                  aria-label="Copy invite code"
+                >
+                  {copiedInviteCode ? (
+                    <BadgeCheck size={16} />
+                  ) : (
+                    <Copy size={16} />
+                  )}
+                </button>
+              </div>
+
+              <div style={{ marginTop: 16 }}>
+                <BuilderPassportActions
+                  copiedBuilderId={copiedBuilderId}
+                  onCopyBuilderId={() => void copyBuilderId()}
+                  onShare={() => void sharePassport()}
+                  onDownload={() =>
+                    document
+                      .getElementById(
+                        "builder-passport-download-trigger",
+                      )
+                      ?.click()
+                  }
+                />
+              </div>
+            </section>
+          </div>
         </div>
+      </div>
 
-        <BuilderPassportActions
-          onDownload={() =>
-            document
-              .getElementById("builder-passport-download-trigger")
-              ?.click()
+      <div className="builder-passport-hidden-share-card">
+        <BuilderPassportShareCard
+          displayName={builder.username || "BOBU Builder"}
+          username={builder.username || "builder"}
+          level={builder.level}
+          gpBalance={builder.gp}
+          walletAddress={
+            builder.identity.wallet
+              ? "Connected"
+              : "Not connected"
           }
         />
-      </section>
-      <BuilderSignalWidget
-        authenticated={authenticated}
-        inviteCode={
-          authenticated
-            ? builderProfile.inviteCode
-            : undefined
-        }
-      />
+      </div>
     </main>
-  );
-}
-
-type StatCardProps = {
-  label: string;
-  value: string;
-  emphasized?: boolean;
-};
-
-function StatCard({
-  label,
-  value,
-  emphasized = false,
-}: StatCardProps) {
-  return (
-    <div
-      style={{
-        padding: "18px",
-        borderRadius: "16px",
-        background: emphasized
-          ? "linear-gradient(135deg, rgba(153, 69, 255, 0.18), rgba(20, 241, 149, 0.12))"
-          : "rgba(255, 255, 255, 0.06)",
-        border: emphasized
-          ? "1px solid rgba(20, 241, 149, 0.32)"
-          : "1px solid rgba(255, 255, 255, 0.08)",
-      }}
-    >
-      <p
-        style={{
-          margin: "0 0 8px",
-          color: "rgba(255, 255, 255, 0.55)",
-          fontSize: "12px",
-          fontWeight: 700,
-          letterSpacing: "0.08em",
-          textTransform: "uppercase",
-        }}
-      >
-        {label}
-      </p>
-
-      <strong
-        style={{
-          fontSize: "24px",
-        }}
-      >
-        {value}
-      </strong>
-    </div>
-  );
-}
-
-type ProfileRowProps = {
-  label: string;
-  value: string;
-};
-
-function ProfileRow({ label, value }: ProfileRowProps) {
-  return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "space-between",
-        gap: "20px",
-      }}
-    >
-      <span
-        style={{
-          color: "rgba(255, 255, 255, 0.5)",
-        }}
-      >
-        {label}
-      </span>
-
-      <strong
-        style={{
-          textAlign: "right",
-          overflowWrap: "anywhere",
-        }}
-      >
-        {value}
-      </strong>
-    </div>
   );
 }

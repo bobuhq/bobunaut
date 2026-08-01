@@ -1,32 +1,48 @@
+import {
+  Copy,
+  Download,
+  Share2,
+} from "lucide-react";
+
 type BuilderPassportActionsProps = {
   onDownload: () => void;
+  onCopyBuilderId: () => void;
+  onShare: () => void;
+  copiedBuilderId: boolean;
 };
 
 export default function BuilderPassportActions({
   onDownload,
+  onCopyBuilderId,
+  onShare,
+  copiedBuilderId,
 }: BuilderPassportActionsProps) {
   return (
-    <div
-      style={{
-        display: "grid",
-        gap: "12px",
-        marginTop: "20px",
-      }}
-    >
+    <div className="builder-passport-actions">
       <button
         type="button"
-        onClick={onDownload}
-        style={{
-          padding: "14px 18px",
-          border: "none",
-          borderRadius: "14px",
-          fontSize: "15px",
-          fontWeight: 800,
-          cursor: "pointer",
-          color: "#07111f",
-          background: "linear-gradient(90deg, #14f195, #9945ff)",
-        }}
+        className="builder-passport-action"
+        onClick={onCopyBuilderId}
       >
+        <Copy size={15} />
+        {copiedBuilderId ? "Builder ID Copied" : "Copy Builder ID"}
+      </button>
+
+      <button
+        type="button"
+        className="builder-passport-action"
+        onClick={onShare}
+      >
+        <Share2 size={15} />
+        Share Passport
+      </button>
+
+      <button
+        type="button"
+        className="builder-passport-action is-primary"
+        onClick={onDownload}
+      >
+        <Download size={16} />
         Download Passport
       </button>
     </div>
