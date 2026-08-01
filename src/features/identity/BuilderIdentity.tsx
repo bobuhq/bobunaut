@@ -3,6 +3,7 @@ import { IdentityCard } from "./components/IdentityCard";
 import { useBuilderStore } from "./hooks/useBuilderStore";
 import { builderStore } from "../../store/builderStore";
 import { supabase } from "../../lib/supabase";
+import { gpEngine } from "../../core/gp";
 import { restoreAuthenticatedBuilder } from "../../core/builder/services/BuilderRestoreService";
 import { referralService } from "../../core/builder/services/ReferralService";
 import type { IdentityProvider } from "../../core/models/Builder";
@@ -87,34 +88,23 @@ export default function BuilderIdentity() {
           "identity_already_exists";
 
       if (hasXCallback) {
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
+        try {
+          const result =
+            await gpEngine.claimGenesisReward("x");
 
-        if (session?.access_token) {
-          const { data, error } =
-            await supabase.functions.invoke(
-              "claim-x-reward",
-              {
-                body: {},
-                headers: {
-                  Authorization:
-                    `Bearer ${session.access_token}`,
-                },
-              },
-            );
-
-          if (error) {
-            console.error(
-              "X reward claim failed:",
-              error,
-            );
-          } else if (data?.verified !== true) {
+          if (!result.verified) {
             console.error(
               "X verification was not completed:",
-              data,
+              result,
             );
+          } else {
+            await restoreAuthenticatedBuilder();
           }
+        } catch (error) {
+          console.error(
+            "X reward claim failed:",
+            error,
+          );
         }
 
         window.history.replaceState(
@@ -317,33 +307,28 @@ export default function BuilderIdentity() {
         return;
       }
 
-      const { data, error } =
-        await supabase.functions.invoke(
-          "verify-telegram",
-          {
-            body: {},
-          },
+      const result =
+        await gpEngine.claimGenesisReward(
+          "telegram",
         );
 
-      if (error) {
-        throw error;
-      }
-
-      if (data?.verified === true) {
+      if (result.verified) {
         await restoreAuthenticatedBuilder();
 
         const rewardMessage =
-          data?.rewarded === true
-            ? "Telegram verified. 5,000 GP awarded."
-            : "Telegram is already verified.";
+          result.message ??
+          (
+            result.rewarded
+              ? `Telegram verified. ${result.rewardGp.toLocaleString()} GP awarded.`
+              : "Telegram is already verified."
+          );
 
         window.alert(rewardMessage);
         return;
       }
 
       window.alert(
-        data?.message ??
-          data?.error ??
+        result.message ??
           "Telegram membership could not be verified yet.",
       );
     } catch (error) {
