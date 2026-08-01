@@ -1,6 +1,7 @@
 import {
-  missionProgressRepository,
-} from "../repository/MissionProgressRepository";
+  gpEngine,
+  type MissionGPRewardClaimResult,
+} from "../../gp";
 
 import {
   restoreAuthenticatedBuilder,
@@ -15,9 +16,9 @@ export class MissionRewardService {
     builderId: string,
     missionId: string,
     cycleKey: string,
-  ) {
+  ): Promise<MissionGPRewardClaimResult> {
     const result =
-      await missionProgressRepository.claimMine(
+      await gpEngine.claimMissionReward(
         missionId,
         cycleKey,
       );

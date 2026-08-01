@@ -16,6 +16,16 @@ export interface GPRewardClaimResult {
   warning?: string;
 }
 
+export interface MissionGPRewardClaimResult {
+  claimedNow: boolean;
+  missionId: string;
+  cycleKey: string;
+  rewardGp: number;
+  totalGp: number;
+  ledgerId?: string;
+  claimedAt: string;
+}
+
 interface GPRewardFunctionResponse {
   verified?: boolean;
   linked?: boolean;
@@ -26,6 +36,16 @@ interface GPRewardFunctionResponse {
   message?: string;
   warning?: string;
   error?: string;
+}
+
+interface MissionRewardClaimRow {
+  claimed_now: boolean;
+  mission_id: string;
+  cycle_key: string;
+  reward_gp: number;
+  total_gp: number;
+  ledger_id: string | null;
+  claimed_at: string;
 }
 
 const rewardFunctionByProvider: Record<
@@ -45,6 +65,19 @@ const numberValue = (
   return Number.isFinite(normalized)
     ? normalized
     : 0;
+};
+
+const requireValue = (
+  value: string,
+  label: string,
+): string => {
+  const normalized = value.trim();
+
+  if (!normalized) {
+    throw new Error(`${label} is required.`);
+  }
+
+  return normalized;
 };
 
 export class GPRewardService {
@@ -111,6 +144,68 @@ export class GPRewardService {
       totalGp: numberValue(data.total_gp),
       message: data.message,
       warning: data.warning,
+    };
+  }
+
+  async claimMissionReward(
+    missionId: string,
+    cycleKey: string,
+  ): Promise<MissionGPRewardClaimResult> {
+    const normalizedMissionId =
+      requireValue(missionId, "Mission ID");
+
+    const normalizedCycleKey =
+      requireValue(cycleKey, "Cycle key");
+
+    const { data, error } = await supabase.rpc(
+      "claim_my_mission_reward",
+      {
+        p_mission_id: normalizedMissionId,
+        p_cycle_key: normalizedCycleKey,
+      },
+    );
+
+    if (error) {
+      throw new Error(
+        `Mission reward could not be claimed: ${error.message}`,
+      );
+    }
+
+    const normalizedData = Array.isArray(data)
+      ? data[0]
+      : data;
+
+    if (!normalizedData) {
+      throw new Error(
+        "Mission reward claim returned no data.",
+      );
+    }
+
+    const row =
+      normalizedData as MissionRewardClaimRow;
+
+    if (
+      typeof row.claimed_now !== "boolean" ||
+      typeof row.mission_id !== "string" ||
+      typeof row.cycle_key !== "string" ||
+      typeof row.reward_gp !== "number" ||
+      typeof row.total_gp !== "number" ||
+      typeof row.claimed_at !== "string"
+    ) {
+      throw new Error(
+        "Mission reward claim returned invalid data.",
+      );
+    }
+
+    return {
+      claimedNow: row.claimed_now,
+      missionId: row.mission_id,
+      cycleKey: row.cycle_key,
+      rewardGp: row.reward_gp,
+      totalGp: row.total_gp,
+      ledgerId:
+        row.ledger_id ?? undefined,
+      claimedAt: row.claimed_at,
     };
   }
 }
