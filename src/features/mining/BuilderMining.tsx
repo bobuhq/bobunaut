@@ -1,4 +1,10 @@
 import {
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
+
+import {
   Clock3,
   Gem,
   Orbit,
@@ -8,7 +14,13 @@ import {
 
 import MiningCore from "./components/MiningCore";
 import MiningHero from "./components/MiningHero";
+import MiningHistory from "./components/MiningHistory";
+import { useBuilderStore } from "../identity/hooks/useBuilderStore";
 import { useBuilderMiningSession } from "./hooks/useBuilderMiningSession";
+import {
+  miningHistoryService,
+  type MiningHistoryEntry,
+} from "./services/MiningHistoryService";
 
 function formatRemaining(milliseconds: number) {
   const totalSeconds = Math.max(
@@ -28,6 +40,17 @@ function formatRemaining(milliseconds: number) {
 }
 
 export default function BuilderMining() {
+  const builder = useBuilderStore();
+
+  const [historyEntries, setHistoryEntries] =
+    useState<MiningHistoryEntry[]>([]);
+
+  const [historyLoading, setHistoryLoading] =
+    useState(true);
+
+  const [historyErrorMessage, setHistoryErrorMessage] =
+    useState<string | null>(null);
+
   const {
     miningState,
     busy,
@@ -43,6 +66,56 @@ export default function BuilderMining() {
     claimable,
     handleMiningAction,
   } = useBuilderMiningSession();
+
+  const loadMiningHistory =
+    useCallback(async (): Promise<void> => {
+      const builderId = builder.id.trim();
+
+      if (
+        !builderId ||
+        builderId === "builder-001"
+      ) {
+        setHistoryEntries([]);
+        setHistoryErrorMessage(null);
+        setHistoryLoading(false);
+        return;
+      }
+
+      setHistoryLoading(true);
+      setHistoryErrorMessage(null);
+
+      try {
+        const entries =
+          await miningHistoryService.load(
+            builderId,
+            10,
+          );
+
+        setHistoryEntries(entries);
+      } catch (error) {
+        const message =
+          error instanceof Error
+            ? error.message
+            : "Mining history could not be loaded.";
+
+        setHistoryEntries([]);
+        setHistoryErrorMessage(message);
+      } finally {
+        setHistoryLoading(false);
+      }
+    }, [builder.id]);
+
+  useEffect(() => {
+    void loadMiningHistory();
+  }, [loadMiningHistory]);
+
+  useEffect(() => {
+    if (!showActivation) {
+      return;
+    }
+
+    void loadMiningHistory();
+  }, [showActivation, loadMiningHistory]);
 
   const activeReferralCount = Math.min(
     Math.max(
@@ -858,6 +931,148 @@ export default function BuilderMining() {
           color: rgba(221, 229, 255, 0.68);
         }
 
+        .mining-history-panel {
+          margin-top: 24px;
+          padding: 24px;
+          border: 1px solid rgba(148, 127, 255, 0.18);
+          border-radius: 24px;
+          background:
+            radial-gradient(
+              circle at 90% 10%,
+              rgba(91, 209, 255, 0.08),
+              transparent 28%
+            ),
+            rgba(8, 14, 32, 0.76);
+          backdrop-filter: blur(18px);
+          -webkit-backdrop-filter: blur(18px);
+        }
+
+        .mining-history-heading {
+          display: flex;
+          align-items: flex-start;
+          justify-content: space-between;
+          gap: 18px;
+          margin-bottom: 20px;
+        }
+
+        .mining-history-heading h2 {
+          margin: 6px 0 0;
+          font-size: 24px;
+          letter-spacing: -0.02em;
+        }
+
+        .mining-history-eyebrow {
+          display: inline-flex;
+          align-items: center;
+          gap: 7px;
+          color: #8de7ff;
+          font-size: 10px;
+          font-weight: 800;
+          letter-spacing: 0.16em;
+          text-transform: uppercase;
+        }
+
+        .mining-history-count {
+          padding: 7px 11px;
+          border: 1px solid rgba(141, 231, 255, 0.16);
+          border-radius: 999px;
+          color: rgba(220, 241, 255, 0.72);
+          background: rgba(77, 218, 255, 0.05);
+          font-size: 11px;
+          font-weight: 800;
+        }
+
+        .mining-history-list {
+          display: grid;
+          gap: 10px;
+        }
+
+        .mining-history-entry {
+          display: grid;
+          grid-template-columns: auto minmax(0, 1fr) auto;
+          align-items: center;
+          gap: 14px;
+          padding: 14px 16px;
+          border: 1px solid rgba(133, 145, 220, 0.1);
+          border-radius: 16px;
+          background: rgba(255, 255, 255, 0.025);
+        }
+
+        .mining-history-entry-icon {
+          display: grid;
+          width: 36px;
+          height: 36px;
+          place-items: center;
+          border-radius: 12px;
+          color: #72f7c5;
+          background: rgba(114, 247, 197, 0.08);
+          box-shadow: inset 0 0 18px rgba(114, 247, 197, 0.04);
+        }
+
+        .mining-history-entry-main {
+          display: grid;
+          min-width: 0;
+          gap: 4px;
+        }
+
+        .mining-history-entry-main strong {
+          color: #72f7c5;
+          font-size: 16px;
+        }
+
+        .mining-history-entry-main span {
+          overflow: hidden;
+          color: rgba(225, 231, 255, 0.48);
+          font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+          font-size: 11px;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .mining-history-entry-date {
+          display: inline-flex;
+          align-items: center;
+          gap: 7px;
+          color: rgba(225, 231, 255, 0.54);
+          font-size: 12px;
+          white-space: nowrap;
+        }
+
+        .mining-history-state {
+          margin: 0;
+          padding: 22px;
+          border: 1px dashed rgba(133, 145, 220, 0.14);
+          border-radius: 16px;
+          color: rgba(225, 231, 255, 0.55);
+          text-align: center;
+        }
+
+        .mining-history-state.is-error {
+          color: #ff9aa9;
+          border-color: rgba(255, 105, 135, 0.18);
+          background: rgba(255, 105, 135, 0.04);
+        }
+
+        @media (max-width: 700px) {
+          .mining-history-panel {
+            padding: 18px;
+          }
+
+          .mining-history-heading {
+            align-items: flex-start;
+            flex-direction: column;
+          }
+
+          .mining-history-entry {
+            grid-template-columns: auto minmax(0, 1fr);
+          }
+
+          .mining-history-entry-date {
+            grid-column: 2;
+            white-space: normal;
+          }
+        }
+
         @media (max-width: 860px) {
           .mining-dashboard {
             grid-template-columns: 1fr;
@@ -964,6 +1179,12 @@ export default function BuilderMining() {
           ),
         )}
       </div>
+
+      <MiningHistory
+        entries={historyEntries}
+        loading={historyLoading}
+        errorMessage={historyErrorMessage}
+      />
 
       {showActivation && (
         <div className="mining-activation">
