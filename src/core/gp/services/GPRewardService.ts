@@ -26,6 +26,15 @@ export interface MissionGPRewardClaimResult {
   claimedAt: string;
 }
 
+export interface AchievementGPRewardClaimResult {
+  claimedNow: boolean;
+  achievementId: string;
+  rewardGp: number;
+  totalGp: number;
+  ledgerId?: string;
+  claimedAt: string;
+}
+
 interface GPRewardFunctionResponse {
   verified?: boolean;
   linked?: boolean;
@@ -42,6 +51,15 @@ interface MissionRewardClaimRow {
   claimed_now: boolean;
   mission_id: string;
   cycle_key: string;
+  reward_gp: number;
+  total_gp: number;
+  ledger_id: string | null;
+  claimed_at: string;
+}
+
+interface AchievementRewardClaimRow {
+  claimed_now: boolean;
+  achievement_id: string;
   reward_gp: number;
   total_gp: number;
   ledger_id: string | null;
@@ -201,6 +219,65 @@ export class GPRewardService {
       claimedNow: row.claimed_now,
       missionId: row.mission_id,
       cycleKey: row.cycle_key,
+      rewardGp: row.reward_gp,
+      totalGp: row.total_gp,
+      ledgerId:
+        row.ledger_id ?? undefined,
+      claimedAt: row.claimed_at,
+    };
+  }
+
+  async claimAchievementReward(
+    achievementId: string,
+  ): Promise<AchievementGPRewardClaimResult> {
+    const normalizedAchievementId =
+      requireValue(
+        achievementId,
+        "Achievement ID",
+      );
+
+    const { data, error } = await supabase.rpc(
+      "claim_my_achievement_reward",
+      {
+        p_achievement_id:
+          normalizedAchievementId,
+      },
+    );
+
+    if (error) {
+      throw new Error(
+        `Achievement reward could not be claimed: ${error.message}`,
+      );
+    }
+
+    const normalizedData = Array.isArray(data)
+      ? data[0]
+      : data;
+
+    if (!normalizedData) {
+      throw new Error(
+        "Achievement reward claim returned no data.",
+      );
+    }
+
+    const row =
+      normalizedData as AchievementRewardClaimRow;
+
+    if (
+      typeof row.claimed_now !== "boolean" ||
+      typeof row.achievement_id !== "string" ||
+      typeof row.reward_gp !== "number" ||
+      typeof row.total_gp !== "number" ||
+      typeof row.claimed_at !== "string"
+    ) {
+      throw new Error(
+        "Achievement reward claim returned invalid data.",
+      );
+    }
+
+    return {
+      claimedNow: row.claimed_now,
+      achievementId: row.achievement_id,
       rewardGp: row.reward_gp,
       totalGp: row.total_gp,
       ledgerId:

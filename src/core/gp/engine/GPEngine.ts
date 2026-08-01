@@ -1,5 +1,6 @@
 import type {
   GenesisRewardProvider,
+  AchievementGPRewardClaimResult,
   GPRewardClaimResult,
   MissionGPRewardClaimResult,
 } from "../services/GPRewardService";
@@ -62,6 +63,20 @@ export class GPEngine {
     return gpRewardService.claimMissionReward(
       missionId,
       cycleKey,
+    );
+  }
+
+  async claimAchievementReward(
+    achievementId: string,
+  ): Promise<AchievementGPRewardClaimResult> {
+    if (!this.started) {
+      throw new Error(
+        "GP Engine must be started before claiming rewards.",
+      );
+    }
+
+    return gpRewardService.claimAchievementReward(
+      achievementId,
     );
   }
 

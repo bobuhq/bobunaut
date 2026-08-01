@@ -1,6 +1,7 @@
 import {
-  achievementProgressRepository,
-} from "../repository/AchievementProgressRepository";
+  gpEngine,
+  type AchievementGPRewardClaimResult,
+} from "../../gp";
 
 import {
   restoreAuthenticatedBuilder,
@@ -14,9 +15,9 @@ export class AchievementRewardService {
   async claim(
     builderId: string,
     achievementId: string,
-  ) {
+  ): Promise<AchievementGPRewardClaimResult> {
     const result =
-      await achievementProgressRepository.claimMine(
+      await gpEngine.claimAchievementReward(
         achievementId,
       );
 
