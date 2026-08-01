@@ -16,6 +16,10 @@ import {
   eventEngine,
 } from "../../../core/engine/eventEngine";
 
+import {
+  gpEngine,
+} from "../../../core/gp";
+
 const DEFAULT_SESSION_DURATION_MS =
   24 * 60 * 60 * 1000;
 
@@ -211,7 +215,7 @@ export function useBuilderMiningSession():
 
       try {
         const nextState = session.claimable
-          ? await builderMiningService.claim()
+          ? await gpEngine.claimMiningReward()
           : await builderMiningService.start();
 
         applyMiningState(nextState);

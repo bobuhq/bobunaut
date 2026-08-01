@@ -1,3 +1,8 @@
+import {
+  builderMiningService,
+  type BuilderMiningState,
+} from "../../builder/services/BuilderMiningService";
+
 import type {
   GenesisRewardProvider,
   AchievementGPRewardClaimResult,
@@ -78,6 +83,17 @@ export class GPEngine {
     return gpRewardService.claimAchievementReward(
       achievementId,
     );
+  }
+
+  async claimMiningReward():
+    Promise<BuilderMiningState> {
+    if (!this.started) {
+      throw new Error(
+        "GP Engine must be started before claiming rewards.",
+      );
+    }
+
+    return builderMiningService.claim();
   }
 
   /**
