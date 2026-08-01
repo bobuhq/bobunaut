@@ -1,16 +1,22 @@
 import {
-  FormEvent,
+  type FormEvent,
   useEffect,
+  useMemo,
   useState,
 } from "react";
 import {
+  CircleCheck,
+  CircleX,
   Eye,
   EyeOff,
   LoaderCircle,
   LockKeyhole,
   Mail,
+  ShieldCheck,
+  UserRound,
   X,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 import { supabase } from "../../lib/supabase";
 import "./BuilderAuthDialog.css";
@@ -25,11 +31,16 @@ type BuilderAuthDialogProps = {
   onClose: () => void;
 };
 
-const getRedirectUrl = (): string =>
+const getAppUrl = (): string =>
   new URL(
     import.meta.env.BASE_URL,
     window.location.origin,
   ).toString();
+
+const normalizeBuilderName = (
+  value: string,
+): string =>
+  value.trim().replace(/\s+/g, " ");
 
 export default function BuilderAuthDialog({
   open,
@@ -38,27 +49,73 @@ export default function BuilderAuthDialog({
   const [mode, setMode] =
     useState<AuthMode>("sign-in");
 
+  const [builderName, setBuilderName] =
+    useState("");
+
   const [email, setEmail] = useState("");
+
   const [password, setPassword] =
     useState("");
 
   const [confirmPassword, setConfirmPassword] =
     useState("");
 
-  const [showPassword, setShowPassword] =
+  const [showPasswords, setShowPasswords] =
     useState(false);
 
-  const [
-    showConfirmPassword,
-    setShowConfirmPassword,
-  ] = useState(false);
+  const [legalAccepted, setLegalAccepted] =
+    useState(false);
 
   const [busy, setBusy] = useState(false);
+
   const [message, setMessage] =
     useState<string | null>(null);
 
   const [errorMessage, setErrorMessage] =
     useState<string | null>(null);
+
+  const passwordRules = useMemo(
+    () => ({
+      length: password.length >= 8,
+      uppercase: /[A-Z]/.test(password),
+      lowercase: /[a-z]/.test(password),
+      number: /\d/.test(password),
+      symbol: /[^A-Za-z0-9]/.test(password),
+    }),
+    [password],
+  );
+
+  const passwordRuleCount =
+    Object.values(passwordRules).filter(Boolean)
+      .length;
+
+  const passwordStrong =
+    Object.values(passwordRules).every(Boolean);
+
+  const passwordsMatch =
+    confirmPassword.length > 0 &&
+    password === confirmPassword;
+
+  const normalizedBuilderName =
+    normalizeBuilderName(builderName);
+
+  const builderNameValid =
+    normalizedBuilderName.length >= 3 &&
+    normalizedBuilderName.length <= 32;
+
+  const signUpReady =
+    builderNameValid &&
+    email.trim().length > 0 &&
+    passwordStrong &&
+    passwordsMatch &&
+    legalAccepted;
+
+  const passwordStrengthLabel =
+    passwordRuleCount <= 2
+      ? "Weak"
+      : passwordRuleCount <= 4
+        ? "Medium"
+        : "Strong";
 
   useEffect(() => {
     if (!open) {
@@ -74,6 +131,7 @@ export default function BuilderAuthDialog({
     };
 
     document.body.style.overflow = "hidden";
+
     window.addEventListener(
       "keydown",
       handleEscape,
@@ -81,6 +139,7 @@ export default function BuilderAuthDialog({
 
     return () => {
       document.body.style.overflow = "";
+
       window.removeEventListener(
         "keydown",
         handleEscape,
@@ -92,8 +151,8 @@ export default function BuilderAuthDialog({
     setMessage(null);
     setErrorMessage(null);
     setConfirmPassword("");
-    setShowPassword(false);
-    setShowConfirmPassword(false);
+    setShowPasswords(false);
+    setLegalAccepted(false);
   }, [mode]);
 
   if (!open) {
@@ -109,7 +168,7 @@ export default function BuilderAuthDialog({
       await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: getRedirectUrl(),
+          redirectTo: getAppUrl(),
         },
       });
 
@@ -134,22 +193,42 @@ export default function BuilderAuthDialog({
       return;
     }
 
+    if (mode === "sign-up") {
+      if (!builderNameValid) {
+        setErrorMessage(
+          "Builder Name must contain between 3 and 32 characters.",
+        );
+        return;
+      }
+
+      if (!passwordStrong) {
+        setErrorMessage(
+          "Password must include uppercase and lowercase letters, a number, a symbol, and at least 8 characters.",
+        );
+        return;
+      }
+
+      if (!passwordsMatch) {
+        setErrorMessage(
+          "Passwords do not match.",
+        );
+        return;
+      }
+
+      if (!legalAccepted) {
+        setErrorMessage(
+          "You must accept the Terms of Service and Privacy Policy.",
+        );
+        return;
+      }
+    }
+
     if (
-      mode !== "forgot-password" &&
+      mode === "sign-in" &&
       password.length < 8
     ) {
       setErrorMessage(
         "Password must contain at least 8 characters.",
-      );
-      return;
-    }
-
-    if (
-      mode === "sign-up" &&
-      password !== confirmPassword
-    ) {
-      setErrorMessage(
-        "Passwords do not match.",
       );
       return;
     }
@@ -180,7 +259,15 @@ export default function BuilderAuthDialog({
             email: normalizedEmail,
             password,
             options: {
-              emailRedirectTo: getRedirectUrl(),
+              emailRedirectTo: getAppUrl(),
+              data: {
+                display_name:
+                  normalizedBuilderName,
+                full_name:
+                  normalizedBuilderName,
+                builder_name:
+                  normalizedBuilderName,
+              },
             },
           });
 
@@ -203,7 +290,10 @@ export default function BuilderAuthDialog({
         await supabase.auth.resetPasswordForEmail(
           normalizedEmail,
           {
-            redirectTo: getRedirectUrl(),
+            redirectTo: new URL(
+              "reset-password",
+              getAppUrl(),
+            ).toString(),
           },
         );
 
@@ -312,6 +402,52 @@ export default function BuilderAuthDialog({
             void handleSubmit(event)
           }
         >
+          {mode === "sign-up" && (
+            <label>
+              <span>Builder Name</span>
+
+              <div className="builder-auth-input">
+                <UserRound size={17} />
+
+                <input
+                  type="text"
+                  value={builderName}
+                  autoComplete="nickname"
+                  placeholder="Choose your Builder identity"
+                  minLength={3}
+                  maxLength={32}
+                  onChange={(event) =>
+                    setBuilderName(
+                      event.target.value,
+                    )
+                  }
+                  disabled={busy}
+                  required
+                />
+              </div>
+
+              {builderName.length > 0 && (
+                <small
+                  className={
+                    builderNameValid
+                      ? "builder-auth-field-state is-valid"
+                      : "builder-auth-field-state is-invalid"
+                  }
+                >
+                  {builderNameValid ? (
+                    <CircleCheck size={13} />
+                  ) : (
+                    <CircleX size={13} />
+                  )}
+
+                  {builderNameValid
+                    ? "Builder Name is ready."
+                    : "Use between 3 and 32 characters."}
+                </small>
+              )}
+            </label>
+          )}
+
           <label>
             <span>Email address</span>
 
@@ -341,7 +477,7 @@ export default function BuilderAuthDialog({
 
                 <input
                   type={
-                    showPassword
+                    showPasswords
                       ? "text"
                       : "password"
                   }
@@ -365,23 +501,94 @@ export default function BuilderAuthDialog({
                   type="button"
                   className="builder-auth-password-toggle"
                   onClick={() =>
-                    setShowPassword(
+                    setShowPasswords(
                       (current) => !current,
                     )
                   }
                   aria-label={
-                    showPassword
-                      ? "Hide password"
-                      : "Show password"
+                    showPasswords
+                      ? "Hide passwords"
+                      : "Show passwords"
                   }
                 >
-                  {showPassword ? (
+                  {showPasswords ? (
                     <EyeOff size={17} />
                   ) : (
                     <Eye size={17} />
                   )}
                 </button>
               </div>
+
+              {mode === "sign-up" &&
+                password.length > 0 && (
+                  <div className="builder-auth-strength">
+                    <div className="builder-auth-strength-heading">
+                      <span>Password strength</span>
+
+                      <strong
+                        className={`strength-${passwordStrengthLabel.toLowerCase()}`}
+                      >
+                        {passwordStrengthLabel}
+                      </strong>
+                    </div>
+
+                    <div className="builder-auth-strength-bars">
+                      {[1, 2, 3, 4, 5].map(
+                        (bar) => (
+                          <span
+                            key={bar}
+                            className={
+                              bar <=
+                              passwordRuleCount
+                                ? "is-active"
+                                : ""
+                            }
+                          />
+                        ),
+                      )}
+                    </div>
+
+                    <div className="builder-auth-password-rules">
+                      {[
+                        [
+                          passwordRules.length,
+                          "At least 8 characters",
+                        ],
+                        [
+                          passwordRules.uppercase,
+                          "Uppercase letter",
+                        ],
+                        [
+                          passwordRules.lowercase,
+                          "Lowercase letter",
+                        ],
+                        [
+                          passwordRules.number,
+                          "Number",
+                        ],
+                        [
+                          passwordRules.symbol,
+                          "Special character",
+                        ],
+                      ].map(([valid, label]) => (
+                        <span
+                          key={String(label)}
+                          className={
+                            valid ? "is-valid" : ""
+                          }
+                        >
+                          {valid ? (
+                            <CircleCheck size={13} />
+                          ) : (
+                            <CircleX size={13} />
+                          )}
+
+                          {String(label)}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
             </label>
           )}
 
@@ -394,7 +601,7 @@ export default function BuilderAuthDialog({
 
                 <input
                   type={
-                    showConfirmPassword
+                    showPasswords
                       ? "text"
                       : "password"
                   }
@@ -414,17 +621,17 @@ export default function BuilderAuthDialog({
                   type="button"
                   className="builder-auth-password-toggle"
                   onClick={() =>
-                    setShowConfirmPassword(
+                    setShowPasswords(
                       (current) => !current,
                     )
                   }
                   aria-label={
-                    showConfirmPassword
-                      ? "Hide confirmed password"
-                      : "Show confirmed password"
+                    showPasswords
+                      ? "Hide passwords"
+                      : "Show passwords"
                   }
                 >
-                  {showConfirmPassword ? (
+                  {showPasswords ? (
                     <EyeOff size={17} />
                   ) : (
                     <Eye size={17} />
@@ -435,16 +642,62 @@ export default function BuilderAuthDialog({
               {confirmPassword.length > 0 && (
                 <small
                   className={
-                    password === confirmPassword
-                      ? "builder-auth-password-match is-valid"
-                      : "builder-auth-password-match is-invalid"
+                    passwordsMatch
+                      ? "builder-auth-field-state is-valid"
+                      : "builder-auth-field-state is-invalid"
                   }
                 >
-                  {password === confirmPassword
+                  {passwordsMatch ? (
+                    <CircleCheck size={13} />
+                  ) : (
+                    <CircleX size={13} />
+                  )}
+
+                  {passwordsMatch
                     ? "Passwords match."
                     : "Passwords do not match."}
                 </small>
               )}
+            </label>
+          )}
+
+          {mode === "sign-up" && (
+            <label className="builder-auth-legal">
+              <input
+                type="checkbox"
+                checked={legalAccepted}
+                onChange={(event) =>
+                  setLegalAccepted(
+                    event.target.checked,
+                  )
+                }
+                disabled={busy}
+                required
+              />
+
+              <span className="builder-auth-legal-box">
+                {legalAccepted && (
+                  <CircleCheck size={15} />
+                )}
+              </span>
+
+              <span>
+                I have read and agree to the{" "}
+                <Link
+                  to="/terms"
+                  onClick={onClose}
+                >
+                  Terms of Service
+                </Link>{" "}
+                and{" "}
+                <Link
+                  to="/privacy"
+                  onClick={onClose}
+                >
+                  Privacy Policy
+                </Link>
+                .
+              </span>
             </label>
           )}
 
@@ -467,10 +720,7 @@ export default function BuilderAuthDialog({
               busy ||
               (
                 mode === "sign-up" &&
-                (
-                  !confirmPassword ||
-                  password !== confirmPassword
-                )
+                !signUpReady
               )
             }
           >
@@ -482,14 +732,27 @@ export default function BuilderAuthDialog({
             )}
 
             {mode === "sign-up"
-              ? "Create Account"
+              ? "Create Builder Account"
               : mode === "forgot-password"
                 ? "Send Recovery Link"
                 : "Sign In"}
           </button>
+
+          {mode === "sign-up" &&
+            !signUpReady && (
+              <p className="builder-auth-submit-help">
+                Complete all required security
+                fields to create your account.
+              </p>
+            )}
         </form>
 
         <footer className="builder-auth-footer">
+          <span className="builder-auth-security-note">
+            <ShieldCheck size={14} />
+            Secured by BOBU Identity Gateway
+          </span>
+
           {mode === "sign-in" && (
             <>
               <button

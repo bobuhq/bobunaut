@@ -96,6 +96,14 @@ const AdminAnalytics = lazy(
 const AdminLogin = lazy(
   () => import("../features/admin/AdminLogin"),
 );
+
+const PrivacyPolicy = lazy(
+  () => import("../features/legal/PrivacyPolicy"),
+);
+
+const TermsOfService = lazy(
+  () => import("../features/legal/TermsOfService"),
+);
 import { BuilderInviteEntry } from "../features/invite/BuilderInviteEntry";
 
 export function App() {
@@ -127,6 +135,16 @@ export function App() {
         <Route path="/genesis" element={<Genesis />} />
 
         <Route element={<Shell />}>
+          <Route
+            path="/privacy"
+            element={<PrivacyPolicy />}
+          />
+
+          <Route
+            path="/terms"
+            element={<TermsOfService />}
+          />
+
           <Route path="/" element={<Home />} />
           <Route path="/command-deck" element={<Deck />} />
           <Route path="/identity" element={<BuilderIdentity />} />
