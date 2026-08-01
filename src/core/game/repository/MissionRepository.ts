@@ -195,6 +195,20 @@ export class MissionRepository {
       (progress) => ({ ...progress }),
     );
   }
+
+  /**
+   * Clears all authenticated Builder mission state.
+   *
+   * Definitions remain immutable and are not removed.
+   */
+  reset(): void {
+    if (this.progressByBuilder.size === 0) {
+      return;
+    }
+
+    this.progressByBuilder.clear();
+    this.emitChange();
+  }
 }
 
 export const missionRepository =

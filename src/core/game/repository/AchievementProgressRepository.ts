@@ -82,6 +82,21 @@ const mapAchievementProgressRow = (
   };
 };
 
+const requireBuilderId = (
+  builderId: string,
+): string => {
+  const normalizedBuilderId =
+    builderId.trim();
+
+  if (normalizedBuilderId.length === 0) {
+    throw new Error(
+      "Builder ID is required to load achievement progress.",
+    );
+  }
+
+  return normalizedBuilderId;
+};
+
 const requireAchievementId = (
   achievementId: string,
 ): string => {
@@ -98,12 +113,16 @@ const requireAchievementId = (
 };
 
 export class AchievementProgressRepository {
-  async loadByBuilder(): Promise<
-    AchievementProgress[]
-  > {
+  async loadByBuilder(
+    builderId: string,
+  ): Promise<AchievementProgress[]> {
+    const normalizedBuilderId =
+      requireBuilderId(builderId);
+
     const { data, error } = await supabase
       .from("achievement_progress")
       .select(achievementProgressColumns)
+      .eq("builder_id", normalizedBuilderId)
       .order("created_at", {
         ascending: true,
       })

@@ -1,32 +1,46 @@
 import {
   useEffect,
+  useRef,
   type ReactNode,
 } from "react";
+
+import { supabase } from "../../lib/supabase";
+import { builderStore } from "../../store/builderStore";
 
 import { useAuthSession } from "../auth/useAuthSession";
 import {
   attributePendingBuilderInvite,
   restoreAuthenticatedBuilder,
 } from "../builder";
-import { preferencesService } from "../preferences";
-import { missionProgressRestoreService } from "../game/services/MissionProgressRestoreService";
-import { builderStore } from "../../store/builderStore";
 import { coreEngine } from "../engine";
+import {
+  achievementRepository,
+} from "../game/repository/AchievementRepository";
+import {
+  missionRepository,
+} from "../game/repository/MissionRepository";
+import {
+  achievementProgressRestoreService,
+} from "../game/services/AchievementProgressRestoreService";
+import {
+  missionProgressRestoreService,
+} from "../game/services/MissionProgressRestoreService";
+import { preferencesService } from "../preferences";
 
 interface ApplicationBootstrapProps {
   children: ReactNode;
 }
 
 /**
- * Coordinates application-level restore and reset operations.
+ * Coordinates authenticated application restore.
  *
- * This component is intentionally independent from the UI.
- * Web and future mobile clients can follow the same bootstrap flow:
+ * Security and consistency guarantees:
  *
- * 1. Resolve authenticated session.
- * 2. Attribute a pending Builder invitation.
- * 3. Restore Builder and Preferences state.
- * 4. Reset all client stores after logout.
+ * - Previous Builder state is removed immediately on session change.
+ * - Only the latest bootstrap generation may start Core Engine.
+ * - Delayed queries cannot publish progress for a different session.
+ * - Builder restore is mandatory; optional module failures are isolated.
+ * - Logout clears all authenticated in-memory state.
  */
 export function ApplicationBootstrap({
   children,
@@ -34,29 +48,42 @@ export function ApplicationBootstrap({
   const { session, loading } = useAuthSession();
   const builderId = session?.user.id;
 
+  const bootstrapGeneration = useRef(0);
+
   useEffect(() => {
-    if (loading) {
-      return;
-    }
-
-    if (!builderId) {
-      coreEngine.stop();
-
-      builderStore.reset();
-      preferencesService.reset();
-
-      return;
-    }
+    const generation =
+      ++bootstrapGeneration.current;
 
     let cancelled = false;
+
+    const isCurrentGeneration = (): boolean =>
+      !cancelled &&
+      bootstrapGeneration.current === generation;
+
+    /*
+     * Stop event processing and remove the previous authenticated
+     * Builder immediately. This prevents account A data from being
+     * rendered while account B is restoring.
+     */
+    coreEngine.stop();
+
+    builderStore.reset();
+    preferencesService.reset();
+    missionRepository.reset();
+    achievementRepository.reset();
+
+    if (loading || !builderId) {
+      return () => {
+        cancelled = true;
+      };
+    }
 
     const bootstrapApplication =
       async (): Promise<void> => {
         try {
           /*
-           * Invitation attribution must complete before the
-           * Builder snapshot is loaded. Otherwise referral data
-           * restored immediately afterward could be stale.
+           * Referral attribution must finish before Builder restore,
+           * otherwise the restored network snapshot may be stale.
            */
           await attributePendingBuilderInvite();
         } catch (error) {
@@ -66,30 +93,39 @@ export function ApplicationBootstrap({
           );
         }
 
-        if (cancelled) {
-          return;
-        }
-
-        const restoreResults =
-          await Promise.allSettled([
-            restoreAuthenticatedBuilder(builderId),
-            preferencesService.restore(builderId),
-          ]);
-
-        if (cancelled) {
+        if (!isCurrentGeneration()) {
           return;
         }
 
         const [
           builderRestore,
           preferencesRestore,
-        ] = restoreResults;
+        ] = await Promise.allSettled([
+          restoreAuthenticatedBuilder(builderId),
+          preferencesService.restore(builderId),
+        ]);
 
-        if (builderRestore.status === "rejected") {
+        if (!isCurrentGeneration()) {
+          return;
+        }
+
+        /*
+         * Builder restore is the mandatory Core dependency.
+         * Do not start engines with an absent or failed identity.
+         */
+        if (
+          builderRestore.status === "rejected" ||
+          builderRestore.value === null
+        ) {
           console.error(
             "Authenticated Builder restore failed:",
-            builderRestore.reason,
+            builderRestore.status === "rejected"
+              ? builderRestore.reason
+              : "Authenticated session changed during restore.",
           );
+
+          builderStore.reset();
+          return;
         }
 
         if (
@@ -101,22 +137,54 @@ export function ApplicationBootstrap({
           );
         }
 
-        if (cancelled) {
+        const [
+          missionRestore,
+          achievementRestore,
+        ] = await Promise.allSettled([
+          missionProgressRestoreService.restore(
+            builderId,
+          ),
+          achievementProgressRestoreService.restore(
+            builderId,
+          ),
+        ]);
+
+        if (!isCurrentGeneration()) {
           return;
         }
 
-        try {
-          await missionProgressRestoreService.restore(
-            builderId,
-          );
-
-          coreEngine.start();
-        } catch (error) {
+        if (missionRestore.status === "rejected") {
           console.error(
             "Mission progress restore failed:",
-            error,
+            missionRestore.reason,
           );
         }
+
+        if (
+          achievementRestore.status === "rejected"
+        ) {
+          console.error(
+            "Achievement progress restore failed:",
+            achievementRestore.reason,
+          );
+        }
+
+        /*
+         * Verify the active authenticated owner one final time before
+         * enabling GP, network and game event processing.
+         */
+        const {
+          data: { session: currentSession },
+        } = await supabase.auth.getSession();
+
+        if (
+          !isCurrentGeneration() ||
+          currentSession?.user.id !== builderId
+        ) {
+          return;
+        }
+
+        coreEngine.start();
       };
 
     void bootstrapApplication();
