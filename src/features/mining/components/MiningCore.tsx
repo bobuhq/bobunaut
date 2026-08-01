@@ -85,16 +85,22 @@ export default function MiningCore({
           {status}
         </div>
 
-        <div className="mining-timer">
-          {isActive
-            ? remainingTime
-            : claimable
-              ? "00:00:00"
-              : "24:00:00"}
+        <div className="mining-timer-block">
+          <span className="mining-timer-label">
+            Time Remaining
+          </span>
+
+          <div className="mining-timer">
+            {isActive
+              ? remainingTime
+              : claimable
+                ? "00:00:00"
+                : "24:00:00"}
+          </div>
         </div>
 
         <div className="mining-live-earned">
-          <span>Session Earned</span>
+          <span>Current Session</span>
 
           <strong>
             {sessionEarnedGp.toFixed(5)} GP

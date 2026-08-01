@@ -65,11 +65,11 @@ export default function BuilderMining() {
       icon: Zap,
     },
     {
-      label: "Wallet GP",
+      label: "Total GP",
       value: (
         miningState?.walletGp ?? 0
       ).toLocaleString("en-US"),
-      detail: "Available Builder balance",
+      detail: "Locked until Wallet Activation",
       icon: Gem,
     },
     {
@@ -598,11 +598,26 @@ export default function BuilderMining() {
             0 0 24px rgba(114, 247, 197, 0.36);
         }
 
-        .mining-timer {
+        .mining-timer-block {
+          display: grid;
+          justify-items: center;
+          gap: 7px;
           margin-top: 14px;
+        }
+
+        .mining-timer-label {
+          color: rgba(225, 231, 255, 0.5);
+          font-size: 10px;
+          font-weight: 800;
+          letter-spacing: 0.18em;
+          text-transform: uppercase;
+        }
+
+        .mining-timer {
           font-size: clamp(38px, 6vw, 62px);
           font-weight: 900;
           letter-spacing: 0.05em;
+          font-variant-numeric: tabular-nums;
         }
 
         .mining-live-earned {
@@ -900,7 +915,7 @@ export default function BuilderMining() {
               {errorMessage
                 ? errorMessage
                 : claimable
-                  ? "Your 24-hour mining session is complete. Claim the earned GP to your Builder wallet."
+                  ? "Your 24-hour mining session is complete. Claim the earned GP to your Personal GP balance."
                   : isActive
                     ? `Mining is active with ${
                         miningState?.activeReferralCount ?? 0
