@@ -11,6 +11,21 @@ import type {
   BuilderSocialIdentityRow,
 } from "../types";
 
+const toNonNegativeNumber = (
+  value: number | string | null | undefined,
+): number => {
+  const normalized = Number(value ?? 0);
+
+  if (
+    !Number.isFinite(normalized) ||
+    normalized < 0
+  ) {
+    return 0;
+  }
+
+  return normalized;
+};
+
 const supportedIdentityProviders: ReadonlySet<IdentityProvider> =
   new Set([
     "telegram",
@@ -73,7 +88,16 @@ const mapProfile = (
       initialBuilder.username,
     level: profile.level,
     xp: profile.xp,
-    gp: profile.gp,
+    personalGp: toNonNegativeNumber(
+      profile.personal_gp,
+    ),
+    pendingNetworkGp: toNonNegativeNumber(
+      profile.pending_network_gp,
+    ),
+    eligibleNetworkGp: toNonNegativeNumber(
+      profile.eligible_network_gp,
+    ),
+    gp: toNonNegativeNumber(profile.gp),
     reputation: profile.reputation,
     inviteCode:
       profile.invite_code ??

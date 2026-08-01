@@ -10,7 +10,10 @@ export interface BuilderProfileRow {
   display_name: string | null;
   level: number;
   xp: number;
-  gp: number;
+  personal_gp: number | string | null;
+  pending_network_gp: number | string | null;
+  eligible_network_gp: number | string | null;
+  gp: number | string | null;
   reputation: number;
   invite_code: string | null;
   referral_count: number;

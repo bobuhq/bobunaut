@@ -16,7 +16,30 @@ export interface Builder {
   username: string;
   level: number;
   xp: number;
+
+  /**
+   * GP earned directly through the Builder's own activity.
+   */
+  personalGp: number;
+
+  /**
+   * Network GP that has not yet satisfied eligibility rules.
+   * This balance does not count toward total GP.
+   */
+  pendingNetworkGp: number;
+
+  /**
+   * Eligible Network GP that counts toward total GP.
+   */
+  eligibleNetworkGp: number;
+
+  /**
+   * Authoritative total GP.
+   *
+   * gp = personalGp + eligibleNetworkGp
+   */
   gp: number;
+
   reputation: number;
 
   /**
@@ -38,6 +61,9 @@ export const createInitialBuilder = (): Builder => ({
   username: "New Builder",
   level: 1,
   xp: 0,
+  personalGp: 0,
+  pendingNetworkGp: 0,
+  eligibleNetworkGp: 0,
   gp: 0,
   reputation: 0,
 
