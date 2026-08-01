@@ -42,8 +42,16 @@ export default function BuilderAuthDialog({
   const [password, setPassword] =
     useState("");
 
+  const [confirmPassword, setConfirmPassword] =
+    useState("");
+
   const [showPassword, setShowPassword] =
     useState(false);
+
+  const [
+    showConfirmPassword,
+    setShowConfirmPassword,
+  ] = useState(false);
 
   const [busy, setBusy] = useState(false);
   const [message, setMessage] =
@@ -83,6 +91,9 @@ export default function BuilderAuthDialog({
   useEffect(() => {
     setMessage(null);
     setErrorMessage(null);
+    setConfirmPassword("");
+    setShowPassword(false);
+    setShowConfirmPassword(false);
   }, [mode]);
 
   if (!open) {
@@ -129,6 +140,16 @@ export default function BuilderAuthDialog({
     ) {
       setErrorMessage(
         "Password must contain at least 8 characters.",
+      );
+      return;
+    }
+
+    if (
+      mode === "sign-up" &&
+      password !== confirmPassword
+    ) {
+      setErrorMessage(
+        "Passwords do not match.",
       );
       return;
     }
@@ -364,6 +385,69 @@ export default function BuilderAuthDialog({
             </label>
           )}
 
+          {mode === "sign-up" && (
+            <label>
+              <span>Confirm password</span>
+
+              <div className="builder-auth-input">
+                <LockKeyhole size={17} />
+
+                <input
+                  type={
+                    showConfirmPassword
+                      ? "text"
+                      : "password"
+                  }
+                  value={confirmPassword}
+                  autoComplete="new-password"
+                  placeholder="Enter password again"
+                  onChange={(event) =>
+                    setConfirmPassword(
+                      event.target.value,
+                    )
+                  }
+                  disabled={busy}
+                  required
+                />
+
+                <button
+                  type="button"
+                  className="builder-auth-password-toggle"
+                  onClick={() =>
+                    setShowConfirmPassword(
+                      (current) => !current,
+                    )
+                  }
+                  aria-label={
+                    showConfirmPassword
+                      ? "Hide confirmed password"
+                      : "Show confirmed password"
+                  }
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff size={17} />
+                  ) : (
+                    <Eye size={17} />
+                  )}
+                </button>
+              </div>
+
+              {confirmPassword.length > 0 && (
+                <small
+                  className={
+                    password === confirmPassword
+                      ? "builder-auth-password-match is-valid"
+                      : "builder-auth-password-match is-invalid"
+                  }
+                >
+                  {password === confirmPassword
+                    ? "Passwords match."
+                    : "Passwords do not match."}
+                </small>
+              )}
+            </label>
+          )}
+
           {errorMessage && (
             <p className="builder-auth-message is-error">
               {errorMessage}
@@ -379,7 +463,16 @@ export default function BuilderAuthDialog({
           <button
             type="submit"
             className="builder-auth-submit"
-            disabled={busy}
+            disabled={
+              busy ||
+              (
+                mode === "sign-up" &&
+                (
+                  !confirmPassword ||
+                  password !== confirmPassword
+                )
+              )
+            }
           >
             {busy && (
               <LoaderCircle
