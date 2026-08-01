@@ -451,3 +451,9 @@ entrypoint = "./functions/create-telegram-link/index.ts"
 # Specifies static files to be bundled with the function. Supports glob patterns.
 # For example, if you want to serve static HTML pages in your function:
 # static_files = [ "./functions/create-telegram-link/*.html" ]
+
+[functions.bobu-ai]
+enabled = true
+verify_jwt = false
+import_map = "./functions/bobu-ai/deno.json"
+entrypoint = "./functions/bobu-ai/index.ts"

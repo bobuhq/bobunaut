@@ -1,7 +1,7 @@
 import { Outlet } from "react-router-dom";
 import { Nav } from "../shared/Nav";
 import { Stars } from "../shared/Stars";
-import { Wizard } from "../features/Wizard";
+import { BobuAI } from "../features/ai/BobuAI";
 
 export function Shell() {
   return (
@@ -13,7 +13,7 @@ export function Shell() {
         <Outlet />
       </main>
 
-      <Wizard />
+      <BobuAI />
     </div>
   );
 }
