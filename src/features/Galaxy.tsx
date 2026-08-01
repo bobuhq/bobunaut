@@ -1146,9 +1146,30 @@ export function Galaxy() {
 
           <div className="galaxy-side-stats">
             <div className="galaxy-side-stat">
-              <span>Builder GP</span>
+              <span>Personal GP</span>
               <strong>
-                {builder.gp.toLocaleString("tr-TR")}
+                {builder.personalGp.toLocaleString("en-US")}
+              </strong>
+            </div>
+
+            <div className="galaxy-side-stat">
+              <span>Pending Network GP</span>
+              <strong>
+                {builder.pendingNetworkGp.toLocaleString("en-US")}
+              </strong>
+            </div>
+
+            <div className="galaxy-side-stat">
+              <span>Eligible Network GP</span>
+              <strong>
+                {builder.eligibleNetworkGp.toLocaleString("en-US")}
+              </strong>
+            </div>
+
+            <div className="galaxy-side-stat">
+              <span>Total GP</span>
+              <strong>
+                {builder.gp.toLocaleString("en-US")}
               </strong>
             </div>
 
@@ -1212,7 +1233,7 @@ export function Galaxy() {
             <div className="galaxy-top-stat">
               <span>Total GP</span>
               <strong>
-                {builder.gp.toLocaleString("tr-TR")}
+                {builder.gp.toLocaleString("en-US")}
               </strong>
             </div>
 
