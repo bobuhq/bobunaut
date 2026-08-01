@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { supabase } from "../lib/supabase";
+import BuilderAuthDialog from "../features/auth/BuilderAuthDialog";
 import { useAuthSession } from "../core/auth/useAuthSession";
 import { useBuilderStore } from "../features/identity/hooks/useBuilderStore";
 import { useLanguage } from "../core/language";
@@ -93,6 +94,8 @@ export function Nav() {
     t,
   } = useLanguage();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [authDialogOpen, setAuthDialogOpen] =
+    useState(false);
   const [logoSource, setLogoSource] = useState(buboLogoUrl);
   const [logoVisible, setLogoVisible] = useState(true);
   const builder = useBuilderStore();
@@ -118,23 +121,11 @@ export function Nav() {
     setLogoVisible(false);
   };
 
-  const handleGoogleLogin = async () => {
-    const redirectUrl = new URL(
-      import.meta.env.BASE_URL,
-      window.location.origin,
-    ).toString();
-
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: redirectUrl,
-      },
-    });
-
-    if (error) {
-      alert(t("auth.googleLoginError", { message: error.message }));
-    }
+  const openAuthDialog = () => {
+    setMobileOpen(false);
+    setAuthDialogOpen(true);
   };
+
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut({
@@ -1051,7 +1042,7 @@ export function Nav() {
             <button
               type="button"
               className="bobu-auth-button"
-              onClick={handleGoogleLogin}
+              onClick={openAuthDialog}
             >
               <LogIn size={16} />
               <span>{t("auth.login")}</span>
@@ -1196,7 +1187,7 @@ export function Nav() {
               <button
                 type="button"
                 className="bobu-auth-button"
-                onClick={handleGoogleLogin}
+                onClick={openAuthDialog}
               >
                 <LogIn size={16} />
                 <span>{t("auth.login")}</span>
@@ -1210,6 +1201,11 @@ export function Nav() {
           </div>
         </div>
       </nav>
+
+      <BuilderAuthDialog
+        open={authDialogOpen}
+        onClose={() => setAuthDialogOpen(false)}
+      />
     </header>
   );
 }

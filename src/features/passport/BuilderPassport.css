@@ -677,3 +677,46 @@
     grid-template-columns: 1fr;
   }
 }
+
+        .builder-passport-referral-link {
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) auto;
+          align-items: center;
+          gap: 12px;
+          margin-top: 12px;
+          padding: 13px 14px;
+          border: 1px solid rgba(146, 112, 255, 0.2);
+          border-radius: 15px;
+          background: rgba(116, 72, 255, 0.055);
+        }
+
+        .builder-passport-referral-link > div {
+          display: grid;
+          min-width: 0;
+          gap: 6px;
+        }
+
+        .builder-passport-referral-link code {
+          overflow: hidden;
+          color: rgba(238, 240, 255, 0.82);
+          font-size: 11px;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .builder-passport-referral-link button {
+          display: grid;
+          width: 36px;
+          height: 36px;
+          place-items: center;
+          border: 1px solid rgba(157, 124, 255, 0.2);
+          border-radius: 11px;
+          color: #e9e5ff;
+          background: rgba(255, 255, 255, 0.04);
+          cursor: pointer;
+        }
+
+        .builder-passport-referral-link button:disabled {
+          cursor: not-allowed;
+          opacity: 0.4;
+        }

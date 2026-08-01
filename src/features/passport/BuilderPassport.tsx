@@ -56,6 +56,9 @@ export function BuilderPassport() {
   const [copiedInviteCode, setCopiedInviteCode] =
     useState(false);
 
+  const [copiedReferralUrl, setCopiedReferralUrl] =
+    useState(false);
+
   const verified =
     builder.identity.telegram &&
     builder.identity.x;
@@ -67,6 +70,15 @@ export function BuilderPassport() {
     "passport",
     window.location.origin + import.meta.env.BASE_URL,
   ).toString();
+
+  const referralUrl =
+    builder.inviteCode &&
+    builder.inviteCode !== "BOBU-GENESIS"
+      ? new URL(
+          `join/${encodeURIComponent(builder.inviteCode)}`,
+          window.location.origin + import.meta.env.BASE_URL,
+        ).toString()
+      : null;
 
   const copyBuilderId = async () => {
     await navigator.clipboard.writeText(builder.id);
@@ -83,6 +95,19 @@ export function BuilderPassport() {
 
     window.setTimeout(() => {
       setCopiedInviteCode(false);
+    }, 1800);
+  };
+
+  const copyReferralUrl = async () => {
+    if (!referralUrl) {
+      return;
+    }
+
+    await navigator.clipboard.writeText(referralUrl);
+    setCopiedReferralUrl(true);
+
+    window.setTimeout(() => {
+      setCopiedReferralUrl(false);
     }, 1800);
   };
 
@@ -507,6 +532,31 @@ export function BuilderPassport() {
                   aria-label="Copy invite code"
                 >
                   {copiedInviteCode ? (
+                    <BadgeCheck size={16} />
+                  ) : (
+                    <Copy size={16} />
+                  )}
+                </button>
+              </div>
+
+              <div className="builder-passport-referral-link">
+                <div>
+                  <span className="builder-passport-id-label">
+                    Referral Link
+                  </span>
+
+                  <code>
+                    {referralUrl ?? "Available after invite activation"}
+                  </code>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => void copyReferralUrl()}
+                  disabled={!referralUrl}
+                  aria-label="Copy referral link"
+                >
+                  {copiedReferralUrl ? (
                     <BadgeCheck size={16} />
                   ) : (
                     <Copy size={16} />
