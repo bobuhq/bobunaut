@@ -51,7 +51,7 @@ const navItems = [
     to: "/wallet",
     labelKey: "nav.wallet",
     icon: WalletCards,
-    locked: true,
+    locked: false,
   },
   {
     to: "/mining",
