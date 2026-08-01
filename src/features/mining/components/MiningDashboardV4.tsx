@@ -1,14 +1,10 @@
 import {
-  Activity,
   CalendarDays,
   CheckCircle2,
-  Clock3,
   Flame,
   Gem,
-  Orbit,
-  RadioTower,
+  Network,
   ShieldCheck,
-  Sparkles,
   Trophy,
   Zap,
 } from "lucide-react";
@@ -16,7 +12,6 @@ import {
 import type {
   MiningHistoryEntry,
 } from "../services/MiningHistoryService";
-
 import type {
   MiningStreakSnapshot,
 } from "../services/MiningStreakService";
@@ -35,8 +30,6 @@ type MiningDashboardV4Props = {
   referralBonusRate: number;
   totalRatePerHour: number;
   walletGp: number;
-  sessionId: string | null;
-  serverNow: string | null;
   activeReferralCount: number;
 };
 
@@ -69,7 +62,6 @@ const formatDateTime = (
   return new Intl.DateTimeFormat("en-US", {
     month: "short",
     day: "numeric",
-    year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
   }).format(date);
@@ -78,10 +70,7 @@ const formatDateTime = (
 const toUtcDateKey = (value: Date): string =>
   [
     value.getUTCFullYear(),
-    String(value.getUTCMonth() + 1).padStart(
-      2,
-      "0",
-    ),
+    String(value.getUTCMonth() + 1).padStart(2, "0"),
     String(value.getUTCDate()).padStart(2, "0"),
   ].join("-");
 
@@ -90,9 +79,7 @@ const createCalendarDays = (
 ): CalendarDay[] => {
   const claimedDays = new Set(
     entries.map((entry) => {
-      const source =
-        entry.endsAt ?? entry.createdAt;
-
+      const source = entry.endsAt ?? entry.createdAt;
       return toUtcDateKey(new Date(source));
     }),
   );
@@ -116,8 +103,7 @@ const createCalendarDays = (
       day: date.getUTCDate(),
       date,
       claimed: claimedDays.has(key),
-      today:
-        key === toUtcDateKey(today),
+      today: key === toUtcDateKey(today),
     });
   }
 
@@ -126,36 +112,22 @@ const createCalendarDays = (
 
 const getNextMilestone = (
   currentStreak: number,
-): {
-  target: number;
-  label: string;
-} => {
+): { target: number; label: string } => {
   if (currentStreak < 7) {
-    return {
-      target: 7,
-      label: "7 Day Consistency",
-    };
+    return { target: 7, label: "7 Day Consistency" };
   }
 
   if (currentStreak < 30) {
-    return {
-      target: 30,
-      label: "30 Day Mining Discipline",
-    };
+    return { target: 30, label: "30 Day Discipline" };
   }
 
   if (currentStreak < 100) {
-    return {
-      target: 100,
-      label: "100 Day Mining Veteran",
-    };
+    return { target: 100, label: "100 Day Veteran" };
   }
 
   return {
-    target:
-      Math.ceil((currentStreak + 1) / 100) *
-      100,
-    label: "Legendary Mining Streak",
+    target: Math.ceil((currentStreak + 1) / 100) * 100,
+    label: "Legendary Streak",
   };
 };
 
@@ -173,92 +145,27 @@ export default function MiningDashboardV4({
   referralBonusRate,
   totalRatePerHour,
   walletGp,
-  sessionId,
-  serverNow,
   activeReferralCount,
 }: MiningDashboardV4Props) {
-  const currentStreak =
-    streak?.currentStreakDays ?? 0;
-
-  const bestStreak =
-    streak?.bestStreakDays ?? 0;
-
-  const totalSessions =
-    streak?.totalClaimedSessions ?? 0;
-
-  const lifetimeGp =
-    streak?.lifetimeMinedGp ?? 0;
-
-  const calendarDays =
-    createCalendarDays(historyEntries);
-
-  const nextMilestone =
-    getNextMilestone(currentStreak);
-
+  const currentStreak = streak?.currentStreakDays ?? 0;
+  const bestStreak = streak?.bestStreakDays ?? 0;
+  const totalSessions = streak?.totalClaimedSessions ?? 0;
+  const lifetimeGp = streak?.lifetimeMinedGp ?? 0;
+  const calendarDays = createCalendarDays(historyEntries);
+  const milestone = getNextMilestone(currentStreak);
   const milestoneProgress = Math.min(
     100,
-    (
-      currentStreak /
-      Math.max(nextMilestone.target, 1)
-    ) *
-      100,
+    (currentStreak / Math.max(milestone.target, 1)) * 100,
   );
 
-  const milestoneDaysRemaining = Math.max(
-    0,
-    nextMilestone.target - currentStreak,
-  );
-
-  const sessionStatus = claimable
-    ? "Ready to Claim"
+  const miningStateLabel = claimable
+    ? "Reward Ready"
     : isActive
       ? "Mining Active"
       : "Ready to Activate";
 
-  const intelligenceMessage = claimable
-    ? "Your verified session is complete. Claim the reward to update Personal GP and mining history."
-    : isActive
-      ? `Your mining network is online with ${activeReferralCount} active Builder${
-          activeReferralCount === 1 ? "" : "s"
-        } supporting the current rate.`
-      : "Activate a new server-verified 24-hour session to continue building your mining consistency.";
-
-  const quote =
-    currentStreak >= 30
-      ? "Civilizations are built by Builders who return every day."
-      : currentStreak >= 7
-        ? "Consistency transforms activity into reputation."
-        : "The universe rewards consistency, not luck.";
-
   return (
     <section className="mining-v4">
-      <div className="mining-v4-heading">
-        <div>
-          <span className="mining-v4-eyebrow">
-            <Sparkles size={15} />
-            Server-Authoritative Intelligence
-          </span>
-
-          <h2>Mining Command Center</h2>
-
-          <p>
-            Live session, streak and lifetime mining
-            intelligence verified by BOBU Core.
-          </p>
-        </div>
-
-        <span
-          className={`mining-v4-live-status ${
-            isActive || claimable
-              ? "is-online"
-              : ""
-          }`}
-        >
-          <RadioTower size={14} />
-          {sessionStatus}
-        </span>
-      </div>
-
       {streakErrorMessage && (
         <div className="mining-v4-error">
           {streakErrorMessage}
@@ -268,193 +175,56 @@ export default function MiningDashboardV4({
       <div className="mining-v4-stat-grid">
         <article className="mining-v4-stat">
           <span className="mining-v4-stat-icon is-fire">
-            <Flame size={21} />
+            <Flame size={22} />
           </span>
-
           <span>Current Streak</span>
-
           <strong>
-            {streakLoading
-              ? "—"
-              : `${currentStreak} Days`}
+            {streakLoading ? "—" : `${currentStreak} Days`}
           </strong>
-
-          <small>
-            {streak?.streakActiveToday
-              ? "Protected today"
-              : "Complete today's session"}
-          </small>
         </article>
 
         <article className="mining-v4-stat">
           <span className="mining-v4-stat-icon">
-            <Trophy size={21} />
+            <Trophy size={22} />
           </span>
-
           <span>Best Streak</span>
-
           <strong>
-            {streakLoading
-              ? "—"
-              : `${bestStreak} Days`}
+            {streakLoading ? "—" : `${bestStreak} Days`}
           </strong>
-
-          <small>Verified lifetime record</small>
         </article>
 
         <article className="mining-v4-stat">
           <span className="mining-v4-stat-icon is-gp">
-            <Gem size={21} />
+            <Gem size={22} />
           </span>
-
           <span>Lifetime Mined</span>
-
           <strong>
-            {streakLoading
-              ? "—"
-              : `${formatGp(lifetimeGp)} GP`}
+            {streakLoading ? "—" : `${formatGp(lifetimeGp)} GP`}
           </strong>
-
-          <small>Claimed mining rewards</small>
         </article>
 
         <article className="mining-v4-stat">
           <span className="mining-v4-stat-icon">
-            <CheckCircle2 size={21} />
+            <CheckCircle2 size={22} />
           </span>
-
           <span>Claimed Sessions</span>
-
           <strong>
             {streakLoading
               ? "—"
-              : totalSessions.toLocaleString(
-                  "en-US",
-                )}
+              : totalSessions.toLocaleString("en-US")}
           </strong>
-
-          <small>Server-verified completions</small>
         </article>
       </div>
 
-      <div className="mining-v4-main-grid">
-        <article className="mining-v4-panel">
-          <div className="mining-v4-panel-heading">
-            <div>
-              <span>
-                <Activity size={15} />
-                Session Intelligence
-              </span>
-
-              <h3>{sessionStatus}</h3>
-            </div>
-
-            <ShieldCheck size={22} />
-          </div>
-
-          <p>{intelligenceMessage}</p>
-
-          <div className="mining-v4-session-facts">
-            <div>
-              <span>Progress</span>
-              <strong>
-                {sessionProgress.toFixed(2)}%
-              </strong>
-            </div>
-
-            <div>
-              <span>Time Remaining</span>
-              <strong>{remainingTimeLabel}</strong>
-            </div>
-
-            <div>
-              <span>Session Reward</span>
-              <strong>{formatGp(rewardGp)} GP</strong>
-            </div>
-
-            <div>
-              <span>Base Rate</span>
-              <strong>
-                {baseRatePerHour.toFixed(2)} GP/h
-              </strong>
-            </div>
-
-            <div>
-              <span>Referral Bonus</span>
-              <strong>
-                +{referralBonusRate.toFixed(2)} GP/h
-              </strong>
-            </div>
-
-            <div>
-              <span>Total Rate</span>
-              <strong>
-                {totalRatePerHour.toFixed(2)} GP/h
-              </strong>
-            </div>
-          </div>
-
-          <div className="mining-v4-progress">
-            <span
-              style={{
-                width: `${Math.min(
-                  100,
-                  Math.max(0, sessionProgress),
-                )}%`,
-              }}
-            />
-          </div>
-        </article>
-
-        <article className="mining-v4-panel mining-v4-milestone">
-          <div className="mining-v4-panel-heading">
-            <div>
-              <span>
-                <Orbit size={15} />
-                Next Milestone
-              </span>
-
-              <h3>{nextMilestone.label}</h3>
-            </div>
-
-            <Zap size={22} />
-          </div>
-
-          <div className="mining-v4-milestone-value">
-            <strong>{currentStreak}</strong>
-            <span>/ {nextMilestone.target} days</span>
-          </div>
-
-          <div className="mining-v4-progress">
-            <span
-              style={{
-                width: `${milestoneProgress}%`,
-              }}
-            />
-          </div>
-
-          <p>
-            {milestoneDaysRemaining > 0
-              ? `${milestoneDaysRemaining} consecutive claimed day${
-                  milestoneDaysRemaining === 1
-                    ? ""
-                    : "s"
-                } remaining to reach this milestone.`
-              : "Milestone reached. Continue mining to advance toward the next consistency record."}
-          </p>
-        </article>
-      </div>
-
-      <div className="mining-v4-main-grid">
-        <article className="mining-v4-panel">
+      <div className="mining-v4-bottom-grid">
+        <article className="mining-v4-panel mining-v4-calendar-panel">
           <div className="mining-v4-panel-heading">
             <div>
               <span>
                 <CalendarDays size={15} />
-                30 Day Activity
+                Verified Activity
               </span>
-
-              <h3>Mining Calendar</h3>
+              <h3>30 Day Mining Calendar</h3>
             </div>
           </div>
 
@@ -469,127 +239,81 @@ export default function MiningDashboardV4({
                 ]
                   .filter(Boolean)
                   .join(" ")}
-                title={`${day.date.toLocaleDateString(
-                  "en-US",
-                  {
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric",
-                    timeZone: "UTC",
-                  },
-                )}: ${
-                  day.claimed
-                    ? "Claimed"
-                    : "No claimed session"
-                }`}
+                title={`${day.date.toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
+                  timeZone: "UTC",
+                })}: ${day.claimed ? "Claimed" : "No claim"}`}
               >
-                <span>{day.day}</span>
+                {day.day}
               </div>
             ))}
           </div>
 
           <div className="mining-v4-calendar-legend">
-            <span>
-              <i className="is-claimed" />
-              Claimed
-            </span>
-
-            <span>
-              <i className="is-today" />
-              Today
-            </span>
-
-            <span>
-              <i />
-              No claim
-            </span>
+            <span><i className="is-claimed" />Claimed</span>
+            <span><i className="is-today" />Today</span>
+            <span><i />No claim</span>
           </div>
         </article>
 
-        <article className="mining-v4-panel">
+        <article className="mining-v4-panel mining-v4-intelligence-panel">
           <div className="mining-v4-panel-heading">
             <div>
               <span>
-                <Clock3 size={15} />
-                Lifetime Signal
+                <ShieldCheck size={15} />
+                BOBU Core
               </span>
-
               <h3>Mining Intelligence</h3>
             </div>
           </div>
 
-          <div className="mining-v4-command-meta">
+          <div className="mining-v4-intelligence-grid">
             <div>
-              <span>Session ID</span>
-              <strong title={sessionId ?? undefined}>
-                {sessionId
-                  ? sessionId.length > 20
-                    ? `${sessionId.slice(
-                        0,
-                        9,
-                      )}…${sessionId.slice(-7)}`
-                    : sessionId
-                  : "No active session"}
-              </strong>
+              <Zap size={17} />
+              <span>Mining State<strong>{miningStateLabel}</strong></span>
             </div>
 
             <div>
-              <span>Wallet Balance</span>
-              <strong>
-                {formatGp(walletGp)} GP
-              </strong>
+              <Network size={17} />
+              <span>Network Support<strong>{activeReferralCount} Builders</strong></span>
             </div>
 
             <div>
-              <span>Server Time</span>
-              <strong>
-                {formatDateTime(serverNow)}
-              </strong>
-            </div>
-          </div>
-
-          <div className="mining-v4-intelligence-list">
-            <div>
-              <CheckCircle2 size={17} />
-
-              <span>
-                Last verified claim
-                <strong>
-                  {formatDateTime(
-                    streak?.lastClaimedAt ?? null,
-                  )}
-                </strong>
-              </span>
+              <Gem size={17} />
+              <span>Wallet Balance<strong>{formatGp(walletGp)} GP</strong></span>
             </div>
 
             <div>
               <ShieldCheck size={17} />
-
-              <span>
-                Streak status
-                <strong>
-                  {streak?.streakActiveToday
-                    ? "Protected today"
-                    : "Awaiting today's claim"}
-                </strong>
-              </span>
-            </div>
-
-            <div>
-              <Orbit size={17} />
-
-              <span>
-                Active network support
-                <strong>
-                  {activeReferralCount} Builders
-                </strong>
-              </span>
+              <span>Last Verified Claim<strong>{formatDateTime(streak?.lastClaimedAt ?? null)}</strong></span>
             </div>
           </div>
 
-          <blockquote>
-            “{quote}”
-          </blockquote>
+          <div className="mining-v4-rate-strip">
+            <div><span>Base</span><strong>{baseRatePerHour.toFixed(2)} GP/h</strong></div>
+            <div><span>Referral</span><strong>+{referralBonusRate.toFixed(2)} GP/h</strong></div>
+            <div><span>Total</span><strong>{totalRatePerHour.toFixed(2)} GP/h</strong></div>
+          </div>
+
+          <div className="mining-v4-milestone">
+            <div>
+              <span>Next Milestone</span>
+              <strong>{milestone.label}</strong>
+            </div>
+            <span>{currentStreak}/{milestone.target}</span>
+          </div>
+
+          <div className="mining-v4-progress">
+            <span style={{ width: `${milestoneProgress}%` }} />
+          </div>
+
+          <div className="mining-v4-session-strip">
+            <span>Progress {sessionProgress.toFixed(1)}%</span>
+            <span>{remainingTimeLabel}</span>
+            <span>{formatGp(rewardGp)} GP</span>
+          </div>
         </article>
       </div>
     </section>
