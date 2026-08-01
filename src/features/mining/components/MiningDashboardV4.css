@@ -400,3 +400,165 @@
       repeat(6, minmax(0, 1fr));
   }
 }
+
+/* ==========================================================
+   BOBU Mining Launch Final
+   ========================================================== */
+
+.mining-core-verification {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 7px;
+  color: rgba(114, 247, 197, 0.72);
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.mining-session-facts {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 9px;
+  margin-top: 22px;
+}
+
+.mining-session-facts > div {
+  display: grid;
+  min-width: 0;
+  gap: 6px;
+  padding: 12px;
+  border: 1px solid rgba(137, 149, 214, 0.1);
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.mining-session-facts span {
+  color: rgba(220, 227, 255, 0.42);
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.mining-session-facts strong {
+  overflow: hidden;
+  color: rgba(244, 247, 255, 0.88);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mining-session-verification {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 17px;
+  color: #75efc2;
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.mining-session-verification > span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #6cf0be;
+  box-shadow:
+    0 0 13px rgba(108, 240, 190, 0.7);
+}
+
+.mining-v4-session-facts {
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+}
+
+.mining-v4-command-meta {
+  display: grid;
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+  gap: 9px;
+  margin-top: 19px;
+}
+
+.mining-v4-command-meta > div {
+  display: grid;
+  min-width: 0;
+  gap: 6px;
+  padding: 12px;
+  border: 1px solid rgba(136, 147, 210, 0.09);
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.mining-v4-command-meta span {
+  color: rgba(220, 227, 255, 0.4);
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.mining-v4-command-meta strong {
+  overflow: hidden;
+  color: rgba(241, 244, 255, 0.82);
+  font-family:
+    ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mining-v4-calendar-day.is-today {
+  animation:
+    mining-today-pulse 2.4s ease-in-out infinite;
+  box-shadow:
+    0 0 0 1px rgba(161, 111, 255, 0.58),
+    0 0 20px rgba(137, 91, 255, 0.16);
+}
+
+.mining-v4-calendar-day.is-claimed.is-today {
+  box-shadow:
+    0 0 0 1px rgba(98, 239, 194, 0.68),
+    0 0 22px rgba(76, 229, 181, 0.2);
+}
+
+@keyframes mining-today-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.035);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mining-v4-calendar-day.is-today {
+    animation: none;
+  }
+}
+
+@media (max-width: 700px) {
+  .mining-v4-session-facts,
+  .mining-v4-command-meta {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 460px) {
+  .mining-session-facts,
+  .mining-v4-session-facts,
+  .mining-v4-command-meta {
+    grid-template-columns: 1fr;
+  }
+}

@@ -85,6 +85,11 @@ export default function MiningCore({
           {status}
         </div>
 
+        <div className="mining-core-verification">
+          <CheckCircle2 size={13} />
+          Server Verified
+        </div>
+
         <div className="mining-timer-block">
           <span className="mining-timer-label">
             Time Remaining

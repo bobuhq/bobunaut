@@ -55,7 +55,7 @@ export default function MiningHistory({
         </div>
 
         <span className="mining-history-count">
-          Latest {entries.length}
+          BOBU Core · Latest {entries.length}
         </span>
       </div>
 

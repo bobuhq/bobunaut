@@ -31,7 +31,12 @@ type MiningDashboardV4Props = {
   isActive: boolean;
   claimable: boolean;
   rewardGp: number;
+  baseRatePerHour: number;
+  referralBonusRate: number;
   totalRatePerHour: number;
+  walletGp: number;
+  sessionId: string | null;
+  serverNow: string | null;
   activeReferralCount: number;
 };
 
@@ -164,7 +169,12 @@ export default function MiningDashboardV4({
   isActive,
   claimable,
   rewardGp,
+  baseRatePerHour,
+  referralBonusRate,
   totalRatePerHour,
+  walletGp,
+  sessionId,
+  serverNow,
   activeReferralCount,
 }: MiningDashboardV4Props) {
   const currentStreak =
@@ -192,6 +202,11 @@ export default function MiningDashboardV4({
       Math.max(nextMilestone.target, 1)
     ) *
       100,
+  );
+
+  const milestoneDaysRemaining = Math.max(
+    0,
+    nextMilestone.target - currentStreak,
   );
 
   const sessionStatus = claimable
@@ -358,7 +373,21 @@ export default function MiningDashboardV4({
             </div>
 
             <div>
-              <span>Mining Rate</span>
+              <span>Base Rate</span>
+              <strong>
+                {baseRatePerHour.toFixed(2)} GP/h
+              </strong>
+            </div>
+
+            <div>
+              <span>Referral Bonus</span>
+              <strong>
+                +{referralBonusRate.toFixed(2)} GP/h
+              </strong>
+            </div>
+
+            <div>
+              <span>Total Rate</span>
               <strong>
                 {totalRatePerHour.toFixed(2)} GP/h
               </strong>
@@ -405,9 +434,13 @@ export default function MiningDashboardV4({
           </div>
 
           <p>
-            Maintain consecutive claimed mining days
-            to advance your Builder consistency
-            record.
+            {milestoneDaysRemaining > 0
+              ? `${milestoneDaysRemaining} consecutive claimed day${
+                  milestoneDaysRemaining === 1
+                    ? ""
+                    : "s"
+                } remaining to reach this milestone.`
+              : "Milestone reached. Continue mining to advance toward the next consistency record."}
           </p>
         </article>
       </div>
@@ -482,6 +515,36 @@ export default function MiningDashboardV4({
               </span>
 
               <h3>Mining Intelligence</h3>
+            </div>
+          </div>
+
+          <div className="mining-v4-command-meta">
+            <div>
+              <span>Session ID</span>
+              <strong title={sessionId ?? undefined}>
+                {sessionId
+                  ? sessionId.length > 20
+                    ? `${sessionId.slice(
+                        0,
+                        9,
+                      )}…${sessionId.slice(-7)}`
+                    : sessionId
+                  : "No active session"}
+              </strong>
+            </div>
+
+            <div>
+              <span>Wallet Balance</span>
+              <strong>
+                {formatGp(walletGp)} GP
+              </strong>
+            </div>
+
+            <div>
+              <span>Server Time</span>
+              <strong>
+                {formatDateTime(serverNow)}
+              </strong>
             </div>
           </div>
 

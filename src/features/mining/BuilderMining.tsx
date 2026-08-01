@@ -140,33 +140,38 @@ export default function BuilderMining() {
   const statCards = [
     {
       label: "Mining Rate",
-      value: `${gpPerHour.toFixed(2)} GP / hour`,
-      detail: `${gpPerSecond.toFixed(
-        6,
-      )} GP / second`,
+      value: `${(
+        miningState?.totalRatePerHour ?? 0
+      ).toFixed(2)} GP / hour`,
+      detail: `Base ${(
+        miningState?.baseRatePerHour ?? 0
+      ).toFixed(2)} GP/h`,
       icon: Zap,
     },
     {
       label: "Total GP",
-      value: (
-        miningState?.walletGp ?? 0
-      ).toLocaleString("en-US"),
-      detail: "Locked until Wallet Activation",
+      value: builder.gp.toLocaleString("en-US"),
+      detail: "Authoritative Builder balance",
       icon: Gem,
     },
     {
-      label: "Referral Boost",
-      value: `+${referralBoostGp} GP / 24h`,
-      detail:
-        `${activeReferralCount} / 25 active Builders`,
+      label: "Referral Network",
+      value: `${activeReferralCount} Active Builder${
+        activeReferralCount === 1 ? "" : "s"
+      }`,
+      detail: `+${(
+        miningState?.referralBonusRate ?? 0
+      ).toFixed(2)} GP/h network bonus`,
       icon: Orbit,
     },
     {
-      label: "Total Reward",
-      value: `${
-        miningState?.rewardGp ?? 25
-      } GP / 24h`,
-      detail: "Base reward + referral boost",
+      label: "Session Reward",
+      value: `${(
+        miningState?.rewardGp ?? 0
+      ).toLocaleString("en-US", {
+        maximumFractionDigits: 2,
+      })} GP / 24h`,
+      detail: "Server-verified session reward",
       icon: Clock3,
     },
   ];
@@ -1162,13 +1167,80 @@ export default function BuilderMining() {
                       )} remaining`
                     : "Ready for activation"}
             </div>
+
+            <div className="mining-session-facts">
+              <div>
+                <span>Status</span>
+                <strong>
+                  {claimable
+                    ? "Ready to Claim"
+                    : isActive
+                      ? "Active"
+                      : "Inactive"}
+                </strong>
+              </div>
+
+              <div>
+                <span>Active Builders</span>
+                <strong>{activeReferralCount}</strong>
+              </div>
+
+              <div>
+                <span>Base Rate</span>
+                <strong>
+                  {(
+                    miningState?.baseRatePerHour ?? 0
+                  ).toFixed(2)}{" "}
+                  GP/h
+                </strong>
+              </div>
+
+              <div>
+                <span>Referral Bonus</span>
+                <strong>
+                  +{(
+                    miningState?.referralBonusRate ??
+                    0
+                  ).toFixed(2)}{" "}
+                  GP/h
+                </strong>
+              </div>
+
+              <div>
+                <span>Session Reward</span>
+                <strong>
+                  {(
+                    miningState?.rewardGp ?? 0
+                  ).toLocaleString("en-US", {
+                    maximumFractionDigits: 2,
+                  })}{" "}
+                  GP
+                </strong>
+              </div>
+
+              <div>
+                <span>Wallet GP</span>
+                <strong>
+                  {(
+                    miningState?.walletGp ?? 0
+                  ).toLocaleString("en-US", {
+                    maximumFractionDigits: 2,
+                  })}
+                </strong>
+              </div>
+            </div>
+
+            <div className="mining-session-verification">
+              <span />
+              Server Verified
+            </div>
           </div>
         </div>
       </div>
 
       <div className="mining-stats">
         {statCards.map(
-          ({ label, value, icon: Icon }) => (
+          ({ label, value, detail, icon: Icon }) => (
             <article
               className="mining-stat"
               key={label}
@@ -1184,6 +1256,10 @@ export default function BuilderMining() {
               <div className="mining-stat-value">
                 {value}
               </div>
+
+              <span className="mining-stat-detail">
+                {detail}
+              </span>
             </article>
           ),
         )}
@@ -1201,9 +1277,18 @@ export default function BuilderMining() {
         isActive={isActive}
         claimable={claimable}
         rewardGp={miningState?.rewardGp ?? 0}
+        baseRatePerHour={
+          miningState?.baseRatePerHour ?? 0
+        }
+        referralBonusRate={
+          miningState?.referralBonusRate ?? 0
+        }
         totalRatePerHour={
           miningState?.totalRatePerHour ?? 0
         }
+        walletGp={miningState?.walletGp ?? 0}
+        sessionId={miningState?.sessionId ?? null}
+        serverNow={miningState?.serverNow ?? null}
         activeReferralCount={activeReferralCount}
       />
 
