@@ -15,8 +15,11 @@ import {
 import MiningCore from "./components/MiningCore";
 import MiningHero from "./components/MiningHero";
 import MiningHistory from "./components/MiningHistory";
+import MiningDashboardV4 from "./components/MiningDashboardV4";
+import "./components/MiningDashboardV4.css";
 import { useBuilderStore } from "../identity/hooks/useBuilderStore";
 import { useBuilderMiningSession } from "./hooks/useBuilderMiningSession";
+import { useMiningStreak } from "./hooks/useMiningStreak";
 import {
   miningHistoryService,
   type MiningHistoryEntry,
@@ -116,6 +119,12 @@ export default function BuilderMining() {
 
     void loadMiningHistory();
   }, [showActivation, loadMiningHistory]);
+
+  const {
+    streak,
+    loading: streakLoading,
+    errorMessage: streakErrorMessage,
+  } = useMiningStreak(showActivation);
 
   const activeReferralCount = Math.min(
     Math.max(
@@ -1179,6 +1188,24 @@ export default function BuilderMining() {
           ),
         )}
       </div>
+
+      <MiningDashboardV4
+        streak={streak}
+        streakLoading={streakLoading}
+        streakErrorMessage={streakErrorMessage}
+        historyEntries={historyEntries}
+        sessionProgress={sessionProgress}
+        remainingTimeLabel={formatRemaining(
+          remainingTime,
+        )}
+        isActive={isActive}
+        claimable={claimable}
+        rewardGp={miningState?.rewardGp ?? 0}
+        totalRatePerHour={
+          miningState?.totalRatePerHour ?? 0
+        }
+        activeReferralCount={activeReferralCount}
+      />
 
       <MiningHistory
         entries={historyEntries}
