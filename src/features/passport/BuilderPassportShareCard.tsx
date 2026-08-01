@@ -4,7 +4,7 @@ import { toPng } from "html-to-image";
 type BuilderPassportShareCardProps = {
   displayName: string;
   username: string;
-  level: number;
+  gpRank: string;
   gpBalance: number;
   walletAddress: string;
 };
@@ -12,7 +12,7 @@ type BuilderPassportShareCardProps = {
 export default function BuilderPassportShareCard({
   displayName,
   username,
-  level,
+  gpRank,
   gpBalance,
   walletAddress,
 }: BuilderPassportShareCardProps) {
@@ -114,7 +114,7 @@ export default function BuilderPassportShareCard({
               fontSize: "clamp(10px, 1.2vw, 16px)",
             }}
           >
-            <strong>LEVEL {level}</strong>
+            <strong>GP RANK · {gpRank}</strong>
             <span>
               {gpBalance.toLocaleString("tr-TR")} GP
             </span>

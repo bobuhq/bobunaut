@@ -29,11 +29,12 @@ import "./BuilderPassport.css";
 const formatGp = (value: number): string =>
   value.toLocaleString("en-US");
 
-const getBuilderTitle = (level: number): string => {
-  if (level >= 50) return "Master Architect";
-  if (level >= 25) return "Galaxy Commander";
-  if (level >= 10) return "Navigator";
-  if (level >= 5) return "Explorer";
+const getBuilderTitle = (totalGp: number): string => {
+  if (totalGp >= 100_000) return "Master Builder";
+  if (totalGp >= 50_000) return "Architect";
+  if (totalGp >= 20_000) return "Commander";
+  if (totalGp >= 5_000) return "Navigator";
+  if (totalGp >= 1_000) return "Explorer";
   return "New Builder";
 };
 
@@ -60,7 +61,7 @@ export function BuilderPassport() {
     builder.identity.x;
 
   const genesisBuilder = verified;
-  const builderTitle = getBuilderTitle(builder.level);
+  const builderTitle = getBuilderTitle(builder.gp);
 
   const passportUrl = new URL(
     "passport",
@@ -343,8 +344,8 @@ export function BuilderPassport() {
 
               <div className="builder-passport-progression">
                 <article className="builder-passport-progress-card">
-                  <span>Level</span>
-                  <strong>{builder.level}</strong>
+                  <span>GP Rank</span>
+                  <strong>{builderTitle}</strong>
                 </article>
 
                 <article className="builder-passport-progress-card">
@@ -536,7 +537,7 @@ export function BuilderPassport() {
         <BuilderPassportShareCard
           displayName={builder.username || "BOBU Builder"}
           username={builder.username || "builder"}
-          level={builder.level}
+          gpRank={builderTitle}
           gpBalance={builder.gp}
           walletAddress={
             builder.identity.wallet
