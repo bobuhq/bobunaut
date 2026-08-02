@@ -15,7 +15,6 @@ import {
   Menu,
   Orbit,
   Pickaxe,
-  Radio,
   Rocket,
   Sparkles,
   Trophy,
@@ -78,14 +77,7 @@ const navItems = [
     labelKey: "nav.passport",
     icon: User,
     locked: false,
-  },
-  {
-    to: "/command-deck",
-    labelKey: "nav.commandDeck",
-    icon: Radio,
-    locked: false,
-  },
-  {
+  },  {
     to: "/missions",
     labelKey: "nav.missions",
     icon: Rocket,

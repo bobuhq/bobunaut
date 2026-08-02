@@ -508,7 +508,6 @@ export function Home() {
             <p>{t("home.community.description")}</p>
             <div className="actions">
               <Link className="primary" to="/missions">{t("home.community.beginJourney")} <Zap size={17} /></Link>
-              <Link className="secondary" to="/command-deck">{t("home.community.openDeck")} <Satellite size={17} /></Link>
             </div>
           </div>
 

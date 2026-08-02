@@ -25,12 +25,6 @@ const Home = lazy(() =>
   })),
 );
 
-const Deck = lazy(() =>
-  import("../features/Deck").then((module) => ({
-    default: module.Deck,
-  })),
-);
-
 const Missions = lazy(() =>
   import("../features/Missions").then((module) => ({
     default: module.Missions,
@@ -146,7 +140,6 @@ export function App() {
           />
 
           <Route path="/" element={<Home />} />
-          <Route path="/command-deck" element={<Deck />} />
           <Route path="/identity" element={<BuilderIdentity />} />
           <Route path="/passport" element={<BuilderPassport />} />
           <Route path="/wallet" element={<BuilderWallet />} />
