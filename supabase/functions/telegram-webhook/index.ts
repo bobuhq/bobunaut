@@ -69,13 +69,37 @@ export default {
     const botToken = Deno.env.get("TELEGRAM_BOT_TOKEN");
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    const webhookSecret = Deno.env.get(
+      "TELEGRAM_WEBHOOK_SECRET",
+    );
 
-    if (!botToken || !supabaseUrl || !serviceRoleKey) {
+    if (
+      !botToken ||
+      !supabaseUrl ||
+      !serviceRoleKey ||
+      !webhookSecret
+    ) {
       console.error("Required environment variables are missing.");
 
       return Response.json(
         { error: "Server configuration is incomplete." },
         { status: 500 },
+      );
+    }
+
+    const telegramSecret =
+      req.headers.get(
+        "X-Telegram-Bot-Api-Secret-Token",
+      );
+
+    if (telegramSecret !== webhookSecret) {
+      console.error(
+        "Telegram webhook secret validation failed.",
+      );
+
+      return Response.json(
+        { error: "Unauthorized webhook request." },
+        { status: 401 },
       );
     }
 
@@ -141,102 +165,26 @@ export default {
     );
 
     const tokenHash = await sha256(startToken);
-    const now = new Date().toISOString();
-
-    const { data: tokenRecord, error: tokenError } = await adminClient
-      .from("builder_verification_tokens")
-      .select("id, builder_id, expires_at")
-      .eq("provider", "telegram")
-      .eq("token_hash", tokenHash)
-      .is("used_at", null)
-      .gt("expires_at", now)
-      .maybeSingle();
-
-    if (tokenError) {
-      console.error("Token lookup failed:", tokenError.message);
-
-      await sendTelegramMessage(
-        botToken,
-        chatId,
-        "Verification could not be completed. Please try again from bobunaut.com.",
-      );
-
-      return Response.json({ ok: true });
-    }
-
-    if (!tokenRecord) {
-      await sendTelegramMessage(
-        botToken,
-        chatId,
-        [
-          "This verification link is invalid or has expired.",
-          "",
-          "Return to bobunaut.com and create a new Telegram verification link.",
-        ].join("\n"),
-      );
-
-      return Response.json({ ok: true });
-    }
-
     const telegramUserId = String(telegramUser.id);
 
-    const { data: existingIdentity, error: existingError } =
-      await adminClient
-        .from("builder_social_identities")
-        .select("builder_id")
-        .eq("provider", "telegram")
-        .eq("provider_user_id", telegramUserId)
-        .maybeSingle();
+    const {
+      data: linkResult,
+      error: linkError,
+    } = await adminClient.rpc(
+      "link_telegram_identity",
+      {
+        p_token_hash: tokenHash,
+        p_provider_user_id: telegramUserId,
+        p_username:
+          telegramUser.username ?? null,
+      },
+    );
 
-    if (existingError) {
+    if (linkError) {
       console.error(
-        "Existing Telegram identity lookup failed:",
-        existingError.message,
+        "Atomic Telegram identity link failed:",
+        linkError.message,
       );
-
-      await sendTelegramMessage(
-        botToken,
-        chatId,
-        "Verification could not be completed. Please try again later.",
-      );
-
-      return Response.json({ ok: true });
-    }
-
-    if (
-      existingIdentity &&
-      existingIdentity.builder_id !== tokenRecord.builder_id
-    ) {
-      await sendTelegramMessage(
-        botToken,
-        chatId,
-        [
-          "This Telegram account is already connected to another Builder account.",
-          "",
-          "Only one Builder account can use each Telegram identity.",
-        ].join("\n"),
-      );
-
-      return Response.json({ ok: true });
-    }
-
-    const { error: identityError } = await adminClient
-      .from("builder_social_identities")
-      .upsert(
-        {
-          builder_id: tokenRecord.builder_id,
-          provider: "telegram",
-          provider_user_id: telegramUserId,
-          username: telegramUser.username ?? null,
-          updated_at: now,
-        },
-        {
-          onConflict: "builder_id,provider",
-        },
-      );
-
-    if (identityError) {
-      console.error("Telegram identity linking failed:", identityError.message);
 
       await sendTelegramMessage(
         botToken,
@@ -247,14 +195,61 @@ export default {
       return Response.json({ ok: true });
     }
 
-    const { error: consumeError } = await adminClient
-      .from("builder_verification_tokens")
-      .update({ used_at: now })
-      .eq("id", tokenRecord.id)
-      .is("used_at", null);
+    const linkRow = Array.isArray(linkResult)
+      ? linkResult[0]
+      : linkResult;
 
-    if (consumeError) {
-      console.error("Token consumption failed:", consumeError.message);
+    const linked = linkRow?.linked === true;
+    const reason =
+      typeof linkRow?.reason === "string"
+        ? linkRow.reason
+        : "unknown";
+
+    if (!linked) {
+      if (reason === "identity_already_linked") {
+        await sendTelegramMessage(
+          botToken,
+          chatId,
+          [
+            "This Telegram account is already connected to another Builder account.",
+            "",
+            "Only one Builder account can use each Telegram identity.",
+          ].join("\n"),
+        );
+
+        return Response.json({ ok: true });
+      }
+
+      if (
+        reason === "token_expired" ||
+        reason === "token_already_used" ||
+        reason === "token_not_found"
+      ) {
+        await sendTelegramMessage(
+          botToken,
+          chatId,
+          [
+            "This verification link is invalid or has expired.",
+            "",
+            "Return to bobunaut.com and create a new Telegram verification link.",
+          ].join("\n"),
+        );
+
+        return Response.json({ ok: true });
+      }
+
+      console.error(
+        "Telegram identity link rejected:",
+        reason,
+      );
+
+      await sendTelegramMessage(
+        botToken,
+        chatId,
+        "Verification could not be completed. Please try again later.",
+      );
+
+      return Response.json({ ok: true });
     }
 
     await sendTelegramMessage(

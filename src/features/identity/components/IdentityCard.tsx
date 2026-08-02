@@ -1,5 +1,11 @@
 import type { IdentityProvider } from "../../../core/models/Builder";
 
+export type IdentityCardStatusTone =
+  | "neutral"
+  | "pending"
+  | "success"
+  | "error";
+
 interface IdentityCardProps {
   provider: IdentityProvider;
   label: string;
@@ -8,6 +14,8 @@ interface IdentityCardProps {
   actionLabel: string;
   communityUrl?: string;
   disabled?: boolean;
+  statusMessage?: string | null;
+  statusTone?: IdentityCardStatusTone;
   onComplete: (
     provider: IdentityProvider,
   ) => void | Promise<void>;
@@ -19,12 +27,14 @@ export function IdentityCard({
   description,
   completed,
   actionLabel,
-  communityUrl,
+  communityUrl: _communityUrl,
   disabled = false,
+  statusMessage = null,
+  statusTone = "neutral",
   onComplete,
 }: IdentityCardProps) {
   const handleAction = async (): Promise<void> => {
-    if (disabled) {
+    if (disabled || completed) {
       return;
     }
 
@@ -35,7 +45,11 @@ export function IdentityCard({
     ? "Coming Soon"
     : completed
       ? "Completed"
-      : "Required";
+      : statusTone === "error"
+        ? "Action Required"
+        : statusTone === "pending"
+          ? "In Progress"
+          : "Required";
 
   return (
     <article
@@ -43,17 +57,37 @@ export function IdentityCard({
         "identity-task",
         completed ? "is-complete" : "",
         disabled ? "is-disabled" : "",
+        statusTone === "pending" ? "is-pending" : "",
+        statusTone === "error" ? "has-error" : "",
       ]
         .filter(Boolean)
         .join(" ")}
     >
-      <div>
+      <div className="identity-task__content">
         <span className="identity-task__status">
           {statusLabel}
         </span>
 
         <h3>{label}</h3>
         <p>{description}</p>
+
+        {statusMessage && (
+          <div
+            className={[
+              "identity-task__message",
+              `is-${statusTone}`,
+            ].join(" ")}
+            role={
+              statusTone === "error"
+                ? "alert"
+                : "status"
+            }
+            aria-live="polite"
+          >
+            <span className="identity-task__message-dot" />
+            <span>{statusMessage}</span>
+          </div>
+        )}
       </div>
 
       <button

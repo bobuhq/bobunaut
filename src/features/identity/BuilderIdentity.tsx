@@ -6,8 +6,12 @@ import { supabase } from "../../lib/supabase";
 import { gpEngine } from "../../core/gp";
 import { restoreAuthenticatedBuilder } from "../../core/builder/services/BuilderRestoreService";
 import { referralService } from "../../core/builder/services/ReferralService";
+import { useTelegramVerification } from "./hooks/useTelegramVerification";
 import type { IdentityProvider } from "../../core/models/Builder";
 import "./BuilderIdentity.css";
+
+const TELEGRAM_COMMUNITY_URL =
+  "https://t.me/+I0Q01kVMYw41YjA0";
 
 interface CommunityTask {
   provider: IdentityProvider;
@@ -26,7 +30,7 @@ const communityTasks: CommunityTask[] = [
     description:
       "Join the official BOBU Telegram community to enter the Genesis network.",
     actionLabel: "Join Telegram",
-    communityUrl: "https://t.me/+I0Q01kVMYw41YjA0",
+    communityUrl: TELEGRAM_COMMUNITY_URL,
     required: true,
   },
   {
@@ -61,12 +65,11 @@ const communityTasks: CommunityTask[] = [
 
 export default function BuilderIdentity() {
   const builder = useBuilderStore();
-  const [telegramCommunityOpened, setTelegramCommunityOpened] =
-    useState(false);
-  const [telegramBotOpened, setTelegramBotOpened] =
-    useState(false);
-  const [telegramBusy, setTelegramBusy] =
-    useState(false);
+  const telegramVerification =
+    useTelegramVerification({
+      communityUrl: TELEGRAM_COMMUNITY_URL,
+      initiallyVerified: builder.identity.telegram,
+    });
 
   const [instagramOpened, setInstagramOpened] =
     useState(false);
@@ -125,15 +128,6 @@ export default function BuilderIdentity() {
         source.builderId,
       );
 
-      const telegramLinked =
-        source.identities.some(
-          (identity) =>
-            identity.provider.toLowerCase() ===
-              "telegram" &&
-            identity.provider_user_id.length > 0,
-        );
-
-      setTelegramBotOpened(telegramLinked);
     };
 
     void restoreIdentityPage().catch((error) => {
@@ -226,125 +220,24 @@ export default function BuilderIdentity() {
       return;
     }
 
-    if (telegramBusy) {
+    if (telegramVerification.completed) {
       return;
     }
 
-    setTelegramBusy(true);
-
-    try {
-      if (!telegramCommunityOpened) {
-        if (!task?.communityUrl) {
-          throw new Error("Telegram community link is missing.");
-        }
-
-        window.open(
-          task.communityUrl,
-          "_blank",
-          "noopener,noreferrer",
-        );
-
-        setTelegramCommunityOpened(true);
-
-        window.alert(
-          "Join the BOBU Telegram community, then return and open the verification bot.",
-        );
-
-        return;
-      }
-
-      if (!telegramBotOpened) {
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
-
-        if (!session?.access_token) {
-          throw new Error("Please sign in with Google first.");
-        }
-
-        const { data, error } =
-          await supabase.functions.invoke(
-            "create-telegram-link",
-            {
-              body: {},
-              headers: {
-                Authorization: `Bearer ${session.access_token}`,
-              },
-            },
-          );
-
-        if (error) {
-          throw error;
-        }
-
-        const telegramUrl =
-          data?.bot_url ??
-          data?.telegram_url ??
-          data?.url ??
-          data?.link;
-
-        if (
-          typeof telegramUrl !== "string" ||
-          telegramUrl.length === 0
-        ) {
-          throw new Error(
-            "Telegram verification link was not returned.",
-          );
-        }
-
-        window.open(
-          telegramUrl,
-          "_blank",
-          "noopener,noreferrer",
-        );
-
-        setTelegramBotOpened(true);
-
-        window.alert(
-          "Complete the verification in Telegram, then return and click Verify Telegram.",
-        );
-
-        return;
-      }
-
-      const result =
-        await gpEngine.claimGenesisReward(
-          "telegram",
-        );
-
-      if (result.verified) {
-        await restoreAuthenticatedBuilder();
-
-        const rewardMessage =
-          result.message ??
-          (
-            result.rewarded
-              ? `Telegram verified. ${result.rewardGp.toLocaleString()} GP awarded.`
-              : "Telegram is already verified."
-          );
-
-        window.alert(rewardMessage);
-        return;
-      }
-
-      window.alert(
-        result.message ??
-          "Telegram membership could not be verified yet.",
-      );
-    } catch (error) {
-      console.error(
-        "Telegram verification failed:",
-        error,
-      );
-
-      window.alert(
-        error instanceof Error
-          ? error.message
-          : "Telegram verification failed.",
-      );
-    } finally {
-      setTelegramBusy(false);
+    if (!telegramVerification.communityOpened) {
+      telegramVerification.openCommunity();
+      return;
     }
+
+    if (
+      telegramVerification.phase === "waiting-for-telegram" ||
+      telegramVerification.phase === "verifying-membership"
+    ) {
+      telegramVerification.retryVerification();
+      return;
+    }
+
+    await telegramVerification.connectTelegram();
   };
 
   return (
@@ -398,13 +291,18 @@ export default function BuilderIdentity() {
               description={task.description}
               actionLabel={
                 task.provider === "telegram"
-                  ? telegramBusy
-                    ? "Checking..."
-                    : !telegramCommunityOpened
-                      ? "Join Telegram"
-                      : telegramBotOpened
-                        ? "Verify Telegram"
-                        : "Open Verify Bot"
+                  ? telegramVerification.completed
+                    ? "Completed"
+                    : telegramVerification.busy
+                      ? "Checking..."
+                      : !telegramVerification.communityOpened
+                        ? "Join Telegram"
+                        : telegramVerification.phase ===
+                            "waiting-for-telegram"
+                          ? "Check Telegram Status"
+                          : telegramVerification.phase === "error"
+                            ? "Retry Telegram"
+                            : "Connect Telegram"
                   : task.provider === "instagram"
                     ? instagramOpened
                       ? "Verification Coming Soon"
@@ -415,10 +313,38 @@ export default function BuilderIdentity() {
               disabled={
                 task.disabled ||
                 (task.provider === "telegram" &&
-                  telegramBusy)
+                  telegramVerification.busy)
               }
               completed={
-                builder.identity[task.provider]
+                task.provider === "telegram"
+                  ? telegramVerification.completed
+                  : builder.identity[task.provider]
+              }
+              statusMessage={
+                task.provider === "telegram"
+                  ? (
+                      telegramVerification.errorMessage ??
+                      telegramVerification.message
+                    )
+                  : null
+              }
+              statusTone={
+                task.provider !== "telegram"
+                  ? "neutral"
+                  : telegramVerification.completed
+                    ? "success"
+                    : telegramVerification.phase === "error"
+                      ? "error"
+                      : (
+                          telegramVerification.phase ===
+                            "waiting-for-telegram" ||
+                          telegramVerification.phase ===
+                            "verifying-membership" ||
+                          telegramVerification.phase ===
+                            "creating-link"
+                        )
+                        ? "pending"
+                        : "neutral"
               }
               onComplete={handleTaskComplete}
             />

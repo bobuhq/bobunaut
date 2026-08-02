@@ -5,6 +5,8 @@ import {
   useState,
 } from "react";
 import {
+  BadgeCheck,
+  Bot,
   Compass,
   Globe2,
   LockKeyhole,
@@ -15,6 +17,7 @@ import {
   Pickaxe,
   Radio,
   Rocket,
+  Sparkles,
   Trophy,
   User,
   WalletCards,
@@ -26,6 +29,8 @@ import { useAuthSession } from "../core/auth/useAuthSession";
 import { useBuilderStore } from "../features/identity/hooks/useBuilderStore";
 import { useLanguage } from "../core/language";
 import type { SupportedLanguage } from "../core/language";
+import { builderMiningService } from "../core/builder/services/BuilderMiningService";
+import "./NavLaunchV3.css";
 
 const BuilderAuthDialog = lazy(
   () => import("../features/auth/BuilderAuthDialog"),
@@ -39,27 +44,9 @@ const navItems = [
     locked: false,
   },
   {
-    to: "/command-deck",
-    labelKey: "nav.commandDeck",
-    icon: Radio,
-    locked: false,
-  },
-  {
     to: "/identity",
     labelKey: "nav.genesis",
     icon: User,
-    locked: false,
-  },
-  {
-    to: "/passport",
-    labelKey: "nav.passport",
-    icon: User,
-    locked: false,
-  },
-  {
-    to: "/wallet",
-    labelKey: "nav.wallet",
-    icon: WalletCards,
     locked: false,
   },
   {
@@ -69,21 +56,39 @@ const navItems = [
     locked: false,
   },
   {
-    to: "/missions",
-    labelKey: "nav.missions",
-    icon: Rocket,
-    locked: false,
-  },
-  {
     to: "/galaxy",
     labelKey: "nav.galaxy",
     icon: Compass,
     locked: false,
   },
   {
+    to: "/wallet",
+    labelKey: "nav.wallet",
+    icon: WalletCards,
+    locked: false,
+  },
+  {
     to: "/leaderboard",
     labelKey: "nav.leaderboard",
     icon: Trophy,
+    locked: false,
+  },
+  {
+    to: "/passport",
+    labelKey: "nav.passport",
+    icon: User,
+    locked: false,
+  },
+  {
+    to: "/command-deck",
+    labelKey: "nav.commandDeck",
+    icon: Radio,
+    locked: false,
+  },
+  {
+    to: "/missions",
+    labelKey: "nav.missions",
+    icon: Rocket,
     locked: false,
   },
 ] as const;
@@ -106,6 +111,10 @@ export function Nav() {
     useState(false);
   const [logoSource, setLogoSource] = useState(buboLogoUrl);
   const [logoVisible, setLogoVisible] = useState(true);
+  const [miningActive, setMiningActive] =
+    useState(false);
+  const [miningStatusLoading, setMiningStatusLoading] =
+    useState(false);
   const builder = useBuilderStore();
 
   useEffect(() => {
@@ -153,7 +162,60 @@ export function Nav() {
     setMobileOpen(false);
   };
 
+  const openBobuAI = () => {
+    setMobileOpen(false);
+
+    window.dispatchEvent(
+      new CustomEvent("bobu-ai:open"),
+    );
+  };
+
   const user = session?.user;
+
+  useEffect(() => {
+    if (!user) {
+      setMiningActive(false);
+      setMiningStatusLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+
+    const loadMiningStatus =
+      async (): Promise<void> => {
+        setMiningStatusLoading(true);
+
+        try {
+          const state =
+            await builderMiningService.getState();
+
+          if (!cancelled) {
+            setMiningActive(
+              state.active === true,
+            );
+          }
+        } catch (error) {
+          console.error(
+            "Navigation mining status failed:",
+            error,
+          );
+
+          if (!cancelled) {
+            setMiningActive(false);
+          }
+        } finally {
+          if (!cancelled) {
+            setMiningStatusLoading(false);
+          }
+        }
+      };
+
+    void loadMiningStatus();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user, mobileOpen]);
 
   const avatarUrl = user?.user_metadata?.avatar_url as
     | string
@@ -167,6 +229,74 @@ export function Nav() {
   const formattedGp = new Intl.NumberFormat(
     language,
   ).format(builder.gp);
+
+  const genesisVerified =
+    builder.identity.telegram &&
+    builder.identity.x;
+
+  const walletReady =
+    builder.identity.wallet;
+
+  const builderDisplayId =
+    builder.id.length > 16
+      ? `${builder.id.slice(0, 8)}…${builder.id.slice(-4)}`
+      : builder.id;
+
+  const getMobileStatus = (
+    route: string,
+  ): {
+    label: string;
+    tone:
+      | "live"
+      | "ready"
+      | "pending"
+      | "offline";
+  } | null => {
+    if (route === "/identity") {
+      return genesisVerified
+        ? {
+            label: "VERIFIED",
+            tone: "ready",
+          }
+        : {
+            label: "PENDING",
+            tone: "pending",
+          };
+    }
+
+    if (route === "/mining") {
+      if (miningStatusLoading) {
+        return {
+          label: "SYNC",
+          tone: "pending",
+        };
+      }
+
+      return miningActive
+        ? {
+            label: "LIVE",
+            tone: "live",
+          }
+        : {
+            label: "OFFLINE",
+            tone: "offline",
+          };
+    }
+
+    if (route === "/wallet") {
+      return walletReady
+        ? {
+            label: "READY",
+            tone: "ready",
+          }
+        : {
+            label: "LOCKED",
+            tone: "pending",
+          };
+    }
+
+    return null;
+  };
 
   return (
     <header className="bobu-header">
@@ -1084,58 +1214,237 @@ export function Nav() {
             mobileOpen ? " open" : ""
           }`}
         >
-          <div className="bobu-mobile-links">
-            {navItems.map(({ to, labelKey, icon: Icon, locked }) =>
-              locked ? (
-                <span
-                  key={to}
-                  className="bobu-nav-link bobu-nav-link--locked"
-                  title={t("nav.walletUnderDevelopment")}
-                  aria-label={t(
-                  "nav.lockedUnderDevelopment",
-                  { label: t(labelKey) },
-                )}
-                  aria-disabled="true"
-                >
-                  <Icon size={17} strokeWidth={1.8} />
-                  <span>{t(labelKey)}</span>
-                  <LockKeyhole
-                    className="bobu-nav-lock"
-                    strokeWidth={2}
-                    aria-hidden="true"
-                  />
+          {user && (
+            <section className="bobu-mobile-builder-card">
+              <div className="bobu-mobile-builder-head">
+                <div className="bobu-mobile-builder-avatar">
+                  {avatarUrl ? (
+                    <img
+                      src={avatarUrl}
+                      alt={fullName}
+                      referrerPolicy="no-referrer"
+                    />
+                  ) : (
+                    <span>
+                      {fullName
+                        .charAt(0)
+                        .toUpperCase()}
+                    </span>
+                  )}
+                </div>
+
+                <div className="bobu-mobile-builder-copy">
+                  <small>BOBU BUILDER</small>
+                  <strong>{fullName}</strong>
+                  <span>{builderDisplayId}</span>
+                </div>
+
+                <div className="bobu-mobile-builder-gp">
+                  <small>GP</small>
+                  <strong>{formattedGp}</strong>
+                </div>
+              </div>
+
+              <div className="bobu-mobile-builder-meta">
+                <span>
+                  Personal GP
+                  <strong>
+                    {new Intl.NumberFormat(
+                      language,
+                    ).format(builder.personalGp)}
+                  </strong>
                 </span>
-              ) : (
-                <NavLink
-                  key={to}
-                  to={to}
-                  end={to === "/"}
-                  className={({ isActive }) =>
-                    `bobu-nav-link${isActive ? " active" : ""}`
+
+                <span>
+                  Network GP
+                  <strong>
+                    {new Intl.NumberFormat(
+                      language,
+                    ).format(
+                      builder.eligibleNetworkGp,
+                    )}
+                  </strong>
+                </span>
+
+                <span>
+                  Referrals
+                  <strong>
+                    {builder.referralCount}
+                  </strong>
+                </span>
+              </div>
+
+              <div className="bobu-mobile-builder-statuses">
+                <span
+                  className={
+                    miningActive
+                      ? "is-live"
+                      : "is-offline"
                   }
-                  onClick={closeMobileMenu}
                 >
-                  <Icon size={17} strokeWidth={1.8} />
-                  <span>{t(labelKey)}</span>
-                </NavLink>
-              ),
+                  <i />
+                  Mining{" "}
+                  {miningStatusLoading
+                    ? "Sync"
+                    : miningActive
+                      ? "Live"
+                      : "Offline"}
+                </span>
+
+                <span
+                  className={
+                    walletReady
+                      ? "is-ready"
+                      : "is-pending"
+                  }
+                >
+                  <i />
+                  Wallet{" "}
+                  {walletReady
+                    ? "Ready"
+                    : "Locked"}
+                </span>
+
+                <span
+                  className={
+                    genesisVerified
+                      ? "is-ready"
+                      : "is-pending"
+                  }
+                >
+                  <i />
+                  Genesis{" "}
+                  {genesisVerified
+                    ? "Verified"
+                    : "Pending"}
+                </span>
+              </div>
+            </section>
+          )}
+
+          <div className="bobu-mobile-links">
+            {navItems.map(
+              ({
+                to,
+                labelKey,
+                icon: Icon,
+                locked,
+              }) => {
+                const status =
+                  getMobileStatus(to);
+
+                return locked ? (
+                  <span
+                    key={to}
+                    className="bobu-nav-link bobu-nav-link--locked"
+                    title={t(
+                      "nav.walletUnderDevelopment",
+                    )}
+                    aria-label={t(
+                      "nav.lockedUnderDevelopment",
+                      {
+                        label: t(labelKey),
+                      },
+                    )}
+                    aria-disabled="true"
+                  >
+                    <Icon
+                      size={18}
+                      strokeWidth={1.8}
+                    />
+                    <span>{t(labelKey)}</span>
+                    <LockKeyhole
+                      className="bobu-nav-lock"
+                      strokeWidth={2}
+                      aria-hidden="true"
+                    />
+                  </span>
+                ) : (
+                  <NavLink
+                    key={to}
+                    to={to}
+                    end={to === "/"}
+                    className={({
+                      isActive,
+                    }) =>
+                      `bobu-nav-link${
+                        isActive
+                          ? " active"
+                          : ""
+                      }`
+                    }
+                    onClick={closeMobileMenu}
+                  >
+                    <span className="bobu-mobile-link-icon">
+                      <Icon
+                        size={18}
+                        strokeWidth={1.8}
+                      />
+                    </span>
+
+                    <span className="bobu-mobile-link-label">
+                      {t(labelKey)}
+                    </span>
+
+                    {status && (
+                      <span
+                        className={
+                          `bobu-mobile-link-status ` +
+                          `is-${status.tone}`
+                        }
+                      >
+                        {status.label}
+                      </span>
+                    )}
+                  </NavLink>
+                );
+              },
             )}
           </div>
+
+          <button
+            type="button"
+            className="bobu-mobile-ai-card"
+            onClick={openBobuAI}
+          >
+            <span className="bobu-mobile-ai-icon">
+              <Bot size={21} />
+              <Sparkles size={12} />
+            </span>
+
+            <span className="bobu-mobile-ai-copy">
+              <strong>BOBU AI</strong>
+              <small>
+                Ask about GP, Mining, Wallet
+                and your Builder journey
+              </small>
+            </span>
+
+            <BadgeCheck size={19} />
+          </button>
 
           <div className="bobu-mobile-account">
             <label
               className="bobu-language-control"
-              aria-label={t("language.selectorLabel")}
+              aria-label={t(
+                "language.selectorLabel",
+              )}
             >
-              <Globe2 size={16} aria-hidden="true" />
+              <Globe2
+                size={16}
+                aria-hidden="true"
+              />
 
               <select
                 className="bobu-language-select"
                 value={language}
-                aria-label={t("language.selectorLabel")}
+                aria-label={t(
+                  "language.selectorLabel",
+                )}
                 onChange={(event) =>
                   setLanguage(
-                    event.target.value as SupportedLanguage,
+                    event.target
+                      .value as SupportedLanguage,
                   )
                 }
               >
@@ -1151,46 +1460,20 @@ export function Nav() {
             </label>
 
             {loading ? (
-              <span className="bobu-auth-loading">•••</span>
+              <span className="bobu-auth-loading">
+                •••
+              </span>
             ) : user ? (
-              <>
-                <div className="bobu-user">
-                  {avatarUrl ? (
-                    <img
-                      src={avatarUrl}
-                      alt={fullName}
-                      className="bobu-avatar"
-                      referrerPolicy="no-referrer"
-                    />
-                  ) : (
-                    <span className="bobu-avatar">
-                      {fullName.charAt(0).toUpperCase()}
-                    </span>
-                  )}
-
-                  <span className="bobu-user-name">
-                    {fullName}
-                  </span>
-                </div>
-
-                <div
-                  className="bobu-gp-badge"
-                  aria-label={`${formattedGp} GP`}
-                >
-                  <span>⭐</span>
-                  <strong>{formattedGp}</strong>
-                  <span>GP</span>
-                </div>
-
-                <button
-                  type="button"
-                  className="bobu-auth-button"
-                  onClick={handleLogout}
-                >
-                  <LogOut size={15} />
-                  <span>{t("auth.logout")}</span>
-                </button>
-              </>
+              <button
+                type="button"
+                className="bobu-auth-button"
+                onClick={handleLogout}
+              >
+                <LogOut size={15} />
+                <span>
+                  {t("auth.logout")}
+                </span>
+              </button>
             ) : (
               <button
                 type="button"
@@ -1198,7 +1481,9 @@ export function Nav() {
                 onClick={openAuthDialog}
               >
                 <LogIn size={16} />
-                <span>{t("auth.login")}</span>
+                <span>
+                  {t("auth.login")}
+                </span>
               </button>
             )}
 

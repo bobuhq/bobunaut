@@ -85,6 +85,73 @@ const numberValue = (
     : 0;
 };
 
+interface EdgeFunctionErrorLike {
+  message?: string;
+  context?: Response;
+}
+
+const readEdgeFunctionError = async (
+  error: unknown,
+  fallback: string,
+): Promise<string> => {
+  const candidate =
+    error as EdgeFunctionErrorLike | null;
+
+  const response = candidate?.context;
+
+  if (response instanceof Response) {
+    try {
+      const payload =
+        await response.clone().json() as {
+          error?: unknown;
+          message?: unknown;
+          warning?: unknown;
+        };
+
+      if (
+        typeof payload.error === "string" &&
+        payload.error.trim()
+      ) {
+        return payload.error.trim();
+      }
+
+      if (
+        typeof payload.message === "string" &&
+        payload.message.trim()
+      ) {
+        return payload.message.trim();
+      }
+
+      if (
+        typeof payload.warning === "string" &&
+        payload.warning.trim()
+      ) {
+        return payload.warning.trim();
+      }
+    } catch {
+      try {
+        const body =
+          await response.clone().text();
+
+        if (body.trim()) {
+          return body.trim();
+        }
+      } catch {
+        // Fall through to the original error message.
+      }
+    }
+  }
+
+  if (
+    typeof candidate?.message === "string" &&
+    candidate.message.trim()
+  ) {
+    return candidate.message.trim();
+  }
+
+  return fallback;
+};
+
 const requireValue = (
   value: string,
   label: string,
@@ -137,9 +204,13 @@ export class GPRewardService {
       );
 
     if (error) {
-      throw new Error(
-        `${provider} GP reward could not be processed: ${error.message}`,
-      );
+      const reason =
+        await readEdgeFunctionError(
+          error,
+          `${provider} GP reward could not be processed.`,
+        );
+
+      throw new Error(reason);
     }
 
     if (!data) {

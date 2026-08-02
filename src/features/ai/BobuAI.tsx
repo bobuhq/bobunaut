@@ -23,11 +23,26 @@ import type {
 } from "./types";
 import "./BobuAI.css";
 
+const createClientId = (): string => {
+  if (
+    typeof globalThis.crypto !== "undefined" &&
+    typeof globalThis.crypto.randomUUID === "function"
+  ) {
+    return globalThis.crypto.randomUUID();
+  }
+
+  return [
+    Date.now().toString(36),
+    Math.random().toString(36).slice(2),
+    Math.random().toString(36).slice(2),
+  ].join("-");
+};
+
 const createMessage = (
   role: BobuAIMessage["role"],
   content: string,
 ): BobuAIMessage => ({
-  id: crypto.randomUUID(),
+  id: createClientId(),
   role,
   content,
   createdAt: new Date().toISOString(),
@@ -191,6 +206,24 @@ export function BobuAI() {
       behavior: "smooth",
     });
   }, [messages, busy]);
+
+  useEffect(() => {
+    const openFromNavigation = () => {
+      setOpen(true);
+    };
+
+    window.addEventListener(
+      "bobu-ai:open",
+      openFromNavigation,
+    );
+
+    return () => {
+      window.removeEventListener(
+        "bobu-ai:open",
+        openFromNavigation,
+      );
+    };
+  }, []);
 
   useEffect(() => {
     setMessages((current) => {

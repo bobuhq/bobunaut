@@ -241,3 +241,105 @@
   background: rgba(72, 255, 173, 0.1);
   color: #48ffad;
 }
+
+.identity-task__content {
+  min-width: 0;
+}
+
+.identity-task__message {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  max-width: 430px;
+  margin-top: 0.9rem;
+  padding: 0.72rem 0.82rem;
+  border: 1px solid rgba(169, 147, 255, 0.16);
+  border-radius: 13px;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.78rem;
+  line-height: 1.45;
+  background: rgba(124, 92, 255, 0.07);
+}
+
+.identity-task__message-dot {
+  flex: 0 0 7px;
+  width: 7px;
+  height: 7px;
+  margin-top: 0.32rem;
+  border-radius: 50%;
+  background: #a993ff;
+  box-shadow: 0 0 10px rgba(169, 147, 255, 0.55);
+}
+
+.identity-task__message.is-pending {
+  border-color: rgba(77, 206, 255, 0.2);
+  color: rgba(189, 235, 255, 0.84);
+  background: rgba(45, 163, 214, 0.08);
+}
+
+.identity-task__message.is-pending
+  .identity-task__message-dot {
+  background: #4dceff;
+  box-shadow: 0 0 11px rgba(77, 206, 255, 0.72);
+  animation: identity-status-pulse 1.4s ease-in-out infinite;
+}
+
+.identity-task__message.is-success {
+  border-color: rgba(72, 255, 173, 0.22);
+  color: rgba(151, 255, 207, 0.9);
+  background: rgba(72, 255, 173, 0.07);
+}
+
+.identity-task__message.is-success
+  .identity-task__message-dot {
+  background: #48ffad;
+  box-shadow: 0 0 11px rgba(72, 255, 173, 0.72);
+}
+
+.identity-task__message.is-error {
+  border-color: rgba(255, 104, 134, 0.3);
+  color: rgba(255, 183, 198, 0.94);
+  background: rgba(255, 82, 119, 0.08);
+}
+
+.identity-task__message.is-error
+  .identity-task__message-dot {
+  background: #ff6886;
+  box-shadow: 0 0 11px rgba(255, 104, 134, 0.68);
+}
+
+.identity-task.is-pending {
+  border-color: rgba(77, 206, 255, 0.32);
+}
+
+.identity-task.has-error {
+  border-color: rgba(255, 104, 134, 0.34);
+}
+
+.identity-task.is-pending .identity-task__status {
+  color: #65d7ff;
+}
+
+.identity-task.has-error .identity-task__status {
+  color: #ff829a;
+}
+
+@keyframes identity-status-pulse {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: scale(0.86);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.12);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .identity-task__message.is-pending
+    .identity-task__message-dot {
+    animation: none;
+  }
+}

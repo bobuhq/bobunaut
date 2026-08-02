@@ -20,8 +20,15 @@ export default {
 
       const botToken = Deno.env.get("TELEGRAM_BOT_TOKEN");
       const projectRef = Deno.env.get("SB_PROJECT_REF");
+      const webhookSecret = Deno.env.get(
+        "TELEGRAM_WEBHOOK_SECRET",
+      );
 
-      if (!botToken || !projectRef) {
+      if (
+        !botToken ||
+        !projectRef ||
+        !webhookSecret
+      ) {
         console.error("Required environment variables are missing.");
 
         return Response.json(
@@ -42,6 +49,7 @@ export default {
           },
           body: JSON.stringify({
             url: webhookUrl,
+            secret_token: webhookSecret,
             allowed_updates: ["message"],
             drop_pending_updates: true,
           }),
