@@ -22,6 +22,7 @@ import {
   Zap,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useLanguage } from "../core/language";
 import { LiveUniverse } from "../components/home/LiveUniverse";
 import { Journey } from "../components/journey/Journey";
 import { GalacticSky } from "../components/galaxy/GalacticSky";
@@ -148,6 +149,8 @@ function AnimatedCounter({ value, suffix = "", decimals = 0 }: CounterProps) {
 }
 
 export function Home() {
+  const { t } = useLanguage();
+
   const [universeStats, setUniverseStats] = useState<UniverseStats>({
     buildersJoined: 0,
     galaxiesCreated: 0,
@@ -304,16 +307,16 @@ export function Home() {
         />
 
         <div className="hero-copy">
-          <div className="eyebrow"><span className="dot" />THE FIRST LIGHT IS ACTIVE</div>
-          <h1>We are<strong>building space.</strong></h1>
-          <p>Meet BUBO, the first explorer of an abandoned universe. Complete missions, uncover lost sectors and help build a new digital civilization.</p>
+          <div className="eyebrow"><span className="dot" />{t("home.hero.eyebrow")}</div>
+          <h1>{t("home.hero.titlePrefix")}<strong>{t("home.hero.titleHighlight")}</strong></h1>
+          <p>{t("home.hero.description")}</p>
 
           <div className="actions">
-            <Link className="primary" to="/missions">Enter Mission Center <ArrowUpRight size={18} /></Link>
-            <Link className="secondary" to="/galaxy">Explore the Galaxy <Orbit size={17} /></Link>
+            <Link className="primary" to="/missions">{t("home.hero.primaryAction")} <ArrowUpRight size={18} /></Link>
+            <Link className="secondary" to="/galaxy">{t("home.hero.secondaryAction")} <Orbit size={17} /></Link>
           </div>
 
-          <div className="signal"><span className="dot" />LIVE SIGNAL · GENESIS SECTOR 01</div>
+          <div className="signal"><span className="dot" />{t("home.hero.liveSignal")}</div>
         </div>
 
         <div className="planet-zone">
@@ -334,26 +337,26 @@ export function Home() {
               <div className="planet-core">
                 <span className="planet-light" />
                 <span className="planet-shadow" />
-                <span className="planet-label">GENESIS</span>
+                <span className="planet-label">{t("home.hero.planetLabel")}</span>
               </div>
 
               <div className="glass bubo-transmission">
                 <div className="transmission-image">
                   <img
                     src={`${import.meta.env.BASE_URL}images/bubo/bubo-default.png`}
-                    alt="Transmission from BUBO"
+                    alt={t("home.hero.transmissionAlt")}
                   />
                 </div>
                 <div className="transmission-copy">
-                  <span>INCOMING TRANSMISSION</span>
-                  <strong>BUBO HAS ENTERED THE SECTOR</strong>
-                  <p>“Hi, Builder. I found an abandoned universe. Will you help me build it?”</p>
+                  <span>{t("home.hero.transmissionLabel")}</span>
+                  <strong>{t("home.hero.transmissionTitle")}</strong>
+                  <p>“{t("home.hero.transmissionText")}”</p>
                 </div>
               </div>
             </div>
-            <div className="chip chip-a"><Satellite size={15} />Signal Stable</div>
-            <div className="chip chip-b"><ShieldCheck size={15} />Sector Online</div>
-            <div className="sector"><Orbit size={14} />GENESIS SECTOR ONLINE</div>
+            <div className="chip chip-a"><Satellite size={15} />{t("home.hero.signalStable")}</div>
+            <div className="chip chip-b"><ShieldCheck size={15} />{t("home.hero.sectorOnline")}</div>
+            <div className="sector"><Orbit size={14} />{t("home.hero.sectorStatus")}</div>
           </div>
         </div>
       </motion.section>
