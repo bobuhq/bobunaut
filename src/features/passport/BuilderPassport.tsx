@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 
 import { useAuthSession } from "../../core/auth/useAuthSession";
+import { useLanguage } from "../../core/language";
 import { useBuilderStore } from "../identity/hooks/useBuilderStore";
 import BuilderPassportActions from "./BuilderPassportActions";
 import BuilderPassportShareCard from "./BuilderPassportShareCard";
@@ -29,13 +30,13 @@ import "./BuilderPassport.css";
 const formatGp = (value: number): string =>
   value.toLocaleString("en-US");
 
-const getBuilderTitle = (totalGp: number): string => {
-  if (totalGp >= 100_000) return "Master Builder";
-  if (totalGp >= 50_000) return "Architect";
-  if (totalGp >= 20_000) return "Commander";
-  if (totalGp >= 5_000) return "Navigator";
-  if (totalGp >= 1_000) return "Explorer";
-  return "New Builder";
+const getBuilderTitleKey = (totalGp: number): string => {
+  if (totalGp >= 100_000) return "passport.rank.masterBuilder";
+  if (totalGp >= 50_000) return "passport.rank.architect";
+  if (totalGp >= 20_000) return "passport.rank.commander";
+  if (totalGp >= 5_000) return "passport.rank.navigator";
+  if (totalGp >= 1_000) return "passport.rank.explorer";
+  return "passport.rank.newBuilder";
 };
 
 const shortenBuilderId = (builderId: string): string => {
@@ -47,6 +48,7 @@ const shortenBuilderId = (builderId: string): string => {
 };
 
 export function BuilderPassport() {
+  const { t } = useLanguage();
   const builder = useBuilderStore();
   const { authenticated } = useAuthSession();
 
@@ -64,7 +66,8 @@ export function BuilderPassport() {
     builder.identity.x;
 
   const genesisBuilder = verified;
-  const builderTitle = getBuilderTitle(builder.gp);
+  const builderTitleKey = getBuilderTitleKey(builder.gp);
+  const builderTitle = t(builderTitleKey);
 
   const passportUrl = new URL(
     "passport",
@@ -113,10 +116,12 @@ export function BuilderPassport() {
 
   const sharePassport = async () => {
     const data = {
-      title: `${builder.username} — BOBU Builder Passport`,
-      text:
-        "Explore my Builder Passport in BOBU Universe — " +
-        "the world's first explorable Web3 social universe.",
+      title: t("passport.share.title", {
+        username:
+          builder.username ||
+          t("passport.defaultUsername"),
+      }),
+      text: t("passport.share.text"),
       url: passportUrl,
     };
 
@@ -135,27 +140,27 @@ export function BuilderPassport() {
     }
 
     await navigator.clipboard.writeText(passportUrl);
-    window.alert("Passport link copied.");
+    window.alert(t("passport.actions.linkCopied"));
   };
 
   const identityItems = [
     {
-      label: "Telegram",
+      labelKey: "passport.identity.telegram",
       verified: builder.identity.telegram,
       icon: Globe2,
     },
     {
-      label: "X",
+      labelKey: "passport.identity.x",
       verified: builder.identity.x,
       icon: Sparkles,
     },
     {
-      label: "Instagram",
+      labelKey: "passport.identity.instagram",
       verified: builder.identity.instagram,
       icon: CircleDot,
     },
     {
-      label: "BOBU Wallet",
+      labelKey: "passport.identity.wallet",
       verified: builder.identity.wallet,
       icon: WalletCards,
     },
@@ -163,49 +168,49 @@ export function BuilderPassport() {
 
   const journeyItems = [
     {
-      label: "Builder Passport",
+      labelKey: "passport.journey.passport",
       complete: builder.passportUnlocked,
     },
     {
-      label: "Telegram Identity",
+      labelKey: "passport.journey.telegram",
       complete: builder.identity.telegram,
     },
     {
-      label: "X Identity",
+      labelKey: "passport.journey.x",
       complete: builder.identity.x,
     },
     {
-      label: "Genesis Status",
+      labelKey: "passport.journey.genesis",
       complete: genesisBuilder,
     },
     {
-      label: "Wallet Activation",
+      labelKey: "passport.journey.wallet",
       complete: builder.identity.wallet,
     },
   ];
 
   const achievements = [
     {
-      label: "Genesis Builder",
-      description: "Telegram + X",
+      labelKey: "passport.achievements.genesisBuilder",
+      descriptionKey: "passport.achievements.genesisBuilderDescription",
       unlocked: genesisBuilder,
       icon: Gem,
     },
     {
-      label: "Identity Verified",
-      description: "Trusted identity",
+      labelKey: "passport.achievements.identityVerified",
+      descriptionKey: "passport.achievements.identityVerifiedDescription",
       unlocked: verified,
       icon: BadgeCheck,
     },
     {
-      label: "Network Builder",
-      description: "Invite network",
+      labelKey: "passport.achievements.networkBuilder",
+      descriptionKey: "passport.achievements.networkBuilderDescription",
       unlocked: builder.referralCount > 0,
       icon: Network,
     },
     {
-      label: "Wallet Ready",
-      description: "Wallet identity",
+      labelKey: "passport.achievements.walletReady",
+      descriptionKey: "passport.achievements.walletReadyDescription",
       unlocked: builder.identity.wallet,
       icon: WalletCards,
     },
@@ -219,22 +224,22 @@ export function BuilderPassport() {
             <div className="builder-passport-avatar">
               <img
                 src="/images/galaxy/bobu-builder-space.webp"
-                alt="BOBU Builder"
+                alt={t("passport.avatarAlt")}
               />
               <span className="builder-passport-avatar-status" />
             </div>
 
             <div>
               <p className="builder-passport-eyebrow">
-                Builder Passport
+                {t("passport.title")}
               </p>
 
               <h1 className="builder-passport-name">
-                {builder.username || "BOBU Builder"}
+                {builder.username || t("passport.defaultBuilder")}
               </h1>
 
               <p className="builder-passport-handle">
-                @{builder.username || "builder"}
+                @{builder.username || t("passport.defaultUsername")}
               </p>
 
               <span className="builder-passport-title">
@@ -245,7 +250,7 @@ export function BuilderPassport() {
               <div className="builder-passport-badges">
                 <span className="builder-passport-badge is-positive">
                   <Zap size={12} />
-                  Active Builder
+                  {t("passport.badge.activeBuilder")}
                 </span>
 
                 <span
@@ -257,8 +262,8 @@ export function BuilderPassport() {
                 >
                   <Gem size={12} />
                   {genesisBuilder
-                    ? "Genesis Builder"
-                    : "Genesis Pending"}
+                    ? t("passport.badge.genesisBuilder")
+                    : t("passport.badge.genesisPending")}
                 </span>
 
                 <span
@@ -269,7 +274,9 @@ export function BuilderPassport() {
                   }
                 >
                   <ShieldCheck size={12} />
-                  {verified ? "Verified" : "Verification Pending"}
+                  {verified
+                    ? t("passport.badge.verified")
+                    : t("passport.badge.verificationPending")}
                 </span>
               </div>
             </div>
@@ -278,7 +285,7 @@ export function BuilderPassport() {
           <aside className="builder-passport-id-card">
             <div>
               <span className="builder-passport-id-label">
-                Builder ID
+                {t("passport.id.builderId")}
               </span>
 
               <strong className="builder-passport-id-value">
@@ -289,21 +296,23 @@ export function BuilderPassport() {
             <div className="builder-passport-id-meta">
               <div>
                 <span className="builder-passport-id-label">
-                  Passport
+                  {t("passport.id.passport")}
                 </span>
                 <strong>
                   {builder.passportUnlocked
-                    ? "Unlocked"
-                    : "Initializing"}
+                    ? t("passport.id.unlocked")
+                    : t("passport.id.initializing")}
                 </strong>
               </div>
 
               <div>
                 <span className="builder-passport-id-label">
-                  Status
+                  {t("passport.id.status")}
                 </span>
                 <strong>
-                  {authenticated ? "Online" : "Guest"}
+                  {authenticated
+                    ? t("passport.id.online")
+                    : t("passport.id.guest")}
                 </strong>
               </div>
             </div>
@@ -316,41 +325,41 @@ export function BuilderPassport() {
               <div className="builder-passport-panel-heading">
                 <div className="builder-passport-panel-title">
                   <Orbit size={18} />
-                  <h2>GP Command Center</h2>
+                  <h2>{t("passport.gp.title")}</h2>
                 </div>
 
                 <span className="builder-passport-panel-subtitle">
-                  Storage v2
+                  {t("passport.gp.subtitle")}
                 </span>
               </div>
 
               <div className="builder-passport-gp-grid">
                 <article className="builder-passport-gp-card is-personal">
-                  <span>Personal GP</span>
+                  <span>{t("passport.gp.personal")}</span>
                   <strong>{formatGp(builder.personalGp)}</strong>
-                  <small>Earned directly by you</small>
+                  <small>{t("passport.gp.personalDescription")}</small>
                 </article>
 
                 <article className="builder-passport-gp-card is-pending">
-                  <span>Pending Network GP</span>
+                  <span>{t("passport.gp.pendingNetwork")}</span>
                   <strong>
                     {formatGp(builder.pendingNetworkGp)}
                   </strong>
-                  <small>Locked until eligibility</small>
+                  <small>{t("passport.gp.pendingDescription")}</small>
                 </article>
 
                 <article className="builder-passport-gp-card is-eligible">
-                  <span>Eligible Network GP</span>
+                  <span>{t("passport.gp.eligibleNetwork")}</span>
                   <strong>
                     {formatGp(builder.eligibleNetworkGp)}
                   </strong>
-                  <small>Counts toward Total GP</small>
+                  <small>{t("passport.gp.eligibleDescription")}</small>
                 </article>
 
                 <article className="builder-passport-gp-card is-total">
-                  <span>Total GP</span>
+                  <span>{t("passport.gp.total")}</span>
                   <strong>{formatGp(builder.gp)}</strong>
-                  <small>Authoritative Builder balance</small>
+                  <small>{t("passport.gp.totalDescription")}</small>
                 </article>
               </div>
             </section>
@@ -359,27 +368,27 @@ export function BuilderPassport() {
               <div className="builder-passport-panel-heading">
                 <div className="builder-passport-panel-title">
                   <Trophy size={18} />
-                  <h2>Builder Progression</h2>
+                  <h2>{t("passport.progression.title")}</h2>
                 </div>
 
                 <span className="builder-passport-panel-subtitle">
-                  Live Core Data
+                  {t("passport.progression.subtitle")}
                 </span>
               </div>
 
               <div className="builder-passport-progression">
                 <article className="builder-passport-progress-card">
-                  <span>GP Rank</span>
+                  <span>{t("passport.progression.gpRank")}</span>
                   <strong>{builderTitle}</strong>
                 </article>
 
                 <article className="builder-passport-progress-card">
-                  <span>Reputation</span>
+                  <span>{t("passport.progression.reputation")}</span>
                   <strong>{formatGp(builder.reputation)}</strong>
                 </article>
 
                 <article className="builder-passport-progress-card">
-                  <span>Network</span>
+                  <span>{t("passport.progression.network")}</span>
                   <strong>{builder.referralCount}</strong>
                 </article>
               </div>
@@ -389,11 +398,11 @@ export function BuilderPassport() {
               <div className="builder-passport-panel-heading">
                 <div className="builder-passport-panel-title">
                   <Award size={18} />
-                  <h2>Achievement Vault</h2>
+                  <h2>{t("passport.achievements.title")}</h2>
                 </div>
 
                 <span className="builder-passport-panel-subtitle">
-                  Builder Milestones
+                  {t("passport.achievements.subtitle")}
                 </span>
               </div>
 
@@ -403,7 +412,7 @@ export function BuilderPassport() {
 
                   return (
                     <article
-                      key={achievement.label}
+                      key={achievement.labelKey}
                       className={
                         achievement.unlocked
                           ? "builder-passport-achievement is-unlocked"
@@ -418,8 +427,8 @@ export function BuilderPassport() {
                         )}
                       </span>
 
-                      <strong>{achievement.label}</strong>
-                      <small>{achievement.description}</small>
+                      <strong>{t(achievement.labelKey)}</strong>
+                      <small>{t(achievement.descriptionKey)}</small>
                     </article>
                   );
                 })}
@@ -432,7 +441,7 @@ export function BuilderPassport() {
               <div className="builder-passport-panel-heading">
                 <div className="builder-passport-panel-title">
                   <Fingerprint size={18} />
-                  <h2>Identity Matrix</h2>
+                  <h2>{t("passport.identity.title")}</h2>
                 </div>
               </div>
 
@@ -442,12 +451,12 @@ export function BuilderPassport() {
 
                   return (
                     <div
-                      key={identity.label}
+                      key={identity.labelKey}
                       className="builder-passport-identity-row"
                     >
                       <span className="builder-passport-identity-name">
                         <Icon size={15} />
-                        {identity.label}
+                        {t(identity.labelKey)}
                       </span>
 
                       <span
@@ -464,8 +473,8 @@ export function BuilderPassport() {
                         )}
 
                         {identity.verified
-                          ? "Verified"
-                          : "Pending"}
+                          ? t("passport.identity.verified")
+                          : t("passport.identity.pending")}
                       </span>
                     </div>
                   );
@@ -477,14 +486,14 @@ export function BuilderPassport() {
               <div className="builder-passport-panel-heading">
                 <div className="builder-passport-panel-title">
                   <Star size={18} />
-                  <h2>Genesis Journey</h2>
+                  <h2>{t("passport.journey.title")}</h2>
                 </div>
               </div>
 
               <div className="builder-passport-journey">
                 {journeyItems.map((journey) => (
                   <div
-                    key={journey.label}
+                    key={journey.labelKey}
                     className="builder-passport-journey-row"
                   >
                     <span className="builder-passport-journey-name">
@@ -493,7 +502,7 @@ export function BuilderPassport() {
                       ) : (
                         <CircleDot size={14} />
                       )}
-                      {journey.label}
+                      {t(journey.labelKey)}
                     </span>
 
                     <span
@@ -503,7 +512,9 @@ export function BuilderPassport() {
                           : "builder-passport-status"
                       }
                     >
-                      {journey.complete ? "Complete" : "Pending"}
+                      {journey.complete
+                        ? t("passport.journey.complete")
+                        : t("passport.journey.pending")}
                     </span>
                   </div>
                 ))}
@@ -514,14 +525,14 @@ export function BuilderPassport() {
               <div className="builder-passport-panel-heading">
                 <div className="builder-passport-panel-title">
                   <Network size={18} />
-                  <h2>Builder Network</h2>
+                  <h2>{t("passport.network.title")}</h2>
                 </div>
               </div>
 
               <div className="builder-passport-invite-code">
                 <div>
                   <span className="builder-passport-id-label">
-                    Invite Code
+                    {t("passport.network.inviteCode")}
                   </span>
                   <code>{builder.inviteCode}</code>
                 </div>
@@ -529,7 +540,7 @@ export function BuilderPassport() {
                 <button
                   type="button"
                   onClick={() => void copyInviteCode()}
-                  aria-label="Copy invite code"
+                  aria-label={t("passport.network.copyInviteCode")}
                 >
                   {copiedInviteCode ? (
                     <BadgeCheck size={16} />
@@ -542,11 +553,12 @@ export function BuilderPassport() {
               <div className="builder-passport-referral-link">
                 <div>
                   <span className="builder-passport-id-label">
-                    Referral Link
+                    {t("passport.network.referralLink")}
                   </span>
 
                   <code>
-                    {referralUrl ?? "Available after invite activation"}
+                    {referralUrl ??
+                      t("passport.network.referralUnavailable")}
                   </code>
                 </div>
 
@@ -554,7 +566,7 @@ export function BuilderPassport() {
                   type="button"
                   onClick={() => void copyReferralUrl()}
                   disabled={!referralUrl}
-                  aria-label="Copy referral link"
+                  aria-label={t("passport.network.copyReferralLink")}
                 >
                   {copiedReferralUrl ? (
                     <BadgeCheck size={16} />
@@ -585,14 +597,20 @@ export function BuilderPassport() {
 
       <div className="builder-passport-hidden-share-card">
         <BuilderPassportShareCard
-          displayName={builder.username || "BOBU Builder"}
-          username={builder.username || "builder"}
+          displayName={
+            builder.username ||
+            t("passport.defaultBuilder")
+          }
+          username={
+            builder.username ||
+            t("passport.defaultUsername")
+          }
           gpRank={builderTitle}
           gpBalance={builder.gp}
           walletAddress={
             builder.identity.wallet
-              ? "Connected"
-              : "Not connected"
+              ? t("passport.share.connected")
+              : t("passport.share.notConnected")
           }
         />
       </div>

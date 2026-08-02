@@ -5,39 +5,85 @@ import {
   type TranslationDictionary,
 } from "./types";
 import { en } from "./locales/en";
-import { tr } from "./locales/tr";
-import { fi } from "./locales/fi";
-import { sv } from "./locales/sv";
-import { de } from "./locales/de";
-import { fr } from "./locales/fr";
-import { es } from "./locales/es";
-import { pt } from "./locales/pt";
-import { ar } from "./locales/ar";
-import { ru } from "./locales/ru";
-import { zh } from "./locales/zh";
-import { ja } from "./locales/ja";
-import { ko } from "./locales/ko";
 
 const STORAGE_KEY = "bobu.preferred-language";
 const DEFAULT_LANGUAGE: SupportedLanguage = "en";
 
-const dictionaries: Record<
-  SupportedLanguage,
-  TranslationDictionary
+type LocaleLoader =
+  () => Promise<TranslationDictionary>;
+
+const loadedDictionaries: Partial<
+  Record<SupportedLanguage, TranslationDictionary>
 > = {
   en,
-  tr,
-  fi,
-  sv,
-  de,
-  fr,
-  es,
-  pt,
-  ar,
-  ru,
-  zh,
-  ja,
-  ko,
+};
+
+const pendingLoads: Partial<
+  Record<SupportedLanguage, Promise<TranslationDictionary>>
+> = {};
+
+const localeLoaders: Partial<
+  Record<SupportedLanguage, LocaleLoader>
+> = {
+  tr: async () => {
+    const module = await import("./locales/tr");
+    return module.tr;
+  },
+
+  fi: async () => {
+    const module = await import("./locales/fi");
+    return module.fi;
+  },
+
+  sv: async () => {
+    const module = await import("./locales/sv");
+    return module.sv;
+  },
+
+  de: async () => {
+    const module = await import("./locales/de");
+    return module.de;
+  },
+
+  fr: async () => {
+    const module = await import("./locales/fr");
+    return module.fr;
+  },
+
+  es: async () => {
+    const module = await import("./locales/es");
+    return module.es;
+  },
+
+  pt: async () => {
+    const module = await import("./locales/pt");
+    return module.pt;
+  },
+
+  ar: async () => {
+    const module = await import("./locales/ar");
+    return module.ar;
+  },
+
+  ru: async () => {
+    const module = await import("./locales/ru");
+    return module.ru;
+  },
+
+  zh: async () => {
+    const module = await import("./locales/zh");
+    return module.zh;
+  },
+
+  ja: async () => {
+    const module = await import("./locales/ja");
+    return module.ja;
+  },
+
+  ko: async () => {
+    const module = await import("./locales/ko");
+    return module.ko;
+  },
 };
 
 function isSupportedLanguage(
@@ -78,9 +124,50 @@ function interpolate(
 
   return Object.entries(variables).reduce(
     (result, [key, value]) =>
-      result.replaceAll(`{{${key}}}`, String(value)),
+      result.replaceAll(
+        `{{${key}}}`,
+        String(value),
+      ),
     template,
   );
+}
+
+async function loadLanguage(
+  language: SupportedLanguage,
+): Promise<TranslationDictionary> {
+  const loaded = loadedDictionaries[language];
+
+  if (loaded) {
+    return loaded;
+  }
+
+  const pending = pendingLoads[language];
+
+  if (pending) {
+    return pending;
+  }
+
+  const loader = localeLoaders[language];
+
+  if (!loader) {
+    return en;
+  }
+
+  const request = loader()
+    .then((dictionary) => {
+      loadedDictionaries[language] = dictionary;
+      delete pendingLoads[language];
+
+      return dictionary;
+    })
+    .catch((error: unknown) => {
+      delete pendingLoads[language];
+      throw error;
+    });
+
+  pendingLoads[language] = request;
+
+  return request;
 }
 
 export const LanguageService = {
@@ -121,7 +208,9 @@ export const LanguageService = {
     }
   },
 
-  storeLanguage(language: SupportedLanguage): void {
+  storeLanguage(
+    language: SupportedLanguage,
+  ): void {
     if (typeof window === "undefined") {
       return;
     }
@@ -132,7 +221,7 @@ export const LanguageService = {
         language,
       );
     } catch {
-      // The application continues even when storage is blocked.
+      // The application continues when storage is blocked.
     }
   },
 
@@ -144,17 +233,28 @@ export const LanguageService = {
     );
   },
 
+  isLanguageLoaded(
+    language: SupportedLanguage,
+  ): boolean {
+    return Boolean(loadedDictionaries[language]);
+  },
+
+  loadLanguage,
+
   translate(
     language: SupportedLanguage,
     key: string,
     variables?: Record<string, string | number>,
   ): string {
     const translatedValue =
-      dictionaries[language][key] ??
-      dictionaries[DEFAULT_LANGUAGE][key] ??
+      loadedDictionaries[language]?.[key] ??
+      en[key] ??
       key;
 
-    return interpolate(translatedValue, variables);
+    return interpolate(
+      translatedValue,
+      variables,
+    );
   },
 
   getDirection(

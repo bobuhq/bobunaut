@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 
 import type { BuilderWalletSnapshot } from "../../../core/builder";
+import { useLanguage } from "../../../core/language";
 
 type WalletStatCardsProps = {
   wallet: BuilderWalletSnapshot | null;
@@ -30,6 +31,8 @@ export function WalletStatCards({
   lockedGp,
   formatGp,
 }: WalletStatCardsProps) {
+  const { t } = useLanguage();
+
   return (
     <section className="builder-wallet-stats">
       <article className="builder-wallet-stat">
@@ -38,7 +41,7 @@ export function WalletStatCards({
         </span>
 
         <div>
-          <span>Personal GP</span>
+          <span>{t("wallet.stats.personalGp")}</span>
           <strong>{formatGp(personalGp)} GP</strong>
         </div>
       </article>
@@ -49,7 +52,7 @@ export function WalletStatCards({
         </span>
 
         <div>
-          <span>Eligible Network GP</span>
+          <span>{t("wallet.stats.eligibleNetworkGp")}</span>
           <strong>{formatGp(eligibleNetworkGp)} GP</strong>
         </div>
       </article>
@@ -60,7 +63,7 @@ export function WalletStatCards({
         </span>
 
         <div>
-          <span>Pending Network GP</span>
+          <span>{t("wallet.stats.pendingNetworkGp")}</span>
           <strong>{formatGp(pendingNetworkGp)} GP</strong>
         </div>
       </article>
@@ -71,7 +74,7 @@ export function WalletStatCards({
         </span>
 
         <div>
-          <span>Total GP</span>
+          <span>{t("wallet.stats.totalGp")}</span>
           <strong>{formatGp(totalGp)} GP</strong>
         </div>
       </article>
@@ -82,7 +85,7 @@ export function WalletStatCards({
         </span>
 
         <div>
-          <span>Locked GP</span>
+          <span>{t("wallet.stats.lockedGp")}</span>
           <strong>{formatGp(lockedGp)} GP</strong>
         </div>
       </article>
@@ -93,7 +96,7 @@ export function WalletStatCards({
         </span>
 
         <div>
-          <span>Available GP</span>
+          <span>{t("wallet.stats.availableGp")}</span>
           <strong>{formatGp(availableGp)} GP</strong>
         </div>
       </article>
@@ -104,7 +107,7 @@ export function WalletStatCards({
         </span>
 
         <div>
-          <span>Loaded Rewards</span>
+          <span>{t("wallet.stats.loadedRewards")}</span>
           <strong>
             {formatGp(wallet?.lifetimeEarnedGp ?? 0)} GP
           </strong>
@@ -117,7 +120,7 @@ export function WalletStatCards({
         </span>
 
         <div>
-          <span>Transactions</span>
+          <span>{t("wallet.stats.transactions")}</span>
           <strong>{wallet?.transactionCount ?? 0}</strong>
         </div>
       </article>

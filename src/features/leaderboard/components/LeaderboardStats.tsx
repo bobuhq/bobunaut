@@ -5,6 +5,7 @@ import {
   Users,
 } from "lucide-react";
 import type { LeaderboardEntry } from "../../../core/builder/services/LeaderboardService";
+import { useLanguage } from "../../../core/language";
 import { AnimatedNumber } from "./AnimatedNumber";
 
 interface LeaderboardStatsProps {
@@ -14,6 +15,7 @@ interface LeaderboardStatsProps {
 export function LeaderboardStats({
   entries,
 }: LeaderboardStatsProps) {
+  const { t } = useLanguage();
   const totalVisibleGp = entries.reduce(
     (total, entry) => total + entry.gp,
     0,
@@ -102,7 +104,9 @@ export function LeaderboardStats({
         </div>
 
         <div className="leaderboard-stat-copy">
-          <span>Visible Builders</span>
+          <span>
+            {t("leaderboard.stats.visibleBuilders")}
+          </span>
           <strong>
             <AnimatedNumber value={entries.length} />
           </strong>
@@ -115,7 +119,9 @@ export function LeaderboardStats({
         </div>
 
         <div className="leaderboard-stat-copy">
-          <span>Top 20 GP</span>
+          <span>
+            {t("leaderboard.stats.top20Gp")}
+          </span>
           <strong>
             <AnimatedNumber value={totalVisibleGp} /> GP
           </strong>
@@ -128,7 +134,9 @@ export function LeaderboardStats({
         </div>
 
         <div className="leaderboard-stat-copy">
-          <span>Leading Builder</span>
+          <span>
+            {t("leaderboard.stats.leadingBuilder")}
+          </span>
           <strong>
             <AnimatedNumber value={leaderGp} /> GP
           </strong>

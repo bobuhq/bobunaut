@@ -3,6 +3,8 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
+  useState,
   useSyncExternalStore,
   type ReactNode,
 } from "react";
@@ -19,7 +21,9 @@ export interface LanguageContextValue {
   language: SupportedLanguage;
   direction: "ltr" | "rtl";
   languages: readonly LanguageOption[];
-  setLanguage: (language: SupportedLanguage) => void;
+  setLanguage: (
+    language: SupportedLanguage,
+  ) => void;
   t: (
     key: string,
     variables?: Record<string, string | number>,
@@ -36,9 +40,9 @@ interface LanguageProviderProps {
 /**
  * React adapter for the framework-independent Preferences Store.
  *
- * LanguageProvider does not own language state. It subscribes to
- * preferencesStore and exposes the existing language context API
- * to the React application.
+ * English remains synchronously available as the production
+ * fallback. Other locale dictionaries are loaded only when
+ * selected or restored from the user's preferences.
  */
 export function LanguageProvider({
   children,
@@ -52,17 +56,70 @@ export function LanguageProvider({
   const language =
     preferencesSnapshot.preferences.preferredLanguage;
 
+  const [dictionaryVersion, setDictionaryVersion] =
+    useState(0);
+
+  const languageRequestId = useRef(0);
+
   const direction =
     LanguageService.getDirection(language);
 
   const setLanguage = useCallback(
     (nextLanguage: SupportedLanguage) => {
-      preferencesStore.updateLocal({
-        preferredLanguage: nextLanguage,
-      });
+      const requestId =
+        languageRequestId.current + 1;
+
+      languageRequestId.current = requestId;
+
+      void LanguageService
+        .loadLanguage(nextLanguage)
+        .then(() => {
+          if (
+            languageRequestId.current !== requestId
+          ) {
+            return;
+          }
+
+          preferencesStore.updateLocal({
+            preferredLanguage: nextLanguage,
+          });
+        })
+        .catch((error: unknown) => {
+          console.error(
+            `Failed to load ${nextLanguage} locale:`,
+            error,
+          );
+        });
     },
     [],
   );
+
+  useEffect(() => {
+    let active = true;
+
+    void LanguageService
+      .loadLanguage(language)
+      .then(() => {
+        if (!active) {
+          return;
+        }
+
+        setDictionaryVersion(
+          (currentVersion) =>
+            currentVersion + 1,
+        );
+      })
+      .catch((error: unknown) => {
+        console.error(
+          `Failed to restore ${language} locale:`,
+          error,
+        );
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [language]);
 
   const t = useCallback(
     (
@@ -74,7 +131,7 @@ export function LanguageProvider({
         key,
         variables,
       ),
-    [language],
+    [language, dictionaryVersion],
   );
 
   useEffect(() => {
@@ -90,7 +147,12 @@ export function LanguageProvider({
       setLanguage,
       t,
     }),
-    [language, direction, setLanguage, t],
+    [
+      language,
+      direction,
+      setLanguage,
+      t,
+    ],
   );
 
   return (

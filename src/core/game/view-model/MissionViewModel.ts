@@ -43,12 +43,26 @@ export interface MissionViewModel {
 }
 
 const fallbackPresentation: MissionPresentation = {
-  category: "MISSION",
-  difficulty: "Unknown",
-  duration: "Unknown",
-  action: "View Mission",
+  categoryKey:
+    "missions.presentation.category.mission",
+  difficultyKey:
+    "missions.presentation.difficulty.unknown",
+  durationKey:
+    "missions.presentation.duration.unknown",
+  actionKey:
+    "missions.presentation.action.viewMission",
   icon: missionPresentation["start-mining"].icon,
 };
+
+export type MissionTranslationFunction = (
+  key: string,
+  variables?: Record<string, string | number>,
+) => string;
+
+export interface MissionViewModelOptions {
+  language: string;
+  t: MissionTranslationFunction;
+}
 
 function getDisplayStatus(
   status: MissionStatus,
@@ -74,7 +88,8 @@ function getDisplayStatus(
 
 export function createMissionViewModel(
   definition: MissionDefinition,
-  progress?: MissionProgress,
+  progress: MissionProgress | undefined,
+  options: MissionViewModelOptions,
 ): MissionViewModel {
   const presentation =
     missionPresentation[definition.id] ??
@@ -100,24 +115,47 @@ export function createMissionViewModel(
   const rewardGp =
     definition.reward.gp ?? 0;
 
+  const rewardText =
+    rewardGp > 0
+      ? `${rewardGp.toLocaleString(
+          options.language,
+        )} GP`
+      : options.t("missions.presentation.noGp");
+
+  const titleKey =
+    definition.id === "start-mining"
+      ? "missions.catalog.startMining.title"
+      : null;
+
+  const descriptionKey =
+    definition.id === "start-mining"
+      ? "missions.catalog.startMining.description"
+      : null;
+
   return {
     id: definition.id,
     cycleKey: progress?.cycleKey ?? "default",
-    category: presentation.category,
-    title: definition.title,
-    description: definition.description,
+    category: options.t(
+      presentation.categoryKey,
+    ),
+    title: titleKey
+      ? options.t(titleKey)
+      : definition.title,
+    description: descriptionKey
+      ? options.t(descriptionKey)
+      : definition.description,
     rewardGp,
-    reward:
-      rewardGp > 0
-        ? `${rewardGp.toLocaleString()} GP`
-        : "No GP",
-    rewardLabel:
-      rewardGp > 0
-        ? `${rewardGp.toLocaleString()} GP`
-        : "No GP",
-    difficulty: presentation.difficulty,
-    duration: presentation.duration,
-    action: presentation.action,
+    reward: rewardText,
+    rewardLabel: rewardText,
+    difficulty: options.t(
+      presentation.difficultyKey,
+    ),
+    duration: options.t(
+      presentation.durationKey,
+    ),
+    action: presentation.actionKey
+      ? options.t(presentation.actionKey)
+      : undefined,
     icon: presentation.icon,
     cadence: definition.cadence,
     target: definition.target,
@@ -134,6 +172,7 @@ export function createMissionViewModel(
 export function createMissionViewModels(
   definitions: MissionDefinition[],
   progress: MissionProgress[],
+  options: MissionViewModelOptions,
 ): MissionViewModel[] {
   const progressByMissionId = new Map(
     progress.map((item) => [
@@ -146,6 +185,7 @@ export function createMissionViewModels(
     createMissionViewModel(
       definition,
       progressByMissionId.get(definition.id),
+      options,
     ),
   );
 }

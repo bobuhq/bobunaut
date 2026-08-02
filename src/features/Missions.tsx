@@ -12,6 +12,7 @@ import {
 import {
   missionRewardService,
 } from "../core/game/services";
+import { useLanguage } from "../core/language";
 import {
   Award,
   Check,
@@ -41,23 +42,31 @@ import {
 
 const rewards = [
   {
-    title: "Gift Card Campaigns",
-    description: "Limited promotional missions with clear campaign rules.",
+    titleKey:
+      "missions.page.rewards.giftCards.title",
+    descriptionKey:
+      "missions.page.rewards.giftCards.description",
     icon: Gift,
   },
   {
-    title: "Selected Airdrops",
-    description: "Eligibility opportunities tied to verified mission activity.",
+    titleKey:
+      "missions.page.rewards.airdrops.title",
+    descriptionKey:
+      "missions.page.rewards.airdrops.description",
     icon: Rocket,
   },
   {
-    title: "Exclusive Badges",
-    description: "Permanent recognition for active Bobonauts and creators.",
+    titleKey:
+      "missions.page.rewards.badges.title",
+    descriptionKey:
+      "missions.page.rewards.badges.description",
     icon: Award,
   },
   {
-    title: "Leaderboard Access",
-    description: "Future seasonal rankings for missions and arcade scores.",
+    titleKey:
+      "missions.page.rewards.leaderboard.title",
+    descriptionKey:
+      "missions.page.rewards.leaderboard.description",
     icon: Trophy,
   },
 ];
@@ -77,7 +86,8 @@ const socialChannels = [
   },
   {
     name: "Telegram",
-    handle: "Official Community",
+    handleKey:
+      "missions.page.social.officialCommunity",
     href: "https://t.me/+I0Q01kVMYw41YjA0",
     icon: Globe2,
   },
@@ -85,28 +95,38 @@ const socialChannels = [
 
 const activity = [
   {
-    title: "Mission Control Access",
-    description: "Your Bobonaut profile entered the mission network.",
+    titleKey:
+      "missions.page.activity.controlAccess.title",
+    descriptionKey:
+      "missions.page.activity.controlAccess.description",
     completed: true,
   },
   {
-    title: "Official Signal Detected",
-    description: "BOBU Universe communication channels are online.",
+    titleKey:
+      "missions.page.activity.signalDetected.title",
+    descriptionKey:
+      "missions.page.activity.signalDetected.description",
     completed: true,
   },
   {
-    title: "Complete First Mission",
-    description: "Finish one active mission to begin your progress.",
+    titleKey:
+      "missions.page.activity.firstMission.title",
+    descriptionKey:
+      "missions.page.activity.firstMission.description",
     completed: false,
   },
   {
-    title: "Unlock First Badge",
-    description: "Earn recognition through verified participation.",
+    titleKey:
+      "missions.page.activity.firstBadge.title",
+    descriptionKey:
+      "missions.page.activity.firstBadge.description",
     completed: false,
   },
 ];
 
 export function Missions() {
+  const { language, t } = useLanguage();
+
   const {
     builderId,
     definitions,
@@ -118,10 +138,16 @@ export function Missions() {
       createMissionViewModels(
         definitions,
         missionProgress,
+        {
+          language,
+          t,
+        },
       ),
     [
       definitions,
       missionProgress,
+      language,
+      t,
     ],
   );
 
@@ -200,7 +226,7 @@ export function Missions() {
       const message =
         error instanceof Error
           ? error.message
-          : "Mission reward could not be claimed.";
+          : t("missions.page.claimError");
 
       setClaimError({
         missionId,
@@ -1052,17 +1078,17 @@ export function Missions() {
           <div className="mc-hero-copy">
             <div className="mc-kicker">
               <RadioTower size={15} />
-              PHASE 02 · SIGNAL ACTIVE
+              {t("missions.page.hero.kicker")}
             </div>
 
             <h1>
-              <span className="mc-gradient-text">MISSION CONTROL</span>
+              <span className="mc-gradient-text">
+                {t("missions.page.hero.title")}
+              </span>
             </h1>
 
             <p>
-              Every mission shapes the future of BOBU Universe. Complete
-              missions, earn progress, unlock future opportunities and become
-              an active Bobonaut.
+              {t("missions.page.hero.description")}
             </p>
 
             <div className="mc-hero-actions">
@@ -1076,7 +1102,7 @@ export function Missions() {
                 }
               >
                 <Target size={17} />
-                View Active Missions
+                {t("missions.page.hero.viewMissions")}
               </button>
 
               <button
@@ -1089,7 +1115,7 @@ export function Missions() {
                 }
               >
                 <Gift size={17} />
-                Explore Rewards
+                {t("missions.page.hero.exploreRewards")}
               </button>
             </div>
           </div>
@@ -1099,7 +1125,7 @@ export function Missions() {
               <div className="mc-status-line">
                 <span className="mc-online">
                   <span className="mc-online-dot" />
-                  NETWORK ONLINE
+                  {t("missions.page.commander.online")}
                 </span>
 
                 <ShieldCheck size={22} />
@@ -1109,16 +1135,17 @@ export function Missions() {
                 <Medal size={30} />
               </div>
 
-              <h2>Cadet Bobonaut</h2>
+              <h2>{t("missions.page.commander.rank")}</h2>
               <p>
-                Complete missions to build your profile and unlock the next
-                Bobonaut rank.
+                {t("missions.page.commander.description")}
               </p>
             </div>
 
             <div>
               <div className="mc-progress-label">
-                <span>RANK PROGRESS</span>
+                <span>
+                  {t("missions.page.commander.progress")}
+                </span>
                 <strong>{progress}%</strong>
               </div>
 
@@ -1132,14 +1159,17 @@ export function Missions() {
           </aside>
         </section>
 
-        <section className="mc-stats" aria-label="Mission statistics">
+        <section
+          className="mc-stats"
+          aria-label={t("missions.page.stats.aria")}
+        >
           <article className="mc-stat-card">
             <div className="mc-stat-icon">
               <Zap size={22} />
             </div>
             <div>
-              <span>MISSION GP</span>
-              <strong>{totalMissionGp.toLocaleString()}</strong>
+              <span>{t("missions.page.stats.missionGp")}</span>
+              <strong>{totalMissionGp.toLocaleString(language)}</strong>
             </div>
           </article>
 
@@ -1148,8 +1178,8 @@ export function Missions() {
               <Gem size={22} />
             </div>
             <div>
-              <span>REWARD STATUS</span>
-              <strong>PREVIEW</strong>
+              <span>{t("missions.page.stats.rewardStatus")}</span>
+              <strong>{t("missions.page.stats.preview")}</strong>
             </div>
           </article>
 
@@ -1158,7 +1188,7 @@ export function Missions() {
               <Award size={22} />
             </div>
             <div>
-              <span>BADGES</span>
+              <span>{t("missions.page.stats.badges")}</span>
               <strong>{completedCount > 0 ? 1 : 0}</strong>
             </div>
           </article>
@@ -1168,7 +1198,7 @@ export function Missions() {
               <CheckCircle2 size={22} />
             </div>
             <div>
-              <span>MISSIONS</span>
+              <span>{t("missions.page.stats.missions")}</span>
               <strong>
                 {completedCount}/{totalAvailable}
               </strong>
@@ -1179,15 +1209,16 @@ export function Missions() {
         <section className="mc-section" id="active-missions">
           <header className="mc-section-heading">
             <div>
-              <h2>Active Missions</h2>
+              <h2>{t("missions.page.active.title")}</h2>
               <p>
-                Start with simple actions. Future chapters will introduce
-                games, seasonal challenges and verified reward campaigns.
+                {t("missions.page.active.description")}
               </p>
             </div>
 
             <span className="mc-section-count">
-              {totalAvailable} MISSIONS AVAILABLE
+              {t("missions.page.active.availableCount", {
+                count: totalAvailable,
+              })}
             </span>
           </header>
 
@@ -1231,7 +1262,9 @@ export function Missions() {
                         <Circle size={10} />
                       )}
 
-                      {displayStatus.toUpperCase()}
+                      {t(
+                        `missions.page.status.${displayStatus}`,
+                      )}
                     </span>
                   </div>
 
@@ -1244,17 +1277,23 @@ export function Missions() {
 
                   <div className="mc-mission-meta">
                     <div className="mc-meta-item">
-                      <span>DIFFICULTY</span>
+                      <span>
+                        {t("missions.page.meta.difficulty")}
+                      </span>
                       <strong>{mission.difficulty}</strong>
                     </div>
 
                     <div className="mc-meta-item">
-                      <span>DURATION</span>
+                      <span>
+                        {t("missions.page.meta.duration")}
+                      </span>
                       <strong>{mission.duration}</strong>
                     </div>
 
                     <div className="mc-meta-item">
-                      <span>REWARD</span>
+                      <span>
+                        {t("missions.page.meta.reward")}
+                      </span>
                       <strong>{mission.reward}</strong>
                     </div>
                   </div>
@@ -1262,7 +1301,7 @@ export function Missions() {
                   <footer className="mc-mission-footer">
                     <div className="mc-reward">
                       <Star size={17} />
-                      GP reward preview
+                      {t("missions.page.rewardPreview")}
                     </div>
 
                     <button
@@ -1292,24 +1331,24 @@ export function Missions() {
                       {locked ? (
                         <>
                           <LockKeyhole size={16} />
-                          Locked
+                          {t("missions.page.button.locked")}
                         </>
                       ) : claimed ? (
                         <>
                           <CheckCircle2 size={16} />
-                          Claimed
+                          {t("missions.page.button.claimed")}
                         </>
                       ) : completed ? (
                         <>
                           {claiming ? (
                             <>
                               <Clock3 size={16} />
-                              Claiming...
+                              {t("missions.page.button.claiming")}
                             </>
                           ) : (
                             <>
                               <Gift size={16} />
-                              Claim Reward
+                              {t("missions.page.button.claimReward")}
                             </>
                           )}
                         </>
@@ -1352,7 +1391,12 @@ export function Missions() {
 
                             <span className="mc-channel-copy">
                               <strong>{channel.name}</strong>
-                              <span>{channel.handle}</span>
+                              <span>
+                                {"handleKey" in channel &&
+                                typeof channel.handleKey === "string"
+                                  ? t(channel.handleKey)
+                                  : channel.handle}
+                              </span>
                             </span>
 
                             <ExternalLink size={14} />
@@ -1368,7 +1412,7 @@ export function Missions() {
                         }
                       >
                         <CheckCircle2 size={17} />
-                        Close Channels
+                        {t("missions.page.button.closeChannels")}
                       </button>
                     </motion.div>
                   )}
@@ -1381,7 +1425,7 @@ export function Missions() {
         <section className="mc-section mc-two-column">
           <article className="mc-panel">
             <div className="mc-panel-title">
-              <h3>Mission Activity</h3>
+              <h3>{t("missions.page.activity.title")}</h3>
               <Clock3 size={21} />
             </div>
 
@@ -1391,7 +1435,10 @@ export function Missions() {
                   index < 2 || completedCount >= index - 1;
 
                 return (
-                  <div className="mc-activity-item" key={item.title}>
+                  <div
+                    className="mc-activity-item"
+                    key={item.titleKey}
+                  >
                     <div
                       className={`mc-activity-marker ${
                         dynamicallyCompleted ? "done" : ""
@@ -1405,8 +1452,8 @@ export function Missions() {
                     </div>
 
                     <div>
-                      <strong>{item.title}</strong>
-                      <p>{item.description}</p>
+                      <strong>{t(item.titleKey)}</strong>
+                      <p>{t(item.descriptionKey)}</p>
                     </div>
                   </div>
                 );
@@ -1416,7 +1463,7 @@ export function Missions() {
 
           <article className="mc-panel" id="reward-center">
             <div className="mc-panel-title">
-              <h3>Reward Center</h3>
+              <h3>{t("missions.page.rewards.title")}</h3>
               <Gift size={21} />
             </div>
 
@@ -1425,10 +1472,13 @@ export function Missions() {
                 const RewardIcon = reward.icon;
 
                 return (
-                  <div className="mc-reward-card" key={reward.title}>
+                  <div
+                    className="mc-reward-card"
+                    key={reward.titleKey}
+                  >
                     <RewardIcon size={23} />
-                    <h4>{reward.title}</h4>
-                    <p>{reward.description}</p>
+                    <h4>{t(reward.titleKey)}</h4>
+                    <p>{t(reward.descriptionKey)}</p>
                   </div>
                 );
               })}
@@ -1438,20 +1488,17 @@ export function Missions() {
               <ShieldCheck size={19} />
 
               <span>
-                Mission completion creates progress or campaign eligibility. It
-                does not guarantee a financial reward unless official campaign
-                rules explicitly state otherwise.
+                {t("missions.page.rewards.disclaimer")}
               </span>
             </div>
           </article>
         </section>
 
         <section className="mc-final-message">
-          <span>THE SIGNAL IS LIVE</span>
-          <h2>We Are Building Space.</h2>
+          <span>{t("missions.page.final.eyebrow")}</span>
+          <h2>{t("missions.page.final.title")}</h2>
           <p>
-            Complete missions. Support the community. Help expand BOBU
-            Universe.
+            {t("missions.page.final.description")}
           </p>
         </section>
       </div>

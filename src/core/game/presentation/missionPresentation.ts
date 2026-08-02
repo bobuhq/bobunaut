@@ -7,10 +7,10 @@ import {
 } from "lucide-react";
 
 export interface MissionPresentation {
-  category: string;
-  difficulty: string;
-  duration: string;
-  action?: string;
+  categoryKey: string;
+  difficultyKey: string;
+  durationKey: string;
+  actionKey?: string;
   icon: LucideIcon;
 }
 
@@ -19,33 +19,48 @@ export const missionPresentation: Record<
   MissionPresentation
 > = {
   "start-mining": {
-    category: "DAILY",
-    difficulty: "Easy",
-    duration: "1 min",
-    action: "Start Mining",
+    categoryKey:
+      "missions.presentation.category.daily",
+    difficultyKey:
+      "missions.presentation.difficulty.easy",
+    durationKey:
+      "missions.presentation.duration.oneMinute",
+    actionKey:
+      "missions.presentation.action.startMining",
     icon: RadioTower,
   },
 
   "join-community": {
-    category: "COMMUNITY",
-    difficulty: "Easy",
-    duration: "3 min",
-    action: "Open Channels",
+    categoryKey:
+      "missions.presentation.category.community",
+    difficultyKey:
+      "missions.presentation.difficulty.easy",
+    durationKey:
+      "missions.presentation.duration.threeMinutes",
+    actionKey:
+      "missions.presentation.action.openChannels",
     icon: Users,
   },
 
   "create-meme": {
-    category: "CREATOR",
-    difficulty: "Medium",
-    duration: "10 min",
-    action: "Start Creating",
+    categoryKey:
+      "missions.presentation.category.creator",
+    difficultyKey:
+      "missions.presentation.difficulty.medium",
+    durationKey:
+      "missions.presentation.duration.tenMinutes",
+    actionKey:
+      "missions.presentation.action.startCreating",
     icon: Sparkles,
   },
 
   "arcade-coming-soon": {
-    category: "ARCADE",
-    difficulty: "Unknown",
-    duration: "Coming Soon",
+    categoryKey:
+      "missions.presentation.category.arcade",
+    difficultyKey:
+      "missions.presentation.difficulty.unknown",
+    durationKey:
+      "missions.presentation.duration.comingSoon",
     icon: Gamepad2,
   },
 };

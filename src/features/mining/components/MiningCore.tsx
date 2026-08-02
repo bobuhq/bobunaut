@@ -1,4 +1,5 @@
 import { CheckCircle2, Pickaxe } from "lucide-react";
+import { useLanguage } from "../../../core/language";
 
 type MiningCoreProps = {
   isActive: boolean;
@@ -19,19 +20,21 @@ export default function MiningCore({
   sessionEarnedGp,
   onAction,
 }: MiningCoreProps) {
+  const { t } = useLanguage();
+
   const status = claimable
-    ? "COMPLETED"
+    ? t("mining.status.completed")
     : isActive
-      ? "ACTIVE"
-      : "INACTIVE";
+      ? t("mining.status.active")
+      : t("mining.status.inactive");
 
   const buttonLabel = busy
-    ? "Processing..."
+    ? t("mining.core.processing")
     : claimable
-      ? "Claim GP"
+      ? t("mining.core.claimGp")
       : isActive
-        ? "Mining Active"
-        : "Activate Mining";
+        ? t("mining.core.miningActive")
+        : t("mining.core.activateMining");
 
   return (
     <div className="mining-core">
@@ -40,7 +43,7 @@ export default function MiningCore({
           className={`mining-orbit-system ${
             isActive ? "is-active" : ""
           }`}
-          aria-label="BOBU mining orbit"
+          aria-label={t("mining.core.orbitAria")}
         >
           <div className="mining-orbit-glow" />
 
@@ -74,7 +77,7 @@ export default function MiningCore({
         </div>
 
         <div className="mining-status-label">
-          Mining Status
+          {t("mining.core.statusLabel")}
         </div>
 
         <div
@@ -87,12 +90,12 @@ export default function MiningCore({
 
         <div className="mining-core-verification">
           <CheckCircle2 size={13} />
-          Server Verified
+          {t("mining.core.serverVerified")}
         </div>
 
         <div className="mining-timer-block">
           <span className="mining-timer-label">
-            Time Remaining
+            {t("mining.core.timeRemaining")}
           </span>
 
           <div className="mining-timer">
@@ -105,7 +108,7 @@ export default function MiningCore({
         </div>
 
         <div className="mining-live-earned">
-          <span>Current Session</span>
+          <span>{t("mining.core.currentSession")}</span>
 
           <strong>
             {sessionEarnedGp.toFixed(5)} GP
@@ -113,7 +116,7 @@ export default function MiningCore({
         </div>
 
         <div className="mining-progress-meta">
-          <span>Session Progress</span>
+          <span>{t("mining.core.sessionProgress")}</span>
 
           <strong>
             {(claimable

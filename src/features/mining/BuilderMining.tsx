@@ -15,6 +15,7 @@ import MiningHero from "./components/MiningHero";
 import "./MiningLaunchV7.css";
 
 import { useBuilderStore } from "../identity/hooks/useBuilderStore";
+import { useLanguage } from "../../core/language";
 import { useBuilderMiningSession } from "./hooks/useBuilderMiningSession";
 import { useMiningStreak } from "./hooks/useMiningStreak";
 import {
@@ -39,12 +40,16 @@ function formatRemaining(milliseconds: number): string {
     .join(":");
 }
 
-const formatGp = (value: number): string =>
-  value.toLocaleString("en-US", {
+const formatGp = (
+  value: number,
+  language: string,
+): string =>
+  value.toLocaleString(language, {
     maximumFractionDigits: 2,
   });
 
 export default function BuilderMining() {
+  const { language, t } = useLanguage();
   const builder = useBuilderStore();
 
   const [historyEntries, setHistoryEntries] =
@@ -117,10 +122,10 @@ export default function BuilderMining() {
   );
 
   const sessionStatus = claimable
-    ? "Ready to Claim"
+    ? t("mining.status.readyToClaim")
     : isActive
-      ? "Active"
-      : "Inactive";
+      ? t("mining.status.active")
+      : t("mining.status.inactive");
 
   return (
     <section className="mining-page mining-launch-v7">
@@ -141,9 +146,9 @@ export default function BuilderMining() {
           <div className="mining-panel-heading">
             <div>
               <span className="mining-panel-kicker">
-                Live Mining Signal
+                {t("mining.session.kicker")}
               </span>
-              <h2>Current Session</h2>
+              <h2>{t("mining.session.title")}</h2>
             </div>
 
             <span
@@ -157,70 +162,76 @@ export default function BuilderMining() {
             {errorMessage
               ? errorMessage
               : claimable
-                ? "Your verified 24-hour session is complete and ready to claim."
+                ? t("mining.session.claimableDescription")
                 : isActive
-                  ? `${activeReferralCount} active Builder${
-                      activeReferralCount === 1 ? "" : "s"
-                    } currently support your mining rate.`
-                  : "Activate a server-verified 24-hour session to begin earning Personal GP."}
+                  ? t("mining.session.activeDescription", {
+                      count: activeReferralCount,
+                      builderLabel:
+                        activeReferralCount === 1
+                          ? t("mining.session.builderSingular")
+                          : t("mining.session.builderPlural"),
+                    })
+                  : t("mining.session.inactiveDescription")}
           </p>
 
           <div className="mining-session-countdown">
             <Clock3 size={18} />
             <span>
               {loading
-                ? "Synchronizing..."
+                ? t("mining.session.synchronizing")
                 : claimable
-                  ? "Reward ready"
+                  ? t("mining.session.rewardReady")
                   : isActive
-                    ? `${remainingTimeLabel} remaining`
-                    : "Ready for activation"}
+                    ? t("mining.session.remaining", {
+                        time: remainingTimeLabel,
+                      })
+                    : t("mining.session.readyForActivation")}
             </span>
           </div>
 
           <div className="mining-session-facts">
             <div>
-              <span>Status</span>
+              <span>{t("mining.session.status")}</span>
               <strong>{sessionStatus}</strong>
             </div>
 
             <div>
-              <span>Active Builders</span>
+              <span>{t("mining.session.activeBuilders")}</span>
               <strong>{activeReferralCount}</strong>
             </div>
 
             <div>
-              <span>Base Rate</span>
+              <span>{t("mining.session.baseRate")}</span>
               <strong>
                 {(miningState?.baseRatePerHour ?? 0).toFixed(2)} GP/h
               </strong>
             </div>
 
             <div>
-              <span>Referral Bonus</span>
+              <span>{t("mining.session.referralBonus")}</span>
               <strong>
                 +{(miningState?.referralBonusRate ?? 0).toFixed(2)} GP/h
               </strong>
             </div>
 
             <div>
-              <span>Session Reward</span>
+              <span>{t("mining.session.sessionReward")}</span>
               <strong>
-                {formatGp(miningState?.rewardGp ?? 0)} GP
+                {formatGp(miningState?.rewardGp ?? 0, language)} GP
               </strong>
             </div>
 
             <div>
-              <span>Wallet GP</span>
+              <span>{t("mining.session.walletGp")}</span>
               <strong>
-                {formatGp(miningState?.walletGp ?? 0)}
+                {formatGp(miningState?.walletGp ?? 0, language)}
               </strong>
             </div>
           </div>
 
           <div className="mining-session-verification">
             <span />
-            Server Verified
+            {t("mining.session.serverVerified")}
           </div>
         </aside>
       </div>
@@ -257,14 +268,14 @@ export default function BuilderMining() {
 
             <h2>
               {claimable
-                ? "Mining GP Claimed"
-                : "Mining Session Activated"}
+                ? t("mining.activation.claimedTitle")
+                : t("mining.activation.activatedTitle")}
             </h2>
 
             <p>
               {claimable
-                ? "Your verified reward has been added to your GP balance."
-                : "Your server-verified 24-hour mining session has begun."}
+                ? t("mining.activation.claimedDescription")
+                : t("mining.activation.activatedDescription")}
             </p>
           </div>
         </div>

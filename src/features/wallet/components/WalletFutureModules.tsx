@@ -1,34 +1,36 @@
 import { LockKeyhole } from "lucide-react";
+import { useLanguage } from "../../../core/language";
 
-const futureModules = [
-  "On-chain Wallet",
-  "Token Claim",
-  "NFT Inventory",
-  "BOBU Marketplace",
+const futureModuleKeys = [
+  "wallet.future.onChainWallet",
+  "wallet.future.tokenClaim",
+  "wallet.future.nftInventory",
+  "wallet.future.marketplace",
 ];
 
 export function WalletFutureModules() {
+  const { t } = useLanguage();
+
   return (
     <aside className="builder-wallet-future">
       <span className="builder-wallet-future-label">
-        WALLET EVOLUTION
+        {t("wallet.future.eyebrow")}
       </span>
 
-      <h2>Future Network Modules</h2>
+      <h2>{t("wallet.future.title")}</h2>
 
       <p>
-        These modules remain secured until the BOBU economy
-        enters its next development stage.
+        {t("wallet.future.description")}
       </p>
 
-      {futureModules.map((feature) => (
+      {futureModuleKeys.map((featureKey) => (
         <div
-          key={feature}
+          key={featureKey}
           className="builder-wallet-locked-feature"
         >
           <LockKeyhole size={16} />
-          <span>{feature}</span>
-          <small>LOCKED</small>
+          <span>{t(featureKey)}</span>
+          <small>{t("wallet.future.locked")}</small>
         </div>
       ))}
     </aside>

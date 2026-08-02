@@ -4,6 +4,8 @@ import {
   History,
 } from "lucide-react";
 
+import { useLanguage } from "../../../core/language";
+
 import type {
   MiningHistoryEntry,
 } from "../services/MiningHistoryService";
@@ -14,8 +16,11 @@ type MiningHistoryProps = {
   errorMessage: string | null;
 };
 
-const formatDate = (value: string): string =>
-  new Intl.DateTimeFormat("en-US", {
+const formatDate = (
+  value: string,
+  language: string,
+): string =>
+  new Intl.DateTimeFormat(language, {
     month: "short",
     day: "numeric",
     year: "numeric",
@@ -25,9 +30,10 @@ const formatDate = (value: string): string =>
 
 const shortenSessionId = (
   sessionId: string | null,
+  unavailableLabel: string,
 ): string => {
   if (!sessionId) {
-    return "Session unavailable";
+    return unavailableLabel;
   }
 
   if (sessionId.length <= 18) {
@@ -42,26 +48,30 @@ export default function MiningHistory({
   loading,
   errorMessage,
 }: MiningHistoryProps) {
+  const { language, t } = useLanguage();
+
   return (
     <section className="mining-history-panel">
       <div className="mining-history-heading">
         <div>
           <span className="mining-history-eyebrow">
             <History size={15} />
-            Verified Ledger
+            {t("mining.history.eyebrow")}
           </span>
 
-          <h2>Mining History</h2>
+          <h2>{t("mining.history.title")}</h2>
         </div>
 
         <span className="mining-history-count">
-          BOBU Core · Latest {entries.length}
+          {t("mining.history.latest", {
+            count: entries.length,
+          })}
         </span>
       </div>
 
       {loading ? (
         <p className="mining-history-state">
-          Synchronizing mining history…
+          {t("mining.history.synchronizing")}
         </p>
       ) : errorMessage ? (
         <p className="mining-history-state is-error">
@@ -69,7 +79,7 @@ export default function MiningHistory({
         </p>
       ) : entries.length === 0 ? (
         <p className="mining-history-state">
-          No claimed mining sessions yet.
+          {t("mining.history.empty")}
         </p>
       ) : (
         <div className="mining-history-list">
@@ -85,18 +95,26 @@ export default function MiningHistory({
               <div className="mining-history-entry-main">
                 <strong>
                   +{entry.amountGp.toLocaleString(
-                    "en-US",
+                    language,
                   )} GP
                 </strong>
 
                 <span>
-                  {shortenSessionId(entry.sessionId)}
+                  {shortenSessionId(
+                    entry.sessionId,
+                    t("mining.history.sessionUnavailable"),
+                  )}
                 </span>
               </div>
 
               <div className="mining-history-entry-date">
                 <CalendarDays size={14} />
-                <span>{formatDate(entry.createdAt)}</span>
+                <span>
+                  {formatDate(
+                    entry.createdAt,
+                    language,
+                  )}
+                </span>
               </div>
             </article>
           ))}

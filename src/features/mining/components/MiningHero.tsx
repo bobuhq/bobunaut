@@ -1,21 +1,22 @@
 import { Sparkles } from "lucide-react";
+import { useLanguage } from "../../../core/language";
 
 export default function MiningHero() {
+  const { t } = useLanguage();
+
   return (
     <div className="mining-hero">
       <div className="mining-eyebrow">
         <Sparkles size={16} />
-        BOBU Universe Protocol
+        {t("mining.hero.eyebrow")}
       </div>
 
       <h1 className="mining-title">
-        Builder Mining
+        {t("mining.hero.title")}
       </h1>
 
       <p className="mining-description">
-        Activate your daily mining session, collect
-        GP and strengthen your reputation
-        across the BOBU Universe.
+        {t("mining.hero.description")}
       </p>
     </div>
   );

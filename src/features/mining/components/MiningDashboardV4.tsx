@@ -9,6 +9,8 @@ import {
   Zap,
 } from "lucide-react";
 
+import { useLanguage } from "../../../core/language";
+
 import type {
   MiningHistoryEntry,
 } from "../services/MiningHistoryService";
@@ -41,25 +43,30 @@ type CalendarDay = {
   today: boolean;
 };
 
-const formatGp = (value: number): string =>
-  value.toLocaleString("en-US", {
+const formatGp = (
+  value: number,
+  language: string,
+): string =>
+  value.toLocaleString(language, {
     maximumFractionDigits: 2,
   });
 
 const formatDateTime = (
   value: string | null,
+  language: string,
+  unavailableLabel: string,
 ): string => {
   if (!value) {
-    return "No claim recorded";
+    return unavailableLabel;
   }
 
   const date = new Date(value);
 
   if (Number.isNaN(date.getTime())) {
-    return "No claim recorded";
+    return unavailableLabel;
   }
 
-  return new Intl.DateTimeFormat("en-US", {
+  return new Intl.DateTimeFormat(language, {
     month: "short",
     day: "numeric",
     hour: "2-digit",
@@ -112,22 +119,33 @@ const createCalendarDays = (
 
 const getNextMilestone = (
   currentStreak: number,
-): { target: number; label: string } => {
+): { target: number; labelKey: string } => {
   if (currentStreak < 7) {
-    return { target: 7, label: "7 Day Consistency" };
+    return {
+      target: 7,
+      labelKey: "mining.dashboard.milestone7",
+    };
   }
 
   if (currentStreak < 30) {
-    return { target: 30, label: "30 Day Discipline" };
+    return {
+      target: 30,
+      labelKey: "mining.dashboard.milestone30",
+    };
   }
 
   if (currentStreak < 100) {
-    return { target: 100, label: "100 Day Veteran" };
+    return {
+      target: 100,
+      labelKey: "mining.dashboard.milestone100",
+    };
   }
 
   return {
-    target: Math.ceil((currentStreak + 1) / 100) * 100,
-    label: "Legendary Streak",
+    target:
+      Math.ceil((currentStreak + 1) / 100) * 100,
+    labelKey:
+      "mining.dashboard.milestoneLegendary",
   };
 };
 
@@ -147,6 +165,8 @@ export default function MiningDashboardV4({
   walletGp,
   activeReferralCount,
 }: MiningDashboardV4Props) {
+  const { language, t } = useLanguage();
+
   const currentStreak = streak?.currentStreakDays ?? 0;
   const bestStreak = streak?.bestStreakDays ?? 0;
   const totalSessions = streak?.totalClaimedSessions ?? 0;
@@ -159,10 +179,10 @@ export default function MiningDashboardV4({
   );
 
   const miningStateLabel = claimable
-    ? "Reward Ready"
+    ? t("mining.status.rewardReady")
     : isActive
-      ? "Mining Active"
-      : "Ready to Activate";
+      ? t("mining.core.miningActive")
+      : t("mining.status.readyToActivate");
 
   return (
     <section className="mining-v4">
@@ -177,9 +197,13 @@ export default function MiningDashboardV4({
           <span className="mining-v4-stat-icon is-fire">
             <Flame size={22} />
           </span>
-          <span>Current Streak</span>
+          <span>{t("mining.dashboard.currentStreak")}</span>
           <strong>
-            {streakLoading ? "—" : `${currentStreak} Days`}
+            {streakLoading
+              ? "—"
+              : t("mining.dashboard.days", {
+                  count: currentStreak,
+                })}
           </strong>
         </article>
 
@@ -187,9 +211,13 @@ export default function MiningDashboardV4({
           <span className="mining-v4-stat-icon">
             <Trophy size={22} />
           </span>
-          <span>Best Streak</span>
+          <span>{t("mining.dashboard.bestStreak")}</span>
           <strong>
-            {streakLoading ? "—" : `${bestStreak} Days`}
+            {streakLoading
+              ? "—"
+              : t("mining.dashboard.days", {
+                  count: bestStreak,
+                })}
           </strong>
         </article>
 
@@ -197,9 +225,11 @@ export default function MiningDashboardV4({
           <span className="mining-v4-stat-icon is-gp">
             <Gem size={22} />
           </span>
-          <span>Lifetime Mined</span>
+          <span>{t("mining.dashboard.lifetimeMined")}</span>
           <strong>
-            {streakLoading ? "—" : `${formatGp(lifetimeGp)} GP`}
+            {streakLoading
+              ? "—"
+              : `${formatGp(lifetimeGp, language)} GP`}
           </strong>
         </article>
 
@@ -207,11 +237,11 @@ export default function MiningDashboardV4({
           <span className="mining-v4-stat-icon">
             <CheckCircle2 size={22} />
           </span>
-          <span>Claimed Sessions</span>
+          <span>{t("mining.dashboard.claimedSessions")}</span>
           <strong>
             {streakLoading
               ? "—"
-              : totalSessions.toLocaleString("en-US")}
+              : totalSessions.toLocaleString(language)}
           </strong>
         </article>
       </div>
@@ -222,9 +252,9 @@ export default function MiningDashboardV4({
             <div>
               <span>
                 <CalendarDays size={15} />
-                Verified Activity
+                {t("mining.dashboard.verifiedActivity")}
               </span>
-              <h3>30 Day Mining Calendar</h3>
+              <h3>{t("mining.dashboard.calendarTitle")}</h3>
             </div>
           </div>
 
@@ -239,12 +269,19 @@ export default function MiningDashboardV4({
                 ]
                   .filter(Boolean)
                   .join(" ")}
-                title={`${day.date.toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                  year: "numeric",
-                  timeZone: "UTC",
-                })}: ${day.claimed ? "Claimed" : "No claim"}`}
+                title={`${day.date.toLocaleDateString(
+                  language,
+                  {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                    timeZone: "UTC",
+                  },
+                )}: ${
+                  day.claimed
+                    ? t("mining.dashboard.claimed")
+                    : t("mining.dashboard.noClaim")
+                }`}
               >
                 {day.day}
               </div>
@@ -252,9 +289,18 @@ export default function MiningDashboardV4({
           </div>
 
           <div className="mining-v4-calendar-legend">
-            <span><i className="is-claimed" />Claimed</span>
-            <span><i className="is-today" />Today</span>
-            <span><i />No claim</span>
+            <span>
+              <i className="is-claimed" />
+              {t("mining.dashboard.claimed")}
+            </span>
+            <span>
+              <i className="is-today" />
+              {t("mining.dashboard.today")}
+            </span>
+            <span>
+              <i />
+              {t("mining.dashboard.noClaim")}
+            </span>
           </div>
         </article>
 
@@ -263,44 +309,79 @@ export default function MiningDashboardV4({
             <div>
               <span>
                 <ShieldCheck size={15} />
-                BOBU Core
+                {t("mining.dashboard.bobuCore")}
               </span>
-              <h3>Mining Intelligence</h3>
+              <h3>{t("mining.dashboard.intelligenceTitle")}</h3>
             </div>
           </div>
 
           <div className="mining-v4-intelligence-grid">
             <div>
               <Zap size={17} />
-              <span>Mining State<strong>{miningStateLabel}</strong></span>
+              <span>
+                {t("mining.dashboard.miningState")}
+                <strong>{miningStateLabel}</strong>
+              </span>
             </div>
 
             <div>
               <Network size={17} />
-              <span>Network Support<strong>{activeReferralCount} Builders</strong></span>
+              <span>
+                {t("mining.dashboard.networkSupport")}
+                <strong>
+                  {t("mining.dashboard.builders", {
+                    count: activeReferralCount,
+                  })}
+                </strong>
+              </span>
             </div>
 
             <div>
               <Gem size={17} />
-              <span>Wallet Balance<strong>{formatGp(walletGp)} GP</strong></span>
+              <span>
+                {t("mining.dashboard.walletBalance")}
+                <strong>
+                  {formatGp(walletGp, language)} GP
+                </strong>
+              </span>
             </div>
 
             <div>
               <ShieldCheck size={17} />
-              <span>Last Verified Claim<strong>{formatDateTime(streak?.lastClaimedAt ?? null)}</strong></span>
+              <span>
+                {t("mining.dashboard.lastVerifiedClaim")}
+                <strong>
+                  {formatDateTime(
+                    streak?.lastClaimedAt ?? null,
+                    language,
+                    t("mining.dashboard.noClaimRecorded"),
+                  )}
+                </strong>
+              </span>
             </div>
           </div>
 
           <div className="mining-v4-rate-strip">
-            <div><span>Base</span><strong>{baseRatePerHour.toFixed(2)} GP/h</strong></div>
-            <div><span>Referral</span><strong>+{referralBonusRate.toFixed(2)} GP/h</strong></div>
-            <div><span>Total</span><strong>{totalRatePerHour.toFixed(2)} GP/h</strong></div>
+            <div>
+              <span>{t("mining.dashboard.base")}</span>
+              <strong>{baseRatePerHour.toFixed(2)} GP/h</strong>
+            </div>
+            <div>
+              <span>{t("mining.dashboard.referral")}</span>
+              <strong>
+                +{referralBonusRate.toFixed(2)} GP/h
+              </strong>
+            </div>
+            <div>
+              <span>{t("mining.dashboard.total")}</span>
+              <strong>{totalRatePerHour.toFixed(2)} GP/h</strong>
+            </div>
           </div>
 
           <div className="mining-v4-milestone">
             <div>
-              <span>Next Milestone</span>
-              <strong>{milestone.label}</strong>
+              <span>{t("mining.dashboard.nextMilestone")}</span>
+              <strong>{t(milestone.labelKey)}</strong>
             </div>
             <span>{currentStreak}/{milestone.target}</span>
           </div>
@@ -310,9 +391,15 @@ export default function MiningDashboardV4({
           </div>
 
           <div className="mining-v4-session-strip">
-            <span>Progress {sessionProgress.toFixed(1)}%</span>
+            <span>
+              {t("mining.dashboard.progress", {
+                value: sessionProgress.toFixed(1),
+              })}
+            </span>
             <span>{remainingTimeLabel}</span>
-            <span>{formatGp(rewardGp)} GP</span>
+            <span>
+              {formatGp(rewardGp, language)} GP
+            </span>
           </div>
         </article>
       </div>

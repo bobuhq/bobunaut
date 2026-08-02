@@ -15,6 +15,7 @@ import {
   type BuilderWalletSnapshot,
 } from "../../core/builder";
 import { useAuthSession } from "../../core/auth/useAuthSession";
+import { useLanguage } from "../../core/language";
 import { useBuilderStore } from "../identity/hooks/useBuilderStore";
 import { BuilderStatusPanel } from "../status/components/BuilderStatusPanel";
 
@@ -27,11 +28,17 @@ import { useWalletTransactionDrawer } from "./hooks/useWalletTransactionDrawer";
 
 import "./BuilderWallet.css";
 
-const formatGp = (value: number): string =>
-  value.toLocaleString("en-US");
+const formatGp = (
+  value: number,
+  language: string,
+): string =>
+  value.toLocaleString(language);
 
-const formatDate = (value: string): string =>
-  new Intl.DateTimeFormat("en-US", {
+const formatDate = (
+  value: string,
+  language: string,
+): string =>
+  new Intl.DateTimeFormat(language, {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(new Date(value));
@@ -57,6 +64,8 @@ const formatRewardLabel = (
 };
 
 export default function BuilderWallet() {
+  const { language, t } = useLanguage();
+
   const { session, loading: authLoading } =
     useAuthSession();
   const builder = useBuilderStore();
@@ -106,7 +115,7 @@ export default function BuilderWallet() {
         setError(
           reason instanceof Error
             ? reason.message
-            : "Builder Wallet could not be loaded.",
+            : t("wallet.state.loadError"),
         );
       })
       .finally(() => {
@@ -130,7 +139,7 @@ export default function BuilderWallet() {
       <main className="builder-wallet-page">
         <section className="builder-wallet-state">
           <span className="builder-wallet-spinner" />
-          <p>Loading Builder Wallet…</p>
+          <p>{t("wallet.state.loading")}</p>
         </section>
       </main>
     );
@@ -141,10 +150,9 @@ export default function BuilderWallet() {
       <main className="builder-wallet-page">
         <section className="builder-wallet-state">
           <LockKeyhole size={32} />
-          <h1>Builder Wallet Locked</h1>
+          <h1>{t("wallet.state.lockedTitle")}</h1>
           <p>
-            Sign in to access your GP balance and reward
-            history.
+            {t("wallet.state.lockedDescription")}
           </p>
         </section>
       </main>
@@ -156,7 +164,7 @@ export default function BuilderWallet() {
       <main className="builder-wallet-page">
         <section className="builder-wallet-state">
           <span className="builder-wallet-spinner" />
-          <p>Synchronizing GP ledger…</p>
+          <p>{t("wallet.state.synchronizing")}</p>
         </section>
       </main>
     );
@@ -167,7 +175,7 @@ export default function BuilderWallet() {
       <main className="builder-wallet-page">
         <section className="builder-wallet-state">
           <ShieldCheck size={32} />
-          <h1>Wallet Sync Interrupted</h1>
+          <h1>{t("wallet.state.syncInterrupted")}</h1>
           <p>{error}</p>
         </section>
       </main>
@@ -199,7 +207,7 @@ export default function BuilderWallet() {
       <section className="builder-wallet-hero">
         <div className="builder-wallet-heading">
           <span className="builder-wallet-eyebrow">
-            BUILDER FINANCIAL CORE
+            {t("wallet.hero.eyebrow")}
           </span>
 
           <div className="builder-wallet-title-row">
@@ -208,10 +216,9 @@ export default function BuilderWallet() {
             </span>
 
             <div>
-              <h1>Builder Wallet</h1>
+              <h1>{t("wallet.hero.title")}</h1>
               <p>
-                Your authoritative GP balance and Builder
-                reward history.
+                {t("wallet.hero.description")}
               </p>
             </div>
           </div>
@@ -229,14 +236,14 @@ export default function BuilderWallet() {
           </div>
 
           <div className="builder-wallet-balance-content">
-            <span>Total GP</span>
-            <strong>{formatGp(totalGp)}</strong>
-            <small>GP · Preview Mode</small>
+            <span>{t("wallet.hero.totalGp")}</span>
+            <strong>{formatGp(totalGp, language)}</strong>
+            <small>{t("wallet.hero.previewMode")}</small>
           </div>
 
           <div className="builder-wallet-live">
             <i />
-            Synchronized with Builder Core
+            {t("wallet.hero.synchronized")}
           </div>
         </div>
       </section>
@@ -254,12 +261,12 @@ export default function BuilderWallet() {
             builderId.length > 0 ? "active" : "pending",
           miningStatus: "pending",
         }}
-        formatGp={formatGp}
+        formatGp={(value) => formatGp(value, language)}
       />
 
       <WalletAnalytics
         ledger={wallet?.ledger ?? []}
-        formatGp={formatGp}
+        formatGp={(value) => formatGp(value, language)}
       />
 
       <WalletStatCards
@@ -270,14 +277,14 @@ export default function BuilderWallet() {
         totalGp={totalGp}
         availableGp={availableGp}
         lockedGp={lockedGp}
-        formatGp={formatGp}
+        formatGp={(value) => formatGp(value, language)}
       />
 
       <section className="builder-wallet-content">
         <WalletLedger
           entries={recentEntries}
-          formatGp={formatGp}
-          formatDate={formatDate}
+          formatGp={(value) => formatGp(value, language)}
+          formatDate={(value) => formatDate(value, language)}
           formatRewardLabel={formatRewardLabel}
           onSelectEntry={openTransaction}
         />
@@ -288,8 +295,8 @@ export default function BuilderWallet() {
       <WalletTransactionDrawer
         entry={selectedEntry}
         onClose={closeTransaction}
-        formatGp={formatGp}
-        formatDate={formatDate}
+        formatGp={(value) => formatGp(value, language)}
+        formatDate={(value) => formatDate(value, language)}
         formatRewardLabel={formatRewardLabel}
       />
     </main>

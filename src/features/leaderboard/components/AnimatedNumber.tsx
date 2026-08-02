@@ -3,6 +3,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { useLanguage } from "../../../core/language";
 
 interface AnimatedNumberProps {
   value: number;
@@ -13,6 +14,7 @@ export function AnimatedNumber({
   value,
   duration = 1100,
 }: AnimatedNumberProps) {
+  const { language } = useLanguage();
   const [displayValue, setDisplayValue] = useState(0);
   const previousValue = useRef(0);
 
@@ -49,5 +51,5 @@ export function AnimatedNumber({
     };
   }, [duration, value]);
 
-  return <>{displayValue.toLocaleString()}</>;
+  return <>{displayValue.toLocaleString(language)}</>;
 }

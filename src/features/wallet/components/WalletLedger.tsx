@@ -11,6 +11,7 @@ import {
 } from "react";
 
 import type { BuilderWalletEntry } from "../../../core/builder";
+import { useLanguage } from "../../../core/language";
 
 type WalletLedgerProps = {
   entries: BuilderWalletEntry[];
@@ -34,14 +35,17 @@ type WalletLedgerFilter =
 
 const ledgerFilters: Array<{
   id: WalletLedgerFilter;
-  label: string;
+  labelKey: string;
 }> = [
-  { id: "all", label: "All" },
-  { id: "social", label: "Social" },
-  { id: "mining", label: "Mining" },
-  { id: "missions", label: "Missions" },
-  { id: "referral", label: "Referral" },
-  { id: "marketplace", label: "Marketplace" },
+  { id: "all", labelKey: "wallet.ledger.filterAll" },
+  { id: "social", labelKey: "wallet.ledger.filterSocial" },
+  { id: "mining", labelKey: "wallet.ledger.filterMining" },
+  { id: "missions", labelKey: "wallet.ledger.filterMissions" },
+  { id: "referral", labelKey: "wallet.ledger.filterReferral" },
+  {
+    id: "marketplace",
+    labelKey: "wallet.ledger.filterMarketplace",
+  },
 ];
 
 const normalize = (value: string | null | undefined): string =>
@@ -118,6 +122,8 @@ export function WalletLedger({
   formatRewardLabel,
   onSelectEntry,
 }: WalletLedgerProps) {
+  const { t } = useLanguage();
+
   const [activeFilter, setActiveFilter] =
     useState<WalletLedgerFilter>("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -160,20 +166,22 @@ export function WalletLedger({
     <article className="builder-wallet-ledger">
       <div className="builder-wallet-section-heading">
         <div>
-          <span>GP LEDGER</span>
-          <h2>Recent Activity</h2>
+          <span>{t("wallet.ledger.eyebrow")}</span>
+          <h2>{t("wallet.ledger.title")}</h2>
         </div>
 
         <div className="builder-wallet-section-status">
           <Clock3 size={15} />
-          Latest {entries.length}
+          {t("wallet.ledger.latest", {
+            count: entries.length,
+          })}
         </div>
       </div>
 
       <div className="builder-wallet-ledger-tools">
         <div
           className="builder-wallet-ledger-filters"
-          aria-label="Transaction filters"
+          aria-label={t("wallet.ledger.filtersAria")}
         >
           {ledgerFilters.map((filter) => (
             <button
@@ -186,7 +194,7 @@ export function WalletLedger({
               }
               onClick={() => setActiveFilter(filter.id)}
             >
-              {filter.label}
+              {t(filter.labelKey)}
             </button>
           ))}
         </div>
@@ -196,8 +204,8 @@ export function WalletLedger({
           <input
             type="search"
             value={searchQuery}
-            placeholder="Search transactions..."
-            aria-label="Search transactions"
+            placeholder={t("wallet.ledger.searchPlaceholder")}
+            aria-label={t("wallet.ledger.searchAria")}
             onChange={(event) =>
               setSearchQuery(event.target.value)
             }
@@ -215,7 +223,9 @@ export function WalletLedger({
               key={entry.id}
               type="button"
               className="builder-wallet-entry"
-              aria-label={`Open ${formatRewardLabel(entry)} transaction details`}
+              aria-label={t("wallet.ledger.openDetailsAria", {
+                label: formatRewardLabel(entry),
+              })}
               style={{
                 animationDelay: `${index * 35}ms`,
               }}
@@ -253,14 +263,14 @@ export function WalletLedger({
 
           <h3>
             {hasFilters
-              ? "No matching transactions"
-              : "No GP activity yet"}
+              ? t("wallet.ledger.noMatches")
+              : t("wallet.ledger.empty")}
           </h3>
 
           <p>
             {hasFilters
-              ? "Try another filter or search term."
-              : "Mining, mission and community rewards will appear here."}
+              ? t("wallet.ledger.noMatchesDescription")
+              : t("wallet.ledger.emptyDescription")}
           </p>
 
           {hasFilters && (
@@ -269,7 +279,7 @@ export function WalletLedger({
               className="builder-wallet-clear-filters"
               onClick={clearFilters}
             >
-              Clear Filters
+              {t("wallet.ledger.clearFilters")}
             </button>
           )}
         </div>

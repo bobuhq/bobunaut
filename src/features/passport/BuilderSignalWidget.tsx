@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLanguage } from "../../core/language";
 
 type BuilderSignalWidgetProps = {
   authenticated: boolean;
@@ -9,6 +10,8 @@ export default function BuilderSignalWidget({
   authenticated,
   inviteCode,
 }: BuilderSignalWidgetProps) {
+  const { t } = useLanguage();
+
   const [copiedValue, setCopiedValue] = useState<
     "code" | "link" | null
   >(null);
@@ -38,9 +41,8 @@ export default function BuilderSignalWidget({
     }
 
     const shareData = {
-      title: "Join BOBU Universe",
-      text:
-        "Join my Builder Civilization network in BOBU Universe.",
+      title: t("passport.signal.shareTitle"),
+      text: t("passport.signal.shareText"),
       url: inviteLink,
     };
 
@@ -59,7 +61,7 @@ export default function BuilderSignalWidget({
     }
 
     const tweetText =
-      `Join my Builder Civilization network in BOBU Universe.\n\n` +
+      `${t("passport.signal.shareText")}\n\n` +
       `${inviteLink}`;
 
     window.open(
@@ -73,7 +75,7 @@ export default function BuilderSignalWidget({
 
   return (
     <aside
-      aria-label="Builder invitation"
+      aria-label={t("passport.signal.ariaLabel")}
       style={{
         position: "fixed",
         right: "24px",
@@ -98,7 +100,7 @@ export default function BuilderSignalWidget({
           letterSpacing: "0.1em",
         }}
       >
-        BUILDER INVITE
+        {t("passport.signal.title")}
       </p>
 
       {!authenticated ? (
@@ -108,7 +110,7 @@ export default function BuilderSignalWidget({
             color: "rgba(255,255,255,0.7)",
           }}
         >
-          🔒 Sign in to unlock your invite code.
+          {t("passport.signal.signIn")}
         </p>
       ) : (
         <>
@@ -152,8 +154,8 @@ export default function BuilderSignalWidget({
               }}
             >
               {copiedValue === "code"
-                ? "Copied"
-                : "Copy code"}
+                ? t("passport.signal.copied")
+                : t("passport.signal.copyCode")}
             </button>
 
             <button
@@ -165,15 +167,15 @@ export default function BuilderSignalWidget({
               }}
             >
               {copiedValue === "link"
-                ? "Copied"
-                : "Copy link"}
+                ? t("passport.signal.copied")
+                : t("passport.signal.copyLink")}
             </button>
 
             <button
               type="button"
               onClick={() => void shareInvite()}
             >
-              Share
+              {t("passport.signal.share")}
             </button>
           </div>
         </>

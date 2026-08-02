@@ -12,6 +12,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { useBuilderStore } from "./identity/hooks/useBuilderStore";
+import { useLanguage } from "../core/language";
 import {
   galaxyService,
   type GalaxyMember as RealGalaxyMember,
@@ -30,6 +31,7 @@ type GalaxyMember = {
 };
 
 export function Galaxy() {
+  const { language, t } = useLanguage();
   const builder = useBuilderStore();
 
   const [galaxyMembers, setGalaxyMembers] = useState<
@@ -58,7 +60,7 @@ export function Galaxy() {
           galaxyService.loadMyGalaxy(),
           galaxyService.loadMyInviter().catch((error) => {
             console.error(
-              "Galaxy inviter could not be loaded",
+              t("galaxy.error.inviterLoad"),
               error,
             );
 
@@ -72,7 +74,7 @@ export function Galaxy() {
         }
       } catch (error) {
         console.error(
-          "Galaxy data could not be loaded",
+          t("galaxy.error.dataLoad"),
           error,
         );
 
@@ -80,7 +82,7 @@ export function Galaxy() {
           setGalaxyMembers([]);
           setInviter(null);
           setGalaxyError(
-            "Galaxy data could not be loaded.",
+            t("galaxy.error.dataLoad"),
           );
         }
       } finally {
@@ -235,7 +237,7 @@ export function Galaxy() {
           <strong>{member.name}</strong>
 
           <div className="galaxy-member-meta">
-            {member.gp.toLocaleString("tr-TR")} GP
+            {member.gp.toLocaleString(language)} GP
             {" · "}
             {member.builders} Builders
           </div>
@@ -248,8 +250,8 @@ export function Galaxy() {
             }`}
           >
             {member.status === "active"
-              ? "Active"
-              : "Pending"}
+              ? t("galaxy.status.active")
+              : t("galaxy.status.pending")}
           </span>
         </article>
 
@@ -1126,79 +1128,94 @@ export function Galaxy() {
             <div className="galaxy-avatar">
               <img
                 src="/images/galaxy/bobu-builder-space.webp"
-                alt="BOBU Builder"
+                alt={t("galaxy.image.builderAlt")}
               />
             </div>
 
             <h2>
-              {builder.username || "Genesis Builder"}
+              {builder.username ||
+                t("galaxy.profile.genesisBuilder")}
             </h2>
 
             <p>
-              BOBU Builder · Level {builder.level}
+              {t("galaxy.profile.builderLevel", {
+                level: builder.level,
+              })}
             </p>
 
             <div className="galaxy-rank">
               <Sparkles size={13} />
-              Nebula Rank {builder.level}
+              {t("galaxy.profile.nebulaRank", {
+                level: builder.level,
+              })}
             </div>
           </div>
 
           <div className="galaxy-side-stats">
             <div className="galaxy-side-stat">
-              <span>Personal GP</span>
+              <span>
+                {t("galaxy.sidebar.personalGp")}
+              </span>
               <strong>
-                {builder.personalGp.toLocaleString("en-US")}
+                {builder.personalGp.toLocaleString(language)}
               </strong>
             </div>
 
             <div className="galaxy-side-stat">
-              <span>Pending Network GP</span>
+              <span>
+                {t("galaxy.sidebar.pendingNetworkGp")}
+              </span>
               <strong>
-                {builder.pendingNetworkGp.toLocaleString("en-US")}
+                {builder.pendingNetworkGp.toLocaleString(language)}
               </strong>
             </div>
 
             <div className="galaxy-side-stat">
-              <span>Eligible Network GP</span>
+              <span>
+                {t("galaxy.sidebar.eligibleNetworkGp")}
+              </span>
               <strong>
-                {builder.eligibleNetworkGp.toLocaleString("en-US")}
+                {builder.eligibleNetworkGp.toLocaleString(language)}
               </strong>
             </div>
 
             <div className="galaxy-side-stat">
-              <span>Total GP</span>
+              <span>
+                {t("galaxy.sidebar.totalGp")}
+              </span>
               <strong>
-                {builder.gp.toLocaleString("en-US")}
+                {builder.gp.toLocaleString(language)}
               </strong>
             </div>
 
             <div className="galaxy-side-stat">
-              <span>Invite Code</span>
+              <span>
+                {t("galaxy.sidebar.inviteCode")}
+              </span>
               <strong>
                 {builder.inviteCode || "—"}
               </strong>
             </div>
 
             <div className="galaxy-side-stat">
-              <span>Active Circle</span>
+              <span>
+                {t("galaxy.sidebar.activeCircle")}
+              </span>
               <strong>{activeMemberCount}</strong>
             </div>
           </div>
 
           <div className="galaxy-invite">
-            <h3>Invite New Builders</h3>
+            <h3>{t("galaxy.invite.title")}</h3>
 
             <p>
-              Share your portal link. Every verified
-              Builder becomes a new branch in your
-              Galaxy.
+              {t("galaxy.invite.description")}
             </p>
 
             <div className="galaxy-referral-box">
               <code>
                 {referralLink ||
-                  "Referral link unavailable"}
+                  t("galaxy.invite.unavailable")}
               </code>
 
               <button
@@ -1206,7 +1223,11 @@ export function Galaxy() {
                 className="galaxy-copy"
                 onClick={copyReferralLink}
                 disabled={!referralLink}
-                aria-label="Copy referral link"
+                aria-label={
+                  copied
+                    ? t("galaxy.invite.copiedAria")
+                    : t("galaxy.invite.copyAria")
+                }
               >
                 {copied ? (
                   <Check size={15} />
@@ -1221,24 +1242,30 @@ export function Galaxy() {
         <main className="galaxy-main">
           <section className="galaxy-topbar">
             <div className="galaxy-top-stat">
-              <span>Total Builders</span>
+              <span>
+                {t("galaxy.top.totalBuilders")}
+              </span>
               <strong>{galaxyMembers.length}</strong>
             </div>
 
             <div className="galaxy-top-stat">
-              <span>Active Now</span>
+              <span>
+                {t("galaxy.top.activeNow")}
+              </span>
               <strong>{activeMemberCount}</strong>
             </div>
 
             <div className="galaxy-top-stat">
-              <span>Total GP</span>
+              <span>
+                {t("galaxy.top.totalGp")}
+              </span>
               <strong>
-                {builder.gp.toLocaleString("en-US")}
+                {builder.gp.toLocaleString(language)}
               </strong>
             </div>
 
             <div className="galaxy-top-stat">
-              <span>Galaxy Rank</span>
+              <span>{t("galaxy.top.rank")}</span>
               <strong>#{builder.level}</strong>
             </div>
           </section>
@@ -1246,14 +1273,14 @@ export function Galaxy() {
           <section className="galaxy-network">
             <div className="galaxy-network-heading">
               <div>
-                <h1>Galaxy Network</h1>
+                <h1>{t("galaxy.network.title")}</h1>
                 <p>
-                  Your complete Builder referral universe.
+                  {t("galaxy.network.description")}
                 </p>
               </div>
 
               <span className="galaxy-online">
-                Galaxy Online
+                {t("galaxy.network.online")}
               </span>
             </div>
 
@@ -1267,29 +1294,35 @@ export function Galaxy() {
                     transition={{ duration: 0.4 }}
                   >
                     <span className="galaxy-inviter-label">
-                      Invited By
+                      {t("galaxy.network.invitedBy")}
                     </span>
 
                     <img
                       src="/images/galaxy/bobu-builder-space.webp"
-                      alt="Inviting BOBU Builder"
+                      alt={t("galaxy.image.inviterAlt")}
                     />
 
                     <strong>
                       {inviter.displayName ??
                         inviter.username ??
-                        `Builder ${inviter.builderId.slice(
-                          0,
-                          6,
-                        )}`}
+                        t(
+                          "galaxy.network.builderFallback",
+                          {
+                            id: inviter.builderId.slice(
+                              0,
+                              6,
+                            ),
+                          },
+                        )}
                     </strong>
 
                     <small>
-                      Level {inviter.level} ·{" "}
-                      {inviter.gp.toLocaleString(
-                        "tr-TR",
-                      )}{" "}
-                      GP
+                      {t("galaxy.network.inviterMeta", {
+                        level: inviter.level,
+                        gp: inviter.gp.toLocaleString(
+                          language,
+                        ),
+                      })}
                     </small>
                   </motion.div>
 
@@ -1312,14 +1345,17 @@ export function Galaxy() {
                   <img
                     className="galaxy-root-image galaxy-root-image-compact"
                     src="/images/galaxy/bobu-builder-space.webp"
-                    alt="King BOBU"
+                    alt={t("galaxy.image.kingAlt")}
                   />
 
                   <strong>
-                    {builder.username || "KING BOBU"}
+                    {builder.username ||
+                      t("galaxy.profile.kingBobu")}
                   </strong>
 
-                  <span>NEBULA CORE</span>
+                  <span>
+                    {t("galaxy.profile.nebulaCore")}
+                  </span>
                 </div>
               </motion.div>
 
@@ -1327,7 +1363,7 @@ export function Galaxy() {
 
               {isGalaxyLoading ? (
                 <div className="galaxy-empty">
-                  Loading Galaxy network…
+                  {t("galaxy.network.loading")}
                 </div>
               ) : galaxyError ? (
                 <div className="galaxy-empty">
@@ -1342,7 +1378,7 @@ export function Galaxy() {
                 </div>
               ) : (
                 <div className="galaxy-empty">
-                  You have not invited any Builders yet.
+                  {t("galaxy.network.empty")}
                 </div>
               )}
             </div>
@@ -1350,53 +1386,74 @@ export function Galaxy() {
 
           <section className="galaxy-footer-grid">
             <article className="galaxy-footer-card">
-              <h3>Network Status</h3>
+              <h3>
+                {t("galaxy.footer.statusTitle")}
+              </h3>
 
               <div className="galaxy-legend">
                 <span style={{ color: "#70ffc0" }}>
                   <i />
-                  Active Builder
+                  {t("galaxy.footer.activeBuilder")}
                 </span>
 
                 <span style={{ color: "#ffc76d" }}>
                   <i />
-                  Pending Activation
+                  {t(
+                    "galaxy.footer.pendingActivation",
+                  )}
                 </span>
 
                 <span style={{ color: "#8f7cff" }}>
                   <i />
-                  Referral Branch
+                  {t("galaxy.footer.referralBranch")}
                 </span>
               </div>
             </article>
 
             <article className="galaxy-footer-card">
-              <h3>Network Summary</h3>
+              <h3>
+                {t("galaxy.footer.summaryTitle")}
+              </h3>
 
               <div className="galaxy-summary">
                 <div>
-                  <span>Total Network</span>
+                  <span>
+                    {t("galaxy.footer.totalNetwork")}
+                  </span>
                   <strong>
-                    {galaxyMembers.length} Builders
+                    {t("galaxy.footer.builderCount", {
+                      count: galaxyMembers.length,
+                    })}
                   </strong>
                 </div>
 
                 <div>
-                  <span>Verified Connections</span>
+                  <span>
+                    {t(
+                      "galaxy.footer.verifiedConnections",
+                    )}
+                  </span>
                   <strong>{activeMemberCount}</strong>
                 </div>
 
                 <div>
-                  <span>Pending Builders</span>
+                  <span>
+                    {t("galaxy.footer.pendingBuilders")}
+                  </span>
                   <strong>{pendingMemberCount}</strong>
                 </div>
 
                 <div>
-                  <span>Next Galaxy Level</span>
+                  <span>
+                    {t("galaxy.footer.nextLevel")}
+                  </span>
                   <strong>
                     {remainingActiveBuilders === 0
-                      ? "Ready"
-                      : `${remainingActiveBuilders} remaining`}
+                      ? t("galaxy.footer.ready")
+                      : t("galaxy.footer.remaining", {
+                          count:
+                            remainingActiveBuilders,
+                        })}
                   </strong>
                 </div>
               </div>

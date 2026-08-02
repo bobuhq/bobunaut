@@ -16,6 +16,7 @@ import {
   leaderboardService,
   type LeaderboardEntry,
 } from "../../core/builder/services/LeaderboardService";
+import { useLanguage } from "../../core/language";
 import { AnimatedNumber } from "./components/AnimatedNumber";
 import { LeaderboardCinematicEffects } from "./components/LeaderboardCinematicEffects";
 import { LeaderboardStats } from "./components/LeaderboardStats";
@@ -72,6 +73,7 @@ function rankIcon(rank: number) {
 }
 
 export default function Leaderboard() {
+  const { t } = useLanguage();
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [myRank, setMyRank] = useState<LeaderboardEntry | null>(null);
   const [loading, setLoading] = useState(true);
@@ -100,8 +102,8 @@ export default function Leaderboard() {
 
         if (mounted) {
           setError(
-            "The Builder rankings could not be loaded.",
-          );
+              t("leaderboard.error.load"),
+            );
         }
       } finally {
         if (mounted) {
@@ -115,7 +117,7 @@ export default function Leaderboard() {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [t]);
 
   const podium = entries.slice(0, 3);
   const remainingEntries = entries.slice(3, 20);
@@ -1361,19 +1363,19 @@ export default function Leaderboard() {
         <header className="leaderboard-hero">
           <div className="leaderboard-eyebrow">
             <Orbit size={15} />
-            Live Universe Rankings
+            {t("leaderboard.hero.eyebrow")}
           </div>
 
           <h1 className="leaderboard-title">
-            Global Builder
+            {t(
+              "leaderboard.hero.titleLine1",
+            )}
             <br />
-            Leaderboard
+            {t("leaderboard.hero.titleLine2")}
           </h1>
 
           <p className="leaderboard-subtitle">
-            The strongest Builders shaping the BOBU
-            Universe. Earn GP, complete missions and rise
-            through the stars.
+            {t("leaderboard.hero.subtitle")}
           </p>
         </header>
 
@@ -1386,9 +1388,13 @@ export default function Leaderboard() {
             <div className="leaderboard-state">
               <div className="leaderboard-state-content">
                 <div className="leaderboard-loader" />
-                <h2>Scanning the universe...</h2>
+                <h2>
+                  {t("leaderboard.loading.title")}
+                </h2>
                 <p className="leaderboard-empty-copy">
-                  Calculating the current Builder rankings.
+                  {t(
+                    "leaderboard.loading.description",
+                  )}
                 </p>
               </div>
             </div>
@@ -1396,7 +1402,9 @@ export default function Leaderboard() {
             <div className="leaderboard-state">
               <div className="leaderboard-state-content">
                 <Zap size={46} />
-                <h2>Ranking signal interrupted</h2>
+                <h2>
+                  {t("leaderboard.error.title")}
+                </h2>
                 <p className="leaderboard-empty-copy">
                   {error}
                 </p>
@@ -1407,12 +1415,12 @@ export default function Leaderboard() {
               <div className="leaderboard-section-heading">
                 <h2>
                   <Trophy size={27} />
-                  Top 20 Builders
+                  {t("leaderboard.section.topBuilders")}
                 </h2>
 
                 <div className="leaderboard-live-badge">
                   <span className="leaderboard-live-dot" />
-                  Live Ranking
+                  {t("leaderboard.section.liveRanking")}
                 </div>
               </div>
 
@@ -1437,7 +1445,9 @@ export default function Leaderboard() {
                         </h3>
 
                         <div className="leaderboard-builder-level">
-                          Level {entry.level}
+                          {t("leaderboard.entry.level", {
+                            level: entry.level,
+                          })}
                         </div>
 
                         <div className="leaderboard-builder-gp">
@@ -1468,7 +1478,9 @@ export default function Leaderboard() {
                         </div>
 
                         <div className="leaderboard-row-level">
-                          Level {entry.level}
+                          {t("leaderboard.entry.level", {
+                            level: entry.level,
+                          })}
                         </div>
 
                         <div className="leaderboard-row-gp">
@@ -1482,10 +1494,13 @@ export default function Leaderboard() {
                 <div className="leaderboard-state">
                   <div className="leaderboard-state-content">
                     <Sparkles size={48} />
-                    <h2>The first stars are forming</h2>
+                    <h2>
+                      {t("leaderboard.empty.title")}
+                    </h2>
                     <p className="leaderboard-empty-copy">
-                      Builder rankings will appear as the
-                      community earns GP.
+                      {t(
+                        "leaderboard.empty.description",
+                      )}
                     </p>
                   </div>
                 </div>
@@ -1499,23 +1514,31 @@ export default function Leaderboard() {
                     </div>
 
                     <div className="leaderboard-my-rank-copy">
-                      <strong>Your Position</strong>
+                      <strong>
+                        {t("leaderboard.myRank.title")}
+                      </strong>
                       <span>{getBuilderName(myRank)}</span>
                     </div>
                   </div>
 
                   <div className="leaderboard-rank-stat">
-                    <span>Rank</span>
+                    <span>
+                      {t("leaderboard.myRank.rank")}
+                    </span>
                     <strong>#{myRank.rank}</strong>
                   </div>
 
                   <div className="leaderboard-rank-stat">
-                    <span>Level</span>
+                    <span>
+                      {t("leaderboard.myRank.level")}
+                    </span>
                     <strong>{myRank.level}</strong>
                   </div>
 
                   <div className="leaderboard-rank-stat">
-                    <span>Builder GP</span>
+                    <span>
+                      {t("leaderboard.myRank.builderGp")}
+                    </span>
                     <strong>
                       <AnimatedNumber value={myRank.gp} />
                     </strong>

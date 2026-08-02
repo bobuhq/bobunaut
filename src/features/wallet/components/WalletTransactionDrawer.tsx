@@ -17,6 +17,7 @@ import {
 } from "react";
 
 import type { BuilderWalletEntry } from "../../../core/builder";
+import { useLanguage } from "../../../core/language";
 
 type WalletTransactionDrawerProps = {
   entry: BuilderWalletEntry | null;
@@ -30,6 +31,7 @@ type WalletTransactionDrawerProps = {
 
 const formatValue = (
   value: unknown,
+  unsupportedLabel: string,
 ): string => {
   if (typeof value === "string") {
     return value;
@@ -45,7 +47,7 @@ const formatValue = (
   try {
     return JSON.stringify(value);
   } catch {
-    return "Unsupported value";
+    return unsupportedLabel;
   }
 };
 
@@ -65,6 +67,8 @@ export function WalletTransactionDrawer({
   formatDate,
   formatRewardLabel,
 }: WalletTransactionDrawerProps) {
+  const { t } = useLanguage();
+
   const closeButtonRef =
     useRef<HTMLButtonElement | null>(null);
 
@@ -111,7 +115,7 @@ export function WalletTransactionDrawer({
   }
 
   const provider =
-    entry.provider?.trim() || "Builder Core";
+    entry.provider?.trim() || t("wallet.drawer.defaultProvider");
 
   const metadataEntries = Object.entries(
     entry.metadata ?? {},
@@ -127,7 +131,7 @@ export function WalletTransactionDrawer({
       <button
         type="button"
         className="builder-wallet-drawer-backdrop"
-        aria-label="Close transaction details"
+        aria-label={t("wallet.drawer.closeAria")}
         onClick={onClose}
       />
 
@@ -139,7 +143,7 @@ export function WalletTransactionDrawer({
       >
         <header className="builder-wallet-drawer-header">
           <div>
-            <span>TRANSACTION DETAILS</span>
+            <span>{t("wallet.drawer.eyebrow")}</span>
             <h2 id="wallet-transaction-title">
               {formatRewardLabel(entry)}
             </h2>
@@ -149,7 +153,7 @@ export function WalletTransactionDrawer({
             ref={closeButtonRef}
             type="button"
             className="builder-wallet-drawer-close"
-            aria-label="Close transaction details"
+            aria-label={t("wallet.drawer.closeAria")}
             onClick={onClose}
           >
             <X size={20} />
@@ -171,8 +175,8 @@ export function WalletTransactionDrawer({
             <div>
               <span>
                 {isCredit
-                  ? "GP Received"
-                  : "GP Spent"}
+                  ? t("wallet.drawer.gpReceived")
+                  : t("wallet.drawer.gpSpent")}
               </span>
 
               <strong>
@@ -186,18 +190,18 @@ export function WalletTransactionDrawer({
             <CheckCircle2 size={18} />
 
             <div>
-              <span>Transaction Status</span>
-              <strong>Completed</strong>
+              <span>{t("wallet.drawer.status")}</span>
+              <strong>{t("wallet.drawer.completed")}</strong>
             </div>
 
-            <i>VERIFIED</i>
+            <i>{t("wallet.drawer.verified")}</i>
           </section>
 
           <section className="builder-wallet-drawer-details">
             <div className="builder-wallet-drawer-row">
               <span>
                 <Network size={16} />
-                Provider
+                {t("wallet.drawer.provider")}
               </span>
               <strong>{provider}</strong>
             </div>
@@ -205,7 +209,7 @@ export function WalletTransactionDrawer({
             <div className="builder-wallet-drawer-row">
               <span>
                 <Tag size={16} />
-                Reward Type
+                {t("wallet.drawer.rewardType")}
               </span>
               <strong>
                 {formatFieldLabel(
@@ -217,19 +221,19 @@ export function WalletTransactionDrawer({
             <div className="builder-wallet-drawer-row">
               <span>
                 <Database size={16} />
-                Entry Type
+                {t("wallet.drawer.entryType")}
               </span>
               <strong>
                 {entry.type === "credit"
-                  ? "Credit"
-                  : "Debit"}
+                  ? t("wallet.drawer.credit")
+                  : t("wallet.drawer.debit")}
               </strong>
             </div>
 
             <div className="builder-wallet-drawer-row">
               <span>
                 <CalendarDays size={16} />
-                Created
+                {t("wallet.drawer.created")}
               </span>
               <strong>
                 {formatDate(entry.createdAt)}
@@ -239,7 +243,7 @@ export function WalletTransactionDrawer({
             <div className="builder-wallet-drawer-row builder-wallet-drawer-row--stacked">
               <span>
                 <Fingerprint size={16} />
-                Transaction ID
+                {t("wallet.drawer.transactionId")}
               </span>
 
               <code>{entry.id}</code>
@@ -251,26 +255,27 @@ export function WalletTransactionDrawer({
               <LockKeyhole size={18} />
 
               <span>
-                <strong>BOBU Explorer</strong>
+                <strong>{t("wallet.drawer.explorer")}</strong>
                 <small>
-                  Public transaction explorer
-                  activates with the network layer.
+                  {t("wallet.drawer.explorerDescription")}
                 </small>
               </span>
             </div>
 
             <button type="button" disabled>
               <ExternalLink size={15} />
-              Locked
+              {t("wallet.drawer.locked")}
             </button>
           </section>
 
           {metadataEntries.length > 0 && (
             <section className="builder-wallet-drawer-metadata">
               <div className="builder-wallet-drawer-subheading">
-                <span>TRANSACTION METADATA</span>
+                <span>{t("wallet.drawer.metadata")}</span>
                 <strong>
-                  {metadataEntries.length} fields
+                  {t("wallet.drawer.fields", {
+                    count: metadataEntries.length,
+                  })}
                 </strong>
               </div>
 
@@ -282,7 +287,10 @@ export function WalletTransactionDrawer({
                         {formatFieldLabel(key)}
                       </span>
                       <code>
-                        {formatValue(value)}
+                        {formatValue(
+                          value,
+                          t("wallet.drawer.unsupportedValue"),
+                        )}
                       </code>
                     </div>
                   ),

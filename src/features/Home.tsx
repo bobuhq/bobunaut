@@ -41,25 +41,25 @@ type CounterProps = {
 
 const createHomeStats = (stats: UniverseStats) => [
   {
-    label: "Builders Joined",
+    labelKey: "home.stats.buildersJoined",
     value: stats.buildersJoined,
     suffix: "",
     icon: Users,
   },
   {
-    label: "Galaxies Created",
+    labelKey: "home.stats.galaxiesCreated",
     value: stats.galaxiesCreated,
     suffix: "",
     icon: Orbit,
   },
   {
-    label: "Alliances Formed",
+    labelKey: "home.stats.alliancesFormed",
     value: stats.alliancesFormed,
     suffix: "",
     icon: Globe2,
   },
   {
-    label: "GP Generated",
+    labelKey: "home.stats.gpGenerated",
     value: stats.gpGenerated,
     suffix: "",
     icon: Gem,
@@ -69,41 +69,73 @@ const createHomeStats = (stats: UniverseStats) => [
 const missions = [
   {
     code: "M-001",
-    title: "Restore the BOBU Signal",
-    text: "Reconnect with Mission Control and receive the latest transmission.",
-    reward: "250 GP",
+    titleKey: "home.missions.restoreSignal.title",
+    descriptionKey: "home.missions.restoreSignal.description",
+    rewardKey: "home.missions.restoreSignal.reward",
     icon: RadioTower,
     soon: false,
   },
   {
     code: "M-002",
-    title: "Join Official Channels",
-    text: "Connect with the official BOBU community across the network.",
-    reward: "600 GP",
+    titleKey: "home.missions.joinChannels.title",
+    descriptionKey: "home.missions.joinChannels.description",
+    rewardKey: "home.missions.joinChannels.reward",
     icon: Users,
     soon: false,
   },
   {
     code: "M-004",
-    title: "Enter Arcade Orbit",
-    text: "Playable missions and competitive challenges are approaching.",
-    reward: "Coming Soon",
+    titleKey: "home.missions.arcade.title",
+    descriptionKey: "home.missions.arcade.description",
+    rewardKey: "home.missions.arcade.reward",
     icon: Gamepad2,
     soon: true,
   },
 ] as const;
 
 const roadmap = [
-  ["PHASE 01", "Genesis Signal", "Identity, narrative and the first sectors come online.", true],
-  ["PHASE 02", "Mission Control", "Bobonauts complete missions and build visible progress.", true],
-  ["PHASE 03", "Arcade Expansion", "Playable experiences and seasonal challenges arrive.", false],
-  ["PHASE 04", "Open Galaxy", "New sectors and community-built experiences expand.", false],
+  [
+    "home.roadmap.phase1.code",
+    "home.roadmap.phase1.title",
+    "home.roadmap.phase1.description",
+    true,
+  ],
+  [
+    "home.roadmap.phase2.code",
+    "home.roadmap.phase2.title",
+    "home.roadmap.phase2.description",
+    true,
+  ],
+  [
+    "home.roadmap.phase3.code",
+    "home.roadmap.phase3.title",
+    "home.roadmap.phase3.description",
+    false,
+  ],
+  [
+    "home.roadmap.phase4.code",
+    "home.roadmap.phase4.title",
+    "home.roadmap.phase4.description",
+    false,
+  ],
 ] as const;
 
 const benefits = [
-  ["Missions", "Complete objectives and grow your Bobonaut profile.", Target],
-  ["Recognition", "Earn badges, rank progress and campaign eligibility.", Award],
-  ["Discovery", "Explore sectors, signals and the evolving BOBU story.", Globe2],
+  [
+    "home.community.missions.title",
+    "home.community.missions.description",
+    Target,
+  ],
+  [
+    "home.community.recognition.title",
+    "home.community.recognition.description",
+    Award,
+  ],
+  [
+    "home.community.discovery.title",
+    "home.community.discovery.description",
+    Globe2,
+  ],
 ] as const;
 
 const fadeUp = {
@@ -384,7 +416,7 @@ export function Home() {
               : 0;
 
           return (
-            <article className="glass stat" key={stat.label}>
+            <article className="glass stat" key={stat.labelKey}>
               <div className="stat-icon">
                 <Icon size={20} />
               </div>
@@ -397,7 +429,7 @@ export function Home() {
                 />
               </strong>
 
-              <span>{stat.label}</span>
+              <span>{t(stat.labelKey)}</span>
             </article>
           );
         })}
@@ -405,34 +437,34 @@ export function Home() {
 
       <motion.section className="glass transmission" variants={fadeUp}>
         <div>
-          <div className="eyebrow">LATEST TRANSMISSION</div>
-          <h2>“The universe is not waiting for heroes.”</h2>
-          <p>“It is waiting for Builders.”</p>
+          <div className="eyebrow">{t("home.transmission.eyebrow")}</div>
+          <h2>“{t("home.transmission.quote")}”</h2>
+          <p>“{t("home.transmission.reply")}”</p>
         </div>
-        <em>— Wizard BOBU</em>
+        <em>{t("home.transmission.author")}</em>
       </motion.section>
 
       <motion.section className="section" variants={fadeUp}>
         <header className="section-header">
           <div>
-            <div className="eyebrow"><Target size={15} />MISSION NETWORK</div>
-            <h2>Your next move matters.</h2>
-            <p>Begin with simple missions, earn visible progress and prepare for future community challenges.</p>
+            <div className="eyebrow"><Target size={15} />{t("home.missions.eyebrow")}</div>
+            <h2>{t("home.missions.title")}</h2>
+            <p>{t("home.missions.description")}</p>
           </div>
-          <Link className="text-link" to="/missions">View all missions <ArrowRight size={17} /></Link>
+          <Link className="text-link" to="/missions">{t("home.missions.viewAll")} <ArrowRight size={17} /></Link>
         </header>
 
         <div className="mission-grid">
-          {missions.map(({ code, title, text, reward, icon: Icon, soon }) => (
+          {missions.map(({ code, titleKey, descriptionKey, rewardKey, icon: Icon, soon }) => (
             <article className={`glass mission-card ${soon ? "soon" : ""}`} key={code}>
               <div className="mission-top">
                 <div className="mission-icon"><Icon size={22} /></div>
-                <span className="status">{soon ? "COMING SOON" : "ACTIVE"}</span>
+                <span className="status">{soon ? t("home.missions.status.comingSoon") : t("home.missions.status.active")}</span>
               </div>
               <small>{code}</small>
-              <h3>{title}</h3>
-              <p>{text}</p>
-              <footer className="mission-footer"><span><Star size={15} /> {reward}</span><ArrowRight size={17} /></footer>
+              <h3>{t(titleKey)}</h3>
+              <p>{t(descriptionKey)}</p>
+              <footer className="mission-footer"><span><Star size={15} /> {t(rewardKey)}</span><ArrowRight size={17} /></footer>
             </article>
           ))}
         </div>
@@ -441,27 +473,27 @@ export function Home() {
       <motion.section className="section" variants={fadeUp}>
         <header className="section-header">
           <div>
-            <div className="eyebrow"><Map size={15} />GALAXY ROADMAP</div>
-            <h2>The universe expands in phases.</h2>
-            <p>Each phase introduces a new layer of identity, participation and community-driven experiences.</p>
+            <div className="eyebrow"><Map size={15} />{t("home.roadmap.eyebrow")}</div>
+            <h2>{t("home.roadmap.title")}</h2>
+            <p>{t("home.roadmap.description")}</p>
           </div>
-          <Link className="text-link" to="/galaxy">Open Galactic Map <ArrowRight size={17} /></Link>
+          <Link className="text-link" to="/galaxy">{t("home.roadmap.openMap")} <ArrowRight size={17} /></Link>
         </header>
 
         <div className="roadmap">
           <article className="glass roadmap-intro">
             <Rocket size={30} />
-            <h3>Genesis is only the beginning.</h3>
-            <p>The current phase establishes the foundation of BOBU Universe. Missions, arcade experiences and collaborative sectors will continue expanding the network.</p>
-            <div className="progress"><div className="eyebrow">UNIVERSE PROGRESS · 50%</div><div className="track"><div className="fill" /></div></div>
+            <h3>{t("home.roadmap.introTitle")}</h3>
+            <p>{t("home.roadmap.introDescription")}</p>
+            <div className="progress"><div className="eyebrow">{t("home.roadmap.progress")}</div><div className="track"><div className="fill" /></div></div>
           </article>
 
           <div className="timeline">
-            {roadmap.map(([phase, title, text, done]) => (
-              <article className="glass timeline-card" key={phase}>
+            {roadmap.map(([phaseKey, titleKey, descriptionKey, done]) => (
+              <article className="glass timeline-card" key={phaseKey}>
                 <div className={`marker ${done ? "done" : ""}`}>{done ? <CheckCircle2 size={19} /> : <Circle size={15} />}</div>
-                <div><small>{phase}</small><h4>{title}</h4><p>{text}</p></div>
-                <strong>{done ? "ONLINE" : "PLANNED"}</strong>
+                <div><small>{t(phaseKey)}</small><h4>{t(titleKey)}</h4><p>{t(descriptionKey)}</p></div>
+                <strong>{done ? t("home.roadmap.status.online") : t("home.roadmap.status.planned")}</strong>
               </article>
             ))}
           </div>
@@ -471,20 +503,20 @@ export function Home() {
       <motion.section className="section glass community" variants={fadeUp}>
         <div className="community-grid">
           <div>
-            <div className="eyebrow"><Users size={15} />BUILDER CIVILIZATION</div>
-            <h2>Not an audience. A civilization.</h2>
-            <p>BOBU Universe grows through participation. Explore the story, complete missions, create culture and help shape what comes next.</p>
+            <div className="eyebrow"><Users size={15} />{t("home.community.eyebrow")}</div>
+            <h2>{t("home.community.title")}</h2>
+            <p>{t("home.community.description")}</p>
             <div className="actions">
-              <Link className="primary" to="/missions">Begin Your Journey <Zap size={17} /></Link>
-              <Link className="secondary" to="/command-deck">Open Command Deck <Satellite size={17} /></Link>
+              <Link className="primary" to="/missions">{t("home.community.beginJourney")} <Zap size={17} /></Link>
+              <Link className="secondary" to="/command-deck">{t("home.community.openDeck")} <Satellite size={17} /></Link>
             </div>
           </div>
 
           <div className="benefits">
-            {benefits.map(([title, text, Icon]) => (
-              <article className="benefit" key={title}>
+            {benefits.map(([titleKey, descriptionKey, Icon]) => (
+              <article className="benefit" key={titleKey}>
                 <div className="benefit-icon"><Icon size={20} /></div>
-                <div><h4>{title}</h4><p>{text}</p></div>
+                <div><h4>{t(titleKey)}</h4><p>{t(descriptionKey)}</p></div>
               </article>
             ))}
           </div>
@@ -492,12 +524,12 @@ export function Home() {
       </motion.section>
 
       <motion.section className="final" variants={fadeUp}>
-        <div className="eyebrow">THE SIGNAL IS WAITING</div>
-        <h2>Your sector begins with one mission.</h2>
-        <p>Enter Mission Control, build your Bobonaut profile and become part of the expanding BOBU Universe.</p>
+        <div className="eyebrow">{t("home.final.eyebrow")}</div>
+        <h2>{t("home.final.title")}</h2>
+        <p>{t("home.final.description")}</p>
         <div className="final-actions">
-          <Link className="primary" to="/missions">Enter Mission Control <Target size={17} /></Link>
-          <Link className="secondary" to="/genesis">Read the Genesis <Gem size={17} /></Link>
+          <Link className="primary" to="/missions">{t("home.final.primaryAction")} <Target size={17} /></Link>
+          <Link className="secondary" to="/genesis">{t("home.final.secondaryAction")} <Gem size={17} /></Link>
         </div>
       </motion.section>
       </motion.main>

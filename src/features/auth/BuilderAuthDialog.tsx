@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
+import { useLanguage } from "../../core/language";
 import { supabase } from "../../lib/supabase";
 import "./BuilderAuthDialog.css";
 
@@ -46,6 +47,7 @@ export default function BuilderAuthDialog({
   open,
   onClose,
 }: BuilderAuthDialogProps) {
+  const { t } = useLanguage();
   const [mode, setMode] =
     useState<AuthMode>("sign-in");
 
@@ -110,12 +112,19 @@ export default function BuilderAuthDialog({
     passwordsMatch &&
     legalAccepted;
 
-  const passwordStrengthLabel =
+  const passwordStrength =
     passwordRuleCount <= 2
-      ? "Weak"
+      ? "weak"
       : passwordRuleCount <= 4
-        ? "Medium"
-        : "Strong";
+        ? "medium"
+        : "strong";
+
+  const passwordStrengthLabel =
+    passwordStrength === "weak"
+      ? t("auth.dialog.password.weak")
+      : passwordStrength === "medium"
+        ? t("auth.dialog.password.medium")
+        : t("auth.dialog.password.strong");
 
   useEffect(() => {
     if (!open) {
@@ -188,7 +197,7 @@ export default function BuilderAuthDialog({
 
     if (!normalizedEmail) {
       setErrorMessage(
-        "Enter your email address.",
+        t("auth.dialog.validation.emailRequired"),
       );
       return;
     }
@@ -196,28 +205,32 @@ export default function BuilderAuthDialog({
     if (mode === "sign-up") {
       if (!builderNameValid) {
         setErrorMessage(
-          "Builder Name must contain between 3 and 32 characters.",
+          t("auth.dialog.validation.builderName"),
         );
         return;
       }
 
       if (!passwordStrong) {
         setErrorMessage(
-          "Password must include uppercase and lowercase letters, a number, a symbol, and at least 8 characters.",
+          t(
+            "auth.dialog.validation.strongPassword",
+          ),
         );
         return;
       }
 
       if (!passwordsMatch) {
         setErrorMessage(
-          "Passwords do not match.",
+          t(
+            "auth.dialog.validation.passwordMismatch",
+          ),
         );
         return;
       }
 
       if (!legalAccepted) {
         setErrorMessage(
-          "You must accept the Terms of Service and Privacy Policy.",
+          t("auth.dialog.validation.legalRequired"),
         );
         return;
       }
@@ -228,7 +241,9 @@ export default function BuilderAuthDialog({
       password.length < 8
     ) {
       setErrorMessage(
-        "Password must contain at least 8 characters.",
+        t(
+          "auth.dialog.validation.passwordMinimum",
+        ),
       );
       return;
     }
@@ -281,7 +296,7 @@ export default function BuilderAuthDialog({
         }
 
         setMessage(
-          "Account created. Check your email to confirm your BOBU account.",
+          t("auth.dialog.message.accountCreated"),
         );
         return;
       }
@@ -302,13 +317,15 @@ export default function BuilderAuthDialog({
       }
 
       setMessage(
-        "Password recovery instructions were sent to your email.",
+        t("auth.dialog.message.recoverySent"),
       );
     } catch (error) {
       setErrorMessage(
         error instanceof Error
           ? error.message
-          : "Authentication could not be completed.",
+          : t(
+              "auth.dialog.validation.authenticationFailed",
+            ),
       );
     } finally {
       setBusy(false);
@@ -317,17 +334,17 @@ export default function BuilderAuthDialog({
 
   const title =
     mode === "sign-up"
-      ? "Create Builder Account"
+      ? t("auth.dialog.title.signUp")
       : mode === "forgot-password"
-        ? "Recover Account"
-        : "Enter BOBU Universe";
+        ? t("auth.dialog.title.recovery")
+        : t("auth.dialog.title.signIn");
 
   const description =
     mode === "sign-up"
-      ? "Create your secure Builder identity."
+      ? t("auth.dialog.description.signUp")
       : mode === "forgot-password"
-        ? "Receive a secure password recovery link."
-        : "Continue your journey across BOBU Universe.";
+        ? t("auth.dialog.description.recovery")
+        : t("auth.dialog.description.signIn");
 
   return (
     <div
@@ -349,7 +366,7 @@ export default function BuilderAuthDialog({
           type="button"
           className="builder-auth-close"
           onClick={onClose}
-          aria-label="Close authentication window"
+          aria-label={t("auth.dialog.closeAria")}
         >
           <X size={19} />
         </button>
@@ -363,7 +380,7 @@ export default function BuilderAuthDialog({
           </div>
 
           <span className="builder-auth-eyebrow">
-            Builder Identity Gateway
+            {t("auth.dialog.eyebrow")}
           </span>
 
           <h2 id="builder-auth-title">
@@ -387,11 +404,13 @@ export default function BuilderAuthDialog({
                 G
               </span>
 
-              Continue with Google
+              {t("auth.dialog.google")}
             </button>
 
             <div className="builder-auth-divider">
-              <span>or continue with email</span>
+              <span>
+                {t("auth.dialog.emailDivider")}
+              </span>
             </div>
           </>
         )}
@@ -404,7 +423,9 @@ export default function BuilderAuthDialog({
         >
           {mode === "sign-up" && (
             <label>
-              <span>Builder Name</span>
+              <span>
+                {t("auth.dialog.builderName.label")}
+              </span>
 
               <div className="builder-auth-input">
                 <UserRound size={17} />
@@ -413,7 +434,9 @@ export default function BuilderAuthDialog({
                   type="text"
                   value={builderName}
                   autoComplete="nickname"
-                  placeholder="Choose your Builder identity"
+                  placeholder={t(
+                    "auth.dialog.builderName.placeholder",
+                  )}
                   minLength={3}
                   maxLength={32}
                   onChange={(event) =>
@@ -441,15 +464,21 @@ export default function BuilderAuthDialog({
                   )}
 
                   {builderNameValid
-                    ? "Builder Name is ready."
-                    : "Use between 3 and 32 characters."}
+                    ? t(
+                        "auth.dialog.builderName.ready",
+                      )
+                    : t(
+                        "auth.dialog.builderName.invalid",
+                      )}
                 </small>
               )}
             </label>
           )}
 
           <label>
-            <span>Email address</span>
+            <span>
+              {t("auth.dialog.email.label")}
+            </span>
 
             <div className="builder-auth-input">
               <Mail size={17} />
@@ -458,7 +487,9 @@ export default function BuilderAuthDialog({
                 type="email"
                 value={email}
                 autoComplete="email"
-                placeholder="builder@example.com"
+                placeholder={t(
+                  "auth.dialog.email.placeholder",
+                )}
                 onChange={(event) =>
                   setEmail(event.target.value)
                 }
@@ -470,7 +501,9 @@ export default function BuilderAuthDialog({
 
           {mode !== "forgot-password" && (
             <label>
-              <span>Password</span>
+              <span>
+                {t("auth.dialog.password.label")}
+              </span>
 
               <div className="builder-auth-input">
                 <LockKeyhole size={17} />
@@ -487,7 +520,9 @@ export default function BuilderAuthDialog({
                       ? "new-password"
                       : "current-password"
                   }
-                  placeholder="Minimum 8 characters"
+                  placeholder={t(
+                    "auth.dialog.password.placeholder",
+                  )}
                   onChange={(event) =>
                     setPassword(
                       event.target.value,
@@ -507,8 +542,12 @@ export default function BuilderAuthDialog({
                   }
                   aria-label={
                     showPasswords
-                      ? "Hide passwords"
-                      : "Show passwords"
+                      ? t(
+                          "auth.dialog.password.hide",
+                        )
+                      : t(
+                          "auth.dialog.password.show",
+                        )
                   }
                 >
                   {showPasswords ? (
@@ -523,10 +562,14 @@ export default function BuilderAuthDialog({
                 password.length > 0 && (
                   <div className="builder-auth-strength">
                     <div className="builder-auth-strength-heading">
-                      <span>Password strength</span>
+                      <span>
+                        {t(
+                          "auth.dialog.password.strength",
+                        )}
+                      </span>
 
                       <strong
-                        className={`strength-${passwordStrengthLabel.toLowerCase()}`}
+                        className={`strength-${passwordStrength}`}
                       >
                         {passwordStrengthLabel}
                       </strong>
@@ -552,23 +595,33 @@ export default function BuilderAuthDialog({
                       {[
                         [
                           passwordRules.length,
-                          "At least 8 characters",
+                          t(
+                            "auth.dialog.password.ruleLength",
+                          ),
                         ],
                         [
                           passwordRules.uppercase,
-                          "Uppercase letter",
+                          t(
+                            "auth.dialog.password.ruleUppercase",
+                          ),
                         ],
                         [
                           passwordRules.lowercase,
-                          "Lowercase letter",
+                          t(
+                            "auth.dialog.password.ruleLowercase",
+                          ),
                         ],
                         [
                           passwordRules.number,
-                          "Number",
+                          t(
+                            "auth.dialog.password.ruleNumber",
+                          ),
                         ],
                         [
                           passwordRules.symbol,
-                          "Special character",
+                          t(
+                            "auth.dialog.password.ruleSymbol",
+                          ),
                         ],
                       ].map(([valid, label]) => (
                         <span
@@ -594,7 +647,11 @@ export default function BuilderAuthDialog({
 
           {mode === "sign-up" && (
             <label>
-              <span>Confirm password</span>
+              <span>
+                {t(
+                  "auth.dialog.confirmPassword.label",
+                )}
+              </span>
 
               <div className="builder-auth-input">
                 <LockKeyhole size={17} />
@@ -607,7 +664,9 @@ export default function BuilderAuthDialog({
                   }
                   value={confirmPassword}
                   autoComplete="new-password"
-                  placeholder="Enter password again"
+                  placeholder={t(
+                    "auth.dialog.confirmPassword.placeholder",
+                  )}
                   onChange={(event) =>
                     setConfirmPassword(
                       event.target.value,
@@ -627,8 +686,12 @@ export default function BuilderAuthDialog({
                   }
                   aria-label={
                     showPasswords
-                      ? "Hide passwords"
-                      : "Show passwords"
+                      ? t(
+                          "auth.dialog.password.hide",
+                        )
+                      : t(
+                          "auth.dialog.password.show",
+                        )
                   }
                 >
                   {showPasswords ? (
@@ -654,8 +717,12 @@ export default function BuilderAuthDialog({
                   )}
 
                   {passwordsMatch
-                    ? "Passwords match."
-                    : "Passwords do not match."}
+                    ? t(
+                        "auth.dialog.confirmPassword.match",
+                      )
+                    : t(
+                        "auth.dialog.confirmPassword.noMatch",
+                      )}
                 </small>
               )}
             </label>
@@ -682,19 +749,21 @@ export default function BuilderAuthDialog({
               </span>
 
               <span>
-                I have read and agree to the{" "}
+                {t(
+                  "auth.dialog.legal.prefix",
+                )}{" "}
                 <Link
                   to="/terms"
                   onClick={onClose}
                 >
-                  Terms of Service
+                  {t("auth.dialog.legal.terms")}
                 </Link>{" "}
-                and{" "}
+                {t("auth.dialog.legal.and")}{" "}
                 <Link
                   to="/privacy"
                   onClick={onClose}
                 >
-                  Privacy Policy
+                  {t("auth.dialog.legal.privacy")}
                 </Link>
                 .
               </span>
@@ -732,17 +801,16 @@ export default function BuilderAuthDialog({
             )}
 
             {mode === "sign-up"
-              ? "Create Builder Account"
+              ? t("auth.dialog.submit.signUp")
               : mode === "forgot-password"
-                ? "Send Recovery Link"
-                : "Sign In"}
+                ? t("auth.dialog.submit.recovery")
+                : t("auth.dialog.submit.signIn")}
           </button>
 
           {mode === "sign-up" &&
             !signUpReady && (
               <p className="builder-auth-submit-help">
-                Complete all required security
-                fields to create your account.
+                {t("auth.dialog.submit.help")}
               </p>
             )}
         </form>
@@ -750,7 +818,7 @@ export default function BuilderAuthDialog({
         <footer className="builder-auth-footer">
           <span className="builder-auth-security-note">
             <ShieldCheck size={14} />
-            Secured by BOBU Identity Gateway
+            {t("auth.dialog.securityNote")}
           </span>
 
           {mode === "sign-in" && (
@@ -761,18 +829,24 @@ export default function BuilderAuthDialog({
                   setMode("forgot-password")
                 }
               >
-                Forgot password?
+                {t(
+                  "auth.dialog.footer.forgotPassword",
+                )}
               </button>
 
               <span>
-                New to BOBU?
+                {t(
+                  "auth.dialog.footer.newToBobu",
+                )}
                 <button
                   type="button"
                   onClick={() =>
                     setMode("sign-up")
                   }
                 >
-                  Create account
+                  {t(
+                    "auth.dialog.footer.createAccount",
+                  )}
                 </button>
               </span>
             </>
@@ -780,14 +854,18 @@ export default function BuilderAuthDialog({
 
           {mode === "sign-up" && (
             <span>
-              Already a Builder?
+              {t(
+                "auth.dialog.footer.alreadyBuilder",
+              )}
               <button
                 type="button"
                 onClick={() =>
                   setMode("sign-in")
                 }
               >
-                Sign in
+                {t(
+                  "auth.dialog.footer.signIn",
+                )}
               </button>
             </span>
           )}
@@ -799,7 +877,9 @@ export default function BuilderAuthDialog({
                 setMode("sign-in")
               }
             >
-              Return to sign in
+              {t(
+                "auth.dialog.footer.returnToSignIn",
+              )}
             </button>
           )}
         </footer>

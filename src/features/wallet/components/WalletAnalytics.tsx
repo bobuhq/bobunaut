@@ -9,6 +9,7 @@ import {
 import { useMemo, useState } from "react";
 
 import type { BuilderWalletEntry } from "../../../core/builder";
+import { useLanguage } from "../../../core/language";
 import {
   type WalletAnalyticsPeriod,
   useWalletAnalytics,
@@ -27,6 +28,8 @@ export function WalletAnalytics({
   ledger,
   formatGp,
 }: WalletAnalyticsProps) {
+  const { t } = useLanguage();
+
   const [period, setPeriod] =
     useState<WalletAnalyticsPeriod>(7);
 
@@ -85,18 +88,17 @@ export function WalletAnalytics({
       <div className="builder-wallet-analytics-heading">
         <div>
           <span className="builder-wallet-analytics-label">
-            GP INTELLIGENCE
+            {t("wallet.analytics.eyebrow")}
           </span>
-          <h2>Wallet Command Center</h2>
+          <h2>{t("wallet.analytics.title")}</h2>
           <p>
-            Live performance calculated from your secured GP
-            ledger.
+            {t("wallet.analytics.description")}
           </p>
         </div>
 
         <div
           className="builder-wallet-period-switch"
-          aria-label="Analytics period"
+          aria-label={t("wallet.analytics.periodAria")}
         >
           {[7, 30].map((value) => (
             <button
@@ -111,7 +113,9 @@ export function WalletAnalytics({
                 setPeriod(value as WalletAnalyticsPeriod)
               }
             >
-              {value} Days
+              {t("wallet.analytics.days", {
+                count: value,
+              })}
             </button>
           ))}
         </div>
@@ -121,7 +125,7 @@ export function WalletAnalytics({
         <div className="builder-wallet-chart-panel">
           <div className="builder-wallet-chart-summary">
             <div>
-              <span>Net GP Change</span>
+              <span>{t("wallet.analytics.netChange")}</span>
               <strong>
                 {formatSignedGp(analytics.netChangeGp)}
               </strong>
@@ -129,7 +133,7 @@ export function WalletAnalytics({
 
             <div className="builder-wallet-chart-trend">
               <TrendingUp size={16} />
-              Ledger synchronized
+              {t("wallet.analytics.synchronized")}
             </div>
           </div>
 
@@ -137,7 +141,9 @@ export function WalletAnalytics({
             <svg
               viewBox={`0 0 ${chartWidth} ${chartHeight}`}
               role="img"
-              aria-label={`${period}-day GP performance chart`}
+              aria-label={t("wallet.analytics.chartAria", {
+                count: period,
+              })}
               preserveAspectRatio="none"
             >
               <defs>
@@ -235,7 +241,7 @@ export function WalletAnalytics({
               <Sparkles size={18} />
             </span>
             <div>
-              <span>Today</span>
+              <span>{t("wallet.analytics.today")}</span>
               <strong>
                 {formatSignedGp(analytics.todayGp)}
               </strong>
@@ -247,7 +253,11 @@ export function WalletAnalytics({
               <ChartNoAxesCombined size={18} />
             </span>
             <div>
-              <span>{period}-Day Rewards</span>
+              <span>
+                {t("wallet.analytics.periodRewards", {
+                  count: period,
+                })}
+              </span>
               <strong>
                 {formatGp(analytics.periodEarnedGp)} GP
               </strong>
@@ -259,7 +269,7 @@ export function WalletAnalytics({
               <Activity size={18} />
             </span>
             <div>
-              <span>Daily Average</span>
+              <span>{t("wallet.analytics.dailyAverage")}</span>
               <strong>
                 {formatGp(analytics.dailyAverageGp)} GP
               </strong>
@@ -271,7 +281,7 @@ export function WalletAnalytics({
               <Flame size={18} />
             </span>
             <div>
-              <span>Best Day</span>
+              <span>{t("wallet.analytics.bestDay")}</span>
               <strong>
                 {formatGp(analytics.bestDayGp)} GP
               </strong>
@@ -283,7 +293,7 @@ export function WalletAnalytics({
               <CalendarDays size={18} />
             </span>
             <div>
-              <span>Active Days</span>
+              <span>{t("wallet.analytics.activeDays")}</span>
               <strong>
                 {analytics.activeDays} / {period}
               </strong>

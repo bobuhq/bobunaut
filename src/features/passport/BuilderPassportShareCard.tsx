@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { toPng } from "html-to-image";
+import { useLanguage } from "../../core/language";
 
 type BuilderPassportShareCardProps = {
   displayName: string;
@@ -16,6 +17,7 @@ export default function BuilderPassportShareCard({
   gpBalance,
   walletAddress,
 }: BuilderPassportShareCardProps) {
+  const { t } = useLanguage();
   const cardRef = useRef<HTMLDivElement>(null);
   const [isDownloading, setIsDownloading] = useState(false);
 
@@ -58,7 +60,9 @@ export default function BuilderPassportShareCard({
       >
         <img
           src="/images/passport/bobu-passport-share-v1.png"
-          alt={`${displayName} Builder Passport`}
+          alt={t("passport.share.imageAlt", {
+            name: displayName,
+          })}
           crossOrigin="anonymous"
           style={{
             width: "100%",
@@ -114,7 +118,9 @@ export default function BuilderPassportShareCard({
               fontSize: "clamp(10px, 1.2vw, 16px)",
             }}
           >
-            <strong>GP RANK · {gpRank}</strong>
+            <strong>
+              {t("passport.share.gpRank")} · {gpRank}
+            </strong>
             <span>
               {gpBalance.toLocaleString("tr-TR")} GP
             </span>
@@ -137,7 +143,7 @@ export default function BuilderPassportShareCard({
               whiteSpace: "nowrap",
             }}
           >
-            Wallet: {walletAddress}
+            {t("passport.share.wallet")}: {walletAddress}
           </p>
         </div>
       </div>
@@ -161,7 +167,9 @@ export default function BuilderPassportShareCard({
             "linear-gradient(135deg, rgba(20, 241, 149, 0.22), rgba(153, 69, 255, 0.28))",
         }}
       >
-        {isDownloading ? "Preparing PNG..." : "Download PNG"}
+        {isDownloading
+          ? t("passport.share.preparingPng")
+          : t("passport.share.downloadPng")}
       </button>
     </div>
   );

@@ -3,6 +3,7 @@ import {
   Download,
   Share2,
 } from "lucide-react";
+import { useLanguage } from "../../core/language";
 
 type BuilderPassportActionsProps = {
   onDownload: () => void;
@@ -17,6 +18,8 @@ export default function BuilderPassportActions({
   onShare,
   copiedBuilderId,
 }: BuilderPassportActionsProps) {
+  const { t } = useLanguage();
+
   return (
     <div className="builder-passport-actions">
       <button
@@ -25,7 +28,9 @@ export default function BuilderPassportActions({
         onClick={onCopyBuilderId}
       >
         <Copy size={15} />
-        {copiedBuilderId ? "Builder ID Copied" : "Copy Builder ID"}
+        {copiedBuilderId
+          ? t("passport.actions.builderIdCopied")
+          : t("passport.actions.copyBuilderId")}
       </button>
 
       <button
@@ -34,7 +39,7 @@ export default function BuilderPassportActions({
         onClick={onShare}
       >
         <Share2 size={15} />
-        Share Passport
+        {t("passport.actions.share")}
       </button>
 
       <button
@@ -43,7 +48,7 @@ export default function BuilderPassportActions({
         onClick={onDownload}
       >
         <Download size={16} />
-        Download Passport
+        {t("passport.actions.download")}
       </button>
     </div>
   );
