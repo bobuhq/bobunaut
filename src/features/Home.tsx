@@ -144,6 +144,7 @@ const fadeUp = {
 };
 
 function AnimatedCounter({ value, suffix = "", decimals = 0 }: CounterProps) {
+  const { language } = useLanguage();
   const [current, setCurrent] = useState(0);
   const reduceMotion = useReducedMotion();
 
@@ -173,8 +174,8 @@ function AnimatedCounter({ value, suffix = "", decimals = 0 }: CounterProps) {
     () =>
       decimals
         ? current.toFixed(decimals)
-        : Math.round(current).toLocaleString("en-US"),
-    [current, decimals],
+        : Math.round(current).toLocaleString(language),
+    [current, decimals, language],
   );
 
   return <>{output}{suffix}</>;
