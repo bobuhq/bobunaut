@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { Orbit, Sparkles, Star, Users } from "lucide-react";
+import { useLanguage } from "../../core/language";
 
 type GalacticSkyProps = {
   builderCount?: number;
@@ -17,7 +18,7 @@ type BuilderStar = {
   opacity: number;
   name: string;
   rank: string;
-  joined: string;
+  joinedDays: number;
   gp: number;
   stars: number;
   sector: string;
@@ -76,7 +77,8 @@ function createStars(count: number): BuilderStar[] {
       opacity: 0.35 + seededValue(id * 3.73) * 0.65,
       name: builderNames[nameIndex],
       rank: builderRanks[rankIndex],
-      joined: `${1 + Math.floor(seededValue(id * 6.39) * 29)} days ago`,
+      joinedDays:
+        1 + Math.floor(seededValue(id * 6.39) * 29),
       gp: 450 + Math.floor(seededValue(id * 11.17) * 48000),
       stars: 1 + Math.floor(seededValue(id * 12.71) * 42),
       sector: sectors[sectorIndex],
@@ -89,6 +91,7 @@ export function GalacticSky({
   galaxiesCreated = 0,
   newBuildersThisWeek = 0,
 }: GalacticSkyProps) {
+  const { language, t } = useLanguage();
   const reduceMotion = useReducedMotion();
   const stars = createStars(builderCount);
   const [selectedBuilder, setSelectedBuilder] =
@@ -721,21 +724,23 @@ export function GalacticSky({
         <div>
           <div className="galactic-sky-kicker">
             <Sparkles size={14} />
-            LIVING GALAXY
+            {t("home.galacticSky.kicker")}
           </div>
 
-          <h2>Every Star is a real Builder.</h2>
+          <h2>{t("home.galacticSky.title")}</h2>
 
           <p>
-            Each new Builder receives a permanent position inside the BOBU
-            Universe. As the community grows, constellations form, galaxies
-            expand and the map becomes alive.
+            {t("home.galacticSky.description")}
           </p>
         </div>
 
         <div className="galactic-sky-count">
-          <strong>{builderCount}</strong>
-          <span>VISIBLE STARS</span>
+          <strong>
+            {builderCount.toLocaleString(language)}
+          </strong>
+          <span>
+            {t("home.galacticSky.visibleStars")}
+          </span>
         </div>
       </header>
 
@@ -756,7 +761,10 @@ export function GalacticSky({
               selectedBuilder?.id === star.id ? "is-selected" : ""
             }`}
             key={star.id}
-            aria-label={`Builder ${star.id}`}
+            aria-label={t(
+              "home.galacticSky.starAria",
+              { id: star.id },
+            )}
             onClick={() => setSelectedBuilder(star)}
             style={{
               left: `${star.x}%`,
@@ -793,24 +801,52 @@ export function GalacticSky({
             }}
           >
             <span className="builder-star-tooltip">
-              <strong>{star.name}</strong>
-              <span className="builder-id">
-                Builder #{String(star.id).padStart(4, "0")}
-              </span>
+                <strong>{star.name}</strong>
 
-              <span className="builder-detail">
-                Rank: {star.rank}
-                <br />
-                Joined: {star.joined}
-                <br />
-                GP: {star.gp.toLocaleString("en-US")}
-                <br />
-                Stars: {star.stars}
-                <br />
-                Sector: {star.sector}
+                <span className="builder-id">
+                  {t(
+                    "home.galacticSky.builderNumber",
+                    {
+                      id: String(star.id).padStart(
+                        4,
+                        "0",
+                      ),
+                    },
+                  )}
+                </span>
+
+                <span className="builder-detail">
+                  {t(
+                    "home.galacticSky.tooltip.rank",
+                  )}:{" "}
+                  {star.rank}
+                  <br />
+
+                  {t(
+                    "home.galacticSky.tooltip.joined",
+                  )}:{" "}
+                  {t("home.galacticSky.daysAgo", {
+                    count: star.joinedDays,
+                  })}
+                  <br />
+
+                  {t("home.galacticSky.stats.gp")}:{" "}
+                  {star.gp.toLocaleString(language)}
+                  <br />
+
+                  {t(
+                    "home.galacticSky.stats.stars",
+                  )}:{" "}
+                  {star.stars.toLocaleString(language)}
+                  <br />
+
+                  {t(
+                    "home.galacticSky.stats.sector",
+                  )}:{" "}
+                  {star.sector}
+                </span>
               </span>
-            </span>
-          </motion.button>
+            </motion.button>
         ))}
 
         <motion.div
@@ -831,8 +867,8 @@ export function GalacticSky({
         >
           <div>
             <Star size={22} />
-            <strong>YOU</strong>
-            <span>GALAXY CORE</span>
+            <strong>{t("home.galacticSky.core.you")}</strong>
+            <span>{t("home.galacticSky.core.label")}</span>
           </div>
         </motion.div>
         </div>
@@ -848,7 +884,9 @@ export function GalacticSky({
               type="button"
               className="selected-builder-close"
               onClick={() => setSelectedBuilder(null)}
-              aria-label="Close Builder profile"
+              aria-label={t(
+                "home.galacticSky.profile.closeAria",
+              )}
             >
               ×
             </button>
@@ -858,13 +896,22 @@ export function GalacticSky({
             </div>
 
             <div className="selected-builder-kicker">
-              SELECTED BUILDER
+              {t(
+                  "home.galacticSky.profile.selectedBuilder",
+                )}
             </div>
 
             <h3>{selectedBuilder.name}</h3>
 
             <span className="selected-builder-number">
-              Builder #{String(selectedBuilder.id).padStart(4, "0")}
+              {t(
+                  "home.galacticSky.builderNumber",
+                  {
+                    id: String(
+                      selectedBuilder.id,
+                    ).padStart(4, "0"),
+                  },
+                )}
             </span>
 
             <div className="selected-builder-rank">
@@ -873,25 +920,27 @@ export function GalacticSky({
 
             <div className="selected-builder-stats">
               <div className="selected-builder-stat">
-                <span>GP</span>
+                <span>{t("home.galacticSky.stats.gp")}</span>
                 <strong>
-                  {selectedBuilder.gp.toLocaleString("en-US")}
+                  {selectedBuilder.gp.toLocaleString(language)}
                 </strong>
               </div>
 
               <div className="selected-builder-stat">
-                <span>STARS</span>
-                <strong>{selectedBuilder.stars}</strong>
+                <span>{t("home.galacticSky.stats.stars")}</span>
+                <strong>{selectedBuilder.stars.toLocaleString(language)}</strong>
               </div>
 
               <div className="selected-builder-stat">
-                <span>SECTOR</span>
+                <span>{t("home.galacticSky.stats.sector")}</span>
                 <strong>{selectedBuilder.sector}</strong>
               </div>
 
               <div className="selected-builder-stat">
-                <span>JOINED</span>
-                <strong>{selectedBuilder.joined}</strong>
+                <span>{t("home.galacticSky.stats.joined")}</span>
+                <strong>{t("home.galacticSky.daysAgo", {
+                      count: selectedBuilder.joinedDays,
+                    })}</strong>
               </div>
             </div>
 
@@ -899,7 +948,9 @@ export function GalacticSky({
               type="button"
               className="selected-builder-action"
             >
-              OPEN BUILDER GALAXY
+              {t(
+                  "home.galacticSky.actions.openBuilderGalaxy",
+                )}
             </button>
           </motion.aside>
         )}
@@ -911,13 +962,17 @@ export function GalacticSky({
           initial={{ opacity: 0, scale: 0.96, y: 12 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ duration: 0.25 }}
-          aria-label="Builder profile"
+          aria-label={t(
+            "home.galacticSky.profile.aria",
+          )}
         >
           <button
             type="button"
             className="builder-profile-close"
             onClick={() => setSelectedBuilder(null)}
-            aria-label="Close Builder profile"
+            aria-label={t(
+                "home.galacticSky.profile.closeAria",
+              )}
           >
             ×
           </button>
@@ -927,13 +982,22 @@ export function GalacticSky({
           </div>
 
           <div className="builder-profile-label">
-            BUILDER PROFILE
+            {t(
+                "home.galacticSky.profile.label",
+              )}
           </div>
 
           <h3>{selectedBuilder.name}</h3>
 
           <span className="builder-profile-id">
-            Builder #{String(selectedBuilder.id).padStart(4, "0")}
+            {t(
+                  "home.galacticSky.builderNumber",
+                  {
+                    id: String(
+                      selectedBuilder.id,
+                    ).padStart(4, "0"),
+                  },
+                )}
           </span>
 
           <div className="builder-profile-rank">
@@ -941,30 +1005,34 @@ export function GalacticSky({
           </div>
 
           <div className="builder-profile-status">
-            ONLINE
+            {t(
+                "home.galacticSky.profile.online",
+              )}
           </div>
 
           <div className="builder-profile-stats">
             <div className="builder-profile-stat">
-              <span>GP</span>
+              <span>{t("home.galacticSky.stats.gp")}</span>
               <strong>
-                {selectedBuilder.gp.toLocaleString("en-US")}
+                {selectedBuilder.gp.toLocaleString(language)}
               </strong>
             </div>
 
             <div className="builder-profile-stat">
-              <span>STARS</span>
-              <strong>{selectedBuilder.stars}</strong>
+              <span>{t("home.galacticSky.stats.stars")}</span>
+              <strong>{selectedBuilder.stars.toLocaleString(language)}</strong>
             </div>
 
             <div className="builder-profile-stat">
-              <span>SECTOR</span>
+              <span>{t("home.galacticSky.stats.sector")}</span>
               <strong>{selectedBuilder.sector}</strong>
             </div>
 
             <div className="builder-profile-stat">
-              <span>JOINED</span>
-              <strong>{selectedBuilder.joined}</strong>
+              <span>{t("home.galacticSky.stats.joined")}</span>
+              <strong>{t("home.galacticSky.daysAgo", {
+                      count: selectedBuilder.joinedDays,
+                    })}</strong>
             </div>
           </div>
 
@@ -973,14 +1041,18 @@ export function GalacticSky({
               type="button"
               className="builder-profile-primary"
             >
-              VIEW GALAXY
+              {t(
+                  "home.galacticSky.actions.viewGalaxy",
+                )}
             </button>
 
             <button
               type="button"
               className="builder-profile-secondary"
             >
-              SEND ALLIANCE REQUEST
+              {t(
+                  "home.galacticSky.actions.sendAllianceRequest",
+                )}
             </button>
           </div>
         </motion.aside>
@@ -989,17 +1061,37 @@ export function GalacticSky({
       <footer className="galactic-footer">
         <div className="galactic-stat">
           <Users size={15} />
-          {builderCount} BUILDERS CONNECTED
+          {t(
+              "home.galacticSky.footer.buildersConnected",
+              {
+                count:
+                  builderCount.toLocaleString(language),
+              },
+            )}
         </div>
 
         <div className="galactic-stat">
           <Orbit size={15} />
-          {galaxiesCreated} GALAXIES CREATED
+          {t(
+              "home.galacticSky.footer.galaxiesCreated",
+              {
+                count:
+                  galaxiesCreated.toLocaleString(language),
+              },
+            )}
         </div>
 
         <div className="galactic-stat">
           <Star size={15} />
-          {newBuildersThisWeek} NEW STARS THIS WEEK
+          {t(
+              "home.galacticSky.footer.newStarsThisWeek",
+              {
+                count:
+                  newBuildersThisWeek.toLocaleString(
+                    language,
+                  ),
+              },
+            )}
         </div>
       </footer>
     </section>
