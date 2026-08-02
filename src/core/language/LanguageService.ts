@@ -6,12 +6,17 @@ import {
 } from "./types";
 import { en } from "./locales/en";
 import { tr } from "./locales/tr";
+import { fi } from "./locales/fi";
+import { sv } from "./locales/sv";
 import { de } from "./locales/de";
 import { fr } from "./locales/fr";
 import { es } from "./locales/es";
+import { pt } from "./locales/pt";
+import { ar } from "./locales/ar";
+import { ru } from "./locales/ru";
 import { zh } from "./locales/zh";
 import { ja } from "./locales/ja";
-import { ar } from "./locales/ar";
+import { ko } from "./locales/ko";
 
 const STORAGE_KEY = "bobu.preferred-language";
 const DEFAULT_LANGUAGE: SupportedLanguage = "en";
@@ -22,12 +27,17 @@ const dictionaries: Record<
 > = {
   en,
   tr,
+  fi,
+  sv,
   de,
   fr,
   es,
+  pt,
+  ar,
+  ru,
   zh,
   ja,
-  ar,
+  ko,
 };
 
 function isSupportedLanguage(

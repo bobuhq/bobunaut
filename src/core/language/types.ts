@@ -1,12 +1,17 @@
 export const supportedLanguages = [
   "en",
   "tr",
+  "fi",
+  "sv",
   "de",
   "fr",
   "es",
+  "pt",
+  "ar",
+  "ru",
   "zh",
   "ja",
-  "ar",
+  "ko",
 ] as const;
 
 export type SupportedLanguage =
@@ -36,6 +41,18 @@ export const languageOptions: readonly LanguageOption[] = [
     direction: "ltr",
   },
   {
+    code: "fi",
+    label: "Finnish",
+    nativeLabel: "Suomi",
+    direction: "ltr",
+  },
+  {
+    code: "sv",
+    label: "Swedish",
+    nativeLabel: "Svenska",
+    direction: "ltr",
+  },
+  {
     code: "de",
     label: "German",
     nativeLabel: "Deutsch",
@@ -54,6 +71,12 @@ export const languageOptions: readonly LanguageOption[] = [
     direction: "ltr",
   },
   {
+    code: "ru",
+    label: "Russian",
+    nativeLabel: "Русский",
+    direction: "ltr",
+  },
+  {
     code: "zh",
     label: "Chinese",
     nativeLabel: "中文",
@@ -63,6 +86,18 @@ export const languageOptions: readonly LanguageOption[] = [
     code: "ja",
     label: "Japanese",
     nativeLabel: "日本語",
+    direction: "ltr",
+  },
+  {
+    code: "ko",
+    label: "Korean",
+    nativeLabel: "한국어",
+    direction: "ltr",
+  },
+  {
+    code: "pt",
+    label: "Portuguese",
+    nativeLabel: "Português",
     direction: "ltr",
   },
   {
