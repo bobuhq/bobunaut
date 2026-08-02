@@ -1,4 +1,5 @@
 import type { IdentityProvider } from "../../../core/models/Builder";
+import { useLanguage } from "../../../core/language";
 
 export type IdentityCardStatusTone =
   | "neutral"
@@ -33,6 +34,7 @@ export function IdentityCard({
   statusTone = "neutral",
   onComplete,
 }: IdentityCardProps) {
+  const { t } = useLanguage();
   const handleAction = async (): Promise<void> => {
     if (disabled || completed) {
       return;
@@ -42,14 +44,14 @@ export function IdentityCard({
   };
 
   const statusLabel = disabled
-    ? "Coming Soon"
+    ? t("identity.status.comingSoon")
     : completed
-      ? "Completed"
+      ? t("identity.status.completed")
       : statusTone === "error"
-        ? "Action Required"
+        ? t("identity.status.actionRequired")
         : statusTone === "pending"
-          ? "In Progress"
-          : "Required";
+          ? t("identity.status.inProgress")
+          : t("identity.status.required");
 
   return (
     <article
@@ -97,9 +99,9 @@ export function IdentityCard({
         onClick={handleAction}
       >
         {disabled
-          ? "Coming Soon"
+          ? t("identity.status.comingSoon")
           : completed
-            ? "Completed ✓"
+            ? t("identity.status.completedCheck")
             : actionLabel}
       </button>
     </article>

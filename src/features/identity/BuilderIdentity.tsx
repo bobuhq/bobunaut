@@ -9,6 +9,7 @@ import { useTelegramVerification } from "./hooks/useTelegramVerification";
 import { useXVerification } from "./hooks/useXVerification";
 import { useInstagramVerification } from "./hooks/useInstagramVerification";
 import type { IdentityProvider } from "../../core/models/Builder";
+import { useLanguage } from "../../core/language";
 import "./BuilderIdentity.css";
 
 const TELEGRAM_COMMUNITY_URL =
@@ -27,44 +28,45 @@ interface CommunityTask {
 const communityTasks: CommunityTask[] = [
   {
     provider: "telegram",
-    label: "Join BOBU Telegram",
+    label: "identity.telegram.label",
     description:
-      "Join the official BOBU Telegram community to enter the Genesis network.",
-    actionLabel: "Join Telegram",
+      "identity.telegram.description",
+    actionLabel: "identity.telegram.join",
     communityUrl: TELEGRAM_COMMUNITY_URL,
     required: true,
   },
   {
     provider: "x",
-    label: "Follow BOBU on X",
+    label: "identity.x.label",
     description:
-      "Follow the official BOBU account for announcements, missions and launch updates.",
-    actionLabel: "Follow on X",
+      "identity.x.description",
+    actionLabel: "identity.x.connect",
     communityUrl: "https://x.com/bobu_hq",
     required: true,
   },
   {
     provider: "instagram",
-    label: "Follow BOBU on Instagram",
+    label: "identity.instagram.label",
     description:
-      "Follow BOBU on Instagram and become part of the visual Universe journey.",
-    actionLabel: "Follow Instagram",
+      "identity.instagram.description",
+    actionLabel: "identity.instagram.connect",
     communityUrl:
       "https://www.instagram.com/bobu_universe?igsh=eGViZGJiOXFhNnR5&utm_source=qr",
     required: false,
   },
   {
     provider: "wallet",
-    label: "Solana Wallet",
+    label: "identity.wallet.label",
     description:
-      "Wallet connection will become available for future on-chain rewards and claims.",
-    actionLabel: "Coming Soon",
+      "identity.wallet.description",
+    actionLabel: "identity.status.comingSoon",
     disabled: true,
     required: false,
   },
 ];
 
 export default function BuilderIdentity() {
+  const { t } = useLanguage();
   const builder = useBuilderStore();
   const telegramVerification =
     useTelegramVerification({
@@ -219,22 +221,19 @@ export default function BuilderIdentity() {
     <main className="builder-identity">
       <section className="builder-identity__hero">
         <span className="builder-identity__eyebrow">
-          BOBU GENESIS ACCESS
+          {t("identity.eyebrow")}
         </span>
 
-        <h1>Complete the Genesis Checkpoint</h1>
+        <h1>{t("identity.title")}</h1>
 
-        <p>
-          Join BOBU&apos;s official community channels to unlock
-          your Builder Passport, activate GP and access missions.
-        </p>
+        <p>{t("identity.description")}</p>
       </section>
 
       <section className="identity-dashboard">
         <div className="identity-summary">
           <div>
             <span className="identity-summary__label">
-              Community Progress
+              {t("identity.progress")}
             </span>
 
             <strong>
@@ -262,39 +261,39 @@ export default function BuilderIdentity() {
             <IdentityCard
               key={task.provider}
               provider={task.provider}
-              label={task.label}
-              description={task.description}
+              label={t(task.label)}
+              description={t(task.description)}
               actionLabel={
                 task.provider === "telegram"
                   ? telegramVerification.completed
-                    ? "Completed"
+                    ? t("identity.status.completed")
                     : telegramVerification.busy
-                      ? "Checking..."
+                      ? t("identity.status.checking")
                       : !telegramVerification.communityOpened
-                        ? "Join Telegram"
+                        ? t("identity.telegram.join")
                         : telegramVerification.phase ===
                             "waiting-for-telegram"
-                          ? "Check Telegram Status"
+                          ? t("identity.telegram.check")
                           : telegramVerification.phase === "error"
-                            ? "Retry Telegram"
-                            : "Connect Telegram"
+                            ? t("identity.telegram.retry")
+                            : t("identity.telegram.connect")
                   : task.provider === "x"
                     ? xVerification.completed
-                      ? "Completed"
+                      ? t("identity.status.completed")
                       : xVerification.busy
-                        ? "Checking..."
+                        ? t("identity.status.checking")
                         : xVerification.phase === "error"
-                          ? "Retry X"
-                          : "Connect X"
+                          ? t("identity.x.retry")
+                          : t("identity.x.connect")
                   : task.provider === "instagram"
                     ? instagramVerification.completed
-                      ? "Completed"
+                      ? t("identity.status.completed")
                       : instagramVerification.busy
-                        ? "Checking..."
+                        ? t("identity.status.checking")
                         : instagramVerification.phase === "error"
-                          ? "Retry Instagram"
-                          : "Connect Instagram"
-                    : task.actionLabel
+                          ? t("identity.instagram.retry")
+                          : t("identity.instagram.connect")
+                    : t(task.actionLabel)
               }
               communityUrl={task.communityUrl}
               disabled={
@@ -380,11 +379,11 @@ export default function BuilderIdentity() {
                 : ""
             }
           >
-            <span>Builder Passport</span>
+            <span>{t("identity.unlock.passport")}</span>
             <strong>
               {builder.passportUnlocked
-                ? "Unlocked"
-                : "Locked"}
+                ? t("identity.unlock.unlocked")
+                : t("identity.unlock.locked")}
             </strong>
           </div>
 
@@ -393,9 +392,11 @@ export default function BuilderIdentity() {
               builder.gpEnabled ? "is-unlocked" : ""
             }
           >
-            <span>BOBU GP</span>
+            <span>{t("identity.unlock.gp")}</span>
             <strong>
-              {builder.gpEnabled ? "Active" : "Locked"}
+              {builder.gpEnabled
+                ? t("identity.unlock.active")
+                : t("identity.unlock.locked")}
             </strong>
           </div>
 
@@ -406,11 +407,11 @@ export default function BuilderIdentity() {
                 : ""
             }
           >
-            <span>Missions</span>
+            <span>{t("identity.unlock.missions")}</span>
             <strong>
               {builder.missionsUnlocked
-                ? "Unlocked"
-                : "Locked"}
+                ? t("identity.unlock.unlocked")
+                : t("identity.unlock.locked")}
             </strong>
           </div>
         </div>
