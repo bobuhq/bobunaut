@@ -1,5 +1,6 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { AnimatedCounter } from "../ui/AnimatedCounter";
+import { useLanguage } from "../../core/language";
 import {
   Activity,
   Gem,
@@ -10,33 +11,62 @@ import {
   Users,
 } from "lucide-react";
 
+type Translate = (
+  key: string,
+  variables?: Record<string, string | number>,
+) => string;
+
 const createUniverseMetrics = (
   buildersJoined: number,
   gpGenerated: number,
   newBuildersThisWeek: number,
+  t: Translate,
 ) => [
   {
-    label: "Universe Status",
-    value: "ONLINE",
-    detail: "All core systems operational",
+    id: "status",
+    label: t(
+      "home.liveUniverse.metrics.status.label",
+    ),
+    value: t(
+      "home.liveUniverse.metrics.status.value",
+    ),
+    detail: t(
+      "home.liveUniverse.metrics.status.detail",
+    ),
     icon: RadioTower,
   },
   {
-    label: "Builders Joined",
+    id: "builders",
+    label: t(
+      "home.liveUniverse.metrics.builders.label",
+    ),
     value: buildersJoined,
-    detail: `${newBuildersThisWeek} joined this week`,
+    detail: t(
+      "home.liveUniverse.metrics.builders.detail",
+      { count: newBuildersThisWeek },
+    ),
     icon: Users,
   },
   {
-    label: "GP Generated",
+    id: "gp",
+    label: t(
+      "home.liveUniverse.metrics.gp.label",
+    ),
     value: gpGenerated,
-    detail: "Total Builder GP",
+    detail: t(
+      "home.liveUniverse.metrics.gp.detail",
+    ),
     icon: Gem,
   },
   {
-    label: "Genesis Progress",
+    id: "genesis",
+    label: t(
+      "home.liveUniverse.metrics.genesis.label",
+    ),
     value: newBuildersThisWeek,
-    detail: "New Builders in the last 7 days",
+    detail: t(
+      "home.liveUniverse.metrics.genesis.detail",
+    ),
     icon: Rocket,
   },
 ] as const;
@@ -54,11 +84,14 @@ export function LiveUniverse({
   gpGenerated,
   newBuildersThisWeek,
 }: LiveUniverseProps) {
+  const { t } = useLanguage();
   const reduceMotion = useReducedMotion();
+
   const universeMetrics = createUniverseMetrics(
     buildersJoined,
     gpGenerated,
     newBuildersThisWeek,
+    t,
   );
   return (
     <motion.section
@@ -301,101 +334,166 @@ export function LiveUniverse({
       `}</style>
 
       <article className="universe-panel">
-        <header className="live-heading">
-          <div>
-            <div className="live-kicker">
-              <span className="live-kicker-dot" />
-              LIVE UNIVERSE
-            </div>
-            <h2>The Genesis network is alive.</h2>
-          </div>
-          <span className="era-badge">GENESIS ERA</span>
-        </header>
-
-        <div className="universe-metrics">
-          {universeMetrics.map(({ label, value, detail, icon: Icon }) => (
-            <div className="universe-metric" key={label}>
-              <div className="metric-icon"><Icon size={18} /></div>
-              <strong>
-                {typeof value === "number" ? (
-                  <AnimatedCounter
-                    value={value}
-                    suffix={label === "Genesis Progress" ? "%" : ""}
-                    live={label === "Builders Joined" || label === "GP Generated"}
-                    liveStep={label === "GP Generated" ? 3 : 1}
-                    liveInterval={label === "GP Generated" ? 2200 : 7000}
-                  />
-                ) : (
-                  value
-                )}
-              </strong>
-              <span>{label}</span>
-              <small>{detail}</small>
-            </div>
-          ))}
-        </div>
-
-        <div className="genesis-progress">
-          <div className="progress-copy">
-            <span>UNIVERSE EXPANSION</span>
-            <span>18%</span>
-          </div>
-          <div className="progress-track">
-            <motion.div
-              className="progress-fill"
-              initial={{ width: reduceMotion ? "18%" : 0 }}
-              whileInView={{ width: "18%" }}
-              viewport={{ once: true }}
-              transition={{ duration: 1.4, ease: "easeOut" }}
-            />
-          </div>
-        </div>
-      </article>
-
-      <aside className="activity-panel">
-        <header className="activity-header">
-          <div>
-            <div className="live-kicker">
-              <span className="live-kicker-dot" />
-              NETWORK ACTIVITY
-            </div>
-            <h3>Live signals</h3>
-          </div>
-          <Activity className="activity-icon" size={20} />
-        </header>
-
-        <div className="activity-list">
-          <motion.div
-            className="activity-item"
-            initial={{
-              opacity: 0,
-              x: reduceMotion ? 0 : 18,
-              scale: 0.98,
-            }}
-            animate={{ opacity: 1, x: 0, scale: 1 }}
-            transition={{ duration: 0.4 }}
-          >
-            <div className="activity-item-icon">
-              <RadioTower size={17} />
-            </div>
-
+          <header className="live-heading">
             <div>
-              <strong>Awaiting live transmissions</strong>
-              <p>
-                Verified Builder activity will appear here when
-                the live event stream is connected.
-              </p>
+              <div className="live-kicker">
+                <span className="live-kicker-dot" />
+                {t("home.liveUniverse.kicker")}
+              </div>
+
+              <h2>
+                {t("home.liveUniverse.title")}
+              </h2>
             </div>
 
-            <span className="activity-time">LIVE</span>
-          </motion.div>
-        </div>
+            <span className="era-badge">
+              {t("home.liveUniverse.era")}
+            </span>
+          </header>
 
-        <div className="system-message">
-          <RadioTower size={13} />
-          SYSTEM LISTENING FOR NEW TRANSMISSIONS
-        </div>
-      </aside>
+          <div className="universe-metrics">
+            {universeMetrics.map(
+              ({
+                id,
+                label,
+                value,
+                detail,
+                icon: Icon,
+              }) => (
+                <div
+                  className="universe-metric"
+                  key={id}
+                >
+                  <div className="metric-icon">
+                    <Icon size={18} />
+                  </div>
+
+                  <strong>
+                    {typeof value === "number" ? (
+                      <AnimatedCounter
+                        value={value}
+                        suffix={
+                          id === "genesis" ? "%" : ""
+                        }
+                        live={
+                          id === "builders" ||
+                          id === "gp"
+                        }
+                        liveStep={
+                          id === "gp" ? 3 : 1
+                        }
+                        liveInterval={
+                          id === "gp" ? 2200 : 7000
+                        }
+                      />
+                    ) : (
+                      value
+                    )}
+                  </strong>
+
+                  <span>{label}</span>
+                  <small>{detail}</small>
+                </div>
+              ),
+            )}
+          </div>
+
+          <div className="genesis-progress">
+            <div className="progress-copy">
+              <span>
+                {t("home.liveUniverse.expansion")}
+              </span>
+              <span>18%</span>
+            </div>
+
+            <div className="progress-track">
+              <motion.div
+                className="progress-fill"
+                initial={{
+                  width: reduceMotion ? "18%" : 0,
+                }}
+                whileInView={{ width: "18%" }}
+                viewport={{ once: true }}
+                transition={{
+                  duration: 1.4,
+                  ease: "easeOut",
+                }}
+              />
+            </div>
+          </div>
+        </article>
+
+        <aside className="activity-panel">
+          <header className="activity-header">
+            <div>
+              <div className="live-kicker">
+                <span className="live-kicker-dot" />
+                {t(
+                  "home.liveUniverse.activity.kicker",
+                )}
+              </div>
+
+              <h3>
+                {t(
+                  "home.liveUniverse.activity.title",
+                )}
+              </h3>
+            </div>
+
+            <Activity
+              className="activity-icon"
+              size={20}
+            />
+          </header>
+
+          <div className="activity-list">
+            <motion.div
+              className="activity-item"
+              initial={{
+                opacity: 0,
+                x: reduceMotion ? 0 : 18,
+                scale: 0.98,
+              }}
+              animate={{
+                opacity: 1,
+                x: 0,
+                scale: 1,
+              }}
+              transition={{ duration: 0.4 }}
+            >
+              <div className="activity-item-icon">
+                <RadioTower size={17} />
+              </div>
+
+              <div>
+                <strong>
+                  {t(
+                    "home.liveUniverse.activity.awaiting",
+                  )}
+                </strong>
+
+                <p>
+                  {t(
+                    "home.liveUniverse.activity.description",
+                  )}
+                </p>
+              </div>
+
+              <span className="activity-time">
+                {t(
+                  "home.liveUniverse.activity.live",
+                )}
+              </span>
+            </motion.div>
+          </div>
+
+          <div className="system-message">
+            <RadioTower size={13} />
+            {t(
+              "home.liveUniverse.activity.systemListening",
+            )}
+          </div>
+        </aside>
     </motion.section>
   );
 }
