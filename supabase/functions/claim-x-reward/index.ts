@@ -1,14 +1,23 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
-const X_REWARD_GP = 5000;
-
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
+
+interface ClaimXRewardRow {
+  verified: boolean;
+  rewarded: boolean;
+  already_rewarded: boolean;
+  reward_gp: number | string;
+  total_gp: number | string;
+  ledger_id: string | null;
+  completed_at: string | null;
+  reason: string;
+}
 
 function jsonResponse(
   body: Record<string, unknown>,
@@ -19,6 +28,16 @@ function jsonResponse(
     headers: corsHeaders,
   });
 }
+
+const numberValue = (
+  value: number | string | null | undefined,
+): number => {
+  const normalized = Number(value ?? 0);
+
+  return Number.isFinite(normalized)
+    ? normalized
+    : 0;
+};
 
 export default {
   async fetch(req: Request): Promise<Response> {
@@ -44,13 +63,18 @@ export default {
     );
 
     if (!supabaseUrl || !anonKey || !serviceRoleKey) {
+      console.error(
+        "Required X verification environment variables are missing.",
+      );
+
       return jsonResponse(
         { error: "X verification is not configured." },
         500,
       );
     }
 
-    const authorization = req.headers.get("Authorization");
+    const authorization =
+      req.headers.get("Authorization");
 
     if (!authorization?.startsWith("Bearer ")) {
       return jsonResponse(
@@ -59,7 +83,8 @@ export default {
       );
     }
 
-    const accessToken = authorization.slice(7).trim();
+    const accessToken =
+      authorization.slice(7).trim();
 
     const userClient = createClient(
       supabaseUrl,
@@ -67,7 +92,8 @@ export default {
       {
         global: {
           headers: {
-            Authorization: `Bearer ${accessToken}`,
+            Authorization:
+              `Bearer ${accessToken}`,
           },
         },
         auth: {
@@ -83,20 +109,30 @@ export default {
     } = await userClient.auth.getUser(accessToken);
 
     if (userError || !user) {
+      console.error(
+        "X reward authentication failed:",
+        userError?.message ?? "No user.",
+      );
+
       return jsonResponse(
-        { error: "Your session is invalid or has expired." },
+        {
+          error:
+            "Your session is invalid or has expired.",
+        },
         401,
       );
     }
 
     const xIdentity = user.identities?.find(
-      (identity) => identity.provider === "x",
+      (identity) =>
+        identity.provider.toLowerCase() === "x",
     );
 
     if (!xIdentity) {
       return jsonResponse(
         {
           verified: false,
+          linked: false,
           rewarded: false,
           error: "Connect your X account first.",
         },
@@ -108,10 +144,36 @@ export default {
       xIdentity.identity_data?.sub ??
       xIdentity.id;
 
-    const username =
+    if (
+      typeof providerUserId !== "string" ||
+      providerUserId.trim().length === 0
+    ) {
+      console.error(
+        "Trusted X identity did not include a provider user ID.",
+      );
+
+      return jsonResponse(
+        {
+          verified: false,
+          linked: false,
+          rewarded: false,
+          error:
+            "Your X identity could not be verified.",
+        },
+        422,
+      );
+    }
+
+    const usernameCandidate =
       xIdentity.identity_data?.user_name ??
       xIdentity.identity_data?.preferred_username ??
+      xIdentity.identity_data?.username ??
       null;
+
+    const username =
+      typeof usernameCandidate === "string"
+        ? usernameCandidate
+        : null;
 
     const adminClient = createClient(
       supabaseUrl,
@@ -124,90 +186,118 @@ export default {
       },
     );
 
-    const idempotencyKey =
-      `social-verification:x:${user.id}`;
-
     const {
-      data: rewardResult,
-      error: rewardError,
-    } = await adminClient.rpc("award_builder_gp", {
-      p_builder_id: user.id,
-      p_reward_type: "social_verification",
-      p_amount: X_REWARD_GP,
-      p_idempotency_key: idempotencyKey,
-      p_provider: "x",
-      p_metadata: {
-        provider_user_id: String(providerUserId),
-        username,
+      data: claimResult,
+      error: claimError,
+    } = await adminClient.rpc(
+      "claim_x_identity_reward",
+      {
+        p_builder_id: user.id,
+        p_provider_user_id:
+          providerUserId.trim(),
+        p_username: username,
       },
-    });
+    );
 
-    if (rewardError) {
+    if (claimError) {
+      console.error(
+        "Atomic X verification failed:",
+        claimError.message,
+      );
+
       return jsonResponse(
         {
-          verified: true,
+          verified: false,
+          linked: true,
           rewarded: false,
-          error: "X was connected, but the GP reward failed.",
+          error:
+            "X verification could not be completed.",
         },
         500,
       );
     }
 
-    const rewardRow = Array.isArray(rewardResult)
-      ? rewardResult[0]
-      : rewardResult;
+    const normalizedData =
+      Array.isArray(claimResult)
+        ? claimResult[0]
+        : claimResult;
 
-    const newlyAwarded =
-      rewardRow?.awarded === true;
+    if (!normalizedData) {
+      console.error(
+        "Atomic X verification returned no data.",
+      );
+
+      return jsonResponse(
+        {
+          verified: false,
+          linked: true,
+          rewarded: false,
+          error:
+            "X verification returned no result.",
+        },
+        500,
+      );
+    }
+
+    const row =
+      normalizedData as ClaimXRewardRow;
+
+    if (
+      row.reason === "identity_already_linked"
+    ) {
+      return jsonResponse(
+        {
+          verified: false,
+          linked: false,
+          rewarded: false,
+          error:
+            "This X account is already connected to another Builder account.",
+        },
+        409,
+      );
+    }
+
+    if (row.verified !== true) {
+      console.error(
+        "Atomic X verification was rejected:",
+        row.reason,
+      );
+
+      return jsonResponse(
+        {
+          verified: false,
+          linked: false,
+          rewarded: false,
+          error:
+            "X verification could not be completed.",
+        },
+        409,
+      );
+    }
+
+    const rewarded =
+      row.rewarded === true;
+
+    const rewardGp =
+      numberValue(row.reward_gp);
 
     const totalGp =
-      typeof rewardRow?.total_gp === "number"
-        ? rewardRow.total_gp
-        : Number(rewardRow?.total_gp ?? 0);
-
-    const completedAt = new Date().toISOString();
-
-    const { error: identityError } = await adminClient
-      .from("builder_social_identities")
-      .upsert(
-        {
-          builder_id: user.id,
-          provider: "x",
-          provider_user_id: String(providerUserId),
-          username,
-          verified: true,
-          reward_claimed: true,
-          reward_claimed_at: completedAt,
-          updated_at: completedAt,
-        },
-        {
-          onConflict: "builder_id,provider",
-        },
-      );
-
-    if (identityError) {
-      return jsonResponse(
-        {
-          verified: true,
-          rewarded: newlyAwarded,
-          reward_gp: newlyAwarded ? X_REWARD_GP : 0,
-          total_gp: totalGp,
-          warning:
-            "Reward succeeded, but X status could not be updated.",
-        },
-        500,
-      );
-    }
+      numberValue(row.total_gp);
 
     return jsonResponse({
       verified: true,
       linked: true,
-      rewarded: newlyAwarded,
-      already_rewarded: !newlyAwarded,
-      reward_gp: newlyAwarded ? X_REWARD_GP : 0,
+      rewarded,
+      already_rewarded:
+        row.already_rewarded === true,
+      reward_gp: rewardGp,
       total_gp: totalGp,
-      message: newlyAwarded
-        ? `X verified. ${X_REWARD_GP} GP awarded.`
+      ledger_id:
+        row.ledger_id ?? undefined,
+      completed_at:
+        row.completed_at ?? undefined,
+      message: rewarded
+        ? `X verified. ${rewardGp.toLocaleString()} GP awarded.`
         : "X is already verified and rewarded.",
     });
   },

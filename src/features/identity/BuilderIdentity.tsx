@@ -3,10 +3,10 @@ import { IdentityCard } from "./components/IdentityCard";
 import { useBuilderStore } from "./hooks/useBuilderStore";
 import { builderStore } from "../../store/builderStore";
 import { supabase } from "../../lib/supabase";
-import { gpEngine } from "../../core/gp";
 import { restoreAuthenticatedBuilder } from "../../core/builder/services/BuilderRestoreService";
 import { referralService } from "../../core/builder/services/ReferralService";
 import { useTelegramVerification } from "./hooks/useTelegramVerification";
+import { useXVerification } from "./hooks/useXVerification";
 import type { IdentityProvider } from "../../core/models/Builder";
 import "./BuilderIdentity.css";
 
@@ -71,6 +71,11 @@ export default function BuilderIdentity() {
       initiallyVerified: builder.identity.telegram,
     });
 
+  const xVerification =
+    useXVerification({
+      initiallyVerified: builder.identity.x,
+    });
+
   const [instagramOpened, setInstagramOpened] =
     useState(false);
 
@@ -91,24 +96,7 @@ export default function BuilderIdentity() {
           "identity_already_exists";
 
       if (hasXCallback) {
-        try {
-          const result =
-            await gpEngine.claimGenesisReward("x");
-
-          if (!result.verified) {
-            console.error(
-              "X verification was not completed:",
-              result,
-            );
-          } else {
-            await restoreAuthenticatedBuilder();
-          }
-        } catch (error) {
-          console.error(
-            "X reward claim failed:",
-            error,
-          );
-        }
+        await xVerification.verifyAndReward();
 
         window.history.replaceState(
           {},
@@ -136,7 +124,7 @@ export default function BuilderIdentity() {
         error,
       );
     });
-  }, []);
+  }, [xVerification.verifyAndReward]);
 
   const requiredTasks = communityTasks.filter(
     (task) => task.required,
@@ -161,32 +149,11 @@ export default function BuilderIdentity() {
     );
 
     if (provider === "x") {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
-      if (!session) {
-        window.alert("Please sign in with Google first.");
+      if (xVerification.completed) {
         return;
       }
 
-      const redirectTo = new URL(
-        "/identity",
-        window.location.origin,
-      ).toString();
-
-      const { error } = await supabase.auth.linkIdentity({
-        provider: "x",
-        options: {
-          redirectTo,
-        },
-      });
-
-      if (error) {
-        console.error("X connection failed:", error);
-        window.alert(`X connection failed: ${error.message}`);
-      }
-
+      await xVerification.connectX();
       return;
     }
 
@@ -303,6 +270,14 @@ export default function BuilderIdentity() {
                           : telegramVerification.phase === "error"
                             ? "Retry Telegram"
                             : "Connect Telegram"
+                  : task.provider === "x"
+                    ? xVerification.completed
+                      ? "Completed"
+                      : xVerification.busy
+                        ? "Checking..."
+                        : xVerification.phase === "error"
+                          ? "Retry X"
+                          : "Connect X"
                   : task.provider === "instagram"
                     ? instagramOpened
                       ? "Verification Coming Soon"
@@ -313,12 +288,16 @@ export default function BuilderIdentity() {
               disabled={
                 task.disabled ||
                 (task.provider === "telegram" &&
-                  telegramVerification.busy)
+                  telegramVerification.busy) ||
+                (task.provider === "x" &&
+                  xVerification.busy)
               }
               completed={
                 task.provider === "telegram"
                   ? telegramVerification.completed
-                  : builder.identity[task.provider]
+                  : task.provider === "x"
+                    ? xVerification.completed
+                    : builder.identity[task.provider]
               }
               statusMessage={
                 task.provider === "telegram"
@@ -326,12 +305,16 @@ export default function BuilderIdentity() {
                       telegramVerification.errorMessage ??
                       telegramVerification.message
                     )
-                  : null
+                  : task.provider === "x"
+                    ? (
+                        xVerification.errorMessage ??
+                        xVerification.message
+                      )
+                    : null
               }
               statusTone={
-                task.provider !== "telegram"
-                  ? "neutral"
-                  : telegramVerification.completed
+                task.provider === "telegram"
+                  ? telegramVerification.completed
                     ? "success"
                     : telegramVerification.phase === "error"
                       ? "error"
@@ -345,6 +328,15 @@ export default function BuilderIdentity() {
                         )
                         ? "pending"
                         : "neutral"
+                  : task.provider === "x"
+                    ? xVerification.completed
+                      ? "success"
+                      : xVerification.phase === "error"
+                        ? "error"
+                        : xVerification.busy
+                          ? "pending"
+                          : "neutral"
+                    : "neutral"
               }
               onComplete={handleTaskComplete}
             />
