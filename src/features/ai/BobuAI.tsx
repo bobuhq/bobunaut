@@ -199,7 +199,7 @@ export function BobuAI() {
 
           <div className="bobu-ai-status">
             <i />
-            <span>UNIVERSE GUIDE ONLINE</span>
+            <span>BUILDER INTELLIGENCE ONLINE</span>
           </div>
 
           <div className="bobu-ai-messages">
@@ -231,7 +231,7 @@ export function BobuAI() {
                     size={16}
                     className="bobu-ai-spinner"
                   />
-                  <p>Analyzing the Universe...</p>
+                  <p>Analyzing your Builder journey...</p>
                 </div>
               </article>
             )}
