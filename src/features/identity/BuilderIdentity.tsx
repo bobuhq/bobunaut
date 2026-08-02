@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { IdentityCard } from "./components/IdentityCard";
 import { useBuilderStore } from "./hooks/useBuilderStore";
 import { builderStore } from "../../store/builderStore";
@@ -7,6 +7,7 @@ import { restoreAuthenticatedBuilder } from "../../core/builder/services/Builder
 import { referralService } from "../../core/builder/services/ReferralService";
 import { useTelegramVerification } from "./hooks/useTelegramVerification";
 import { useXVerification } from "./hooks/useXVerification";
+import { useInstagramVerification } from "./hooks/useInstagramVerification";
 import type { IdentityProvider } from "../../core/models/Builder";
 import "./BuilderIdentity.css";
 
@@ -76,11 +77,11 @@ export default function BuilderIdentity() {
       initiallyVerified: builder.identity.x,
     });
 
-  const [instagramOpened, setInstagramOpened] =
-    useState(false);
-
-  const [instagramBusy, setInstagramBusy] =
-    useState(false);
+  const instagramVerification =
+    useInstagramVerification({
+      initiallyVerified:
+        builder.identity.instagram,
+    });
 
   useEffect(() => {
     const restoreIdentityPage = async (): Promise<void> => {
@@ -97,6 +98,19 @@ export default function BuilderIdentity() {
 
       if (hasXCallback) {
         await xVerification.verifyAndReward();
+
+        window.history.replaceState(
+          {},
+          document.title,
+          window.location.pathname,
+        );
+      }
+
+      const hasInstagramCallback =
+        searchParams.has("instagram");
+
+      if (hasInstagramCallback) {
+        await instagramVerification.processCallback();
 
         window.history.replaceState(
           {},
@@ -124,7 +138,10 @@ export default function BuilderIdentity() {
         error,
       );
     });
-  }, [xVerification.verifyAndReward]);
+  }, [
+    xVerification.verifyAndReward,
+    instagramVerification.processCallback,
+  ]);
 
   const requiredTasks = communityTasks.filter(
     (task) => task.required,
@@ -158,20 +175,11 @@ export default function BuilderIdentity() {
     }
 
     if (provider === "instagram") {
-      if (task?.communityUrl) {
-        window.open(
-          task.communityUrl,
-          "_blank",
-          "noopener,noreferrer",
-        );
+      if (instagramVerification.completed) {
+        return;
       }
 
-      setInstagramOpened(true);
-
-      window.alert(
-        "Instagram verification is not available yet. No GP has been awarded.",
-      );
-
+      await instagramVerification.connectInstagram();
       return;
     }
 
@@ -279,9 +287,13 @@ export default function BuilderIdentity() {
                           ? "Retry X"
                           : "Connect X"
                   : task.provider === "instagram"
-                    ? instagramOpened
-                      ? "Verification Coming Soon"
-                      : "Follow Instagram"
+                    ? instagramVerification.completed
+                      ? "Completed"
+                      : instagramVerification.busy
+                        ? "Checking..."
+                        : instagramVerification.phase === "error"
+                          ? "Retry Instagram"
+                          : "Connect Instagram"
                     : task.actionLabel
               }
               communityUrl={task.communityUrl}
@@ -290,14 +302,18 @@ export default function BuilderIdentity() {
                 (task.provider === "telegram" &&
                   telegramVerification.busy) ||
                 (task.provider === "x" &&
-                  xVerification.busy)
+                  xVerification.busy) ||
+                (task.provider === "instagram" &&
+                  instagramVerification.busy)
               }
               completed={
                 task.provider === "telegram"
                   ? telegramVerification.completed
                   : task.provider === "x"
                     ? xVerification.completed
-                    : builder.identity[task.provider]
+                    : task.provider === "instagram"
+                      ? instagramVerification.completed
+                      : builder.identity[task.provider]
               }
               statusMessage={
                 task.provider === "telegram"
@@ -310,7 +326,12 @@ export default function BuilderIdentity() {
                         xVerification.errorMessage ??
                         xVerification.message
                       )
-                    : null
+                    : task.provider === "instagram"
+                      ? (
+                          instagramVerification.errorMessage ??
+                          instagramVerification.message
+                        )
+                      : null
               }
               statusTone={
                 task.provider === "telegram"
@@ -336,7 +357,15 @@ export default function BuilderIdentity() {
                         : xVerification.busy
                           ? "pending"
                           : "neutral"
-                    : "neutral"
+                    : task.provider === "instagram"
+                      ? instagramVerification.completed
+                        ? "success"
+                        : instagramVerification.phase === "error"
+                          ? "error"
+                          : instagramVerification.busy
+                            ? "pending"
+                            : "neutral"
+                      : "neutral"
               }
               onComplete={handleTaskComplete}
             />
