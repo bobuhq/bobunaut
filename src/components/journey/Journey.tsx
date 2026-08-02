@@ -1,34 +1,59 @@
 import { motion } from "framer-motion";
 import { ArrowDown, Orbit, Sparkles, Star, Users } from "lucide-react";
+import { useLanguage } from "../../core/language";
 
-const milestones = [
+type Translate = (
+  key: string,
+  variables?: Record<string, string | number>,
+) => string;
+
+const createMilestones = (t: Translate) => [
   {
     value: "1",
-    label: "Builder",
-    text: "Every journey begins with one real person and one first Star.",
+    label: t(
+      "home.journey.milestone.one.label",
+    ),
+    text: t(
+      "home.journey.milestone.one.text",
+    ),
     icon: Star,
   },
   {
     value: "100",
-    label: "Builders",
-    text: "Your first constellation begins to shine.",
+    label: t(
+      "home.journey.milestone.hundred.label",
+    ),
+    text: t(
+      "home.journey.milestone.hundred.text",
+    ),
     icon: Sparkles,
   },
   {
     value: "1,000",
-    label: "Builders",
-    text: "Your Galaxy starts taking shape across the network.",
+    label: t(
+      "home.journey.milestone.thousand.label",
+    ),
+    text: t(
+      "home.journey.milestone.thousand.text",
+    ),
     icon: Orbit,
   },
   {
     value: "100,000",
-    label: "Builders",
-    text: "The BOBU Universe becomes a living ecosystem.",
+    label: t(
+      "home.journey.milestone.hundredThousand.label",
+    ),
+    text: t(
+      "home.journey.milestone.hundredThousand.text",
+    ),
     icon: Users,
   },
 ] as const;
 
 export function Journey() {
+  const { t } = useLanguage();
+  const milestones = createMilestones(t);
+
   return (
     <section className="builder-journey" id="journey">
       <style>{`
@@ -278,15 +303,19 @@ export function Journey() {
         >
           <div className="journey-kicker">
             <Sparkles size={14} />
-            THE BUILDER'S JOURNEY
+            {t("home.journey.kicker")}
           </div>
 
-          <h2>Your story begins with one Star.</h2>
+          <h2>{t("home.journey.title")}</h2>
 
           <p>
-            Every Star represents a <strong>real Builder</strong>. Every new
-            connection grows your constellation. Every constellation helps
-            shape the BOBU Universe.
+            {t("home.journey.description.prefix")}{" "}
+            <strong>
+              {t(
+                "home.journey.description.emphasis",
+              )}
+            </strong>
+            {t("home.journey.description.suffix")}
           </p>
         </motion.header>
 
@@ -320,18 +349,21 @@ export function Journey() {
         >
           <div>
             <h3>
-              One Builder creates one Star. Many Galaxies create the BOBU
-              Universe.
+              {t("home.journey.manifesto.title")}
             </h3>
+
             <p>
-              This is not a referral list. It is a living map of real people,
-              real communities and every connection that helped build the
-              future.
+              {t(
+                "home.journey.manifesto.description",
+              )}
             </p>
           </div>
 
-          <a className="journey-cta" href="#community">
-            START YOUR GALAXY
+          <a
+            className="journey-cta"
+            href="#community"
+          >
+            {t("home.journey.cta")}
             <ArrowDown size={15} />
           </a>
         </motion.div>
