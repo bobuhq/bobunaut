@@ -1,62 +1,30 @@
 import {
   useCallback,
   useEffect,
+  useRef,
   useState,
 } from "react";
 
 import { restoreAuthenticatedBuilder } from "../../../core/builder/services/BuilderRestoreService";
-import { supabase } from "../../../lib/supabase";
+import { gpEngine } from "../../../core/gp";
 
 export type InstagramVerificationPhase =
   | "idle"
-  | "connecting"
+  | "opening-instagram"
+  | "waiting-for-return"
   | "verifying"
   | "completed"
   | "error";
-
-interface InstagramLinkResponse {
-  ok?: boolean;
-  configured?: boolean;
-  authorization_url?: string;
-  expires_at?: string;
-  error?: string;
-}
 
 interface UseInstagramVerificationOptions {
   initiallyVerified: boolean;
 }
 
-const INSTAGRAM_WORKFLOW_KEY =
-  "bobu:instagram-verification:pending";
+const INSTAGRAM_PROFILE_URL =
+  "https://www.instagram.com/bobu_universe";
 
-const errorMessageByReason: Record<string, string> = {
-  not_configured:
-    "Instagram connection is not configured yet.",
-  missing_oauth_parameters:
-    "Instagram did not return the required authorization details.",
-  token_exchange_failed:
-    "Instagram authorization could not be completed.",
-  instagram_unavailable:
-    "Instagram is temporarily unavailable.",
-  state_validation_failed:
-    "Instagram verification session could not be validated.",
-  state_not_found:
-    "Instagram verification session was not found.",
-  state_already_used:
-    "This Instagram verification link has already been used.",
-  state_expired:
-    "Instagram verification session expired. Please try again.",
-  profile_lookup_failed:
-    "Instagram profile could not be loaded.",
-  missing_instagram_identity:
-    "Instagram did not return a valid account identity.",
-  identity_already_linked:
-    "This Instagram account is already connected to another Builder account.",
-  reward_processing_failed:
-    "Instagram was connected, but the GP reward could not be processed.",
-  verification_failed:
-    "Instagram verification could not be completed.",
-};
+const INSTAGRAM_WORKFLOW_KEY =
+  "bobu:instagram-manual-verification:pending";
 
 export function useInstagramVerification({
   initiallyVerified,
@@ -69,162 +37,45 @@ export function useInstagramVerification({
   const [message, setMessage] =
     useState<string | null>(
       initiallyVerified
-        ? "Instagram verification completed."
+        ? "Instagram completed successfully."
         : null,
     );
 
   const [errorMessage, setErrorMessage] =
     useState<string | null>(null);
 
-  const connectInstagram = useCallback(
-    async (): Promise<void> => {
-      setPhase("connecting");
-      setMessage(
-        "Opening secure Instagram connection...",
-      );
-      setErrorMessage(null);
+  const claimRunningRef = useRef(false);
 
-      try {
-        const {
-          data: { session },
-          error: sessionError,
-        } = await supabase.auth.getSession();
-
-        if (sessionError) {
-          throw new Error(sessionError.message);
-        }
-
-        if (!session?.access_token) {
-          throw new Error(
-            "Please sign in with Google first.",
-          );
-        }
-
-        const { data, error } =
-          await supabase.functions.invoke<InstagramLinkResponse>(
-            "create-instagram-link",
-            {
-              body: {
-                return_url:
-                  window.location.origin,
-              },
-              headers: {
-                Authorization:
-                  `Bearer ${session.access_token}`,
-              },
-            },
-          );
-
-        if (error) {
-          throw new Error(
-            data?.error ??
-              error.message ??
-              "Instagram connection could not be started.",
-          );
-        }
-
-        const authorizationUrl =
-          data?.authorization_url;
-
-        if (!authorizationUrl) {
-          throw new Error(
-            data?.error ??
-              "Instagram authorization URL was not returned.",
-          );
-        }
-
-        window.sessionStorage.setItem(
-          INSTAGRAM_WORKFLOW_KEY,
-          "true",
-        );
-
-        window.location.assign(
-          authorizationUrl,
-        );
-      } catch (error) {
-        const text =
-          error instanceof Error
-            ? error.message
-            : "Instagram connection could not be started.";
-
-        console.error(
-          "Instagram connection failed:",
-          error,
-        );
-
-        setPhase("error");
-        setMessage(null);
-        setErrorMessage(text);
-      }
-    },
-    [],
-  );
-
-  const processCallback = useCallback(
-    async (): Promise<boolean> => {
-      const params =
-        new URLSearchParams(
-          window.location.search,
-        );
-
-      const callbackStatus =
-        params.get("instagram");
-
-      if (!callbackStatus) {
-        return false;
+  const claimInstagramReward =
+    useCallback(async (): Promise<void> => {
+      if (
+        claimRunningRef.current ||
+        initiallyVerified
+      ) {
+        return;
       }
 
+      claimRunningRef.current = true;
       setPhase("verifying");
       setMessage(
-        "Verifying your Instagram identity...",
+        "Completing Instagram verification...",
       );
       setErrorMessage(null);
 
-      if (callbackStatus !== "success") {
-        const reason =
-          params.get("reason") ??
-          "verification_failed";
-
-        const text =
-          errorMessageByReason[reason] ??
-          "Instagram verification could not be completed.";
-
-        window.sessionStorage.removeItem(
-          INSTAGRAM_WORKFLOW_KEY,
-        );
-
-        setPhase("error");
-        setMessage(null);
-        setErrorMessage(text);
-
-        return true;
-      }
-
       try {
-        const source =
-          await restoreAuthenticatedBuilder();
-
-        const verified =
-          Boolean(
-            source?.identities.some(
-              (identity) =>
-                identity.provider.toLowerCase() ===
-                  "instagram" &&
-                identity.verified === true,
-            ),
+        const result =
+          await gpEngine.claimGenesisReward(
+            "instagram",
           );
 
-        if (!verified) {
+        if (!result.verified) {
           throw new Error(
-            "Instagram callback completed, but verification could not be restored.",
+            result.message ??
+              "Instagram verification could not be completed.",
           );
         }
 
-        const rewarded =
-          params.get("rewarded") === "true";
-
-        const rewardGp =
-          Number(params.get("reward_gp") ?? 0);
+        await restoreAuthenticatedBuilder();
 
         window.sessionStorage.removeItem(
           INSTAGRAM_WORKFLOW_KEY,
@@ -232,13 +83,14 @@ export function useInstagramVerification({
 
         setPhase("completed");
         setMessage(
-          rewarded
-            ? `Instagram verified. ${rewardGp.toLocaleString()} GP awarded.`
-            : "Instagram is already verified and rewarded.",
+          result.message ??
+            (
+              result.rewarded
+                ? `Instagram completed. ${result.rewardGp.toLocaleString()} GP awarded.`
+                : "Instagram is already completed and rewarded."
+            ),
         );
         setErrorMessage(null);
-
-        return true;
       } catch (error) {
         const text =
           error instanceof Error
@@ -246,19 +98,58 @@ export function useInstagramVerification({
             : "Instagram verification failed.";
 
         console.error(
-          "Instagram callback restore failed:",
+          "Instagram manual verification failed:",
           error,
         );
 
         setPhase("error");
         setMessage(null);
         setErrorMessage(text);
-
-        return true;
+      } finally {
+        claimRunningRef.current = false;
       }
-    },
-    [],
-  );
+    }, [initiallyVerified]);
+
+  const connectInstagram =
+    useCallback(async (): Promise<void> => {
+      if (initiallyVerified) {
+        return;
+      }
+
+      setPhase("opening-instagram");
+      setMessage(
+        "Opening the official BOBU Instagram account...",
+      );
+      setErrorMessage(null);
+
+      window.sessionStorage.setItem(
+        INSTAGRAM_WORKFLOW_KEY,
+        "true",
+      );
+
+      setPhase("waiting-for-return");
+      setMessage(
+        "Follow BOBU on Instagram, then return to complete.",
+      );
+
+      const isMobile =
+        /iPhone|iPad|iPod|Android/i.test(
+          navigator.userAgent,
+        );
+
+      if (isMobile) {
+        window.location.assign(
+          INSTAGRAM_PROFILE_URL,
+        );
+        return;
+      }
+
+      window.open(
+        INSTAGRAM_PROFILE_URL,
+        "_blank",
+        "noopener,noreferrer",
+      );
+    }, [initiallyVerified]);
 
   useEffect(() => {
     if (!initiallyVerified) {
@@ -271,10 +162,58 @@ export function useInstagramVerification({
 
     setPhase("completed");
     setMessage(
-      "Instagram verification completed.",
+      "Instagram completed successfully.",
     );
     setErrorMessage(null);
   }, [initiallyVerified]);
+
+  useEffect(() => {
+    const completePendingWorkflow = () => {
+      const pending =
+        window.sessionStorage.getItem(
+          INSTAGRAM_WORKFLOW_KEY,
+        ) === "true";
+
+      if (
+        document.visibilityState === "visible" &&
+        pending &&
+        !initiallyVerified
+      ) {
+        void claimInstagramReward();
+      }
+    };
+
+    window.addEventListener(
+      "focus",
+      completePendingWorkflow,
+    );
+
+    document.addEventListener(
+      "visibilitychange",
+      completePendingWorkflow,
+    );
+
+    /*
+     * Mobile browsers may reload the BOBU page when returning
+     * from Instagram. Resume the pending workflow automatically.
+     */
+    completePendingWorkflow();
+
+    return () => {
+      window.removeEventListener(
+        "focus",
+        completePendingWorkflow,
+      );
+
+      document.removeEventListener(
+        "visibilitychange",
+        completePendingWorkflow,
+      );
+    };
+  }, [
+    claimInstagramReward,
+    initiallyVerified,
+  ]);
 
   return {
     phase,
@@ -284,9 +223,10 @@ export function useInstagramVerification({
       phase === "completed" ||
       initiallyVerified,
     busy:
-      phase === "connecting" ||
+      phase === "opening-instagram" ||
       phase === "verifying",
     connectInstagram,
-    processCallback,
+    processCallback:
+      claimInstagramReward,
   };
 }

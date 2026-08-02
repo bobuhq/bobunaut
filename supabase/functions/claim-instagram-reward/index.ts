@@ -1,12 +1,25 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
+const INSTAGRAM_REWARD_GP = 5000;
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
+
+interface InstagramClaimRow {
+  verified: boolean;
+  rewarded: boolean;
+  already_rewarded: boolean;
+  reward_gp: number | string;
+  total_gp: number | string;
+  ledger_id: string | null;
+  completed_at: string | null;
+  reason: string;
+}
 
 function jsonResponse(
   body: Record<string, unknown>,
@@ -16,6 +29,16 @@ function jsonResponse(
     status,
     headers: corsHeaders,
   });
+}
+
+function numberValue(
+  value: number | string | null | undefined,
+): number {
+  const normalized = Number(value ?? 0);
+
+  return Number.isFinite(normalized)
+    ? normalized
+    : 0;
 }
 
 export default {
@@ -45,7 +68,7 @@ export default {
 
     if (!supabaseUrl || !anonKey || !serviceRoleKey) {
       console.error(
-        "Required Instagram verification environment variables are missing.",
+        "Instagram manual verification configuration is incomplete.",
       );
 
       return jsonResponse(
@@ -90,11 +113,13 @@ export default {
     const {
       data: { user },
       error: userError,
-    } = await userClient.auth.getUser(accessToken);
+    } = await userClient.auth.getUser(
+      accessToken,
+    );
 
     if (userError || !user) {
       console.error(
-        "Instagram reward authentication failed:",
+        "Instagram manual verification authentication failed:",
         userError?.message ?? "No user.",
       );
 
@@ -118,83 +143,103 @@ export default {
       },
     );
 
+    /*
+     * This clearly identifies the temporary manual redirect
+     * verification method. It is not presented as a real
+     * Instagram OAuth user ID.
+     */
+    const manualProviderUserId =
+      `manual_redirect:${user.id}`;
+
     const {
-      data: identity,
-      error: identityError,
-    } = await adminClient
-      .from("builder_social_identities")
-      .select(
-        "provider_user_id, username, verified, reward_claimed, reward_claimed_at",
-      )
-      .eq("builder_id", user.id)
-      .eq("provider", "instagram")
-      .maybeSingle();
+      data: claimResult,
+      error: claimError,
+    } = await adminClient.rpc(
+      "claim_instagram_identity_reward",
+      {
+        p_builder_id: user.id,
+        p_provider_user_id:
+          manualProviderUserId,
+        p_username: null,
+      },
+    );
 
-    if (identityError) {
+    if (claimError) {
       console.error(
-        "Instagram identity lookup failed:",
-        identityError.message,
+        "Instagram manual reward claim failed:",
+        claimError.message,
       );
 
-      return jsonResponse(
-        {
-          error:
-            "Instagram identity could not be checked.",
-        },
-        500,
-      );
-    }
-
-    if (
-      !identity?.provider_user_id ||
-      identity.verified !== true
-    ) {
       return jsonResponse(
         {
           verified: false,
           linked: false,
           rewarded: false,
           error:
-            "Connect and verify your Instagram account first.",
-        },
-        409,
-      );
-    }
-
-    const {
-      data: profile,
-      error: profileError,
-    } = await adminClient
-      .from("builder_profiles")
-      .select("gp")
-      .eq("builder_id", user.id)
-      .maybeSingle();
-
-    if (profileError) {
-      console.error(
-        "Builder GP lookup failed:",
-        profileError.message,
-      );
-
-      return jsonResponse(
-        {
-          error:
-            "Instagram verification completed, but GP could not be loaded.",
+            "Instagram verification could not be completed.",
         },
         500,
       );
     }
 
+    const normalizedData =
+      Array.isArray(claimResult)
+        ? claimResult[0]
+        : claimResult;
+
+    if (!normalizedData) {
+      return jsonResponse(
+        {
+          verified: false,
+          linked: false,
+          rewarded: false,
+          error:
+            "Instagram verification returned no result.",
+        },
+        500,
+      );
+    }
+
+    const row =
+      normalizedData as InstagramClaimRow;
+
+    if (row.verified !== true) {
+      return jsonResponse(
+        {
+          verified: false,
+          linked: false,
+          rewarded: false,
+          error:
+            "Instagram verification could not be completed.",
+        },
+        409,
+      );
+    }
+
+    const rewarded =
+      row.rewarded === true;
+
+    const rewardGp =
+      numberValue(row.reward_gp);
+
     return jsonResponse({
       verified: true,
       linked: true,
-      rewarded: false,
+      rewarded,
       already_rewarded:
-        identity.reward_claimed === true,
-      reward_gp: 0,
-      total_gp: Number(profile?.gp ?? 0),
-      message:
-        "Instagram is already verified and rewarded.",
+        row.already_rewarded === true,
+      reward_gp: rewardGp,
+      total_gp:
+        numberValue(row.total_gp),
+      ledger_id:
+        row.ledger_id ?? undefined,
+      completed_at:
+        row.completed_at ?? undefined,
+      verification_method:
+        "manual_redirect",
+      message: rewarded
+        ? `Instagram completed. ${INSTAGRAM_REWARD_GP.toLocaleString()} GP awarded.`
+        : "Instagram is already completed and rewarded.",
     });
   },
 };
