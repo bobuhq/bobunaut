@@ -16,7 +16,10 @@ import {
 
 import { useAuthSession } from "../../core/auth/useAuthSession";
 import { useLanguage } from "../../core/language";
-import { bobuAIService } from "./BobuAIService";
+import {
+  BobuAIServiceError,
+  bobuAIService,
+} from "./BobuAIService";
 import type {
   BobuAIMessage,
   BobuAIRequestMessage,
@@ -48,137 +51,9 @@ const createMessage = (
   createdAt: new Date().toISOString(),
 });
 
-interface BobuAILabels {
-  subtitle: string;
-  online: string;
-  analyzing: string;
-  placeholder: string;
-  signInRequired: string;
-  messageTooLong: string;
-  builderLabel: string;
-  closeLabel: string;
-  openLabel: string;
-  sendLabel: string;
-}
-
-const aiLabels: Record<string, BobuAILabels> = {
-  en: {
-    subtitle: "Builder Intelligence",
-    online: "BUILDER INTELLIGENCE ONLINE",
-    analyzing: "Analyzing your Builder journey...",
-    placeholder: "Ask BOBU AI...",
-    signInRequired: "Please sign in to use BOBU AI.",
-    messageTooLong: "Messages are limited to 1,200 characters.",
-    builderLabel: "BUILDER",
-    closeLabel: "Close BOBU AI",
-    openLabel: "Open BOBU AI",
-    sendLabel: "Send message",
-  },
-  tr: {
-    subtitle: "Builder Intelligence",
-    online: "BUILDER INTELLIGENCE AKTİF",
-    analyzing: "Builder yolculuğun analiz ediliyor...",
-    placeholder: "BOBU AI'ya bir şey sor...",
-    signInRequired: "BOBU AI kullanmak için giriş yapmalısın.",
-    messageTooLong: "Mesaj en fazla 1.200 karakter olabilir.",
-    builderLabel: "BUILDER",
-    closeLabel: "BOBU AI'yı kapat",
-    openLabel: "BOBU AI'yı aç",
-    sendLabel: "Mesaj gönder",
-  },
-  de: {
-    subtitle: "Builder Intelligence",
-    online: "BUILDER INTELLIGENCE ONLINE",
-    analyzing: "Deine Builder-Reise wird analysiert...",
-    placeholder: "Frage BOBU AI...",
-    signInRequired: "Bitte melde dich an, um BOBU AI zu verwenden.",
-    messageTooLong: "Nachrichten sind auf 1.200 Zeichen begrenzt.",
-    builderLabel: "BUILDER",
-    closeLabel: "BOBU AI schließen",
-    openLabel: "BOBU AI öffnen",
-    sendLabel: "Nachricht senden",
-  },
-  fr: {
-    subtitle: "Builder Intelligence",
-    online: "BUILDER INTELLIGENCE EN LIGNE",
-    analyzing: "Analyse de votre parcours Builder...",
-    placeholder: "Demandez à BOBU AI...",
-    signInRequired: "Connectez-vous pour utiliser BOBU AI.",
-    messageTooLong: "Les messages sont limités à 1 200 caractères.",
-    builderLabel: "BUILDER",
-    closeLabel: "Fermer BOBU AI",
-    openLabel: "Ouvrir BOBU AI",
-    sendLabel: "Envoyer le message",
-  },
-  es: {
-    subtitle: "Builder Intelligence",
-    online: "BUILDER INTELLIGENCE EN LÍNEA",
-    analyzing: "Analizando tu recorrido Builder...",
-    placeholder: "Pregunta a BOBU AI...",
-    signInRequired: "Inicia sesión para usar BOBU AI.",
-    messageTooLong: "Los mensajes están limitados a 1.200 caracteres.",
-    builderLabel: "BUILDER",
-    closeLabel: "Cerrar BOBU AI",
-    openLabel: "Abrir BOBU AI",
-    sendLabel: "Enviar mensaje",
-  },
-  ar: {
-    subtitle: "ذكاء Builder",
-    online: "ذكاء BUILDER متصل",
-    analyzing: "جارٍ تحليل رحلة Builder الخاصة بك...",
-    placeholder: "اسأل BOBU AI...",
-    signInRequired: "يرجى تسجيل الدخول لاستخدام BOBU AI.",
-    messageTooLong: "الحد الأقصى للرسالة هو 1200 حرف.",
-    builderLabel: "BUILDER",
-    closeLabel: "إغلاق BOBU AI",
-    openLabel: "فتح BOBU AI",
-    sendLabel: "إرسال الرسالة",
-  },
-  zh: {
-    subtitle: "Builder Intelligence",
-    online: "BUILDER INTELLIGENCE 在线",
-    analyzing: "正在分析你的 Builder 旅程...",
-    placeholder: "询问 BOBU AI...",
-    signInRequired: "请先登录以使用 BOBU AI。",
-    messageTooLong: "消息最多为 1,200 个字符。",
-    builderLabel: "BUILDER",
-    closeLabel: "关闭 BOBU AI",
-    openLabel: "打开 BOBU AI",
-    sendLabel: "发送消息",
-  },
-  ja: {
-    subtitle: "Builder Intelligence",
-    online: "BUILDER INTELLIGENCE オンライン",
-    analyzing: "Builder ジャーニーを分析しています...",
-    placeholder: "BOBU AI に質問...",
-    signInRequired: "BOBU AIを利用するにはログインしてください。",
-    messageTooLong: "メッセージは1,200文字までです。",
-    builderLabel: "BUILDER",
-    closeLabel: "BOBU AIを閉じる",
-    openLabel: "BOBU AIを開く",
-    sendLabel: "メッセージを送信",
-  },
-};
-
-const welcomeMessages: Record<string, string> = {
-  tr: "Merhaba Builder. BOBU Universe, Mining, GP, Wallet, Passport, Missions ve Galaxy hakkında sana rehberlik edebilirim.",
-  en: "Welcome Builder. I can guide you through BOBU Universe, Mining, GP, Wallet, Passport, Missions and Galaxy.",
-  de: "Willkommen Builder. Ich kann dich durch BOBU Universe, Mining, GP, Wallet, Passport, Missions und Galaxy führen.",
-  fr: "Bienvenue Builder. Je peux vous guider dans BOBU Universe, Mining, GP, Wallet, Passport, Missions et Galaxy.",
-  es: "Bienvenido Builder. Puedo guiarte por BOBU Universe, Mining, GP, Wallet, Passport, Missions y Galaxy.",
-  ar: "مرحبًا أيها الـ Builder. يمكنني إرشادك في BOBU Universe والتعدين وGP والمحفظة والجواز والمهام والمجرة.",
-  zh: "欢迎 Builder。我可以帮助你了解 BOBU Universe、Mining、GP、Wallet、Passport、Missions 和 Galaxy。",
-  ja: "ようこそ Builder。BOBU Universe、Mining、GP、Wallet、Passport、Missions、Galaxyをご案内します。",
-};
-
 export function BobuAI() {
   const { session } = useAuthSession();
-  const { language, direction } = useLanguage();
-
-  const labels =
-    aiLabels[language] ??
-    aiLabels.en;
-
+  const { language, direction, t } = useLanguage();
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
@@ -189,10 +64,9 @@ export function BobuAI() {
     () =>
       createMessage(
         "assistant",
-        welcomeMessages[language] ??
-          welcomeMessages.en,
+        t("ai.welcome"),
       ),
-    [language],
+    [language, t],
   );
 
   const [messages, setMessages] =
@@ -247,12 +121,12 @@ export function BobuAI() {
     }
 
     if (!session) {
-      setErrorMessage(labels.signInRequired);
+      setErrorMessage(t("ai.signInRequired"));
       return;
     }
 
     if (question.length > 1200) {
-      setErrorMessage(labels.messageTooLong);
+      setErrorMessage(t("ai.messageTooLong"));
       return;
     }
 
@@ -294,12 +168,25 @@ export function BobuAI() {
         createMessage("assistant", answer),
       ]);
     } catch (error) {
-      setErrorMessage(
-        error instanceof Error
-          ? error.message
-          : "BOBU AI request failed.",
-      );
-    } finally {
+        if (error instanceof BobuAIServiceError) {
+          const errorKeys = {
+            session_failed: "ai.sessionFailed",
+            sign_in_required: "ai.signInRequired",
+            request_failed: "ai.requestFailed",
+            response_unavailable:
+              "ai.responseUnavailable",
+          } as const;
+
+          setErrorMessage(t(errorKeys[error.code]));
+        } else {
+          console.error(
+            "Unexpected BOBU AI error:",
+            error,
+          );
+
+          setErrorMessage(t("ai.requestFailed"));
+        }
+      } finally {
       setBusy(false);
     }
   };
@@ -312,7 +199,7 @@ export function BobuAI() {
       {open && (
         <aside
           className="bobu-ai-panel"
-          aria-label="BOBU AI"
+          aria-label={t("ai.aria")}
         >
           <header className="bobu-ai-header">
             <div className="bobu-ai-identity">
@@ -321,9 +208,9 @@ export function BobuAI() {
               </div>
 
               <div>
-                <span>BOBU AI</span>
+                <span>{t("ai.name")}</span>
                 <strong>
-                  {labels.subtitle}
+                  {t("ai.subtitle")}
                 </strong>
               </div>
             </div>
@@ -331,7 +218,7 @@ export function BobuAI() {
             <button
               type="button"
               className="bobu-ai-close"
-              aria-label={labels.closeLabel}
+              aria-label={t("ai.closeLabel")}
               onClick={() => setOpen(false)}
             >
               <X size={18} />
@@ -340,7 +227,7 @@ export function BobuAI() {
 
           <div className="bobu-ai-status">
             <i />
-            <span>{labels.online}</span>
+            <span>{t("ai.online")}</span>
           </div>
 
           <div className="bobu-ai-messages">
@@ -355,8 +242,8 @@ export function BobuAI() {
               >
                 <span>
                   {message.role === "user"
-                    ? labels.builderLabel
-                    : "BOBU AI"}
+                    ? t("ai.builderLabel")
+                    : t("ai.name")}
                 </span>
 
                 <p>{message.content}</p>
@@ -365,14 +252,14 @@ export function BobuAI() {
 
             {busy && (
               <article className="bobu-ai-message is-assistant">
-                <span>BOBU AI</span>
+                <span>{t("ai.name")}</span>
 
                 <div className="bobu-ai-typing">
                   <LoaderCircle
                     size={16}
                     className="bobu-ai-spinner"
                   />
-                  <p>{labels.analyzing}</p>
+                  <p>{t("ai.analyzing")}</p>
                 </div>
               </article>
             )}
@@ -395,7 +282,7 @@ export function BobuAI() {
               maxLength={1200}
               rows={1}
               disabled={busy}
-              placeholder={labels.placeholder}
+              placeholder={t("ai.placeholder")}
               onChange={(event) =>
                 setInput(event.target.value)
               }
@@ -416,7 +303,7 @@ export function BobuAI() {
               disabled={
                 busy || input.trim().length === 0
               }
-              aria-label={labels.sendLabel}
+              aria-label={t("ai.sendLabel")}
             >
               <Send size={17} />
             </button>
@@ -428,7 +315,7 @@ export function BobuAI() {
         type="button"
         className="bobu-ai-trigger"
         aria-label={
-          open ? labels.closeLabel : labels.openLabel
+          open ? t("ai.closeLabel") : t("ai.openLabel")
         }
         aria-expanded={open}
         onClick={() => setOpen((current) => !current)}

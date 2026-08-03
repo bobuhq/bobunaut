@@ -10,6 +10,22 @@ interface AskBobuAIOptions {
   pathname: string;
 }
 
+export type BobuAIServiceErrorCode =
+  | "session_failed"
+  | "sign_in_required"
+  | "request_failed"
+  | "response_unavailable";
+
+export class BobuAIServiceError extends Error {
+  readonly code: BobuAIServiceErrorCode;
+
+  constructor(code: BobuAIServiceErrorCode) {
+    super(code);
+    this.name = "BobuAIServiceError";
+    this.code = code;
+  }
+}
+
 const MAX_CLIENT_MESSAGES = 12;
 
 export const bobuAIService = {
@@ -24,14 +40,17 @@ export const bobuAIService = {
     } = await supabase.auth.getSession();
 
     if (sessionError) {
-      throw new Error(
-        `Session could not be loaded: ${sessionError.message}`,
+      console.error(
+        "BOBU AI session load failed:",
+        sessionError.message,
       );
+
+      throw new BobuAIServiceError("session_failed");
     }
 
     if (!session?.access_token) {
-      throw new Error(
-        "Please sign in before using BOBU AI.",
+      throw new BobuAIServiceError(
+        "sign_in_required",
       );
     }
 
@@ -41,7 +60,9 @@ export const bobuAIService = {
         role: message.role,
         content: message.content.trim(),
       }))
-      .filter((message) => message.content.length > 0);
+      .filter(
+        (message) => message.content.length > 0,
+      );
 
     const { data, error } =
       await supabase.functions.invoke<BobuAIResponse>(
@@ -60,13 +81,24 @@ export const bobuAIService = {
       );
 
     if (error) {
-      throw new Error(error.message);
+      console.error(
+        "BOBU AI function invocation failed:",
+        error.message,
+      );
+
+      throw new BobuAIServiceError(
+        "request_failed",
+      );
     }
 
     if (!data?.ok || !data.message) {
-      throw new Error(
-        data?.error ??
-          "BOBU AI could not generate a response.",
+      console.error(
+        "BOBU AI response unavailable:",
+        data?.error ?? "Unknown response error",
+      );
+
+      throw new BobuAIServiceError(
+        "response_unavailable",
       );
     }
 
