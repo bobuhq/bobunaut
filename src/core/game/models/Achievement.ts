@@ -9,7 +9,6 @@ export type AchievementStatus =
 
 export interface AchievementReward {
   gp?: number;
-  xp?: number;
   reputation?: number;
   badgeId?: string;
   titleId?: string;

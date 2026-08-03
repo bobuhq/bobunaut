@@ -4,7 +4,6 @@ export interface AdminBuilderDetailProfile {
   username: string | null;
   displayName: string | null;
   level: number;
-  xp: number;
   gp: number;
   reputation: number;
   referralCount: number;
@@ -171,7 +170,6 @@ export const AdminBuilderDetailService = {
       profile: {
         ...detail.profile,
         level: normalizeNumber(detail.profile.level),
-        xp: normalizeNumber(detail.profile.xp),
         gp: normalizeNumber(detail.profile.gp),
         reputation: normalizeNumber(
           detail.profile.reputation,

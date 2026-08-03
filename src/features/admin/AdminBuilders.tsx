@@ -46,15 +46,6 @@ function getBuilderName(builder: AdminBuilder): string {
   );
 }
 
-function getXpProgress(builder: AdminBuilder): number {
-  const levelTarget = Math.max(builder.level * 1_000, 1);
-
-  return Math.min(
-    Math.round((builder.xp / levelTarget) * 100),
-    100,
-  );
-}
-
 function IdentityBadge({
   label,
   verified,
@@ -157,7 +148,7 @@ export default function AdminBuilders() {
 
               <p>
                 Inspect Builder progression, identity verification,
-                GP, XP, Passport and mining activity.
+                GP, Passport and mining activity.
               </p>
             </div>
 
@@ -276,8 +267,6 @@ export default function AdminBuilders() {
                 {builders.map((builder) => {
                   const primaryName =
                     getBuilderName(builder);
-                  const xpProgress =
-                    getXpProgress(builder);
 
                   return (
                     <article
@@ -360,12 +349,6 @@ export default function AdminBuilders() {
                           <strong>{builder.level}</strong>
                         </div>
 
-                        <div>
-                          <span>XP</span>
-                          <strong>
-                            {numberFormatter.format(builder.xp)}
-                          </strong>
-                        </div>
 
                         <div>
                           <span>REFERRALS</span>
@@ -377,20 +360,6 @@ export default function AdminBuilders() {
                         </div>
                       </div>
 
-                      <div className="admin-builder-card__progress">
-                        <div>
-                          <span>Level progress</span>
-                          <strong>{xpProgress}%</strong>
-                        </div>
-
-                        <div className="admin-builder-card__progress-track">
-                          <span
-                            style={{
-                              width: `${xpProgress}%`,
-                            }}
-                          />
-                        </div>
-                      </div>
 
                       <div className="admin-builder-card__identities">
                         <IdentityBadge
@@ -910,14 +879,6 @@ export default function AdminBuilders() {
                         </strong>
                       </div>
 
-                      <div>
-                        <span>XP</span>
-                        <strong>
-                          {numberFormatter.format(
-                            builderDetail.profile.xp,
-                          )}
-                        </strong>
-                      </div>
 
                       <div>
                         <span>Reputation</span>

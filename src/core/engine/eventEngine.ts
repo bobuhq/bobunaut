@@ -12,12 +12,6 @@ export type BobuEvent =
       occurredAt: string;
     }
   | {
-      type: "XP_EARNED";
-      amount: number;
-      source: string;
-      occurredAt: string;
-    }
-  | {
       type: "BUILDER_RESET";
       occurredAt: string;
     }

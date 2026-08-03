@@ -12,7 +12,6 @@ export interface AdminBuilder {
   username: string | null;
   displayName: string | null;
   level: number;
-  xp: number;
   gp: number;
   reputation: number;
   referralCount: number;
@@ -36,7 +35,6 @@ interface AdminBuilderRow {
   username: string | null;
   display_name: string | null;
   level: number | null;
-  xp: number | null;
   gp: number | null;
   reputation: number | null;
   referral_count: number | null;
@@ -99,7 +97,6 @@ export const AdminBuildersService = {
       username: row.username,
       displayName: row.display_name,
       level: normalizeNonNegativeNumber(row.level),
-      xp: normalizeNonNegativeNumber(row.xp),
       gp: normalizeNonNegativeNumber(row.gp),
       reputation: normalizeNonNegativeNumber(
         row.reputation,

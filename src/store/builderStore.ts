@@ -60,7 +60,7 @@ export const builderStore = {
    * snapshot loaded from persistent storage.
    *
    * Restore does not publish domain events and does not calculate
-   * GP, XP or rewards. Derived access rules are recalculated from
+   * GP or rewards. Derived access rules are recalculated from
    * the restored source fields before notifying React subscribers.
    */
   restore(snapshot: Builder): void {
@@ -91,15 +91,6 @@ export const builderStore = {
         ? "IDENTITY_DISCONNECTED"
         : "IDENTITY_CONNECTED",
       provider,
-      occurredAt: createEventTimestamp(),
-    });
-  },
-
-  addXp(amount: number, source = "unknown"): void {
-    eventEngine.publish({
-      type: "XP_EARNED",
-      amount,
-      source,
       occurredAt: createEventTimestamp(),
     });
   },

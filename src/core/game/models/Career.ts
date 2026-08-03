@@ -13,6 +13,5 @@ export type BuilderCareer =
 export interface CareerProgress {
   career: BuilderCareer;
   level: number;
-  xp: number;
   selectedAt: string;
 }

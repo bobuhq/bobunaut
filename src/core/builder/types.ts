@@ -9,7 +9,6 @@ export interface BuilderProfileRow {
   username: string | null;
   display_name: string | null;
   level: number;
-  xp: number;
   personal_gp: number | string | null;
   pending_network_gp: number | string | null;
   eligible_network_gp: number | string | null;

@@ -15,7 +15,6 @@ export interface Builder {
   id: string;
   username: string;
   level: number;
-  xp: number;
 
   /**
    * GP earned directly through the Builder's own activity.
@@ -60,7 +59,6 @@ export const createInitialBuilder = (): Builder => ({
   id: "builder-001",
   username: "New Builder",
   level: 1,
-  xp: 0,
   personalGp: 0,
   pendingNetworkGp: 0,
   eligibleNetworkGp: 0,

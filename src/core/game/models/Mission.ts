@@ -25,8 +25,6 @@ export type MissionStatus =
 
 export interface MissionReward {
   gp?: number;
-  xp?: number;
-  careerXp?: number;
   reputation?: number;
   badgeId?: string;
   materials?: Record<string, number>;

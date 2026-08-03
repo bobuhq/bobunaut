@@ -87,7 +87,6 @@ const mapProfile = (
       profile.username ??
       initialBuilder.username,
     level: profile.level,
-    xp: profile.xp,
     personalGp: toNonNegativeNumber(
       profile.personal_gp,
     ),

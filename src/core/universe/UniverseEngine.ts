@@ -3,7 +3,6 @@ import {
   defaultUniverseState,
   type UniverseState,
 } from "./UniverseState";
-import { calculateUniverseEnergy } from "./EnergyController";
 
 export class UniverseEngine {
   private state: UniverseState = { ...defaultUniverseState };
@@ -17,13 +16,6 @@ export class UniverseEngine {
 
     eventEngine.subscribe((event) => {
       switch (event.type) {
-        case "XP_EARNED":
-          this.state = calculateUniverseEnergy(
-            this.state,
-            event.amount
-          );
-          break;
-
         default:
           break;
       }

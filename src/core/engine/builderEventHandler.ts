@@ -23,16 +23,6 @@ export const reduceBuilderEvent = (
           [event.provider]: false,
         },
       };
-    case "XP_EARNED":
-      if (!Number.isFinite(event.amount) || event.amount <= 0) {
-        return builder;
-      }
-
-      return {
-        ...builder,
-        xp: builder.xp + Math.floor(event.amount),
-      };
-
     case "BUILDER_RESET":
       return builder;
 
