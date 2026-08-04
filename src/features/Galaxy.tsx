@@ -16,6 +16,7 @@ import { useLanguage } from "../core/language";
 import {
   galaxyService,
   type GalaxyMember as RealGalaxyMember,
+  type GalaxyMiningMember,
 } from "../core/builder/services/GalaxyService";
 import { getPrimaryBranchTheme } from "./galaxy/galaxyThemes";
 
@@ -37,6 +38,12 @@ export function Galaxy() {
   const [galaxyMembers, setGalaxyMembers] = useState<
     RealGalaxyMember[]
   >([]);
+
+  const [
+    miningTeamMembers,
+    setMiningTeamMembers,
+  ] = useState<GalaxyMiningMember[]>([]);
+
   const [inviter, setInviter] =
     useState<RealGalaxyMember | null>(null);
   const [isGalaxyLoading, setIsGalaxyLoading] =
@@ -56,8 +63,22 @@ export function Galaxy() {
       setGalaxyError(null);
 
       try {
-        const [members, loadedInviter] = await Promise.all([
+        const [
+          members,
+          miningMembers,
+          loadedInviter,
+        ] = await Promise.all([
           galaxyService.loadMyGalaxy(),
+          galaxyService
+            .loadMyMiningTeam()
+            .catch((error) => {
+              console.error(
+                "Mining Team status could not be loaded:",
+                error,
+              );
+
+              return [];
+            }),
           galaxyService.loadMyInviter().catch((error) => {
             console.error(
               t("galaxy.error.inviterLoad"),
@@ -70,6 +91,7 @@ export function Galaxy() {
 
         if (isMounted) {
           setGalaxyMembers(members);
+          setMiningTeamMembers(miningMembers);
           setInviter(loadedInviter);
         }
       } catch (error) {
@@ -80,6 +102,7 @@ export function Galaxy() {
 
         if (isMounted) {
           setGalaxyMembers([]);
+          setMiningTeamMembers([]);
           setInviter(null);
           setGalaxyError(
             t("galaxy.error.dataLoad"),
@@ -111,15 +134,28 @@ export function Galaxy() {
         ).toString()
       : null;
 
+  const miningActivityByBuilder = useMemo(
+    () =>
+      new Map(
+        miningTeamMembers.map((member) => [
+          member.builderId,
+          member.isMiningActive,
+        ]),
+      ),
+    [miningTeamMembers],
+  );
+
   const activeMemberCount = galaxyMembers.filter(
     (member) =>
-      member.referralStatus === "active",
+      miningActivityByBuilder.get(
+        member.builderId,
+      ) === true,
   ).length;
 
-  const pendingMemberCount = galaxyMembers.filter(
-    (member) =>
-      member.referralStatus === "pending",
-  ).length;
+  const pendingMemberCount = Math.max(
+    0,
+    galaxyMembers.length - activeMemberCount,
+  );
 
   const galaxyLevelTarget = 10;
 
@@ -140,10 +176,18 @@ export function Galaxy() {
           `Builder ${member.builderId.slice(0, 6)}`,
         builders: member.referralCount,
         gp: member.gp,
-        status: member.referralStatus,
+        status:
+          miningActivityByBuilder.get(
+            member.builderId,
+          ) === true
+            ? "active"
+            : "pending",
         theme: getPrimaryBranchTheme(index),
       })),
-    [galaxyMembers],
+    [
+      galaxyMembers,
+      miningActivityByBuilder,
+    ],
   );
 
   const childrenByParent = useMemo(() => {

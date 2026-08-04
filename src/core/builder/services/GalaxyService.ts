@@ -30,6 +30,20 @@ interface GalaxyMemberRow {
   depth: number;
 }
 
+export interface GalaxyMiningMember {
+  builderId: string;
+  referralStatus: GalaxyReferralStatus;
+  isMiningActive: boolean;
+  contributionGp: number;
+}
+
+interface GalaxyMiningMemberRow {
+  builder_id: string;
+  referral_status: GalaxyReferralStatus;
+  is_mining_active: boolean | null;
+  contribution_gp: number | string | null;
+}
+
 export const galaxyService = {
   async loadMyGalaxy(): Promise<GalaxyMember[]> {
     const { data, error } = await supabase
@@ -56,6 +70,40 @@ export const galaxyService = {
       joinedAt: member.joined_at,
       depth: member.depth,
     }));
+  },
+
+  async loadMyMiningTeam(): Promise<
+    GalaxyMiningMember[]
+  > {
+    const { data, error } = await supabase
+      .rpc("get_my_mining_team")
+      .returns<GalaxyMiningMemberRow[]>();
+
+    if (error) {
+      throw error;
+    }
+
+    const rows = Array.isArray(data)
+      ? data
+      : [];
+
+    return rows.map((row) => {
+      const contributionGp = Number(
+        row.contribution_gp ?? 0,
+      );
+
+      return {
+        builderId: row.builder_id,
+        referralStatus: row.referral_status,
+        isMiningActive:
+          row.is_mining_active === true,
+        contributionGp:
+          Number.isFinite(contributionGp) &&
+          contributionGp >= 0
+            ? contributionGp
+            : 0,
+      };
+    });
   },
 
   async loadMyInviter(): Promise<GalaxyMember | null> {
