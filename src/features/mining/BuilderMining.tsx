@@ -220,9 +220,9 @@ export default function BuilderMining() {
                 ? t("mining.session.claimableDescription")
                 : isActive
                   ? t("mining.session.activeDescription", {
-                      count: activeReferralCount,
+                      count: liveActiveBuilders,
                       builderLabel:
-                        activeReferralCount === 1
+                        liveActiveBuilders === 1
                           ? t("mining.session.builderSingular")
                           : t("mining.session.builderPlural"),
                     })
@@ -252,7 +252,7 @@ export default function BuilderMining() {
 
             <div>
               <span>{t("mining.session.activeBuilders")}</span>
-              <strong>{activeReferralCount}</strong>
+              <strong>{liveActiveBuilders}</strong>
             </div>
 
             <div>
