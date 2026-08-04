@@ -17,6 +17,9 @@ import "./MiningLaunchV7.css";
 import { useBuilderStore } from "../identity/hooks/useBuilderStore";
 import { useLanguage } from "../../core/language";
 import { useBuilderMiningSession } from "./hooks/useBuilderMiningSession";
+import {
+  galaxyService,
+} from "../../core/builder/services/GalaxyService";
 import { useMiningStreak } from "./hooks/useMiningStreak";
 import {
   miningHistoryService,
@@ -55,6 +58,12 @@ export default function BuilderMining() {
   const [historyEntries, setHistoryEntries] =
     useState<MiningHistoryEntry[]>([]);
 
+  const [liveActiveBuilders, setLiveActiveBuilders] =
+    useState(0);
+
+  const [liveReferralBonusGp, setLiveReferralBonusGp] =
+    useState(0);
+
   const {
     miningState,
     busy,
@@ -68,6 +77,52 @@ export default function BuilderMining() {
     claimable,
     handleMiningAction,
   } = useBuilderMiningSession();
+
+
+  useEffect(() => {
+    let mounted = true;
+
+    const loadMiningTeam = async () => {
+      try {
+        const members =
+          await galaxyService.loadMyMiningTeam();
+
+        if (!mounted) return;
+
+        const active =
+          members.filter(
+            (member) => member.isMiningActive,
+          );
+
+        setLiveActiveBuilders(active.length);
+
+        setLiveReferralBonusGp(
+          active.reduce(
+            (sum, member) =>
+              sum + member.contributionGp,
+            0,
+          ),
+        );
+      } catch {
+        if (!mounted) return;
+
+        setLiveActiveBuilders(0);
+        setLiveReferralBonusGp(0);
+      }
+    };
+
+    void loadMiningTeam();
+
+    const timer = window.setInterval(
+      loadMiningTeam,
+      30000,
+    );
+
+    return () => {
+      mounted = false;
+      window.clearInterval(timer);
+    };
+  }, []);
 
   const loadMiningHistory = useCallback(
     async (): Promise<void> => {
@@ -249,14 +304,12 @@ export default function BuilderMining() {
         baseRatePerHour={
           miningState?.baseRatePerHour ?? 0
         }
-        referralBonusRate={
-          miningState?.referralBonusRate ?? 0
-        }
+        referralBonusRate={liveReferralBonusGp}
         totalRatePerHour={
           miningState?.totalRatePerHour ?? 0
         }
         walletGp={miningState?.walletGp ?? 0}
-        activeReferralCount={activeReferralCount}
+        activeReferralCount={liveActiveBuilders}
       />
 
       {showActivation && (
