@@ -701,4 +701,13 @@ export const sv: TranslationDictionary = {
   "ai.signInRequired": "Logga in för att använda BOBU AI.",
   "ai.subtitle": "Builder Intelligence",
   "ai.welcome": "Välkommen Builder. Jag kan guida dig genom BOBU Universe, Mining, GP, Wallet, Passport, Missions och Galaxy.",
+  "onboarding.language.eyebrow": 'BOBU SPRÅKPROTOKOLL',
+  "onboarding.language.title": 'Välj språk för ditt universum',
+  "onboarding.language.description": 'Bekräfta språket för din BOBU Universe-upplevelse. Du kan ändra det senare.',
+  "onboarding.language.detected": 'Aktuellt språk',
+  "onboarding.language.confirm": 'Bekräfta språk',
+  "onboarding.language.saving": 'Sparar språk...',
+  "onboarding.language.saveError": 'Språkinställningen kunde inte sparas. Försök igen.',
+  "onboarding.language.restoreError": 'Dina Builder-inställningar kunde inte återställas säkert.',
+  "onboarding.language.retry": 'Försök igen',
 };

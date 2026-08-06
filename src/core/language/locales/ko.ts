@@ -700,4 +700,13 @@ export const ko: TranslationDictionary = {
   "ai.signInRequired": "BOBU AI를 사용하려면 로그인하세요.",
   "ai.subtitle": "Builder Intelligence",
   "ai.welcome": "환영합니다, Builder. BOBU Universe, Mining, GP, Wallet, Passport, Missions 및 Galaxy를 안내해 드릴 수 있습니다.",
+  "onboarding.language.eyebrow": 'BOBU 언어 프로토콜',
+  "onboarding.language.title": '우주의 언어를 선택하세요',
+  "onboarding.language.description": 'BOBU Universe에서 사용할 언어를 확인하세요. 나중에 변경할 수 있습니다.',
+  "onboarding.language.detected": '현재 언어',
+  "onboarding.language.confirm": '언어 확인',
+  "onboarding.language.saving": '언어 저장 중...',
+  "onboarding.language.saveError": '언어 설정을 저장하지 못했습니다. 다시 시도하세요.',
+  "onboarding.language.restoreError": 'Builder 설정을 안전하게 복원하지 못했습니다.',
+  "onboarding.language.retry": '다시 시도',
 };

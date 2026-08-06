@@ -1,0 +1,214 @@
+.language-setup-page,
+.language-setup-state {
+  min-height: 100vh;
+  color: #f4f6ff;
+  background:
+    radial-gradient(circle at 50% 10%, rgba(111, 77, 255, 0.24), transparent 34%),
+    radial-gradient(circle at 15% 75%, rgba(36, 187, 255, 0.12), transparent 30%),
+    #050712;
+}
+
+.language-setup-page {
+  position: relative;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  padding: 48px 20px;
+}
+
+.language-setup-stars {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  background-image:
+    radial-gradient(circle, rgba(255, 255, 255, 0.8) 1px, transparent 1px);
+  background-size: 44px 44px;
+}
+
+.language-setup-panel {
+  position: relative;
+  z-index: 1;
+  width: min(780px, 100%);
+  padding: 38px;
+  border: 1px solid rgba(157, 139, 255, 0.24);
+  border-radius: 28px;
+  background: rgba(10, 13, 31, 0.88);
+  box-shadow:
+    0 30px 100px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(18px);
+}
+
+.language-setup-emblem {
+  display: grid;
+  width: 66px;
+  height: 66px;
+  place-items: center;
+  margin-bottom: 22px;
+  border: 1px solid rgba(154, 129, 255, 0.34);
+  border-radius: 20px;
+  color: #c7b9ff;
+  background: rgba(115, 83, 255, 0.13);
+}
+
+.language-setup-eyebrow {
+  color: #a89aff;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.language-setup-panel h1 {
+  margin: 12px 0 10px;
+  font-size: clamp(2rem, 6vw, 3.7rem);
+  line-height: 1.03;
+}
+
+.language-setup-description {
+  max-width: 640px;
+  margin: 0;
+  color: rgba(231, 234, 255, 0.7);
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+.language-setup-detected {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  margin: 28px 0 18px;
+  padding: 15px 17px;
+  border: 1px solid rgba(137, 118, 255, 0.18);
+  border-radius: 15px;
+  color: rgba(232, 235, 255, 0.65);
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.language-setup-detected strong {
+  color: #ffffff;
+}
+
+.language-setup-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(auto-fit, minmax(190px, 1fr));
+  gap: 12px;
+}
+
+.language-setup-option {
+  display: flex;
+  min-height: 72px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px 16px;
+  border: 1px solid rgba(142, 126, 224, 0.17);
+  border-radius: 16px;
+  color: #f4f6ff;
+  text-align: start;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.025);
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    transform 160ms ease;
+}
+
+.language-setup-option:hover:not(:disabled) {
+  transform: translateY(-2px);
+  border-color: rgba(164, 143, 255, 0.52);
+}
+
+.language-setup-option.is-selected {
+  border-color: rgba(169, 145, 255, 0.78);
+  background: rgba(123, 87, 255, 0.16);
+}
+
+.language-setup-option span {
+  display: grid;
+  gap: 5px;
+}
+
+.language-setup-option small {
+  color: rgba(232, 235, 255, 0.55);
+}
+
+.language-setup-confirm {
+  display: flex;
+  width: 100%;
+  min-height: 54px;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 24px;
+  border: 0;
+  border-radius: 16px;
+  color: #ffffff;
+  font-weight: 800;
+  cursor: pointer;
+  background:
+    linear-gradient(135deg, #7857ff, #3d8cff);
+}
+
+.language-setup-confirm:disabled,
+.language-setup-option:disabled {
+  cursor: not-allowed;
+  opacity: 0.66;
+}
+
+.language-setup-message {
+  margin: 16px 0 0;
+  color: rgba(231, 234, 255, 0.72);
+}
+
+.language-setup-message.is-error {
+  color: #ff9baf;
+}
+
+.language-setup-state {
+  display: grid;
+  place-items: center;
+  padding: 32px;
+  text-align: center;
+}
+
+.language-setup-error {
+  align-content: center;
+  gap: 16px;
+}
+
+.language-setup-error button {
+  padding: 12px 18px;
+  border: 0;
+  border-radius: 12px;
+  color: white;
+  cursor: pointer;
+  background: #7058ff;
+}
+
+.language-setup-spinner {
+  animation: language-setup-spin 900ms linear infinite;
+}
+
+@keyframes language-setup-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 640px) {
+  .language-setup-page {
+    padding: 22px 14px;
+  }
+
+  .language-setup-panel {
+    padding: 25px 18px;
+    border-radius: 22px;
+  }
+
+  .language-setup-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -708,4 +708,13 @@ export const ar: TranslationDictionary = {
   "ai.signInRequired": "يرجى تسجيل الدخول لاستخدام BOBU AI.",
   "ai.subtitle": "ذكاء Builder",
   "ai.welcome": "مرحبًا أيها الـ Builder. يمكنني إرشادك في BOBU Universe والتعدين وGP والمحفظة والجواز والمهام والمجرة.",
+  "onboarding.language.eyebrow": 'بروتوكول لغة BOBU',
+  "onboarding.language.title": 'اختر لغة عالمك',
+  "onboarding.language.description": 'أكد اللغة المستخدمة في تجربة BOBU Universe. يمكنك تغييرها لاحقًا.',
+  "onboarding.language.detected": 'اللغة الحالية',
+  "onboarding.language.confirm": 'تأكيد اللغة',
+  "onboarding.language.saving": 'جارٍ حفظ اللغة...',
+  "onboarding.language.saveError": 'تعذر حفظ تفضيل اللغة. حاول مرة أخرى.',
+  "onboarding.language.restoreError": 'تعذر استعادة تفضيلات Builder بأمان.',
+  "onboarding.language.retry": 'حاول مرة أخرى',
 };

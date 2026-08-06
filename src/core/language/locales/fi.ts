@@ -701,4 +701,13 @@ export const fi: TranslationDictionary = {
   "ai.signInRequired": "Kirjaudu sisään käyttääksesi BOBU AI:ta.",
   "ai.subtitle": "Builder Intelligence",
   "ai.welcome": "Tervetuloa Builder. Voin opastaa sinua BOBU Universessa, Miningissa, GP:ssä, Walletissa, Passportissa, Missionsissa ja Galaxyssa.",
+  "onboarding.language.eyebrow": 'BOBU-KIELIPROTOKOLLA',
+  "onboarding.language.title": 'Valitse universumisi kieli',
+  "onboarding.language.description": 'Vahvista BOBU Universe -kokemuksessa käytettävä kieli. Voit vaihtaa sen myöhemmin.',
+  "onboarding.language.detected": 'Nykyinen kieli',
+  "onboarding.language.confirm": 'Vahvista kieli',
+  "onboarding.language.saving": 'Tallennetaan kieltä...',
+  "onboarding.language.saveError": 'Kieliasetusta ei voitu tallentaa. Yritä uudelleen.',
+  "onboarding.language.restoreError": 'Builder-asetuksiasi ei voitu palauttaa turvallisesti.',
+  "onboarding.language.retry": 'Yritä uudelleen',
 };

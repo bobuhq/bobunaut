@@ -710,4 +710,13 @@ export const ja: TranslationDictionary = {
   "ai.signInRequired": "BOBU AIを利用するにはログインしてください。",
   "ai.subtitle": "Builder Intelligence",
   "ai.welcome": "ようこそ Builder。BOBU Universe、Mining、GP、Wallet、Passport、Missions、Galaxyをご案内します。",
+  "onboarding.language.eyebrow": 'BOBU 言語プロトコル',
+  "onboarding.language.title": '宇宙の言語を選択',
+  "onboarding.language.description": 'BOBU Universe で使用する言語を確認してください。後から変更できます。',
+  "onboarding.language.detected": '現在の言語',
+  "onboarding.language.confirm": '言語を確認',
+  "onboarding.language.saving": '言語を保存しています...',
+  "onboarding.language.saveError": '言語設定を保存できませんでした。もう一度お試しください。',
+  "onboarding.language.restoreError": 'Builder 設定を安全に復元できませんでした。',
+  "onboarding.language.retry": 'もう一度試す',
 };

@@ -13,6 +13,8 @@ const createFallbackPreferences =
       LanguageService.resolveInitialLanguage(),
     themePreference: "system",
     motionPreference: "system",
+    languageSetupCompleted: false,
+    languageConfirmedAt: null,
   });
 
 export const preferencesService = {

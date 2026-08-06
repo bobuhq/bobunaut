@@ -12,6 +12,7 @@ import {
 
 import { Shell } from "./Shell";
 import { useLanguage } from "../core/language";
+import { LanguageSetupGuard } from "../core/preferences";
 import { AdminRoute } from "../core/admin/AdminRoute";
 const Genesis = lazy(() =>
   import("../features/Genesis").then((module) => ({
@@ -91,6 +92,10 @@ const AdminLogin = lazy(
   () => import("../features/admin/AdminLogin"),
 );
 
+const LanguageSetup = lazy(
+  () => import("../features/onboarding/LanguageSetup"),
+);
+
 const PrivacyPolicy = lazy(
   () => import("../features/legal/PrivacyPolicy"),
 );
@@ -128,7 +133,13 @@ export function App() {
 
         <Route path="/genesis" element={<Genesis />} />
 
-        <Route element={<Shell />}>
+        <Route element={<LanguageSetupGuard />}>
+          <Route
+            path="/language-setup"
+            element={<LanguageSetup />}
+          />
+
+          <Route element={<Shell />}>
           <Route
             path="/privacy"
             element={<PrivacyPolicy />}
@@ -151,6 +162,7 @@ export function App() {
             element={<Leaderboard />}
           />
 
+          </Route>
         </Route>
 
         <Route

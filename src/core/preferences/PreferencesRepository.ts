@@ -9,6 +9,8 @@ const preferencesColumns = `
   preferred_language,
   theme_preference,
   motion_preference,
+  language_setup_completed,
+  language_confirmed_at,
   created_at,
   updated_at
 `;
@@ -44,6 +46,8 @@ export const preferencesRepository = {
           patch.themePreference ?? null,
         p_motion_preference:
           patch.motionPreference ?? null,
+        p_language_setup_completed:
+          patch.languageSetupCompleted ?? null,
       },
     );
 

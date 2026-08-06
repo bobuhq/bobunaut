@@ -13,6 +13,8 @@ const createInitialPreferences =
       LanguageService.resolveInitialLanguage(),
     themePreference: "system",
     motionPreference: "system",
+    languageSetupCompleted: false,
+    languageConfirmedAt: null,
   });
 
 let snapshot: PreferencesStoreSnapshot = {

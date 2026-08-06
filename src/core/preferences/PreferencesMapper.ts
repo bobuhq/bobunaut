@@ -65,6 +65,16 @@ export const preferencesMapper = {
       )
         ? row.motion_preference
         : fallback.motionPreference,
+
+      languageSetupCompleted:
+        typeof row.language_setup_completed === "boolean"
+          ? row.language_setup_completed
+          : fallback.languageSetupCompleted,
+
+      languageConfirmedAt:
+        typeof row.language_confirmed_at === "string"
+          ? row.language_confirmed_at
+          : null,
     };
   },
 };

@@ -710,4 +710,13 @@ export const tr: TranslationDictionary = {
   "ai.signInRequired": "BOBU AI kullanmak için giriş yapmalısın.",
   "ai.subtitle": "Builder Zekâsı",
   "ai.welcome": "Merhaba Builder. BOBU Universe, Mining, GP, Wallet, Passport, Missions ve Galaxy hakkında sana rehberlik edebilirim.",
+  "onboarding.language.eyebrow": 'BOBU DİL PROTOKOLÜ',
+  "onboarding.language.title": 'Evren dilini seç',
+  "onboarding.language.description": 'BOBU Universe deneyiminde kullanılacak dili onayla. Daha sonra değiştirebilirsin.',
+  "onboarding.language.detected": 'Geçerli dil',
+  "onboarding.language.confirm": 'Dili onayla',
+  "onboarding.language.saving": 'Dil kaydediliyor...',
+  "onboarding.language.saveError": 'Dil tercihin kaydedilemedi. Lütfen tekrar dene.',
+  "onboarding.language.restoreError": 'Builder tercihlerin güvenli şekilde geri yüklenemedi.',
+  "onboarding.language.retry": 'Tekrar dene',
 };

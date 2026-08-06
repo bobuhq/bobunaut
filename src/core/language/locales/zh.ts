@@ -708,4 +708,13 @@ export const zh: TranslationDictionary = {
   "ai.signInRequired": "请先登录以使用 BOBU AI。",
   "ai.subtitle": "Builder Intelligence",
   "ai.welcome": "欢迎 Builder。我可以帮助你了解 BOBU Universe、Mining、GP、Wallet、Passport、Missions 和 Galaxy。",
+  "onboarding.language.eyebrow": 'BOBU 语言协议',
+  "onboarding.language.title": '选择你的宇宙语言',
+  "onboarding.language.description": '确认 BOBU Universe 体验所使用的语言。你以后可以更改。',
+  "onboarding.language.detected": '当前语言',
+  "onboarding.language.confirm": '确认语言',
+  "onboarding.language.saving": '正在保存语言...',
+  "onboarding.language.saveError": '无法保存语言偏好。请重试。',
+  "onboarding.language.restoreError": '无法安全恢复你的 Builder 偏好。',
+  "onboarding.language.retry": '重试',
 };

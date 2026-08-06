@@ -700,4 +700,13 @@ export const ru: TranslationDictionary = {
   "ai.signInRequired": "Войдите в систему, чтобы использовать BOBU AI.",
   "ai.subtitle": "Builder Intelligence",
   "ai.welcome": "Добро пожаловать, Builder. Я могу помочь вам с BOBU Universe, Mining, GP, Wallet, Passport, Missions и Galaxy.",
+  "onboarding.language.eyebrow": 'ЯЗЫКОВОЙ ПРОТОКОЛ BOBU',
+  "onboarding.language.title": 'Выберите язык своей вселенной',
+  "onboarding.language.description": 'Подтвердите язык интерфейса BOBU Universe. Позже его можно будет изменить.',
+  "onboarding.language.detected": 'Текущий язык',
+  "onboarding.language.confirm": 'Подтвердить язык',
+  "onboarding.language.saving": 'Сохранение языка...',
+  "onboarding.language.saveError": 'Не удалось сохранить языковые настройки. Попробуйте снова.',
+  "onboarding.language.restoreError": 'Не удалось безопасно восстановить настройки Builder.',
+  "onboarding.language.retry": 'Попробовать снова',
 };

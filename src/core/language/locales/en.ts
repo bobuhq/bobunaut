@@ -711,4 +711,13 @@ export const en: TranslationDictionary = {
   "ai.signInRequired": "Please sign in to use BOBU AI.",
   "ai.subtitle": "Builder Intelligence",
   "ai.welcome": "Welcome Builder. I can guide you through BOBU Universe, Mining, GP, Wallet, Passport, Missions and Galaxy.",
+  "onboarding.language.eyebrow": 'BOBU LANGUAGE PROTOCOL',
+  "onboarding.language.title": 'Choose your universe language',
+  "onboarding.language.description": 'Confirm the language that will guide your BOBU Universe experience. You can change it later.',
+  "onboarding.language.detected": 'Current language',
+  "onboarding.language.confirm": 'Confirm language',
+  "onboarding.language.saving": 'Saving language...',
+  "onboarding.language.saveError": 'Your language preference could not be saved. Please try again.',
+  "onboarding.language.restoreError": 'Your Builder preferences could not be restored securely.',
+  "onboarding.language.retry": 'Try again',
 };
