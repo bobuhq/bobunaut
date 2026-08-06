@@ -13,6 +13,14 @@ import {
   Orbit,
   RadioTower,
   Rocket,
+  Smartphone,
+  Pickaxe,
+  WalletCards,
+  BadgeCheck,
+  ListChecks,
+  Network,
+  Bot,
+  CirclePlay,
   Satellite,
   ShieldCheck,
   Sparkles,
@@ -181,8 +189,23 @@ function AnimatedCounter({ value, suffix = "", decimals = 0 }: CounterProps) {
   return <>{output}{suffix}</>;
 }
 
+const bobuNetworkFeatures = [
+  ["home.network.features.mining", Pickaxe],
+  ["home.network.features.passport", BadgeCheck],
+  ["home.network.features.wallet", WalletCards],
+  ["home.network.features.missions", ListChecks],
+  ["home.network.features.galaxy", Network],
+  ["home.network.features.ai", Bot],
+] as const;
+
 export function Home() {
   const { t } = useLanguage();
+
+  const appStoreUrl =
+    import.meta.env.VITE_BOBU_NETWORK_APP_STORE_URL?.trim();
+
+  const googlePlayUrl =
+    import.meta.env.VITE_BOBU_NETWORK_GOOGLE_PLAY_URL?.trim();
 
   const [universeStats, setUniverseStats] = useState<UniverseStats>({
     buildersJoined: 0,
@@ -279,15 +302,37 @@ export function Home() {
         .planet-light{position:absolute;top:17%;left:22%;width:22%;height:22%;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.26),transparent 70%);filter:blur(7px)}
         .planet-shadow{position:absolute;right:-12%;bottom:-8%;width:82%;height:82%;border-radius:50%;background:radial-gradient(circle,rgba(0,0,0,.12),rgba(0,0,0,.72));filter:blur(5px)}
         .planet-label{position:relative;z-index:3;color:rgba(232,226,255,.66);font:700 11px Georgia;letter-spacing:.34em}
-        .bubo-transmission{position:absolute;z-index:7;right:-30px;bottom:-10px;display:grid;grid-template-columns:72px 1fr;gap:13px;align-items:center;width:min(330px,86%);padding:12px;border-radius:19px;transform:translateZ(50px)}
-        .transmission-image{width:72px;height:82px;overflow:hidden;border:1px solid rgba(103,232,249,.2);border-radius:13px;background:rgba(7,9,20,.8)}
-        .transmission-image img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 28%;opacity:.88;filter:saturate(.9) contrast(1.05)}
+        .bubo-transmission{position:absolute;z-index:7;right:-30px;bottom:-10px;display:grid;grid-template-columns:86px 1fr;gap:15px;align-items:center;width:min(352px,88%);padding:13px;border-radius:20px;transform:translateZ(50px);box-shadow:0 20px 55px rgba(0,0,0,.34),0 0 32px rgba(103,92,255,.11)}
+        .transmission-image{position:relative;width:86px;height:86px;overflow:hidden;border:1px solid rgba(103,232,249,.35);border-radius:18px;background:radial-gradient(circle at 50% 35%,rgba(115,79,255,.24),rgba(7,9,20,.92) 72%);box-shadow:0 0 0 3px rgba(122,92,255,.07),0 0 24px rgba(74,178,255,.2)}
+        .transmission-image img{display:block;width:100%;height:100%;object-fit:cover;object-position:center;opacity:1;transform:scale(1.03);filter:saturate(1.12) contrast(1.08) brightness(1.05);animation:transmissionBobuPulse 4.6s ease-in-out infinite}
         .transmission-copy span{display:block;margin-bottom:5px;color:var(--cyan);font-size:8px;font-weight:900;letter-spacing:.15em}
         .transmission-copy strong{display:block;color:#fff;font-size:10px;line-height:1.4;letter-spacing:.04em}
         .transmission-copy p{margin:6px 0 0;color:#c9c1d9;font-size:10px;line-height:1.5}
         .chip{position:absolute;display:flex;align-items:center;gap:9px;padding:11px 14px;border:1px solid var(--border);border-radius:14px;color:#c8c1dc;background:rgba(12,13,25,.7);font-size:11px;font-weight:800}
         .chip-a{top:14%;left:0}.chip-b{right:-1%;bottom:24%}
         .sector{position:absolute;bottom:7%;display:flex;align-items:center;gap:9px;color:rgba(187,180,219,.53);font:700 10px Georgia;letter-spacing:.16em}
+        .network-showcase{position:relative;display:grid;grid-template-columns:.92fr 1.08fr;gap:44px;align-items:center;margin-top:78px;padding:42px;border-radius:32px;overflow:hidden}
+        .network-showcase:before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 78% 35%,rgba(58,189,248,.14),transparent 35%),radial-gradient(circle at 18% 75%,rgba(139,92,246,.17),transparent 38%)}
+        .network-copy,.network-visual{position:relative;z-index:1}
+        .network-copy h2{max-width:610px;margin:8px 0 16px;font-size:clamp(42px,6vw,74px);line-height:.94;letter-spacing:-.055em}
+        .network-copy>p{max-width:620px;margin:0;color:var(--muted);font-size:16px;line-height:1.75}
+        .network-features{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:26px}
+        .network-feature{display:flex;align-items:center;gap:11px;min-height:49px;padding:11px 13px;border:1px solid rgba(196,181,253,.13);border-radius:14px;color:#ddd7ec;background:rgba(255,255,255,.025);font-size:12px;font-weight:800}
+        .network-feature svg{flex:0 0 auto;color:var(--cyan)}
+        .store-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:25px}
+        .store-card{display:flex;min-height:68px;align-items:center;gap:12px;padding:12px 15px;border:1px solid rgba(196,181,253,.18);border-radius:16px;color:#fff;text-decoration:none;background:rgba(7,9,20,.66)}
+        .store-card.is-active{transition:transform .18s,border-color .18s}
+        .store-card.is-active:hover{transform:translateY(-2px);border-color:rgba(103,232,249,.5)}
+        .store-card.is-disabled{cursor:not-allowed;opacity:.72}
+        .store-card span{display:grid;gap:3px}
+        .store-card small{color:#9d94ad;font-size:9px;font-weight:800;letter-spacing:.09em;text-transform:uppercase}
+        .store-card strong{font-size:14px}
+        .network-release{margin-top:17px;color:#a99fba;font-size:11px;line-height:1.6}
+        .network-visual{display:grid;place-items:center}
+        .network-image-shell{position:relative;width:100%;overflow:hidden;border:1px solid rgba(103,232,249,.18);border-radius:26px;background:#070914;box-shadow:0 28px 75px rgba(0,0,0,.42),0 0 70px rgba(90,67,220,.13)}
+        .network-image-shell:after{content:"";position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 60px rgba(0,0,0,.32)}
+        .network-image-shell img{display:block;width:100%;height:auto;object-fit:cover}
+        .network-badge{position:absolute;right:18px;bottom:18px;display:flex;align-items:center;gap:8px;padding:10px 13px;border:1px solid rgba(103,232,249,.24);border-radius:13px;color:#dffaff;background:rgba(4,8,22,.82);font-size:10px;font-weight:900;letter-spacing:.1em;backdrop-filter:blur(14px)}
         .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:-10px;position:relative;z-index:3}
         .stat{min-height:145px;padding:23px;border-radius:23px}
         .stat-icon{display:grid;width:39px;height:39px;place-items:center;margin-bottom:15px;border-radius:13px;color:var(--purple-light);background:rgba(139,92,246,.1)}
@@ -318,10 +363,25 @@ export function Home() {
         .final{margin-top:78px;padding:70px 24px;border:1px solid rgba(137,114,255,.2);border-radius:32px;text-align:center;background:radial-gradient(circle at 50% 120%,rgba(98,77,230,.24),transparent 54%),rgba(12,12,24,.85)}
         .final h2{max-width:790px;margin:16px auto 13px;font-size:clamp(39px,7vw,76px);line-height:.94}.final p{max-width:650px;margin:auto;color:var(--muted)}
         .final-actions{display:flex;justify-content:center;gap:12px;margin-top:28px}
+        @keyframes transmissionBobuPulse{
+          0%,100%{
+            transform:scale(1.03);
+            filter:saturate(1.12) contrast(1.08) brightness(1.05)
+              drop-shadow(0 0 7px rgba(71,190,255,.22))
+          }
+          50%{
+            transform:scale(1.075);
+            filter:saturate(1.18) contrast(1.1) brightness(1.1)
+              drop-shadow(0 0 13px rgba(133,83,255,.4))
+          }
+        }
         @keyframes orbitA{to{transform:rotate(360deg)}}@keyframes orbitB{to{transform:rotate(-360deg)}}@keyframes orbitC{to{transform:rotate(360deg)}}@keyframes planetFloat{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-14px) rotate(1deg)}}@keyframes planetPulse{0%,100%{opacity:.62;transform:scale(.95)}50%{opacity:1;transform:scale(1.08)}}@keyframes innerOrbit{to{transform:rotate(360deg)}}
-        @media(max-width:980px){.hero,.roadmap,.community-grid{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}mission-grid{grid-template-columns:1fr 1fr}.mission-card:last-child{grid-column:1/-1}}
-        @media(max-width:720px){.home-v2{width:calc(100% - 20px)}.stats,.mission-grid{grid-template-columns:1fr}.mission-card:last-child{grid-column:auto}.section-header,.transmission{align-items:flex-start;flex-direction:column}.chip{display:none}}
-        @media(max-width:520px){.hero-copy{padding:30px 14px}.actions,.final-actions{flex-direction:column}.primary,.secondary{width:100%}.planet-zone{min-height:390px}.genesis-world{width:94%;min-height:390px}.planet-core{width:62%}.bubo-transmission{right:0;bottom:0;width:94%;grid-template-columns:64px 1fr}.transmission-image{width:64px;height:74px}.community{padding:30px 20px}}
+        @media(max-width:980px){.hero,.roadmap,.community-grid,.network-showcase{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}.mission-grid{grid-template-columns:1fr 1fr}.mission-card:last-child{grid-column:1/-1}.network-visual{order:-1}.network-image-shell{max-width:760px}}
+        @media(max-width:720px){.home-v2{width:calc(100% - 20px)}.stats,.mission-grid,.network-features,.store-actions{grid-template-columns:1fr}.mission-card:last-child{grid-column:auto}.section-header,.transmission{align-items:flex-start;flex-direction:column}.chip{display:none}.network-showcase{padding:24px 18px;border-radius:24px}}
+        @media(prefers-reduced-motion:reduce){
+          .transmission-image img{animation:none}
+        }
+        @media(max-width:520px){.hero-copy{padding:30px 14px}.actions,.final-actions{flex-direction:column}.primary,.secondary{width:100%}.planet-zone{min-height:390px}.genesis-world{width:94%;min-height:390px}.planet-core{width:62%}.bubo-transmission{right:0;bottom:0;width:96%;grid-template-columns:74px 1fr}.transmission-image{width:74px;height:74px}.community{padding:30px 20px}}
       `}</style>
 
       <motion.section
@@ -376,7 +436,7 @@ export function Home() {
               <div className="glass bubo-transmission">
                 <div className="transmission-image">
                   <img
-                    src={`${import.meta.env.BASE_URL}images/bubo/bubo-default.png`}
+                    src={`${import.meta.env.BASE_URL}images/bobu/avatar.png`}
                     alt={t("home.hero.transmissionAlt")}
                   />
                 </div>
@@ -399,6 +459,102 @@ export function Home() {
         gpGenerated={universeStats.gpGenerated}
         newBuildersThisWeek={universeStats.newBuildersThisWeek}
       />
+
+      <motion.section
+        className="glass network-showcase"
+        variants={fadeUp}
+      >
+        <div className="network-copy">
+          <div className="eyebrow">
+            <Smartphone size={15} />
+            {t("home.network.eyebrow")}
+          </div>
+
+          <h2>{t("home.network.title")}</h2>
+          <p>{t("home.network.description")}</p>
+
+          <div className="network-features">
+            {bobuNetworkFeatures.map(([labelKey, Icon]) => (
+              <div className="network-feature" key={labelKey}>
+                <Icon size={17} />
+                <span>{t(labelKey)}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="store-actions">
+            {appStoreUrl ? (
+              <a
+                className="store-card is-active"
+                href={appStoreUrl}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <Smartphone size={24} />
+                <span>
+                  <small>{t("home.network.availableOn")}</small>
+                  <strong>{t("home.network.appStore")}</strong>
+                </span>
+              </a>
+            ) : (
+              <div
+                className="store-card is-disabled"
+                aria-disabled="true"
+              >
+                <Smartphone size={24} />
+                <span>
+                  <small>{t("home.network.comingSoon")}</small>
+                  <strong>{t("home.network.appStore")}</strong>
+                </span>
+              </div>
+            )}
+
+            {googlePlayUrl ? (
+              <a
+                className="store-card is-active"
+                href={googlePlayUrl}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <CirclePlay size={24} />
+                <span>
+                  <small>{t("home.network.availableOn")}</small>
+                  <strong>{t("home.network.googlePlay")}</strong>
+                </span>
+              </a>
+            ) : (
+              <div
+                className="store-card is-disabled"
+                aria-disabled="true"
+              >
+                <CirclePlay size={24} />
+                <span>
+                  <small>{t("home.network.comingSoon")}</small>
+                  <strong>{t("home.network.googlePlay")}</strong>
+                </span>
+              </div>
+            )}
+          </div>
+
+          <p className="network-release">
+            {t("home.network.release")}
+          </p>
+        </div>
+
+        <div className="network-visual">
+          <div className="network-image-shell">
+            <img
+              src={`${import.meta.env.BASE_URL}images/bobu-network/bobu-network-official-brand-board.png`}
+              alt={t("home.network.imageAlt")}
+            />
+
+            <div className="network-badge">
+              <span className="dot" />
+              {t("home.network.officialApp")}
+            </div>
+          </div>
+        </div>
+      </motion.section>
 
       <Journey />
 

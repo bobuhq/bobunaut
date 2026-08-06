@@ -87,8 +87,8 @@ const navItems = [
 
 const baseUrl = import.meta.env.BASE_URL;
 
-const buboLogoUrl = `${baseUrl}images/bubo/bubo-logo.png`;
-const buboFallbackUrl = `${baseUrl}images/bubo/bubo-default.png`;
+const buboLogoUrl = `${baseUrl}images/bobu/logo.png`;
+const buboFallbackUrl = `${baseUrl}images/bobu/avatar.png`;
 
 export function Nav() {
   const { session, loading } = useAuthSession();
@@ -369,9 +369,9 @@ export function Nav() {
         .bobu-brand-logo {
           position: relative;
           display: grid;
-          flex: 0 0 50px;
-          width: 50px;
-          height: 50px;
+          flex: 0 0 58px;
+          width: 58px;
+          height: 58px;
           place-items: center;
           overflow: hidden;
           border: 1px solid rgba(100, 222, 255, 0.58);
@@ -441,11 +441,13 @@ export function Nav() {
           border-radius: inherit;
           object-fit: cover;
           object-position: center 30%;
-          transform: scale(1.42);
+          transform: scale(1.08);
           filter:
-            saturate(1.08)
-            contrast(1.06)
-            brightness(1.05);
+            saturate(1.12)
+            contrast(1.08)
+            brightness(1.06)
+            drop-shadow(0 0 10px rgba(91, 180, 255, 0.32));
+          animation: bobuAvatarPulse 4.8s ease-in-out infinite;
         }
 
         .bobu-logo-fallback {
@@ -840,6 +842,31 @@ export function Nav() {
           }
         }
 
+        @keyframes bobuAvatarPulse {
+          0%,
+          100% {
+            transform: scale(1.08);
+            filter:
+              saturate(1.12)
+              contrast(1.08)
+              brightness(1.06)
+              drop-shadow(
+                0 0 9px rgba(91, 180, 255, 0.28)
+              );
+          }
+
+          50% {
+            transform: scale(1.115);
+            filter:
+              saturate(1.18)
+              contrast(1.1)
+              brightness(1.1)
+              drop-shadow(
+                0 0 15px rgba(127, 92, 255, 0.44)
+              );
+          }
+        }
+
         @media (max-width: 860px) {
           .bobu-header {
             top: 12px;
@@ -861,9 +888,9 @@ export function Nav() {
           }
 
           .bobu-brand-logo {
-            flex-basis: 52px;
-            width: 52px;
-            height: 52px;
+            flex-basis: 56px;
+            width: 56px;
+            height: 56px;
           }
 
           .bobu-brand-title {
@@ -965,9 +992,9 @@ export function Nav() {
           }
 
           .bobu-brand-logo {
-            flex-basis: 47px;
-            width: 47px;
-            height: 47px;
+            flex-basis: 52px;
+            width: 52px;
+            height: 52px;
           }
 
           .bobu-brand-copy {
@@ -1021,10 +1048,12 @@ export function Nav() {
 
         @media (prefers-reduced-motion: reduce) {
           .bobu-brand-logo,
+          .bobu-brand-logo img,
           .bobu-nav-link,
           .bobu-auth-button,
           .bobu-mobile-panel {
             transition: none;
+            animation: none;
           }
         }
       `}</style>
