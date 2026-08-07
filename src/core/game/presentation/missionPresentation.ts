@@ -30,6 +30,18 @@ export const missionPresentation: Record<
     icon: RadioTower,
   },
 
+  "complete-mining": {
+    categoryKey:
+      "missions.presentation.category.daily",
+    difficultyKey:
+      "missions.presentation.difficulty.easy",
+    durationKey:
+      "missions.presentation.duration.oneMinute",
+    actionKey:
+      "missions.presentation.action.startMining",
+    icon: RadioTower,
+  },
+
   "join-community": {
     categoryKey:
       "missions.presentation.category.community",

@@ -21,4 +21,16 @@ export const missionCatalog =
         gp: 50,
       },
     },
+    {
+      id: "complete-mining",
+      title: "Complete Mining Session",
+      description:
+        "Complete and claim one verified mining session.",
+      cadence: "daily",
+      target: 1,
+      eventType: "MINING_CLAIMED",
+      reward: {
+        gp: 150,
+      },
+    },
   ]);
