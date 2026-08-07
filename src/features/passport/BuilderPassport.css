@@ -720,3 +720,426 @@
           cursor: not-allowed;
           opacity: 0.4;
         }
+
+/* ============================================================
+   BOBU PASSPORT — CINEMATIC COMMAND DECK POLISH
+   ============================================================ */
+
+.builder-passport-page {
+  position: relative;
+  isolation: isolate;
+}
+
+.builder-passport-page::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 18% 18%, rgba(153, 69, 255, 0.09), transparent 28%),
+    radial-gradient(circle at 82% 34%, rgba(20, 241, 149, 0.045), transparent 25%);
+}
+
+.builder-passport-hero {
+  border-color: rgba(153, 120, 255, 0.32);
+  box-shadow:
+    0 35px 110px rgba(0, 0, 0, 0.48),
+    0 0 80px rgba(153, 69, 255, 0.055),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+}
+
+.builder-passport-hero::after {
+  content: "";
+  position: absolute;
+  width: 360px;
+  height: 360px;
+  right: -150px;
+  top: -170px;
+  border-radius: 50%;
+  pointer-events: none;
+  background: rgba(153, 69, 255, 0.08);
+  filter: blur(60px);
+}
+
+.builder-passport-avatar {
+  transform: translateZ(0);
+  transition:
+    transform 220ms ease,
+    box-shadow 220ms ease;
+}
+
+.builder-passport-avatar:hover {
+  transform: translateY(-3px) scale(1.015);
+  box-shadow:
+    0 0 55px rgba(153, 69, 255, 0.32),
+    0 22px 55px rgba(0, 0, 0, 0.4);
+}
+
+.builder-passport-avatar-status {
+  animation: passport-status-pulse 2.8s ease-in-out infinite;
+}
+
+@keyframes passport-status-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 12px rgba(20, 241, 149, 0.45);
+  }
+
+  50% {
+    box-shadow:
+      0 0 18px rgba(20, 241, 149, 0.8),
+      0 0 34px rgba(20, 241, 149, 0.22);
+  }
+}
+
+.builder-passport-name {
+  text-shadow: 0 0 34px rgba(153, 69, 255, 0.13);
+}
+
+.builder-passport-id-card {
+  overflow: hidden;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.builder-passport-id-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(153, 120, 255, 0.25);
+  box-shadow: 0 20px 55px rgba(0, 0, 0, 0.22);
+}
+
+.builder-passport-panel {
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.builder-passport-panel:hover {
+  border-color: rgba(153, 120, 255, 0.16);
+  box-shadow:
+    0 25px 72px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.035);
+}
+
+.builder-passport-gp-card {
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease;
+}
+
+.builder-passport-gp-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.builder-passport-gp-card.is-total:hover {
+  border-color: rgba(153, 69, 255, 0.52);
+  background:
+    linear-gradient(
+      135deg,
+      rgba(153, 69, 255, 0.21),
+      rgba(20, 241, 149, 0.095)
+    );
+}
+
+.builder-passport-gp-card strong {
+  letter-spacing: -0.035em;
+  text-shadow: 0 0 25px rgba(255, 255, 255, 0.055);
+}
+
+.builder-passport-progress-card {
+  transition:
+    transform 170ms ease,
+    border-color 170ms ease,
+    background 170ms ease;
+}
+
+.builder-passport-progress-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(153, 120, 255, 0.2);
+  background: rgba(153, 69, 255, 0.055);
+}
+
+.builder-passport-achievement {
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease;
+}
+
+.builder-passport-achievement:hover {
+  transform: translateY(-3px);
+}
+
+.builder-passport-achievement.is-unlocked:hover {
+  border-color: rgba(153, 69, 255, 0.42);
+  background:
+    linear-gradient(
+      145deg,
+      rgba(153, 69, 255, 0.17),
+      rgba(20, 241, 149, 0.065)
+    );
+}
+
+.builder-passport-identity-row,
+.builder-passport-journey-row {
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease;
+}
+
+.builder-passport-identity-row:hover,
+.builder-passport-journey-row:hover {
+  transform: translateX(2px);
+  border-color: rgba(153, 120, 255, 0.16);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.builder-passport-invite-code {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.025);
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.builder-passport-invite-code:hover {
+  border-color: rgba(153, 69, 255, 0.42);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 0 32px rgba(153, 69, 255, 0.055);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .builder-passport-hero::before,
+  .builder-passport-avatar-status {
+    animation: none;
+  }
+
+  .builder-passport-avatar,
+  .builder-passport-id-card,
+  .builder-passport-panel,
+  .builder-passport-gp-card,
+  .builder-passport-progress-card,
+  .builder-passport-achievement,
+  .builder-passport-identity-row,
+  .builder-passport-journey-row {
+    transition: none;
+  }
+}
+
+/* ============================================================
+   BOBU PASSPORT — DIGITAL CREDENTIAL LAYER
+   ============================================================ */
+
+.builder-passport-hero {
+  isolation: isolate;
+}
+
+.builder-passport-hero::before {
+  background:
+    linear-gradient(
+      110deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.035) 45%,
+      transparent 58%
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.012) 0,
+      rgba(255, 255, 255, 0.012) 1px,
+      transparent 1px,
+      transparent 42px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0.01) 0,
+      rgba(255, 255, 255, 0.01) 1px,
+      transparent 1px,
+      transparent 42px
+    );
+}
+
+.builder-passport-identity::before {
+  content: "BOBU PASSPORT · GENESIS ACCESS";
+  position: absolute;
+  left: 0;
+  bottom: -18px;
+  color: rgba(255, 255, 255, 0.16);
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.builder-passport-avatar::before,
+.builder-passport-avatar::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  border-radius: 50%;
+}
+
+.builder-passport-avatar::before {
+  inset: -12px;
+  border: 1px solid rgba(103, 232, 249, 0.17);
+  box-shadow:
+    0 0 24px rgba(103, 232, 249, 0.05),
+    inset 0 0 22px rgba(153, 69, 255, 0.04);
+}
+
+.builder-passport-avatar::after {
+  width: 9px;
+  height: 9px;
+  top: -5px;
+  right: 18px;
+  background: #67e8f9;
+  box-shadow:
+    0 0 10px rgba(103, 232, 249, 0.9),
+    0 0 24px rgba(153, 69, 255, 0.45);
+}
+
+.builder-passport-title {
+  border-color: rgba(153, 120, 255, 0.42);
+  background:
+    linear-gradient(
+      135deg,
+      rgba(153, 69, 255, 0.16),
+      rgba(83, 70, 180, 0.08)
+    );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.045),
+    0 0 24px rgba(153, 69, 255, 0.055);
+}
+
+.builder-passport-badge {
+  min-height: 30px;
+  padding-inline: 11px;
+  letter-spacing: 0.03em;
+  backdrop-filter: blur(10px);
+}
+
+.builder-passport-badge.is-positive {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.035),
+    0 0 20px rgba(20, 241, 149, 0.045);
+}
+
+.builder-passport-badge.is-genesis {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.035),
+    0 0 22px rgba(153, 69, 255, 0.07);
+}
+
+.builder-passport-id-card {
+  background:
+    radial-gradient(
+      circle at 82% 12%,
+      rgba(103, 232, 249, 0.09),
+      transparent 26%
+    ),
+    radial-gradient(
+      circle at 20% 90%,
+      rgba(153, 69, 255, 0.09),
+      transparent 30%
+    ),
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.075),
+      rgba(255, 255, 255, 0.025)
+    );
+}
+
+.builder-passport-id-card::before {
+  content: "BOBU / AUTHENTICATED BUILDER CREDENTIAL";
+  position: absolute;
+  top: 16px;
+  right: 18px;
+  max-width: 130px;
+  color: rgba(255, 255, 255, 0.13);
+  font-size: 7px;
+  font-weight: 900;
+  line-height: 1.45;
+  letter-spacing: 0.15em;
+  text-align: right;
+  text-transform: uppercase;
+}
+
+.builder-passport-id-card::after {
+  content: "";
+  position: absolute;
+  left: -24%;
+  bottom: 22%;
+  width: 150%;
+  height: 1px;
+  transform: rotate(-12deg);
+  pointer-events: none;
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(103, 232, 249, 0.14),
+      rgba(153, 69, 255, 0.17),
+      transparent
+    );
+  box-shadow:
+    0 20px 0 rgba(255, 255, 255, 0.025),
+    0 -20px 0 rgba(255, 255, 255, 0.02);
+}
+
+.builder-passport-id-value {
+  position: relative;
+  z-index: 1;
+  letter-spacing: 0.02em;
+  text-shadow: 0 0 18px rgba(103, 232, 249, 0.08);
+}
+
+.builder-passport-id-meta {
+  position: relative;
+  z-index: 1;
+}
+
+.builder-passport-id-meta div {
+  border: 1px solid rgba(255, 255, 255, 0.045);
+  background:
+    linear-gradient(
+      145deg,
+      rgba(5, 7, 20, 0.58),
+      rgba(10, 13, 30, 0.46)
+    );
+}
+
+.builder-passport-id-meta strong {
+  color: #f9f8ff;
+}
+
+@media (max-width: 640px) {
+  .builder-passport-identity::before {
+    position: static;
+    display: block;
+    margin-top: 4px;
+    white-space: normal;
+  }
+
+  .builder-passport-id-card::before {
+    max-width: 100px;
+    font-size: 6px;
+  }
+
+  .builder-passport-avatar::before {
+    inset: -9px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .builder-passport-avatar-status {
+    animation: none;
+  }
+}
