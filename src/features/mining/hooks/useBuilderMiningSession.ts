@@ -214,6 +214,11 @@ export function useBuilderMiningSession():
       setErrorMessage(null);
 
       try {
+        const claimedSessionId =
+          session.claimable
+            ? miningState?.sessionId ?? null
+            : null;
+
         const nextState = session.claimable
           ? await gpEngine.claimMiningReward()
           : await builderMiningService.start();
@@ -226,6 +231,14 @@ export function useBuilderMiningSession():
             amount: nextState.rewardGp,
             occurredAt: createEventTimestamp(),
           });
+
+          if (claimedSessionId) {
+            eventEngine.publish({
+              type: "MINING_CLAIMED",
+              sessionId: claimedSessionId,
+              occurredAt: createEventTimestamp(),
+            });
+          }
         } else {
           eventEngine.publish({
             type: "MINING_STARTED",
@@ -254,6 +267,7 @@ export function useBuilderMiningSession():
     }, [
       applyMiningState,
       busy,
+      miningState?.sessionId,
       session.claimable,
       session.isActive,
     ]);

@@ -1143,3 +1143,140 @@
     animation: none;
   }
 }
+
+/* ============================================================
+   BOBU PASSPORT — PRODUCTION GP ACHIEVEMENTS
+   ============================================================ */
+
+.builder-passport-reward-achievements {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.builder-passport-reward-achievement {
+  padding: 15px;
+  border: 1px solid rgba(255,255,255,.065);
+  border-radius: 17px;
+  background: rgba(255,255,255,.026);
+}
+
+.builder-passport-reward-achievement.is-unlocked {
+  border-color: rgba(153,69,255,.35);
+  background:
+    linear-gradient(
+      135deg,
+      rgba(153,69,255,.12),
+      rgba(20,241,149,.045)
+    );
+}
+
+.builder-passport-reward-achievement.is-claimed {
+  border-color: rgba(20,241,149,.24);
+  background: rgba(20,241,149,.045);
+}
+
+.builder-passport-reward-achievement-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.builder-passport-reward-achievement-head > div {
+  min-width: 0;
+}
+
+.builder-passport-reward-achievement-head strong {
+  display: block;
+  font-size: 13px;
+}
+
+.builder-passport-reward-achievement-head small {
+  display: block;
+  margin-top: 4px;
+  color: rgba(255,255,255,.42);
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.builder-passport-achievement-progress {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 13px;
+  color: rgba(255,255,255,.52);
+  font-size: 10px;
+}
+
+.builder-passport-achievement-progress strong {
+  color: #d9c6ff;
+  font-size: 11px;
+}
+
+.builder-passport-achievement-progress-track {
+  height: 5px;
+  margin-top: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255,255,255,.07);
+}
+
+.builder-passport-achievement-progress-track span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background:
+    linear-gradient(
+      90deg,
+      #14f195,
+      #67e8f9,
+      #9945ff
+    );
+}
+
+.builder-passport-achievement-claim {
+  width: 100%;
+  margin-top: 13px;
+  padding: 9px 12px;
+  border: 0;
+  border-radius: 11px;
+  color: #071018;
+  font-size: 10px;
+  font-weight: 900;
+  cursor: pointer;
+  background:
+    linear-gradient(
+      90deg,
+      #14f195,
+      #67e8f9 48%,
+      #9945ff
+    );
+}
+
+.builder-passport-achievement-claim:disabled {
+  opacity: .55;
+  cursor: wait;
+}
+
+.builder-passport-achievement-claimed,
+.builder-passport-achievement-locked {
+  display: block;
+  margin-top: 12px;
+  font-size: 10px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.builder-passport-achievement-claimed {
+  color: #62f9c5;
+}
+
+.builder-passport-achievement-locked {
+  color: rgba(255,255,255,.32);
+}
+
+.builder-passport-achievement-error {
+  margin: 12px 0 0;
+  color: #ff8c9b;
+  font-size: 11px;
+}

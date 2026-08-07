@@ -22,6 +22,9 @@ import {
 
 import { useAuthSession } from "../../core/auth/useAuthSession";
 import { useLanguage } from "../../core/language";
+import { useAchievementProgress } from "../../core/game/hooks";
+import { achievementRewardService } from "../../core/game/services";
+import { createAchievementViewModels } from "../../core/game/view-model/AchievementViewModel";
 import { useBuilderStore } from "../identity/hooks/useBuilderStore";
 import BuilderPassportActions from "./BuilderPassportActions";
 import BuilderPassportShareCard from "./BuilderPassportShareCard";
@@ -50,6 +53,52 @@ const shortenBuilderId = (builderId: string): string => {
 export function BuilderPassport() {
   const { t } = useLanguage();
   const builder = useBuilderStore();
+
+  const {
+    definitions: achievementDefinitions,
+    progress: achievementProgress,
+  } = useAchievementProgress();
+
+  const achievementCards = createAchievementViewModels(
+    achievementDefinitions,
+    achievementProgress,
+  );
+
+  const [claimingAchievementId, setClaimingAchievementId] =
+    useState<string | null>(null);
+
+  const [achievementClaimError, setAchievementClaimError] =
+    useState<string | null>(null);
+
+  const handleAchievementClaim = async (
+    achievementId: string,
+  ): Promise<void> => {
+    if (
+      !builder.id ||
+      builder.id === "builder-001" ||
+      claimingAchievementId !== null
+    ) {
+      return;
+    }
+
+    setAchievementClaimError(null);
+    setClaimingAchievementId(achievementId);
+
+    try {
+      await achievementRewardService.claim(
+        builder.id,
+        achievementId,
+      );
+    } catch (error) {
+      setAchievementClaimError(
+        error instanceof Error
+          ? error.message
+          : "Achievement reward could not be claimed.",
+      );
+    } finally {
+      setClaimingAchievementId(null);
+    }
+  };
   const { authenticated } = useAuthSession();
 
   const [copiedBuilderId, setCopiedBuilderId] =
@@ -433,6 +482,114 @@ export function BuilderPassport() {
                   );
                 })}
               </div>
+
+              {achievementCards.length > 0 && (
+                <div className="builder-passport-reward-achievements">
+                  {achievementCards.map((achievement) => {
+                    const unlocked =
+                      achievement.status === "unlocked";
+
+                    const claimed =
+                      achievement.status === "claimed";
+
+                    const claiming =
+                      claimingAchievementId ===
+                      achievement.id;
+
+                    return (
+                      <article
+                        key={achievement.id}
+                        className={
+                          claimed
+                            ? "builder-passport-reward-achievement is-claimed"
+                            : unlocked
+                              ? "builder-passport-reward-achievement is-unlocked"
+                              : "builder-passport-reward-achievement"
+                        }
+                      >
+                        <div className="builder-passport-reward-achievement-head">
+                          <span className="builder-passport-achievement-icon">
+                            {unlocked || claimed ? (
+                              <Award size={20} />
+                            ) : (
+                              <LockKeyhole size={18} />
+                            )}
+                          </span>
+
+                          <div>
+                            <strong>
+                              {achievement.title}
+                            </strong>
+
+                            <small>
+                              {achievement.description}
+                            </small>
+                          </div>
+                        </div>
+
+                        <div className="builder-passport-achievement-progress">
+                          <span>
+                            {achievement.progress.toLocaleString()}
+                            {" / "}
+                            {achievement.target.toLocaleString()}
+                          </span>
+
+                          <strong>
+                            +{achievement.rewardGp.toLocaleString()} GP
+                          </strong>
+                        </div>
+
+                        <div
+                          className="builder-passport-achievement-progress-track"
+                          aria-hidden="true"
+                        >
+                          <span
+                            style={{
+                              width: `${achievement.progressPercent}%`,
+                            }}
+                          />
+                        </div>
+
+                        {claimed ? (
+                          <span className="builder-passport-achievement-claimed">
+                            Reward Claimed
+                          </span>
+                        ) : unlocked ? (
+                          <button
+                            type="button"
+                            className="builder-passport-achievement-claim"
+                            disabled={
+                              claimingAchievementId !== null
+                            }
+                            onClick={() =>
+                              void handleAchievementClaim(
+                                achievement.id,
+                              )
+                            }
+                          >
+                            {claiming
+                              ? "Claiming..."
+                              : `Claim ${achievement.rewardGp.toLocaleString()} GP`}
+                          </button>
+                        ) : (
+                          <span className="builder-passport-achievement-locked">
+                            In Progress
+                          </span>
+                        )}
+                      </article>
+                    );
+                  })}
+                </div>
+              )}
+
+              {achievementClaimError && (
+                <p
+                  className="builder-passport-achievement-error"
+                  role="alert"
+                >
+                  {achievementClaimError}
+                </p>
+              )}
             </section>
           </div>
 

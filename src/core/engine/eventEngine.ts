@@ -26,6 +26,11 @@ export type BobuEvent =
       occurredAt: string;
     }
   | {
+      type: "MINING_CLAIMED";
+      sessionId: string;
+      occurredAt: string;
+    }
+  | {
       type: "MINING_GP_TICK";
       amount: number;
       occurredAt: string;
