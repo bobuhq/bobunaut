@@ -20,7 +20,6 @@ import {
   ListChecks,
   Network,
   Bot,
-  CirclePlay,
   Satellite,
   ShieldCheck,
   Sparkles,
@@ -46,6 +45,29 @@ type CounterProps = {
   suffix?: string;
   decimals?: number;
 };
+
+function AppStoreMark() {
+  return (
+    <span className="store-mark app-store-mark" aria-hidden="true">
+      <svg viewBox="0 0 32 32" role="img">
+        <path d="M10.2 22.8 16 12.7l5.8 10.1" />
+        <path d="M12.3 19.1h7.4" />
+        <path d="M8.2 24.5h15.6" />
+      </svg>
+    </span>
+  );
+}
+
+function GooglePlayMark() {
+  return (
+    <span className="store-mark google-play-mark" aria-hidden="true">
+      <svg viewBox="0 0 32 32" role="img">
+        <path d="M8 5.8v20.4L25.4 16 8 5.8Z" />
+        <path d="m8 5.8 10.8 10.3L8 26.2" />
+      </svg>
+    </span>
+  );
+}
 
 const createHomeStats = (stats: UniverseStats) => [
   {
@@ -319,14 +341,22 @@ export function Home() {
         .network-features{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:26px}
         .network-feature{display:flex;align-items:center;gap:11px;min-height:49px;padding:11px 13px;border:1px solid rgba(196,181,253,.13);border-radius:14px;color:#ddd7ec;background:rgba(255,255,255,.025);font-size:12px;font-weight:800}
         .network-feature svg{flex:0 0 auto;color:var(--cyan)}
-        .store-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:25px}
-        .store-card{display:flex;min-height:68px;align-items:center;gap:12px;padding:12px 15px;border:1px solid rgba(196,181,253,.18);border-radius:16px;color:#fff;text-decoration:none;background:rgba(7,9,20,.66)}
-        .store-card.is-active{transition:transform .18s,border-color .18s}
-        .store-card.is-active:hover{transform:translateY(-2px);border-color:rgba(103,232,249,.5)}
-        .store-card.is-disabled{cursor:not-allowed;opacity:.72}
-        .store-card span{display:grid;gap:3px}
-        .store-card small{color:#9d94ad;font-size:9px;font-weight:800;letter-spacing:.09em;text-transform:uppercase}
-        .store-card strong{font-size:14px}
+        .store-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:28px}
+        .store-card{display:flex;min-height:82px;align-items:center;gap:15px;padding:15px 18px;border:1px solid rgba(139,92,246,.42);border-radius:18px;color:#fff;text-decoration:none;background:linear-gradient(135deg,rgba(20,22,46,.96),rgba(8,10,24,.98));box-shadow:0 10px 28px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.06)}
+        .store-card>svg{flex:0 0 auto;width:30px;height:30px;color:#f8f7ff;filter:drop-shadow(0 0 9px rgba(139,92,246,.48))}
+        .store-mark{display:grid;flex:0 0 46px;width:46px;height:46px;place-items:center;border:1px solid rgba(255,255,255,.11);border-radius:14px;background:linear-gradient(145deg,rgba(139,92,246,.22),rgba(56,189,248,.08));box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 0 22px rgba(112,82,255,.13)}
+        .store-mark svg{width:29px;height:29px;overflow:visible}
+        .store-mark path{fill:none;stroke:#fff;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+        .google-play-mark{background:linear-gradient(145deg,rgba(56,189,248,.18),rgba(139,92,246,.17))}
+        .google-play-mark svg{width:31px;height:31px}
+        .google-play-mark path:first-child{fill:rgba(255,255,255,.96);stroke:none}
+        .google-play-mark path:last-child{fill:none;stroke:rgba(103,232,249,.95);stroke-width:1.7}
+        .store-card.is-active{transition:transform .18s,border-color .18s,box-shadow .18s}
+        .store-card.is-active:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.72);box-shadow:0 14px 36px rgba(0,0,0,.34),0 0 22px rgba(103,232,249,.12)}
+        .store-card.is-disabled{cursor:default;opacity:1}
+        .store-card span{display:grid;gap:5px}
+        .store-card small{color:#bdb4d3;font-size:10px;font-weight:900;letter-spacing:.13em;text-transform:uppercase}
+        .store-card strong{color:#fff;font-size:16px;font-weight:900;letter-spacing:-.01em}
         .network-release{margin-top:17px;color:#a99fba;font-size:11px;line-height:1.6}
         .network-visual{display:grid;place-items:center}
         .network-image-shell{position:relative;width:100%;overflow:hidden;border:1px solid rgba(103,232,249,.18);border-radius:26px;background:#070914;box-shadow:0 28px 75px rgba(0,0,0,.42),0 0 70px rgba(90,67,220,.13)}
@@ -490,7 +520,7 @@ export function Home() {
                 target="_blank"
                 rel="noreferrer"
               >
-                <Smartphone size={24} />
+                <AppStoreMark />
                 <span>
                   <small>{t("home.network.availableOn")}</small>
                   <strong>{t("home.network.appStore")}</strong>
@@ -501,7 +531,7 @@ export function Home() {
                 className="store-card is-disabled"
                 aria-disabled="true"
               >
-                <Smartphone size={24} />
+                <AppStoreMark />
                 <span>
                   <small>{t("home.network.comingSoon")}</small>
                   <strong>{t("home.network.appStore")}</strong>
@@ -516,7 +546,7 @@ export function Home() {
                 target="_blank"
                 rel="noreferrer"
               >
-                <CirclePlay size={24} />
+                <GooglePlayMark />
                 <span>
                   <small>{t("home.network.availableOn")}</small>
                   <strong>{t("home.network.googlePlay")}</strong>
@@ -527,7 +557,7 @@ export function Home() {
                 className="store-card is-disabled"
                 aria-disabled="true"
               >
-                <CirclePlay size={24} />
+                <GooglePlayMark />
                 <span>
                   <small>{t("home.network.comingSoon")}</small>
                   <strong>{t("home.network.googlePlay")}</strong>
