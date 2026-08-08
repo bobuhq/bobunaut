@@ -357,6 +357,15 @@ export function Home() {
         .store-card span{display:grid;gap:5px}
         .store-card small{color:#bdb4d3;font-size:10px;font-weight:900;letter-spacing:.13em;text-transform:uppercase}
         .store-card strong{color:#fff;font-size:16px;font-weight:900;letter-spacing:-.01em}
+        .home-network-pioneer-card{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:center;margin-top:20px;padding:20px 22px;border:1px solid rgba(246,211,101,.28);border-radius:20px;background:linear-gradient(135deg,rgba(246,211,101,.08),rgba(139,92,246,.08) 48%,rgba(8,10,24,.92));box-shadow:0 14px 34px rgba(0,0,0,.24),inset 0 1px 0 rgba(255,255,255,.05);overflow:hidden}
+        .home-network-pioneer-card:before{content:"";position:absolute;right:-70px;bottom:-90px;width:190px;height:190px;border-radius:50%;background:radial-gradient(circle,rgba(246,211,101,.13),transparent 67%);pointer-events:none}
+        .home-network-pioneer-copy{position:relative;z-index:1;display:grid;gap:7px}
+        .home-network-pioneer-eyebrow{color:#f6d365;font-size:9px;font-weight:900;letter-spacing:.17em}
+        .home-network-pioneer-title{color:#fff;font-size:17px;font-weight:900;letter-spacing:-.01em}
+        .home-network-pioneer-description{max-width:560px;margin:0;color:#b9afc9;font-size:12px;line-height:1.65}
+        .home-network-pioneer-reward{position:relative;z-index:1;display:grid;min-width:118px;justify-items:end;gap:5px}
+        .home-network-pioneer-reward strong{color:#f6d365;font-size:25px;font-weight:950;letter-spacing:-.03em;text-shadow:0 0 20px rgba(246,211,101,.16)}
+        .home-network-pioneer-reward span{padding:6px 9px;border:1px solid rgba(196,181,253,.16);border-radius:999px;color:#c4b5fd;background:rgba(139,92,246,.08);font-size:8px;font-weight:900;letter-spacing:.13em}
         .network-release{margin-top:17px;color:#a99fba;font-size:11px;line-height:1.6}
         .network-visual{display:grid;place-items:center}
         .network-image-shell{position:relative;width:100%;overflow:hidden;border:1px solid rgba(103,232,249,.18);border-radius:26px;background:#070914;box-shadow:0 28px 75px rgba(0,0,0,.42),0 0 70px rgba(90,67,220,.13)}
@@ -407,6 +416,7 @@ export function Home() {
         }
         @keyframes orbitA{to{transform:rotate(360deg)}}@keyframes orbitB{to{transform:rotate(-360deg)}}@keyframes orbitC{to{transform:rotate(360deg)}}@keyframes planetFloat{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-14px) rotate(1deg)}}@keyframes planetPulse{0%,100%{opacity:.62;transform:scale(.95)}50%{opacity:1;transform:scale(1.08)}}@keyframes innerOrbit{to{transform:rotate(360deg)}}
         @media(max-width:980px){.hero,.roadmap,.community-grid,.network-showcase{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}.mission-grid{grid-template-columns:1fr 1fr}.mission-card:last-child{grid-column:1/-1}.network-visual{order:-1}.network-image-shell{max-width:760px}}
+        @media(max-width:720px){.home-network-pioneer-card{grid-template-columns:1fr;gap:16px;padding:18px}.home-network-pioneer-reward{min-width:0;justify-items:start}}
         @media(max-width:720px){.home-v2{width:calc(100% - 20px)}.stats,.mission-grid,.network-features,.store-actions{grid-template-columns:1fr}.mission-card:last-child{grid-column:auto}.section-header,.transmission{align-items:flex-start;flex-direction:column}.chip{display:none}.network-showcase{padding:24px 18px;border-radius:24px}}
         @media(prefers-reduced-motion:reduce){
           .transmission-image img{animation:none}
@@ -567,6 +577,27 @@ export function Home() {
           </div>
 
           <p className="network-release">
+            <div className="home-network-pioneer-card">
+              <div className="home-network-pioneer-copy">
+                <span className="home-network-pioneer-eyebrow">
+                  {t("home.network.pioneer.eyebrow")}
+                </span>
+
+                <strong className="home-network-pioneer-title">
+                  {t("home.network.pioneer.title")}
+                </strong>
+
+                <p className="home-network-pioneer-description">
+                  {t("home.network.pioneer.description")}
+                </p>
+              </div>
+
+              <div className="home-network-pioneer-reward">
+                <strong>+500 GP</strong>
+                <span>{t("home.network.pioneer.status")}</span>
+              </div>
+            </div>
+
             {t("home.network.release")}
           </p>
         </div>
