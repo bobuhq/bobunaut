@@ -369,7 +369,7 @@ export default function MiningDashboardV4({
             <div>
               <span>{t("mining.dashboard.referral")}</span>
               <strong>
-                +{referralBonusRate.toFixed(2)} GP/h
+                +{referralBonusRate.toFixed(0)} GP
               </strong>
             </div>
             <div>

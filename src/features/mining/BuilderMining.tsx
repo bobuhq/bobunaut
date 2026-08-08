@@ -265,7 +265,7 @@ export default function BuilderMining() {
             <div>
               <span>{t("mining.session.referralBonus")}</span>
               <strong>
-                +{(miningState?.referralBonusRate ?? 0).toFixed(2)} GP/h
+                +{liveReferralBonusGp.toFixed(0)} GP
               </strong>
             </div>
 
