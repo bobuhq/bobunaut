@@ -126,7 +126,7 @@ export function Galaxy() {
     builder.inviteCode &&
     builder.inviteCode !== "BOBU-GENESIS"
       ? new URL(
-          `join/${encodeURIComponent(
+          `?ref=${encodeURIComponent(
             builder.inviteCode,
           )}`,
           window.location.origin +

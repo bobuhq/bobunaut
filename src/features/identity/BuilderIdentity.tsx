@@ -4,7 +4,6 @@ import { useBuilderStore } from "./hooks/useBuilderStore";
 import { builderStore } from "../../store/builderStore";
 import { supabase } from "../../lib/supabase";
 import { restoreAuthenticatedBuilder } from "../../core/builder/services/BuilderRestoreService";
-import { referralService } from "../../core/builder/services/ReferralService";
 import { useTelegramVerification } from "./hooks/useTelegramVerification";
 import { useXVerification } from "./hooks/useXVerification";
 import { useInstagramVerification } from "./hooks/useInstagramVerification";
@@ -87,8 +86,6 @@ export default function BuilderIdentity() {
 
   useEffect(() => {
     const restoreIdentityPage = async (): Promise<void> => {
-      referralService.captureReferralFromUrl();
-
       const searchParams = new URLSearchParams(
         window.location.search,
       );
@@ -127,10 +124,6 @@ export default function BuilderIdentity() {
       if (!source) {
         return;
       }
-
-      await referralService.connectReferral(
-        source.builderId,
-      );
 
     };
 

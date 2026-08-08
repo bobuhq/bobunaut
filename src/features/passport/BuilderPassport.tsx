@@ -127,7 +127,7 @@ export function BuilderPassport() {
     builder.inviteCode &&
     builder.inviteCode !== "BOBU-GENESIS"
       ? new URL(
-          `join/${encodeURIComponent(builder.inviteCode)}`,
+          `?ref=${encodeURIComponent(builder.inviteCode)}`,
           window.location.origin + import.meta.env.BASE_URL,
         ).toString()
       : null;

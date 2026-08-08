@@ -18,7 +18,7 @@ export default function BuilderSignalWidget({
 
   const inviteLink = inviteCode
     ? new URL(
-        `join/${encodeURIComponent(inviteCode)}`,
+        `?ref=${encodeURIComponent(inviteCode)}`,
         window.location.origin + import.meta.env.BASE_URL,
       ).toString()
     : null;

@@ -11,6 +11,7 @@ import { useAuthSession } from "../auth/useAuthSession";
 import {
   attributePendingBuilderInvite,
   restoreAuthenticatedBuilder,
+  savePendingBuilderInviteCode,
 } from "../builder";
 import { coreEngine } from "../engine";
 import {
@@ -71,6 +72,36 @@ export function ApplicationBootstrap({
     preferencesService.reset();
     missionRepository.reset();
     achievementRepository.reset();
+
+    /*
+     * Capture the canonical referral URL before authentication.
+     *
+     * Example:
+     * https://bobunaut.com/?ref=BOBU-A1B2C3
+     *
+     * The invite remains session-scoped until an authenticated
+     * Builder can be attributed by the server-side RPC.
+     */
+    const referralUrl = new URL(window.location.href);
+    const referralCode =
+      referralUrl.searchParams.get("ref");
+
+    if (referralCode) {
+      savePendingBuilderInviteCode(referralCode);
+
+      /*
+       * Consume only the referral query parameter so it cannot
+       * be captured repeatedly after attribution/session changes.
+       * Preserve OAuth and any unrelated query parameters.
+       */
+      referralUrl.searchParams.delete("ref");
+
+      window.history.replaceState(
+        {},
+        document.title,
+        `${referralUrl.pathname}${referralUrl.search}${referralUrl.hash}`,
+      );
+    }
 
     if (loading || !builderId) {
       return () => {
