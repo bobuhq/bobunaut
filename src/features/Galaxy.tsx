@@ -17,6 +17,7 @@ import {
   galaxyService,
   type GalaxyMember as RealGalaxyMember,
   type GalaxyMiningMember,
+  type GalacticChainLevel,
 } from "../core/builder/services/GalaxyService";
 import { getPrimaryBranchTheme } from "./galaxy/galaxyThemes";
 
@@ -46,6 +47,11 @@ export function Galaxy() {
 
   const [inviter, setInviter] =
     useState<RealGalaxyMember | null>(null);
+
+  const [
+    galacticChainLevels,
+    setGalacticChainLevels,
+  ] = useState<GalacticChainLevel[]>([]);
   const [isGalaxyLoading, setIsGalaxyLoading] =
     useState(true);
   const [galaxyError, setGalaxyError] = useState<
@@ -67,6 +73,7 @@ export function Galaxy() {
           members,
           miningMembers,
           loadedInviter,
+          loadedGalacticChain,
         ] = await Promise.all([
           galaxyService.loadMyGalaxy(),
           galaxyService
@@ -87,12 +94,25 @@ export function Galaxy() {
 
             return null;
           }),
+          galaxyService
+            .loadMyGalacticChain()
+            .catch((error) => {
+              console.error(
+                "Galactic Chain could not be loaded:",
+                error,
+              );
+
+              return [];
+            }),
         ]);
 
         if (isMounted) {
           setGalaxyMembers(members);
           setMiningTeamMembers(miningMembers);
           setInviter(loadedInviter);
+          setGalacticChainLevels(
+            loadedGalacticChain,
+          );
         }
       } catch (error) {
         console.error(
@@ -104,6 +124,7 @@ export function Galaxy() {
           setGalaxyMembers([]);
           setMiningTeamMembers([]);
           setInviter(null);
+          setGalacticChainLevels([]);
           setGalaxyError(
             t("galaxy.error.dataLoad"),
           );
@@ -189,6 +210,27 @@ export function Galaxy() {
       miningActivityByBuilder,
     ],
   );
+
+  const galacticChainTotalGp =
+    galacticChainLevels.reduce(
+      (total, level) =>
+        total + level.totalChainGp,
+      0,
+    );
+
+  const galacticChainPendingGp =
+    galacticChainLevels.reduce(
+      (total, level) =>
+        total + level.pendingChainGp,
+      0,
+    );
+
+  const galacticChainEligibleGp =
+    galacticChainLevels.reduce(
+      (total, level) =>
+        total + level.eligibleChainGp,
+      0,
+    );
 
   const childrenByParent = useMemo(() => {
     const children = new Map<string, GalaxyMember[]>();
@@ -1426,6 +1468,81 @@ export function Galaxy() {
                 </div>
               )}
             </div>
+          </section>
+
+          <section className="galaxy-footer-grid">
+            <article
+              className="galaxy-footer-card"
+              style={{ gridColumn: "1 / -1" }}
+            >
+              <h3>{t("galaxy.chain.title")}</h3>
+
+              <p
+                style={{
+                  margin: "0 0 16px",
+                  color: "rgba(218, 224, 255, 0.55)",
+                  fontSize: "0.72rem",
+                  lineHeight: 1.5,
+                }}
+              >
+                {t("galaxy.chain.description")}
+              </p>
+
+              <div className="galaxy-summary">
+                <div>
+                  <span>{t("galaxy.chain.total")}</span>
+                  <strong>
+                    {galacticChainTotalGp.toLocaleString(
+                      language,
+                    )} GP
+                  </strong>
+                </div>
+
+                <div>
+                  <span>{t("galaxy.chain.pending")}</span>
+                  <strong>
+                    {galacticChainPendingGp.toLocaleString(
+                      language,
+                    )} GP
+                  </strong>
+                </div>
+
+                <div>
+                  <span>{t("galaxy.chain.eligible")}</span>
+                  <strong>
+                    {galacticChainEligibleGp.toLocaleString(
+                      language,
+                    )} GP
+                  </strong>
+                </div>
+              </div>
+
+              <div
+                className="galaxy-summary"
+                style={{ marginTop: 14 }}
+              >
+                {galacticChainLevels.map((level) => (
+                  <div key={level.depth}>
+                    <span>
+                      {t("galaxy.chain.level", {
+                        level: level.depth,
+                      })}
+                    </span>
+
+                    <strong>
+                      {t("galaxy.chain.levelSummary", {
+                        builders:
+                          level.rewardedBuilderCount,
+                        reward:
+                          level.rewardPerBuilder,
+                        total:
+                          level.totalChainGp,
+                      })}
+                    </strong>
+                  </div>
+                ))}
+              </div>
+            </article>
           </section>
 
           <section className="galaxy-footer-grid">

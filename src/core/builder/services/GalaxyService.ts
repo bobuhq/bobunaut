@@ -44,6 +44,35 @@ interface GalaxyMiningMemberRow {
   contribution_gp: number | string | null;
 }
 
+
+export interface GalacticChainLevel {
+  depth: number;
+  rewardPerBuilder: number;
+  rewardedBuilderCount: number;
+  pendingChainGp: number;
+  eligibleChainGp: number;
+  totalChainGp: number;
+}
+
+interface GalacticChainLevelRow {
+  depth: number | string | null;
+  reward_per_builder: number | string | null;
+  rewarded_builder_count: number | string | null;
+  pending_chain_gp: number | string | null;
+  eligible_chain_gp: number | string | null;
+  total_chain_gp: number | string | null;
+}
+
+function toNonNegativeNumber(
+  value: number | string | null | undefined,
+): number {
+  const parsed = Number(value ?? 0);
+
+  return Number.isFinite(parsed) && parsed >= 0
+    ? parsed
+    : 0;
+}
+
 export const galaxyService = {
   async loadMyGalaxy(): Promise<GalaxyMember[]> {
     const { data, error } = await supabase
@@ -104,6 +133,44 @@ export const galaxyService = {
             : 0,
       };
     });
+  },
+
+  async loadMyGalacticChain(): Promise<
+    GalacticChainLevel[]
+  > {
+    const { data, error } = await supabase
+      .rpc("get_my_galactic_chain_summary")
+      .returns<GalacticChainLevelRow[]>();
+
+    if (error) {
+      throw error;
+    }
+
+    const rows: GalacticChainLevelRow[] =
+      Array.isArray(data)
+        ? (data as GalacticChainLevelRow[])
+        : [];
+
+    return rows.map((row) => ({
+      depth: Math.min(
+        10,
+        Math.max(
+          1,
+          Math.trunc(toNonNegativeNumber(row.depth)),
+        ),
+      ),
+      rewardPerBuilder:
+        toNonNegativeNumber(row.reward_per_builder),
+      rewardedBuilderCount: Math.trunc(
+        toNonNegativeNumber(row.rewarded_builder_count),
+      ),
+      pendingChainGp:
+        toNonNegativeNumber(row.pending_chain_gp),
+      eligibleChainGp:
+        toNonNegativeNumber(row.eligible_chain_gp),
+      totalChainGp:
+        toNonNegativeNumber(row.total_chain_gp),
+    }));
   },
 
   async loadMyInviter(): Promise<GalaxyMember | null> {

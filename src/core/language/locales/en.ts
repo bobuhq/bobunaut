@@ -551,6 +551,13 @@ export const en: TranslationDictionary = {
   "galaxy.footer.nextLevel": "Next Galaxy Level",
   "galaxy.footer.ready": "Ready",
   "galaxy.footer.remaining": "{{count}} remaining",
+  "galaxy.chain.title": 'Galactic Chain',
+  "galaxy.chain.description": 'Your 10-level Builder activation reward chain.',
+  "galaxy.chain.total": 'Total Galactic Chain GP',
+  "galaxy.chain.pending": 'Pending Chain GP',
+  "galaxy.chain.eligible": 'Eligible Chain GP',
+  "galaxy.chain.level": 'Level {{level}}',
+  "galaxy.chain.levelSummary": '{{builders}} Builders · {{reward}} GP / Builder · {{total}} GP',
 
   "leaderboard.empty.description": "Builder rankings will appear as the community earns GP.",
   "leaderboard.empty.title": "The first stars are forming",
