@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 
 import {
+  verifyAppleAssertion,
   verifyAppleAttestation,
 } from "./apple-app-attest.ts";
 
@@ -33,6 +34,16 @@ type RewardRow = {
   reward_gp: number;
   total_gp: number;
   ledger_id: string | null;
+};
+
+type AttestedKeyRow = {
+  builder_id: string;
+  platform: string;
+  key_id: string;
+  public_key_pem: string | null;
+  environment: string;
+  assertion_counter: number;
+  revoked_at: string | null;
 };
 
 function jsonResponse(
@@ -164,19 +175,6 @@ Deno.serve(async (req) => {
     );
   }
 
-  if (body.mode !== "attestation") {
-    return jsonResponse(
-      {
-        verified: false,
-        awarded: false,
-        rewardGp: 0,
-        reason:
-          "App Attest assertion verification is not enabled yet",
-      },
-      403,
-    );
-  }
-
   const adminClient = createClient(
     supabaseUrl,
     serviceRoleKey,
@@ -215,6 +213,154 @@ Deno.serve(async (req) => {
       { error: "Invalid or expired attestation challenge" },
       400,
     );
+  }
+
+  if (body.mode === "assertion") {
+    const {
+      data: attestedKey,
+      error: attestedKeyError,
+    } = await adminClient
+      .from("mobile_attested_keys")
+      .select(
+        "builder_id,platform,key_id,public_key_pem,environment,assertion_counter,revoked_at",
+      )
+      .eq("builder_id", user.id)
+      .eq("platform", "ios")
+      .eq("key_id", body.keyId)
+      .maybeSingle<AttestedKeyRow>();
+
+    if (
+      attestedKeyError ||
+      !attestedKey ||
+      !attestedKey.public_key_pem ||
+      attestedKey.revoked_at !== null ||
+      attestedKey.environment !== "production"
+    ) {
+      return jsonResponse(
+        {
+          verified: false,
+          awarded: false,
+          rewardGp: 0,
+          reason:
+            "Verified production App Attest key not found",
+        },
+        403,
+      );
+    }
+
+    let assertion;
+
+    try {
+      assertion =
+        await verifyAppleAssertion(
+          body.proof,
+          attestedKey.public_key_pem,
+          challenge.challenge,
+        );
+    } catch (error) {
+      console.error(
+        "[mobile-pioneer-claim] App Attest assertion verification failed:",
+        error,
+      );
+
+      return jsonResponse(
+        {
+          verified: false,
+          awarded: false,
+          rewardGp: 0,
+          reason:
+            "Apple App Attest assertion verification failed",
+        },
+        403,
+      );
+    }
+
+    const {
+      data: assertionCommitted,
+      error: assertionCommitError,
+    } = await adminClient.rpc(
+      "commit_verified_mobile_assertion",
+      {
+        p_builder_id: user.id,
+        p_platform: "ios",
+        p_key_id: body.keyId,
+        p_counter: assertion.counter,
+        p_challenge_id: challenge.id,
+      },
+    );
+
+    if (
+      assertionCommitError ||
+      assertionCommitted !== true
+    ) {
+      console.error(
+        "[mobile-pioneer-claim] Atomic assertion commit failed:",
+        assertionCommitError,
+      );
+
+      return jsonResponse(
+        {
+          verified: false,
+          awarded: false,
+          rewardGp: 0,
+          reason:
+            "App Attest assertion replay, rollback, or invalid challenge detected",
+        },
+        409,
+      );
+    }
+
+    const {
+      data: assertionRewardData,
+      error: assertionRewardError,
+    } = await adminClient.rpc(
+      "claim_verified_mobile_pioneer_reward",
+      {
+        p_builder_id: user.id,
+        p_platform: "ios",
+        p_key_id: body.keyId,
+      },
+    );
+
+    if (assertionRewardError) {
+      return jsonResponse(
+        {
+          error:
+            "Mobile Pioneer reward lookup failed",
+        },
+        500,
+      );
+    }
+
+    const assertionRewardRow =
+      Array.isArray(assertionRewardData)
+        ? (
+            assertionRewardData[0] as
+              RewardRow | undefined
+          )
+        : (
+            assertionRewardData as
+              RewardRow | null
+          );
+
+    return jsonResponse({
+      verified: true,
+      keyVerified: true,
+      awarded:
+        Boolean(
+          assertionRewardRow?.awarded,
+        ),
+      rewardGp:
+        Number(
+          assertionRewardRow?.reward_gp ?? 0,
+        ),
+      totalGp:
+        Number(
+          assertionRewardRow?.total_gp ?? 0,
+        ),
+      ledgerId:
+        assertionRewardRow?.ledger_id ?? null,
+    });
   }
 
   let verified;

@@ -686,3 +686,304 @@ export async function verifyAppleAttestation(
     environment,
   };
 }
+
+type AppleAssertionObject = {
+  authenticatorData?: Uint8Array;
+  signature?: Uint8Array;
+};
+
+export type VerifiedAppleAssertion = {
+  counter: number;
+};
+
+function pemToDer(
+  pem: string,
+): Uint8Array {
+  const normalized = pem
+    .replace(/-----BEGIN [^-]+-----/g, "")
+    .replace(/-----END [^-]+-----/g, "")
+    .replace(/\s+/g, "");
+
+  if (!normalized) {
+    throw new Error(
+      "Stored App Attest public key is invalid.",
+    );
+  }
+
+  return base64ToBytes(normalized);
+}
+
+function derIntegerToFixed32(
+  integerBytes: Uint8Array,
+): Uint8Array {
+  let value = integerBytes;
+
+  /*
+   * DER INTEGER may contain one leading 0x00
+   * to prevent the value from being interpreted
+   * as negative.
+   */
+  if (
+    value.length === 33 &&
+    value[0] === 0x00
+  ) {
+    value = value.slice(1);
+  }
+
+  if (
+    value.length === 0 ||
+    value.length > 32
+  ) {
+    throw new Error(
+      "Invalid ECDSA integer length.",
+    );
+  }
+
+  const result = new Uint8Array(32);
+
+  result.set(
+    value,
+    32 - value.length,
+  );
+
+  return result;
+}
+
+function ecdsaDerSignatureToRaw(
+  der: Uint8Array,
+): Uint8Array {
+  let offset = 0;
+
+  if (der[offset] !== 0x30) {
+    throw new Error(
+      "Invalid ECDSA DER signature sequence.",
+    );
+  }
+
+  offset += 1;
+
+  const sequenceLength =
+    parseDerLength(
+      der,
+      offset,
+    );
+
+  offset =
+    sequenceLength.nextOffset;
+
+  const sequenceEnd =
+    offset + sequenceLength.length;
+
+  if (sequenceEnd !== der.length) {
+    throw new Error(
+      "Invalid ECDSA DER signature length.",
+    );
+  }
+
+  if (der[offset] !== 0x02) {
+    throw new Error(
+      "Invalid ECDSA R integer.",
+    );
+  }
+
+  offset += 1;
+
+  const rLength =
+    parseDerLength(
+      der,
+      offset,
+    );
+
+  offset = rLength.nextOffset;
+
+  const rEnd =
+    offset + rLength.length;
+
+  if (rEnd > sequenceEnd) {
+    throw new Error(
+      "Invalid ECDSA R length.",
+    );
+  }
+
+  const r =
+    derIntegerToFixed32(
+      der.slice(offset, rEnd),
+    );
+
+  offset = rEnd;
+
+  if (der[offset] !== 0x02) {
+    throw new Error(
+      "Invalid ECDSA S integer.",
+    );
+  }
+
+  offset += 1;
+
+  const sLength =
+    parseDerLength(
+      der,
+      offset,
+    );
+
+  offset = sLength.nextOffset;
+
+  const sEnd =
+    offset + sLength.length;
+
+  if (sEnd !== sequenceEnd) {
+    throw new Error(
+      "Invalid ECDSA S length.",
+    );
+  }
+
+  const s =
+    derIntegerToFixed32(
+      der.slice(offset, sEnd),
+    );
+
+  return concatBytes(
+    r,
+    s,
+  );
+}
+
+export async function verifyAppleAssertion(
+  proofBase64: string,
+  publicKeyPem: string,
+  challenge: string,
+): Promise<VerifiedAppleAssertion> {
+  const assertionBytes =
+    base64ToBytes(proofBase64);
+
+  const decoded =
+    decode(assertionBytes) as
+      AppleAssertionObject;
+
+  const authData =
+    decoded.authenticatorData;
+
+  const signature =
+    decoded.signature;
+
+  if (
+    !(authData instanceof Uint8Array) ||
+    !(signature instanceof Uint8Array)
+  ) {
+    throw new Error(
+      "Incomplete Apple App Attest assertion.",
+    );
+  }
+
+  /*
+   * Assertion authenticator data:
+   * RP ID hash  32 bytes
+   * flags        1 byte
+   * counter      4 bytes
+   */
+  if (authData.length < 37) {
+    throw new Error(
+      "Apple assertion authenticator data is too short.",
+    );
+  }
+
+  const rpIdHash =
+    authData.slice(0, 32);
+
+  const expectedRpId =
+    await sha256(
+      new TextEncoder().encode(
+        APPLE_APP_ID,
+      ),
+    );
+
+  if (
+    !bytesEqual(
+      rpIdHash,
+      expectedRpId,
+    )
+  ) {
+    throw new Error(
+      "Apple assertion RP ID does not match BOBU.",
+    );
+  }
+
+  const counter =
+    readUint32BE(
+      authData,
+      33,
+    );
+
+  if (counter <= 0) {
+    throw new Error(
+      "Apple assertion counter must be positive.",
+    );
+  }
+
+  /*
+   * Expo generateAssertionAsync(keyId, challenge)
+   * signs the request data using the attested key.
+   *
+   * Server recreates the same client-data hash.
+   */
+  const clientDataHash =
+    await sha256(
+      new TextEncoder().encode(
+        challenge,
+      ),
+    );
+
+  const signedPayload =
+    concatBytes(
+      authData,
+      clientDataHash,
+    );
+
+  const publicKey =
+    await crypto.subtle.importKey(
+      "spki",
+      toArrayBuffer(
+        pemToDer(publicKeyPem),
+      ),
+      {
+        name: "ECDSA",
+        namedCurve: "P-256",
+      },
+      false,
+      ["verify"],
+    );
+
+  /*
+   * Apple returns an ASN.1/X9.62 ECDSA signature.
+   * WebCrypto expects raw P-256 r || s.
+   */
+  const rawSignature =
+    ecdsaDerSignatureToRaw(
+      signature,
+    );
+
+  const valid =
+    await crypto.subtle.verify(
+      {
+        name: "ECDSA",
+        hash: "SHA-256",
+      },
+      publicKey,
+      toArrayBuffer(
+        rawSignature,
+      ),
+      toArrayBuffer(
+        signedPayload,
+      ),
+    );
+
+  if (!valid) {
+    throw new Error(
+      "Apple App Attest assertion signature is invalid.",
+    );
+  }
+
+  return {
+    counter,
+  };
+}
