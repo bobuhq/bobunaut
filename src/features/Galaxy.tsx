@@ -173,7 +173,14 @@ export function Galaxy() {
       ) === true,
   ).length;
 
-  const pendingMemberCount = Math.max(
+
+const directActiveCircleCount = galaxyMembers.filter(
+  (member) =>
+    member.depth === 1 &&
+    member.referralStatus === "active",
+).length;
+
+const pendingMemberCount = Math.max(
     0,
     galaxyMembers.length - activeMemberCount,
   );
@@ -1131,7 +1138,7 @@ export function Galaxy() {
             0 0 10px rgba(105, 130, 255, 0.34);
         }
 
-        
+
 
         .galaxy-root-image-compact {
           width: 84px !important;
@@ -1279,7 +1286,7 @@ export function Galaxy() {
               <span>
                 {t("galaxy.sidebar.activeCircle")}
               </span>
-              <strong>{activeMemberCount}</strong>
+              <strong>{directActiveCircleCount}</strong>
             </div>
           </div>
 
