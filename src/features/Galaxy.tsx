@@ -197,18 +197,10 @@ export function Galaxy() {
           `Builder ${member.builderId.slice(0, 6)}`,
         builders: member.referralCount,
         gp: member.gp,
-        status:
-          miningActivityByBuilder.get(
-            member.builderId,
-          ) === true
-            ? "active"
-            : "pending",
+        status: member.referralStatus,
         theme: getPrimaryBranchTheme(index),
       })),
-    [
-      galaxyMembers,
-      miningActivityByBuilder,
-    ],
+    [galaxyMembers],
   );
 
   const galacticChainTotalGp =
