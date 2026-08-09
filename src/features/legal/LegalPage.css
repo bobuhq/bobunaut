@@ -63,3 +63,39 @@
   color: #70e9cf;
   font-weight: 800;
 }
+
+.bobu-support-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.bobu-support-links a,
+.bobu-support-email {
+  display: inline-flex;
+  align-items: center;
+  min-height: 42px;
+  padding: 10px 16px;
+  border: 1px solid rgba(112, 233, 207, 0.22);
+  border-radius: 14px;
+  color: #70e9cf;
+  background: rgba(112, 233, 207, 0.06);
+  font-weight: 800;
+  text-decoration: none;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    transform 160ms ease;
+}
+
+.bobu-support-links a:hover,
+.bobu-support-email:hover {
+  border-color: rgba(112, 233, 207, 0.48);
+  background: rgba(112, 233, 207, 0.11);
+  transform: translateY(-1px);
+}
+
+.bobu-support-response {
+  margin-top: 16px;
+}

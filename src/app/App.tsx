@@ -103,6 +103,10 @@ const PrivacyPolicy = lazy(
 const TermsOfService = lazy(
   () => import("../features/legal/TermsOfService"),
 );
+
+const Support = lazy(
+  () => import("../features/legal/Support"),
+);
 import { BuilderInviteEntry } from "../features/invite/BuilderInviteEntry";
 
 export function App() {
@@ -132,6 +136,11 @@ export function App() {
         />
 
         <Route path="/genesis" element={<Genesis />} />
+
+        <Route
+          path="/support"
+          element={<Support />}
+        />
 
         <Route element={<LanguageSetupGuard />}>
           <Route
