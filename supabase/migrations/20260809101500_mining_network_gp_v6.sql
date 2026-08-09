@@ -6,7 +6,7 @@
 -- 1. Keep Personal Mining GP server-authoritative.
 -- 2. Route Network GP through award_pending_network_gp().
 -- 3. Preserve one Network reward per mining session.
--- 4. Enforce minimum 50 GP Network reward.
+-- 4. Apply population-based Network GP reward percentages.
 -- 5. Do not modify previously earned rewards.
 -- ============================================================
 
