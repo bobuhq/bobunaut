@@ -19,6 +19,7 @@ const routes = [
   "language-setup",
   "privacy",
   "terms",
+"delete-account",
   "identity",
   "passport",
   "wallet",
