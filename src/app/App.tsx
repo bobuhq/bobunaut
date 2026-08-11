@@ -100,6 +100,10 @@ const PrivacyPolicy = lazy(
   () => import("../features/legal/PrivacyPolicy"),
 );
 
+const DeleteAccount = lazy(
+  () => import("../features/legal/DeleteAccount"),
+);
+
 const TermsOfService = lazy(
   () => import("../features/legal/TermsOfService"),
 );
@@ -140,6 +144,11 @@ export function App() {
         <Route
           path="/support"
           element={<Support />}
+        />
+
+        <Route
+          path="/delete-account"
+          element={<DeleteAccount />}
         />
 
         <Route element={<LanguageSetupGuard />}>
