@@ -111,6 +111,10 @@ const TermsOfService = lazy(
 const Support = lazy(
   () => import("../features/legal/Support"),
 );
+
+const ChildSafety = lazy(
+  () => import("../features/legal/ChildSafety"),
+);
 import { BuilderInviteEntry } from "../features/invite/BuilderInviteEntry";
 
 export function App() {
@@ -144,6 +148,11 @@ export function App() {
         <Route
           path="/support"
           element={<Support />}
+        />
+
+        <Route
+          path="/child-safety"
+          element={<ChildSafety />}
         />
 
         <Route
