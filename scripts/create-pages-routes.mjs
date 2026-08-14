@@ -18,6 +18,7 @@ const routes = [
   "genesis",
   "language-setup",
   "privacy",
+  "child-safety",
   "terms",
 "delete-account",
   "identity",
