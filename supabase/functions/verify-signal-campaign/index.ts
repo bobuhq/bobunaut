@@ -459,12 +459,13 @@ Deno.serve(async (req) => {
           "provider",
           "provider_user_id",
           "username",
+          "verified",
           "verified_at",
         ].join(","),
       )
       .eq("builder_id", user.id)
       .eq("provider", "x")
-      .not("verified_at", "is", null)
+      .eq("verified", true)
       .maybeSingle();
 
     if (identityError) {
