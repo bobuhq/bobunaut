@@ -83,27 +83,26 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Service-role client exists ONLY inside the Edge Function.
-    const adminClient = createClient(
-      supabaseUrl,
-      serviceRoleKey,
-      {
-        auth: {
-          autoRefreshToken: false,
-          persistSession: false,
-        },
-      },
-    );
-
+    /*
+     * Account deletion is performed by the production database
+     * function so the immutable GP ledgers can be removed only
+     * as part of this controlled deletion transaction.
+     */
     const { error: deleteError } =
-      await adminClient.auth.admin.deleteUser(user.id);
+      await userClient.rpc(
+        "delete_current_builder_account",
+      );
 
     if (deleteError) {
-      console.error("Account deletion failed:", deleteError);
+      console.error(
+        "Account deletion failed:",
+        deleteError,
+      );
 
       return new Response(
         JSON.stringify({
           error: "Account deletion failed",
+          detail: deleteError.message,
         }),
         {
           status: 500,
