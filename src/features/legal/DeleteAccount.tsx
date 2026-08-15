@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
+import { useLanguage } from "../../core/language";
+import { LegalBackLink } from "./LegalBackLink";
 import { supabase } from "../../lib/supabase";
 
 export default function DeleteAccount() {
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
   const [userEmail, setUserEmail] = useState("");
@@ -49,7 +52,7 @@ export default function DeleteAccount() {
     setError("");
 
     const confirmed = window.confirm(
-      "Are you sure you want to permanently delete your BOBU account? This action cannot be undone.",
+      t("deleteAccount.confirm"),
     );
 
     if (!confirmed) return;
@@ -62,7 +65,7 @@ export default function DeleteAccount() {
       } = await supabase.auth.getSession();
 
       if (!session?.access_token) {
-        throw new Error("Please sign in before deleting your account.");
+        throw new Error(t("deleteAccount.signInRequired"));
       }
 
       const response = await fetch(
@@ -81,7 +84,7 @@ export default function DeleteAccount() {
 
       if (!response.ok) {
         throw new Error(
-          result?.error || "Account deletion failed.",
+          result?.error || t("deleteAccount.failed"),
         );
       }
 
@@ -92,7 +95,7 @@ export default function DeleteAccount() {
       setError(
         deleteError instanceof Error
           ? deleteError.message
-          : "Account deletion failed.",
+          : t("deleteAccount.failed"),
       );
     } finally {
       setDeleting(false);
@@ -103,7 +106,7 @@ export default function DeleteAccount() {
     return (
       <main style={styles.page}>
         <section style={styles.card}>
-          <p style={styles.muted}>Loading...</p>
+          <p style={styles.muted}>{t("deleteAccount.loading")}</p>
         </section>
       </main>
     );
@@ -113,15 +116,16 @@ export default function DeleteAccount() {
     return (
       <main style={styles.page}>
         <section style={styles.card}>
-          <div style={styles.badge}>ACCOUNT DELETED</div>
+          <LegalBackLink />
+
+          <div style={styles.badge}>{t("deleteAccount.deletedBadge")}</div>
 
           <h1 style={styles.title}>
-            Your BOBU account has been deleted.
+            {t("deleteAccount.deletedTitle")}
           </h1>
 
           <p style={styles.text}>
-            Your account deletion request has been completed.
-            You can close this page.
+            {t("deleteAccount.deletedBody")}
           </p>
         </section>
       </main>
@@ -131,19 +135,20 @@ export default function DeleteAccount() {
   return (
     <main style={styles.page}>
       <section style={styles.card}>
-        <div style={styles.badge}>BOBU UNIVERSE</div>
+        <LegalBackLink />
 
-        <h1 style={styles.title}>Delete Your BOBU Account</h1>
+        <div style={styles.badge}>{t("deleteAccount.brand")}</div>
+
+        <h1 style={styles.title}>{t("deleteAccount.title")}</h1>
 
         <p style={styles.text}>
-          You can permanently delete your BOBU account and
-          associated account data from this page.
+          {t("deleteAccount.description")}
         </p>
 
         {!userEmail ? (
           <>
             <p style={styles.notice}>
-              Sign in with your BOBU account to continue.
+              {t("deleteAccount.signInNotice")}
             </p>
 
             <button
@@ -151,19 +156,18 @@ export default function DeleteAccount() {
               onClick={() => void handleGoogleLogin()}
               style={styles.primaryButton}
             >
-              Continue with Google
+              {t("deleteAccount.google")}
             </button>
           </>
         ) : (
           <>
             <div style={styles.account}>
-              <span style={styles.label}>Signed in as</span>
+              <span style={styles.label}>{t("deleteAccount.signedInAs")}</span>
               <strong>{userEmail}</strong>
             </div>
 
             <p style={styles.warning}>
-              Account deletion is permanent and cannot be
-              undone.
+              {t("deleteAccount.warning")}
             </p>
 
             <button
@@ -172,7 +176,7 @@ export default function DeleteAccount() {
               disabled={deleting}
               style={styles.deleteButton}
             >
-              {deleting ? "Deleting account..." : "Delete Account"}
+              {deleting ? t("deleteAccount.deleting") : t("deleteAccount.delete")}
             </button>
           </>
         )}
@@ -184,7 +188,7 @@ export default function DeleteAccount() {
         ) : null}
 
         <p style={styles.footer}>
-          If you need assistance, please contact BOBU Support.
+          {t("deleteAccount.footer")}
         </p>
       </section>
     </main>

@@ -1,82 +1,65 @@
 import { Link } from "react-router-dom";
-
+import { useLanguage } from "../../core/language";
+import { LegalBackLink } from "./LegalBackLink";
 import "./LegalPage.css";
 
 export default function Support() {
+  const { t } = useLanguage();
+
   return (
     <main className="bobu-legal-page">
       <article className="bobu-legal-card">
+        <LegalBackLink />
+
         <span className="bobu-legal-eyebrow">
           BOBU NETWORK
         </span>
 
-        <h1>Help & Support</h1>
+        <h1>{t("support.title")}</h1>
 
         <p className="bobu-legal-updated">
-          Support for BOBU Network and the BOBU Universe
+          {t("support.subtitle")}
         </p>
 
         <section className="bobu-legal-section">
-          <h2>Account & Builder Identity</h2>
-          <p>
-            Get help with sign-in, account access,
-            Builder identity, Builder Passport and
-            authentication-related issues.
-          </p>
+          <h2>{t("support.account.title")}</h2>
+          <p>{t("support.account.body")}</p>
         </section>
 
         <section className="bobu-legal-section">
-          <h2>Mining Sessions</h2>
-          <p>
-            Get support with starting or restoring
-            24-hour mining sessions and understanding
-            your current mining status.
-          </p>
+          <h2>{t("support.mining.title")}</h2>
+          <p>{t("support.mining.body")}</p>
         </section>
 
         <section className="bobu-legal-section">
-          <h2>GP & Missions</h2>
-          <p>
-            Learn about GP balances, completed
-            activities, mission rewards and
-            server-authoritative reward processing.
-          </p>
+          <h2>{t("support.gp.title")}</h2>
+          <p>{t("support.gp.body")}</p>
         </section>
 
         <section className="bobu-legal-section">
-          <h2>Galaxy & Referrals</h2>
-          <p>
-            Get help with invite codes, referral
-            attribution, your Galaxy network and
-            referral activation status.
-          </p>
+          <h2>{t("support.galaxy.title")}</h2>
+          <p>{t("support.galaxy.body")}</p>
         </section>
 
         <section className="bobu-legal-section">
-          <h2>Privacy & Security</h2>
-          <p>
-            Review how BOBU protects Builder accounts
-            and handles personal information.
-          </p>
+          <h2>{t("support.privacy.title")}</h2>
+          <p>{t("support.privacy.body")}</p>
 
           <div className="bobu-support-links">
             <Link to="/privacy">
-              Privacy Policy
+              {t("home.footer.privacy")}
             </Link>
 
             <Link to="/terms">
-              Terms of Service
+              {t("home.footer.terms")}
             </Link>
           </div>
         </section>
 
         <section className="bobu-legal-section">
-          <h2>Contact Support</h2>
+          <h2>{t("support.contact.title")}</h2>
 
-          <p>
-            For account, technical or application
-            support, contact:
-          </p>
+          <p>{t("support.contact.body")}</p>
 
           <a
             className="bobu-legal-contact bobu-support-email"
@@ -86,10 +69,7 @@ export default function Support() {
           </a>
 
           <p className="bobu-support-response">
-            Please include a clear description of the
-            issue and, when relevant, your Builder ID.
-            Never send passwords or private security
-            credentials by email.
+            {t("support.contact.note")}
           </p>
         </section>
       </article>

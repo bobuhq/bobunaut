@@ -1,48 +1,40 @@
+import { useLanguage } from "../../core/language";
+import { LegalBackLink } from "./LegalBackLink";
 import "./LegalPage.css";
 
 export default function ChildSafety() {
+  const { t } = useLanguage();
+
   return (
     <main className="bobu-legal-page">
       <article className="bobu-legal-card">
+        <LegalBackLink />
+
         <span className="bobu-legal-eyebrow">
-          BOBU Universe
+          {t("legal.brand")}
         </span>
 
-        <h1>Child Safety Standards</h1>
+        <h1>{t("childSafety.title")}</h1>
 
         <p className="bobu-legal-updated">
-          Last updated: August 15, 2026
+          {t("childSafety.updated")}
         </p>
 
         <section className="bobu-legal-section">
-          <h2>1. Zero Tolerance for Child Sexual Abuse and Exploitation</h2>
-          <p>
-            BOBU Network has zero tolerance for child sexual abuse and
-            exploitation (CSAE). Content or activity involving the sexual
-            exploitation or abuse of children is prohibited on BOBU Network.
-          </p>
+          <h2>{t("childSafety.section1.title")}</h2>
+          <p>{t("childSafety.section1.body")}</p>
         </section>
 
         <section className="bobu-legal-section">
-          <h2>2. Prohibited Content and Activity</h2>
-          <p>
-            Users must not create, upload, distribute, request, promote,
-            facilitate, or otherwise participate in child sexual abuse or
-            exploitation content or activity through BOBU Network.
-          </p>
+          <h2>{t("childSafety.section2.title")}</h2>
+          <p>{t("childSafety.section2.body")}</p>
         </section>
 
         <section className="bobu-legal-section">
-          <h2>3. Reporting Child Safety Concerns</h2>
+          <h2>{t("childSafety.section3.title")}</h2>
+          <p>{t("childSafety.section3.body")}</p>
           <p>
-            Users and other parties who become aware of a child safety
-            concern related to BOBU Network may contact our support team.
-            Reports concerning suspected child sexual abuse or exploitation
-            are treated as serious safety matters.
-          </p>
-
-          <p>
-            Child safety concerns can be reported to{" "}
+            {t("childSafety.section3.report")}{" "}
             <span className="bobu-legal-contact">
               bobuuniverse@gmail.com
             </span>
@@ -51,31 +43,18 @@ export default function ChildSafety() {
         </section>
 
         <section className="bobu-legal-section">
-          <h2>4. Review and Action</h2>
-          <p>
-            BOBU Network may review reports involving prohibited child
-            sexual abuse or exploitation activity and may take appropriate
-            action, including restricting or removing prohibited content
-            and restricting or terminating accounts where appropriate.
-          </p>
+          <h2>{t("childSafety.section4.title")}</h2>
+          <p>{t("childSafety.section4.body")}</p>
         </section>
 
         <section className="bobu-legal-section">
-          <h2>5. Legal Compliance</h2>
-          <p>
-            BOBU Network is committed to complying with applicable child
-            safety and child sexual exploitation laws and regulations in
-            the jurisdictions in which the service operates.
-          </p>
+          <h2>{t("childSafety.section5.title")}</h2>
+          <p>{t("childSafety.section5.body")}</p>
         </section>
 
         <section className="bobu-legal-section">
-          <h2>6. Contact</h2>
-          <p>
-            For child safety concerns or questions regarding these
-            standards, contact:
-          </p>
-
+          <h2>{t("childSafety.section6.title")}</h2>
+          <p>{t("childSafety.section6.body")}</p>
           <p>
             <span className="bobu-legal-contact">
               bobuuniverse@gmail.com

@@ -749,6 +749,27 @@ export function Home() {
           <Link className="secondary" to="/genesis">{t("home.final.secondaryAction")} <Gem size={17} /></Link>
         </div>
       </motion.section>
+
+      <nav
+        aria-label="BOBU help and legal links"
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          justifyContent: "center",
+          alignItems: "center",
+          gap: "10px 18px",
+          margin: "28px auto 0",
+          padding: "20px 16px 8px",
+          fontSize: "12px",
+          color: "rgba(235, 238, 255, 0.68)",
+        }}
+      >
+        <Link to="/getting-started">{t("home.footer.gettingStarted")}</Link>
+        <Link to="/privacy">{t("home.footer.privacy")}</Link>
+        <Link to="/child-safety">{t("home.footer.childSafety")}</Link>
+        <Link to="/terms">{t("home.footer.terms")}</Link>
+        <Link to="/delete-account">{t("home.footer.deleteAccount")}</Link>
+      </nav>
       </motion.main>
     </>
   );

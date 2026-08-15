@@ -115,6 +115,10 @@ const Support = lazy(
 const ChildSafety = lazy(
   () => import("../features/legal/ChildSafety"),
 );
+
+const GettingStarted = lazy(
+  () => import("../features/legal/GettingStarted"),
+);
 import { BuilderInviteEntry } from "../features/invite/BuilderInviteEntry";
 
 export function App() {
@@ -144,6 +148,11 @@ export function App() {
         />
 
         <Route path="/genesis" element={<Genesis />} />
+
+        <Route
+          path="/getting-started"
+          element={<GettingStarted />}
+        />
 
         <Route
           path="/support"
