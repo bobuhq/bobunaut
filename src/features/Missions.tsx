@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 
 import {
@@ -12,6 +12,13 @@ import {
 import {
   missionRewardService,
 } from "../core/game/services";
+
+import {
+  loadSignalCampaigns,
+  verifySignalCampaign,
+  type SignalCampaign,
+  type SignalVerificationResult,
+} from "./missions/services/SignalCampaignService";
 import { useLanguage } from "../core/language";
 import {
   Award,
@@ -160,12 +167,108 @@ export function Missions() {
   ] = useState<string | null>(null);
 
   const [
+    signalCampaigns,
+    setSignalCampaigns,
+  ] = useState<SignalCampaign[]>([]);
+
+  const [
+    signalLoading,
+    setSignalLoading,
+  ] = useState(true);
+
+  const [
+    verifyingSignalCampaignId,
+    setVerifyingSignalCampaignId,
+  ] = useState<string | null>(null);
+
+  const [
+    signalVerification,
+    setSignalVerification,
+  ] = useState<SignalVerificationResult | null>(
+    null,
+  );
+
+  const [
+    signalError,
+    setSignalError,
+  ] = useState<string | null>(null);
+
+  const [
     claimError,
     setClaimError,
   ] = useState<{
     missionId: string;
     message: string;
   } | null>(null);
+
+  useEffect(() => {
+    let active = true;
+
+    async function load(): Promise<void> {
+      setSignalLoading(true);
+      setSignalError(null);
+
+      try {
+        const campaigns =
+          await loadSignalCampaigns();
+
+        if (active) {
+          setSignalCampaigns(campaigns);
+        }
+      } catch (error) {
+        if (active) {
+          setSignalCampaigns([]);
+          setSignalError(
+            error instanceof Error
+              ? error.message
+              : "Signal campaigns could not be loaded.",
+          );
+        }
+      } finally {
+        if (active) {
+          setSignalLoading(false);
+        }
+      }
+    }
+
+    void load();
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  async function handleVerifySignal(
+    campaignId: string,
+  ): Promise<void> {
+    if (verifyingSignalCampaignId) {
+      return;
+    }
+
+    setVerifyingSignalCampaignId(campaignId);
+    setSignalVerification(null);
+    setSignalError(null);
+
+    try {
+      const result =
+        await verifySignalCampaign(campaignId);
+
+      setSignalVerification(result);
+
+      const campaigns =
+        await loadSignalCampaigns();
+
+      setSignalCampaigns(campaigns);
+    } catch (error) {
+      setSignalError(
+        error instanceof Error
+          ? error.message
+          : "Signal verification failed.",
+      );
+    } finally {
+      setVerifyingSignalCampaignId(null);
+    }
+  }
 
   const completedCount = missionCards.filter(
     (mission) =>
@@ -250,6 +353,94 @@ export function Missions() {
         (current) => !current,
       );
     }
+  }
+
+  function renderSignalCampaign(
+    campaign: SignalCampaign,
+  ) {
+    const completed =
+      campaign.rewardAwarded ||
+      campaign.verificationStatus === "verified";
+
+    const verifying =
+      verifyingSignalCampaignId === campaign.id;
+
+    const requirements = [
+      campaign.requireRepost
+        ? t("missions.signal.repost")
+        : null,
+      campaign.requireReply
+        ? t("missions.signal.reply")
+        : null,
+    ]
+      .filter(Boolean)
+      .join(" • ");
+
+    return (
+      <article
+        key={campaign.id}
+        className={`mc-signal-card ${
+          completed ? "is-completed" : ""
+        }`}
+      >
+        <div className="mc-signal-head">
+          <div>
+            <span className="mc-signal-eyebrow">
+              {t("missions.signal.eyebrow")}
+            </span>
+
+            <h3>{campaign.title}</h3>
+          </div>
+
+          <span className="mc-signal-reward">
+            +{campaign.rewardGp.toLocaleString(
+              language,
+            )} GP
+          </span>
+        </div>
+
+        {campaign.description ? (
+          <p className="mc-signal-description">
+            {campaign.description}
+          </p>
+        ) : null}
+
+        <p className="mc-signal-requirements">
+          {requirements}
+        </p>
+
+        <div className="mc-signal-actions">
+          <a
+            href={campaign.postUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="mc-signal-button secondary"
+          >
+            <ExternalLink size={16} />
+            {t("missions.signal.viewOnX")}
+          </a>
+
+          <button
+            type="button"
+            className="mc-signal-button primary"
+            disabled={verifying || completed}
+            onClick={() =>
+              void handleVerifySignal(
+                campaign.id,
+              )
+            }
+          >
+            <Twitter size={16} />
+
+            {completed
+              ? t("missions.signal.verified")
+              : verifying
+                ? t("missions.signal.verifying")
+                : t("missions.signal.verify")}
+          </button>
+        </div>
+      </article>
+    );
   }
 
   return (
@@ -592,6 +783,107 @@ export function Missions() {
 
         .mc-stat-card strong {
           font-size: 24px;
+        }
+
+        .mc-signal-grid {
+          display: grid;
+          gap: 18px;
+        }
+
+        .mc-signal-card {
+          padding: 24px;
+          border: 1px solid rgba(168, 85, 247, 0.26);
+          border-radius: 22px;
+          background:
+            radial-gradient(
+              circle at 100% 0%,
+              rgba(34, 211, 238, 0.08),
+              transparent 34%
+            ),
+            rgba(24, 12, 38, 0.86);
+        }
+
+        .mc-signal-card.is-completed {
+          border-color: rgba(74, 222, 128, 0.32);
+        }
+
+        .mc-signal-head {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          gap: 18px;
+        }
+
+        .mc-signal-head h3 {
+          margin: 7px 0 0;
+          font-size: 21px;
+        }
+
+        .mc-signal-eyebrow {
+          color: var(--mc-cyan);
+          font-size: 11px;
+          font-weight: 900;
+          letter-spacing: 0.14em;
+          text-transform: uppercase;
+        }
+
+        .mc-signal-reward {
+          flex: 0 0 auto;
+          padding: 8px 12px;
+          border-radius: 999px;
+          background: rgba(168, 85, 247, 0.14);
+          color: var(--mc-purple-light);
+          font-weight: 900;
+        }
+
+        .mc-signal-description,
+        .mc-signal-requirements,
+        .mc-signal-result {
+          color: var(--mc-muted);
+          line-height: 1.6;
+        }
+
+        .mc-signal-actions {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 12px;
+          margin-top: 18px;
+        }
+
+        .mc-signal-button {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          min-height: 44px;
+          padding: 10px 16px;
+          border: 1px solid rgba(168, 85, 247, 0.28);
+          border-radius: 14px;
+          color: inherit;
+          font: inherit;
+          font-weight: 800;
+          cursor: pointer;
+          text-decoration: none;
+        }
+
+        .mc-signal-button.primary {
+          color: #fff;
+          background: rgba(168, 85, 247, 0.24);
+        }
+
+        .mc-signal-button.secondary {
+          color: var(--mc-cyan);
+          background: rgba(34, 211, 238, 0.08);
+        }
+
+        .mc-signal-button:disabled {
+          cursor: not-allowed;
+          opacity: 0.55;
+        }
+
+        .mc-signal-error {
+          color: var(--mc-red);
+          line-height: 1.6;
         }
 
         .mc-section {
@@ -1205,6 +1497,65 @@ export function Missions() {
             </div>
           </article>
         </section>
+
+        {!signalLoading &&
+        signalCampaigns.length > 0 ? (
+          <section
+            className="mc-section"
+            id="signal-missions"
+          >
+            <header className="mc-section-heading">
+              <div>
+                <span className="mc-kicker">
+                  <RadioTower size={16} />
+                  {t("missions.signal.eyebrow")}
+                </span>
+
+                <h2>
+                  {t("missions.signal.title")}
+                </h2>
+
+                <p>
+                  {t(
+                    "missions.signal.description",
+                  )}
+                </p>
+              </div>
+
+              <span className="mc-section-count">
+                {signalCampaigns.length}
+              </span>
+            </header>
+
+            <div className="mc-signal-grid">
+              {signalCampaigns.map(
+                renderSignalCampaign,
+              )}
+            </div>
+
+            {signalVerification ? (
+              <p className="mc-signal-result">
+                {signalVerification.rewardAwarded
+                  ? t(
+                      "missions.signal.rewardAdded",
+                    )
+                  : signalVerification.alreadyClaimed
+                    ? t(
+                        "missions.signal.alreadyClaimed",
+                      )
+                    : t(
+                        "missions.signal.pending",
+                      )}
+              </p>
+            ) : null}
+
+            {signalError ? (
+              <p className="mc-signal-error">
+                {signalError}
+              </p>
+            ) : null}
+          </section>
+        ) : null}
 
         <section className="mc-section" id="active-missions">
           <header className="mc-section-heading">
