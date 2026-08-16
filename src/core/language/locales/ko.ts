@@ -207,6 +207,7 @@ export const ko: TranslationDictionary = {
   "mining.activation.activatedTitle": "마이닝 세션 활성화 완료",
   "mining.activation.claimedDescription": "인증된 보상이 GP 잔액에 추가되었습니다.",
   "mining.activation.claimedTitle": "마이닝 GP 수령 완료",
+  "mining.core.signInToStart": "로그인하여 마이닝 시작",
   "mining.core.activateMining": "마이닝 활성화",
   "mining.core.claimGp": "GP 수령",
   "mining.core.currentSession": "현재 세션",

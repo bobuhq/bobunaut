@@ -248,6 +248,7 @@ export const ar: TranslationDictionary = {
   "mining.activation.activatedTitle": "تم تفعيل جلسة التعدين",
   "mining.activation.claimedDescription": "تمت إضافة مكافأتك الموثقة إلى رصيد GP الخاص بك.",
   "mining.activation.claimedTitle": "تمت المطالبة بـ GP التعدين",
+  "mining.core.signInToStart": "سجّل الدخول لبدء التعدين",
   "mining.core.activateMining": "تفعيل التعدين",
   "mining.core.claimGp": "المطالبة بـ GP",
   "mining.core.currentSession": "الجلسة الحالية",

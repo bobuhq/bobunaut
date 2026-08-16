@@ -222,6 +222,7 @@ export const sv: TranslationDictionary = {
   "mining.core.processing": "Bearbetar...",
   "mining.core.claimGp": "Hämta GP",
   "mining.core.miningActive": "Mining aktiv",
+  "mining.core.signInToStart": "Logga in för att starta mining",
   "mining.core.activateMining": "Aktivera mining",
   "mining.session.kicker": "Live mining-signal",
   "mining.session.title": "Aktuell session",

@@ -264,6 +264,7 @@ export const tr: TranslationDictionary = {
   "mining.core.processing": "İşleniyor...",
   "mining.core.claimGp": "GP'yi Talep Et",
   "mining.core.miningActive": "Mining Aktif",
+  "mining.core.signInToStart": "Mining'e başlamak için giriş yap",
   "mining.core.activateMining": "Mining'i Etkinleştir",
   "mining.session.kicker": "Canlı Mining Sinyali",
   "mining.session.title": "Mevcut Oturum",

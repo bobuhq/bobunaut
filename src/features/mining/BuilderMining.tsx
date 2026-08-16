@@ -197,6 +197,7 @@ export default function BuilderMining() {
           isActive={isActive}
           claimable={claimable}
           busy={busy || loading}
+          guestMode={!authLoading && !authenticated}
           remainingTime={remainingTimeLabel}
           sessionProgress={sessionProgress}
           sessionEarnedGp={sessionEarnedGp}

@@ -222,6 +222,7 @@ export const fi: TranslationDictionary = {
   "mining.core.processing": "Käsitellään...",
   "mining.core.claimGp": "Lunasta GP",
   "mining.core.miningActive": "Mining aktiivinen",
+  "mining.core.signInToStart": "Kirjaudu sisään aloittaaksesi miningin",
   "mining.core.activateMining": "Aktivoi mining",
   "mining.session.kicker": "Live mining -signaali",
   "mining.session.title": "Nykyinen istunto",

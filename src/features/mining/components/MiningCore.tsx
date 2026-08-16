@@ -5,6 +5,7 @@ type MiningCoreProps = {
   isActive: boolean;
   claimable: boolean;
   busy: boolean;
+  guestMode: boolean;
   remainingTime: string;
   sessionProgress: number;
   sessionEarnedGp: number;
@@ -15,6 +16,7 @@ export default function MiningCore({
   isActive,
   claimable,
   busy,
+  guestMode,
   remainingTime,
   sessionProgress,
   sessionEarnedGp,
@@ -28,13 +30,15 @@ export default function MiningCore({
       ? t("mining.status.active")
       : t("mining.status.inactive");
 
-  const buttonLabel = busy
-    ? t("mining.core.processing")
-    : claimable
-      ? t("mining.core.claimGp")
-      : isActive
-        ? t("mining.core.miningActive")
-        : t("mining.core.activateMining");
+  const buttonLabel = guestMode
+    ? t("mining.core.signInToStart")
+    : busy
+      ? t("mining.core.processing")
+      : claimable
+        ? t("mining.core.claimGp")
+        : isActive
+          ? t("mining.core.miningActive")
+          : t("mining.core.activateMining");
 
   return (
     <div className="mining-core">
@@ -139,7 +143,9 @@ export default function MiningCore({
           type="button"
           className="mining-button"
           onClick={onAction}
-          disabled={busy || isActive}
+          disabled={
+            guestMode || busy || isActive
+          }
         >
           {claimable ? (
             <CheckCircle2 size={19} />

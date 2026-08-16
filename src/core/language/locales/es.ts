@@ -266,6 +266,7 @@ export const es: TranslationDictionary = {
   "mining.core.processing": "Procesando...",
   "mining.core.claimGp": "Reclamar GP",
   "mining.core.miningActive": "Mining activo",
+  "mining.core.signInToStart": "Inicia sesión para comenzar el mining",
   "mining.core.activateMining": "Activar mining",
   "mining.session.kicker": "Señal de mining en vivo",
   "mining.session.title": "Sesión actual",

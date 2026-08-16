@@ -248,6 +248,7 @@ export const zh: TranslationDictionary = {
   "mining.activation.activatedTitle": "挖矿会话已激活",
   "mining.activation.claimedDescription": "已验证的奖励已添加到你的 GP 余额。",
   "mining.activation.claimedTitle": "挖矿 GP 已领取",
+  "mining.core.signInToStart": "登录以开始挖矿",
   "mining.core.activateMining": "激活挖矿",
   "mining.core.claimGp": "领取 GP",
   "mining.core.currentSession": "当前会话",

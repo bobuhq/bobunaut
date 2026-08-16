@@ -207,6 +207,7 @@ export const ru: TranslationDictionary = {
   "mining.activation.activatedTitle": "Mining-сессия активирована",
   "mining.activation.claimedDescription": "Подтверждённая награда добавлена к вашему балансу GP.",
   "mining.activation.claimedTitle": "Mining GP получены",
+  "mining.core.signInToStart": "Войдите, чтобы начать майнинг",
   "mining.core.activateMining": "Активировать mining",
   "mining.core.claimGp": "Получить GP",
   "mining.core.currentSession": "Текущая сессия",

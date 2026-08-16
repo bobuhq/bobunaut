@@ -250,6 +250,7 @@ export const ja: TranslationDictionary = {
   "mining.activation.activatedTitle": "マイニングセッションを有効化しました",
   "mining.activation.claimedDescription": "確認済みの報酬がGP残高に追加されました。",
   "mining.activation.claimedTitle": "マイニングGPを受け取りました",
+  "mining.core.signInToStart": "ログインしてマイニングを開始",
   "mining.core.activateMining": "マイニングを有効化",
   "mining.core.claimGp": "GPを受け取る",
   "mining.core.currentSession": "現在のセッション",
