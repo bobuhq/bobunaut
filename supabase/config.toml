@@ -457,3 +457,6 @@ enabled = true
 verify_jwt = false
 import_map = "./functions/bobu-ai/deno.json"
 entrypoint = "./functions/bobu-ai/index.ts"
+
+[functions.security-alert]
+verify_jwt = false
