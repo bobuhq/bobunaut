@@ -20,6 +20,10 @@ import {
   gpEngine,
 } from "../../../core/gp";
 
+import {
+  useAuthSession,
+} from "../../../core/auth/useAuthSession";
+
 const DEFAULT_SESSION_DURATION_MS =
   24 * 60 * 60 * 1000;
 
@@ -43,6 +47,11 @@ export type BuilderMiningSessionSnapshot = {
 
 export function useBuilderMiningSession():
   BuilderMiningSessionSnapshot {
+  const {
+    authenticated,
+    loading: authLoading,
+  } = useAuthSession();
+
   const [miningState, setMiningState] =
     useState<BuilderMiningState | null>(null);
 
@@ -81,6 +90,17 @@ export function useBuilderMiningSession():
   );
 
   const reload = useCallback(async (): Promise<void> => {
+    if (authLoading) {
+      return;
+    }
+
+    if (!authenticated) {
+      setMiningState(null);
+      setErrorMessage(null);
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     setErrorMessage(null);
 
@@ -100,7 +120,11 @@ export function useBuilderMiningSession():
     } finally {
       setLoading(false);
     }
-  }, [applyMiningState]);
+  }, [
+    applyMiningState,
+    authenticated,
+    authLoading,
+  ]);
 
   useEffect(() => {
     void reload();
@@ -206,7 +230,12 @@ export function useBuilderMiningSession():
 
   const handleMiningAction =
     useCallback(async (): Promise<void> => {
-      if (busy || session.isActive) {
+      if (
+        authLoading ||
+        !authenticated ||
+        busy ||
+        session.isActive
+      ) {
         return;
       }
 
@@ -266,6 +295,8 @@ export function useBuilderMiningSession():
       }
     }, [
       applyMiningState,
+      authenticated,
+      authLoading,
       busy,
       miningState?.sessionId,
       session.claimable,
