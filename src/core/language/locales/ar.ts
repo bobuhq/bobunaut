@@ -300,6 +300,7 @@ export const ar: TranslationDictionary = {
   "mining.session.builderPlural": "Builders",
   "mining.session.builderSingular": "Builder",
   "mining.session.claimableDescription": "اكتملت جلستك الموثقة لمدة 24 ساعة وأصبحت جاهزة للمطالبة.",
+  "mining.session.signInRequired": "سجّل الدخول للوصول إلى جلسة التعدين ومتابعة رصيد GP الخاص بك.",
   "mining.session.inactiveDescription": "فعّل جلسة موثقة من الخادم لمدة 24 ساعة لبدء كسب GP الشخصي.",
   "mining.session.kicker": "إشارة التعدين المباشرة",
   "mining.session.readyForActivation": "جاهز للتفعيل",

@@ -16,6 +16,7 @@ import "./MiningLaunchV7.css";
 
 import { useBuilderStore } from "../identity/hooks/useBuilderStore";
 import { useLanguage } from "../../core/language";
+import { useAuthSession } from "../../core/auth/useAuthSession";
 import { useBuilderMiningSession } from "./hooks/useBuilderMiningSession";
 import {
   galaxyService,
@@ -53,6 +54,11 @@ const formatGp = (
 
 export default function BuilderMining() {
   const { language, t } = useLanguage();
+  const {
+    authenticated,
+    loading: authLoading,
+  } = useAuthSession();
+
   const builder = useBuilderStore();
 
   const [historyEntries, setHistoryEntries] =
@@ -214,19 +220,21 @@ export default function BuilderMining() {
           </div>
 
           <p className="mining-session-copy">
-            {errorMessage
-              ? errorMessage
-              : claimable
-                ? t("mining.session.claimableDescription")
-                : isActive
-                  ? t("mining.session.activeDescription", {
-                      count: liveActiveBuilders,
-                      builderLabel:
-                        liveActiveBuilders === 1
-                          ? t("mining.session.builderSingular")
-                          : t("mining.session.builderPlural"),
-                    })
-                  : t("mining.session.inactiveDescription")}
+            {!authLoading && !authenticated
+              ? t("mining.session.signInRequired")
+              : errorMessage
+                ? errorMessage
+                : claimable
+                  ? t("mining.session.claimableDescription")
+                  : isActive
+                    ? t("mining.session.activeDescription", {
+                        count: liveActiveBuilders,
+                        builderLabel:
+                          liveActiveBuilders === 1
+                            ? t("mining.session.builderSingular")
+                            : t("mining.session.builderPlural"),
+                      })
+                    : t("mining.session.inactiveDescription")}
           </p>
 
           <div className="mining-session-countdown">

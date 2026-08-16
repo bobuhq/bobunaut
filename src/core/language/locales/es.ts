@@ -271,6 +271,7 @@ export const es: TranslationDictionary = {
   "mining.session.title": "Sesión actual",
   "mining.session.claimableDescription": "Tu sesión verificada de 24 horas ha finalizado y está lista para reclamar.",
   "mining.session.activeDescription": "{{count}} {{builderLabel}} activos apoyan actualmente tu velocidad de mining.",
+  "mining.session.signInRequired": "Inicia sesión para acceder a tu sesión de mining y seguir tus GP.",
   "mining.session.inactiveDescription": "Activa una sesión de 24 horas verificada por el servidor para empezar a ganar GP personal.",
   "mining.session.builderSingular": "Builder",
   "mining.session.builderPlural": "Builders",

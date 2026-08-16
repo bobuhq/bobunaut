@@ -300,6 +300,7 @@ export const zh: TranslationDictionary = {
   "mining.session.builderPlural": "Builders",
   "mining.session.builderSingular": "Builder",
   "mining.session.claimableDescription": "你已验证的 24 小时会话已经完成，可以领取奖励。",
+  "mining.session.signInRequired": "登录后即可访问挖矿会话并查看你的 GP。",
   "mining.session.inactiveDescription": "激活一个经服务器验证的 24 小时会话，开始赚取个人 GP。",
   "mining.session.kicker": "实时挖矿信号",
   "mining.session.readyForActivation": "可激活",

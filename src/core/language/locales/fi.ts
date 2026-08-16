@@ -227,6 +227,7 @@ export const fi: TranslationDictionary = {
   "mining.session.title": "Nykyinen istunto",
   "mining.session.claimableDescription": "Vahvistettu 24 tunnin istuntosi on valmis ja palkinto voidaan lunastaa.",
   "mining.session.activeDescription": "{{count}} aktiivista {{builderLabel}} tukee tällä hetkellä mining-nopeuttasi.",
+  "mining.session.signInRequired": "Kirjaudu sisään käyttääksesi mining-istuntoasi ja seurataksesi GP:täsi.",
   "mining.session.inactiveDescription": "Aktivoi palvelimen vahvistama 24 tunnin istunto aloittaaksesi henkilökohtaisen GP:n ansaitsemisen.",
   "mining.session.builderSingular": "Builder",
   "mining.session.builderPlural": "Builderia",

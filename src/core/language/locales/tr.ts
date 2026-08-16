@@ -269,6 +269,7 @@ export const tr: TranslationDictionary = {
   "mining.session.title": "Mevcut Oturum",
   "mining.session.claimableDescription": "Doğrulanmış 24 saatlik oturumun tamamlandı ve ödül talep edilmeye hazır.",
   "mining.session.activeDescription": "{{count}} aktif {{builderLabel}} şu anda mining hızını destekliyor.",
+  "mining.session.signInRequired": "Mining oturumuna erişmek ve GP'ni takip etmek için giriş yap.",
   "mining.session.inactiveDescription": "Kişisel GP kazanmaya başlamak için sunucu tarafından doğrulanan 24 saatlik oturumu etkinleştir.",
   "mining.session.builderSingular": "Builder",
   "mining.session.builderPlural": "Builder",

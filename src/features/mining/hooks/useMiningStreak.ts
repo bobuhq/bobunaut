@@ -4,6 +4,8 @@ import {
   useState,
 } from "react";
 
+import { useAuthSession } from "../../../core/auth/useAuthSession";
+
 import {
   miningStreakService,
   type MiningStreakSnapshot,
@@ -19,17 +21,33 @@ export type MiningStreakHookSnapshot = {
 export function useMiningStreak(
   refreshKey: boolean,
 ): MiningStreakHookSnapshot {
+  const {
+    authenticated,
+    loading: authLoading,
+  } = useAuthSession();
+
   const [streak, setStreak] =
     useState<MiningStreakSnapshot | null>(null);
 
   const [loading, setLoading] =
-    useState(true);
+    useState(false);
 
   const [errorMessage, setErrorMessage] =
     useState<string | null>(null);
 
   const reload = useCallback(
     async (): Promise<void> => {
+      if (authLoading) {
+        return;
+      }
+
+      if (!authenticated) {
+        setStreak(null);
+        setErrorMessage(null);
+        setLoading(false);
+        return;
+      }
+
       setLoading(true);
       setErrorMessage(null);
 
@@ -50,7 +68,7 @@ export function useMiningStreak(
         setLoading(false);
       }
     },
-    [],
+    [authenticated, authLoading],
   );
 
   useEffect(() => {
@@ -58,10 +76,10 @@ export function useMiningStreak(
   }, [reload]);
 
   useEffect(() => {
-    if (refreshKey) {
+    if (refreshKey && authenticated) {
       void reload();
     }
-  }, [refreshKey, reload]);
+  }, [refreshKey, authenticated, reload]);
 
   return {
     streak,

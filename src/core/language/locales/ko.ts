@@ -259,6 +259,7 @@ export const ko: TranslationDictionary = {
   "mining.session.builderPlural": "Builders",
   "mining.session.builderSingular": "Builder",
   "mining.session.claimableDescription": "인증된 24시간 세션이 완료되어 보상을 받을 수 있습니다.",
+  "mining.session.signInRequired": "마이닝 세션에 접속하고 GP를 확인하려면 로그인하세요.",
   "mining.session.inactiveDescription": "서버 인증된 24시간 세션을 활성화하여 개인 GP 획득을 시작하세요.",
   "mining.session.kicker": "실시간 마이닝 신호",
   "mining.session.readyForActivation": "활성화 가능",

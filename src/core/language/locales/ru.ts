@@ -259,6 +259,7 @@ export const ru: TranslationDictionary = {
   "mining.session.builderPlural": "Builders",
   "mining.session.builderSingular": "Builder",
   "mining.session.claimableDescription": "Ваша подтверждённая 24-часовая сессия завершена и готова к получению.",
+  "mining.session.signInRequired": "Войдите, чтобы получить доступ к майнинг-сессии и отслеживать GP.",
   "mining.session.inactiveDescription": "Активируйте подтверждённую сервером 24-часовую сессию, чтобы начать получать личные GP.",
   "mining.session.kicker": "Активный mining-сигнал",
   "mining.session.readyForActivation": "Готово к активации",

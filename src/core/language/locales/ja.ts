@@ -302,6 +302,7 @@ export const ja: TranslationDictionary = {
   "mining.session.builderPlural": "Builders",
   "mining.session.builderSingular": "Builder",
   "mining.session.claimableDescription": "確認済みの24時間セッションが完了し、報酬を受け取れる状態です。",
+  "mining.session.signInRequired": "マイニングセッションにアクセスしてGPを確認するにはログインしてください。",
   "mining.session.inactiveDescription": "サーバー確認済みの24時間セッションを有効化して、個人GPの獲得を開始してください。",
   "mining.session.kicker": "ライブマイニングシグナル",
   "mining.session.readyForActivation": "有効化可能",
