@@ -243,9 +243,9 @@ export default {
         : null;
 
     const sourceIp =
+      payloadIp ||
       connectingIp ||
-      forwardedIp ||
-      payloadIp;
+      forwardedIp;
 
     const metadata =
       rawPayload.metadata &&

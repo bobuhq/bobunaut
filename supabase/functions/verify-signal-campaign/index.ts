@@ -19,6 +19,102 @@ function jsonResponse(
   });
 }
 
+type SecurityAlertSeverity =
+  | "warning"
+  | "critical";
+
+type SecurityAlertInput = {
+  eventType: string;
+  severity: SecurityAlertSeverity;
+  action: string;
+  actorUserId?: string | null;
+  metadata?: Record<string, unknown>;
+};
+
+function getRequestClientIp(
+  req: Request,
+): string | null {
+  const forwardedFor =
+    req.headers.get("x-forwarded-for");
+
+  return (
+    req.headers.get("cf-connecting-ip")
+      ?.trim() ||
+    forwardedFor
+      ?.split(",")[0]
+      ?.trim() ||
+    null
+  );
+}
+
+async function emitSecurityAlert(
+  req: Request,
+  input: SecurityAlertInput,
+): Promise<void> {
+  try {
+    const supabaseUrl =
+      Deno.env.get("SUPABASE_URL");
+
+    const alertSecret =
+      Deno.env.get(
+        "BOBU_SECURITY_ALERT_SECRET",
+      );
+
+    if (!supabaseUrl || !alertSecret) {
+      console.warn(
+        "Security alert integration is not configured.",
+      );
+      return;
+    }
+
+    const originalClientIp =
+      getRequestClientIp(req);
+
+    const response = await fetch(
+      `${supabaseUrl}/functions/v1/security-alert`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-BOBU-Security-Secret":
+            alertSecret,
+        },
+        body: JSON.stringify({
+          eventType: input.eventType,
+          severity: input.severity,
+          source:
+            "verify-signal-campaign",
+          actorUserId:
+            input.actorUserId ?? null,
+          sourceIp: originalClientIp,
+          action: input.action,
+          metadata: {
+            ...(input.metadata ?? {}),
+            originalClientIp,
+          },
+        }),
+      },
+    );
+
+    if (!response.ok) {
+      console.error(
+        "Security alert emission failed:",
+        response.status,
+        await response.text(),
+      );
+    }
+  } catch (alertError) {
+    /*
+     * Security telemetry must never break
+     * the Signal mission itself.
+     */
+    console.error(
+      "Security alert emission exception:",
+      alertError,
+    );
+  }
+}
+
 
 type XUser = {
   id?: string;
@@ -309,6 +405,21 @@ Deno.serve(async (req) => {
       req.headers.get("Authorization");
 
     if (!authHeader?.startsWith("Bearer ")) {
+      await emitSecurityAlert(
+        req,
+        {
+          eventType:
+            "signal_auth_missing",
+          severity: "warning",
+          action:
+            "request_rejected",
+          metadata: {
+            reason:
+              "missing_or_invalid_bearer_header",
+          },
+        },
+      );
+
       return jsonResponse(
         {
           error: "Unauthorized",
@@ -335,6 +446,21 @@ Deno.serve(async (req) => {
     } = await userClient.auth.getUser();
 
     if (userError || !user) {
+      await emitSecurityAlert(
+        req,
+        {
+          eventType:
+            "signal_auth_invalid",
+          severity: "warning",
+          action:
+            "request_rejected",
+          metadata: {
+            reason:
+              "supabase_user_validation_failed",
+          },
+        },
+      );
+
       return jsonResponse(
         {
           error: "Unauthorized",
@@ -667,6 +793,27 @@ Deno.serve(async (req) => {
         rewardError,
       );
 
+      await emitSecurityAlert(
+        req,
+        {
+          eventType:
+            "signal_reward_finalization_failed",
+          severity: "critical",
+          action:
+            "reward_blocked",
+          actorUserId: user.id,
+          metadata: {
+            campaignId:
+              campaign.id,
+            providerUserId,
+            repostVerified,
+            replyVerified,
+            errorCode:
+              rewardError.code ?? null,
+          },
+        },
+      );
+
       return jsonResponse(
         {
           error:
@@ -706,6 +853,58 @@ Deno.serve(async (req) => {
       "verify-signal-campaign failed:",
       error,
     );
+
+    const message =
+      error instanceof Error
+        ? error.message
+        : "UNKNOWN_ERROR";
+
+    const xApiMatch =
+      /^X_API_(\d{3})$/.exec(message);
+
+    if (xApiMatch) {
+      const status =
+        Number(xApiMatch[1]);
+
+      const shouldAlert =
+        status === 401 ||
+        status === 403 ||
+        status === 429 ||
+        status >= 500;
+
+      if (shouldAlert) {
+        await emitSecurityAlert(
+          req,
+          {
+            eventType:
+              `signal_x_api_${status}`,
+            severity: "warning",
+            action:
+              "external_verification_failed",
+            metadata: {
+              xStatus: status,
+            },
+          },
+        );
+      }
+    } else {
+      await emitSecurityAlert(
+        req,
+        {
+          eventType:
+            "signal_unexpected_server_error",
+          severity: "critical",
+          action:
+            "request_failed",
+          metadata: {
+            errorType:
+              error instanceof Error
+                ? error.name
+                : typeof error,
+          },
+        },
+      );
+    }
 
     return jsonResponse(
       {
