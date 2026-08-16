@@ -110,6 +110,36 @@ export async function verifySignalCampaign(
     );
 
   if (error) {
+    const context =
+      (error as {
+        context?: {
+          json?: () => Promise<unknown>;
+        };
+      }).context;
+
+    if (context?.json) {
+      try {
+        const payload =
+          (await context.json()) as
+            SignalVerificationResult;
+
+        if (payload?.error) {
+          const enrichedError =
+            new Error(payload.error) as Error & {
+              code?: string;
+            };
+
+          enrichedError.code = payload.code;
+
+          throw enrichedError;
+        }
+      } catch (contextError) {
+        if (contextError instanceof Error) {
+          throw contextError;
+        }
+      }
+    }
+
     throw new Error(
       `Signal verification failed: ${error.message}`,
     );
