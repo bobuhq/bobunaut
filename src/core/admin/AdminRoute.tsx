@@ -1,4 +1,8 @@
-import type { ReactNode } from "react";
+import {
+  useEffect,
+  useRef,
+  type ReactNode,
+} from "react";
 import {
   Navigate,
   useLocation,
@@ -6,6 +10,9 @@ import {
 
 import { useAuthSession } from "../auth/useAuthSession";
 import { useAdminAccess } from "./useAdminAccess";
+import {
+  AdminSecurityEventService,
+} from "./security/AdminSecurityEventService";
 
 interface AdminRouteProps {
   children: ReactNode;
@@ -15,6 +22,9 @@ export function AdminRoute({
   children,
 }: AdminRouteProps) {
   const location = useLocation();
+
+  const deniedAccessReportedRef =
+    useRef(false);
 
   const {
     authenticated,
@@ -26,6 +36,37 @@ export function AdminRoute({
     error,
     hasAccess,
   } = useAdminAccess();
+
+  useEffect(() => {
+    if (
+      authLoading ||
+      loading ||
+      !authenticated ||
+      error ||
+      hasAccess
+    ) {
+      if (!authenticated || hasAccess) {
+        deniedAccessReportedRef.current = false;
+      }
+
+      return;
+    }
+
+    if (deniedAccessReportedRef.current) {
+      return;
+    }
+
+    deniedAccessReportedRef.current = true;
+
+    void AdminSecurityEventService
+      .reportDeniedAccess();
+  }, [
+    authenticated,
+    authLoading,
+    error,
+    hasAccess,
+    loading,
+  ]);
 
   if (authLoading || loading) {
     return (
