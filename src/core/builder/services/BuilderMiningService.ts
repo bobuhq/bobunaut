@@ -1,5 +1,52 @@
 import { supabase } from "../../../lib/supabase";
 
+type MiningGatewayErrorPayload = {
+  error?: string;
+  code?: string | null;
+};
+
+async function resolveMiningGatewayError(
+  error: unknown,
+): Promise<Error> {
+  const context =
+    (
+      error as {
+        context?: {
+          json?: () => Promise<unknown>;
+        };
+      }
+    )?.context;
+
+  if (context?.json) {
+    try {
+      const payload =
+        (await context.json()) as
+          MiningGatewayErrorPayload;
+
+      if (payload?.error) {
+        const gatewayError =
+          new Error(payload.error) as Error & {
+            code?: string;
+          };
+
+        if (typeof payload.code === "string") {
+          gatewayError.code = payload.code;
+        }
+
+        return gatewayError;
+      }
+    } catch {
+      // Fall through to generic error.
+    }
+  }
+
+  return new Error(
+    error instanceof Error
+      ? error.message
+      : "Mining action failed.",
+  );
+}
+
 export type BuilderMiningState = {
   sessionId: string | null;
   serverNow: string;
@@ -90,24 +137,56 @@ export const builderMiningService = {
   },
 
   async start(): Promise<BuilderMiningState> {
-    const { error } = await supabase.rpc(
-      "start_builder_mining",
-    );
+    const { data, error } =
+      await supabase.functions.invoke(
+        "mining-security-gateway",
+        {
+          body: {
+            action: "start",
+          },
+        },
+      );
 
     if (error) {
-      throw new Error(error.message);
+      throw await resolveMiningGatewayError(
+        error,
+      );
+    }
+
+    if (!data?.accepted) {
+      throw new Error(
+        typeof data?.error === "string"
+          ? data.error
+          : "Unable to start mining.",
+      );
     }
 
     return this.getState();
   },
 
   async claim(): Promise<BuilderMiningState> {
-    const { error } = await supabase.rpc(
-      "claim_builder_mining",
-    );
+    const { data, error } =
+      await supabase.functions.invoke(
+        "mining-security-gateway",
+        {
+          body: {
+            action: "claim",
+          },
+        },
+      );
 
     if (error) {
-      throw new Error(error.message);
+      throw await resolveMiningGatewayError(
+        error,
+      );
+    }
+
+    if (!data?.accepted) {
+      throw new Error(
+        typeof data?.error === "string"
+          ? data.error
+          : "Unable to claim mining reward.",
+      );
     }
 
     return this.getState();

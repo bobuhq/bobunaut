@@ -469,3 +469,6 @@ verify_jwt = false
 
 [functions.admin-login-gateway]
 verify_jwt = false
+
+[functions.mining-security-gateway]
+verify_jwt = false
