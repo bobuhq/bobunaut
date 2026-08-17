@@ -15,6 +15,11 @@ import {
   type MarsCivilizationOverview,
 } from "../core/mars/MarsCivilizationService";
 
+import {
+  getMyMarsColony,
+  type MarsColony,
+} from "../core/mars/MarsColonyService";
+
 import "./BuildMars.css";
 
 export function BuildMars() {
@@ -23,6 +28,15 @@ export function BuildMars() {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const [myColony, setMyColony] =
+    useState<MarsColony | null>(null);
+
+  const [colonyLoading, setColonyLoading] =
+    useState(true);
+
+  const [colonyError, setColonyError] =
+    useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -57,6 +71,44 @@ export function BuildMars() {
     };
 
     void load();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadColony = async () => {
+      try {
+        setColonyLoading(true);
+        setColonyError(null);
+
+        const colony = await getMyMarsColony();
+
+        if (!cancelled) {
+          setMyColony(colony);
+        }
+      } catch (loadError) {
+        console.error(
+          "BUILD MARS Colony load failed:",
+          loadError,
+        );
+
+        if (!cancelled) {
+          setColonyError(
+            "Colony data is temporarily unavailable.",
+          );
+        }
+      } finally {
+        if (!cancelled) {
+          setColonyLoading(false);
+        }
+      }
+    };
+
+    void loadColony();
 
     return () => {
       cancelled = true;
@@ -229,6 +281,91 @@ export function BuildMars() {
             {overview.total_contribution.toLocaleString()}
           </strong>
         </div>
+      </section>
+
+      <section className="mars-colony-network">
+        <div className="mars-colony-heading">
+          <div>
+            <span className="mars-section-label">
+              COLONY NETWORK
+            </span>
+
+            <h2>My Mars Colony</h2>
+          </div>
+
+          <Users size={26} />
+        </div>
+
+        {colonyLoading && (
+          <div className="mars-colony-state">
+            Synchronizing Colony network...
+          </div>
+        )}
+
+        {!colonyLoading && colonyError && (
+          <div className="mars-colony-state mars-state-error">
+            {colonyError}
+          </div>
+        )}
+
+        {!colonyLoading &&
+          !colonyError &&
+          !myColony && (
+            <div className="mars-colony-empty">
+              <strong>No active Colony</strong>
+
+              <p>
+                You are not currently an active member of a
+                Mars Colony.
+              </p>
+            </div>
+          )}
+
+        {!colonyLoading &&
+          !colonyError &&
+          myColony && (
+            <div className="mars-colony-card">
+              <div className="mars-colony-primary">
+                <span>{myColony.colony_code}</span>
+
+                <h3>{myColony.colony_name}</h3>
+
+                <p>
+                  {myColony.specialization.toUpperCase()}
+                </p>
+              </div>
+
+              <div className="mars-colony-stats">
+                <div>
+                  <span>Role</span>
+                  <strong>
+                    {myColony.my_role.toUpperCase()}
+                  </strong>
+                </div>
+
+                <div>
+                  <span>Members</span>
+                  <strong>
+                    {myColony.member_count.toLocaleString()}
+                  </strong>
+                </div>
+
+                <div>
+                  <span>Contribution</span>
+                  <strong>
+                    {myColony.total_contribution.toLocaleString()}
+                  </strong>
+                </div>
+
+                <div>
+                  <span>Status</span>
+                  <strong>
+                    {myColony.colony_status.toUpperCase()}
+                  </strong>
+                </div>
+              </div>
+            </div>
+          )}
       </section>
     </main>
   );
