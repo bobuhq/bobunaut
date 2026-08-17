@@ -698,10 +698,12 @@ const pendingMemberCount = Math.max(
 
         .galaxy-tree {
           display: flex;
-          min-width: 760px;
+          width: max-content;
+          min-width: 100%;
+          box-sizing: border-box;
           flex-direction: column;
           align-items: center;
-          padding: 12px 20px 6px;
+          padding: 12px 56px 6px;
         }
 
         .galaxy-root-card {
@@ -765,10 +767,11 @@ const pendingMemberCount = Math.max(
           display: flex;
           width: max-content;
           min-width: 100%;
+          box-sizing: border-box;
           align-items: flex-start;
           justify-content: center;
           gap: 34px;
-          padding: 30px 28px 10px;
+          padding: 30px 56px 10px;
         }
 
         .galaxy-forest::before {
