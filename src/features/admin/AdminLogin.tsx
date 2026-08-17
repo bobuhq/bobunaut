@@ -19,6 +19,9 @@ import {
 } from "react-router-dom";
 
 import { AdminAccessService } from "../../core/admin/AdminAccessService";
+import {
+  AdminLoginGatewayService,
+} from "../../core/admin/security/AdminLoginGatewayService";
 import { useAuthSession } from "../../core/auth/useAuthSession";
 import { supabase } from "../../lib/supabase";
 import "./AdminDashboard.css";
@@ -145,17 +148,10 @@ export default function AdminLogin() {
         normalizedIdentifier,
       );
 
-      const { error: loginError } =
-        await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-
-      if (loginError) {
-        throw new Error(
-          "Invalid administrator credentials.",
-        );
-      }
+      await AdminLoginGatewayService.signIn(
+        email,
+        password,
+      );
 
       const access =
         await AdminAccessService.getMyAccess();

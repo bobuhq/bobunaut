@@ -466,3 +466,6 @@ verify_jwt = false
 
 [functions.admin-security-event]
 verify_jwt = false
+
+[functions.admin-login-gateway]
+verify_jwt = false
