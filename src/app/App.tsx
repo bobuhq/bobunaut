@@ -37,6 +37,13 @@ const Galaxy = lazy(() =>
   })),
 );
 
+const BuildMars = lazy(() =>
+  import("../features/BuildMars").then((module) => ({
+    default: module.BuildMars,
+  })),
+);
+
+
 const BuilderPassport = lazy(() =>
   import(
     "../features/passport/BuilderPassport"
@@ -193,6 +200,7 @@ export function App() {
           <Route path="/mining" element={<BuilderMining />} />
           <Route path="/missions" element={<Missions />} />
           <Route path="/galaxy" element={<Galaxy />} />
+          <Route path="/mars" element={<BuildMars />} />
           <Route
             path="/leaderboard"
             element={<Leaderboard />}

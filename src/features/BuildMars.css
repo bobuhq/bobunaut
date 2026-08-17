@@ -1,0 +1,216 @@
+.mars-page {
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 64px 0 100px;
+  color: #f5f7ff;
+}
+
+.mars-hero {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(32px, 6vw, 72px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 30px;
+  background:
+    radial-gradient(
+      circle at 80% 20%,
+      rgba(220, 80, 35, 0.22),
+      transparent 34%
+    ),
+    linear-gradient(
+      145deg,
+      rgba(17, 20, 32, 0.98),
+      rgba(7, 9, 17, 0.98)
+    );
+}
+
+.mars-kicker,
+.mars-section-label {
+  font-size: 0.75rem;
+  letter-spacing: 0.22em;
+  font-weight: 700;
+  opacity: 0.65;
+}
+
+.mars-hero h1 {
+  margin: 14px 0 12px;
+  font-size: clamp(3rem, 9vw, 7rem);
+  line-height: 0.9;
+  letter-spacing: -0.06em;
+}
+
+.mars-hero p {
+  max-width: 680px;
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: rgba(245, 247, 255, 0.68);
+}
+
+.mars-population {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 38px;
+  font-size: 1.05rem;
+}
+
+.mars-population strong {
+  font-size: 1.35rem;
+}
+
+.mars-progress {
+  width: 100%;
+  height: 8px;
+  margin-top: 16px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.mars-progress-fill {
+  height: 100%;
+  min-width: 2px;
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    #ff5a32,
+    #ff9a54
+  );
+}
+
+.mars-unlock {
+  display: flex;
+  justify-content: space-between;
+  gap: 32px;
+  margin-top: 24px;
+  padding: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 24px;
+  background: rgba(12, 15, 25, 0.88);
+}
+
+.mars-unlock h2 {
+  margin: 8px 0;
+  font-size: 1.8rem;
+}
+
+.mars-unlock p {
+  margin: 0;
+  font-size: 0.75rem;
+  letter-spacing: 0.16em;
+  opacity: 0.55;
+}
+
+.mars-unlock-progress {
+  width: min(360px, 100%);
+  align-self: center;
+}
+
+.mars-unlock-progress strong,
+.mars-unlock-progress span {
+  display: block;
+}
+
+.mars-unlock-progress strong {
+  font-size: 1.25rem;
+}
+
+.mars-unlock-progress span {
+  margin-top: 3px;
+  font-size: 0.8rem;
+  opacity: 0.55;
+}
+
+.mars-metrics {
+  display: grid;
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 24px;
+}
+
+.mars-metric {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 8px 12px;
+  min-height: 130px;
+  padding: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 22px;
+  background: rgba(10, 13, 22, 0.8);
+}
+
+.mars-metric span {
+  color: rgba(245, 247, 255, 0.6);
+}
+
+.mars-metric strong {
+  grid-column: 1 / -1;
+  font-size: 2rem;
+}
+
+.mars-contribution {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 14px;
+  padding: 26px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 22px;
+  background: rgba(10, 13, 22, 0.8);
+}
+
+.mars-contribution span,
+.mars-contribution strong {
+  display: block;
+}
+
+.mars-contribution span {
+  font-size: 0.82rem;
+  opacity: 0.6;
+}
+
+.mars-contribution strong {
+  margin-top: 3px;
+  font-size: 1.7rem;
+}
+
+.mars-state {
+  display: grid;
+  min-height: 60vh;
+  place-items: center;
+  color: rgba(245, 247, 255, 0.7);
+}
+
+.mars-state-error {
+  color: #ff9a8b;
+}
+
+@media (max-width: 760px) {
+  .mars-page {
+    width: min(100% - 20px, 1180px);
+    padding-top: 30px;
+  }
+
+  .mars-hero {
+    padding: 30px 22px;
+    border-radius: 24px;
+  }
+
+  .mars-unlock {
+    flex-direction: column;
+  }
+
+  .mars-metrics {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .mars-metrics {
+    grid-template-columns: 1fr;
+  }
+}
