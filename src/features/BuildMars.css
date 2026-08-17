@@ -37,6 +37,21 @@
   font-size: clamp(3rem, 9vw, 7rem);
   line-height: 0.9;
   letter-spacing: -0.06em;
+
+  background: linear-gradient(
+    100deg,
+    #8f72ff 0%,
+    #b99cff 42%,
+    #e0d6ff 72%,
+    #a874ff 100%
+  );
+
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+
+  text-shadow:
+    0 0 28px rgba(150, 105, 255, 0.22);
 }
 
 .mars-hero p {
