@@ -276,3 +276,89 @@ export async function demoteMarsColonyOfficer(
     "Mars Colony Officer demotion returned no result.",
   );
 }
+
+
+// ============================================================
+// Colony Discovery
+// ============================================================
+
+export type MarsColonyDirectoryEntry = {
+  colony_id: string;
+  colony_code: string;
+  colony_name: string;
+  specialization: string;
+  colony_status: string;
+  member_count: number;
+  total_contribution: number;
+  founder_builder_id: string;
+  leader_builder_id: string;
+  created_at: string;
+};
+
+export type MarsColonyJoinRequestResult = {
+  membership_id: string;
+  colony_id: string;
+  colony_name: string;
+  membership_status: string;
+  requested_at: string;
+};
+
+export type MyPendingMarsColonyJoinRequest = {
+  membership_id: string;
+  colony_id: string;
+  colony_code: string;
+  colony_name: string;
+  specialization: string;
+  membership_status: string;
+  requested_at: string;
+};
+
+export async function getMarsColonyDirectory():
+Promise<MarsColonyDirectoryEntry[]> {
+  const { data, error } = await supabase.rpc(
+    "get_mars_colony_directory",
+  );
+
+  if (error) {
+    throw error;
+  }
+
+  return (data as MarsColonyDirectoryEntry[] | null) ?? [];
+}
+
+export async function requestJoinMarsColony(
+  colonyId: string,
+): Promise<MarsColonyJoinRequestResult> {
+  const { data, error } = await supabase.rpc(
+    "request_join_mars_colony",
+    {
+      p_colony_id: colonyId,
+    },
+  );
+
+  if (error) {
+    throw error;
+  }
+
+  return firstRpcRow<MarsColonyJoinRequestResult>(
+    data,
+    "Mars Colony join request returned no result.",
+  );
+}
+
+
+export async function getMyPendingMarsColonyJoinRequest():
+Promise<MyPendingMarsColonyJoinRequest | null> {
+  const { data, error } = await supabase.rpc(
+    "get_my_pending_mars_colony_join_request",
+  );
+
+  if (error) {
+    throw error;
+  }
+
+  const rows =
+    data as MyPendingMarsColonyJoinRequest[] | null;
+
+  return rows?.[0] ?? null;
+}

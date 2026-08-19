@@ -573,3 +573,271 @@
     font-size: 1.55rem;
   }
 }
+
+/* ============================================================
+   BUILD MARS — Colony Entry Flow
+   ============================================================ */
+
+.mars-colony-onboarding {
+  display: grid;
+  gap: 18px;
+}
+
+.mars-colony-entry-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.mars-colony-entry-actions button,
+.mars-colony-create button,
+.mars-colony-directory-heading button,
+.mars-colony-directory-card button {
+  padding: 12px 16px;
+  border: 1px solid rgba(185, 156, 255, 0.32);
+  border-radius: 12px;
+  background: rgba(143, 114, 255, 0.12);
+  color: #eee8ff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.mars-colony-entry-actions button:hover:not(:disabled),
+.mars-colony-create button:hover:not(:disabled),
+.mars-colony-directory-heading button:hover:not(:disabled),
+.mars-colony-directory-card button:hover:not(:disabled) {
+  background: rgba(143, 114, 255, 0.2);
+}
+
+.mars-colony-entry-actions button:disabled,
+.mars-colony-create button:disabled,
+.mars-colony-directory-heading button:disabled,
+.mars-colony-directory-card button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.mars-colony-create,
+.mars-colony-directory,
+.mars-colony-request-status,
+.mars-colony-action-error {
+  padding: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.075);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.mars-colony-create {
+  display: grid;
+  gap: 16px;
+}
+
+.mars-colony-create h3,
+.mars-colony-directory h3 {
+  margin: 5px 0 0;
+}
+
+.mars-colony-create label {
+  display: grid;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: rgba(245, 247, 255, 0.65);
+}
+
+.mars-colony-create input,
+.mars-colony-create select {
+  width: 100%;
+  padding: 13px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  outline: none;
+  background: rgba(4, 6, 14, 0.8);
+  color: #f5f7ff;
+  font: inherit;
+}
+
+.mars-colony-directory-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.mars-colony-directory-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 20px;
+}
+
+.mars-colony-directory-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 245px;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.075);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.mars-colony-directory-card > div:first-child {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.mars-colony-directory-card > div:first-child span,
+.mars-colony-directory-card > div:first-child strong {
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+}
+
+.mars-colony-directory-card > div:first-child strong {
+  color: #b99cff;
+}
+
+.mars-colony-directory-card h4 {
+  margin: 18px 0 5px;
+  font-size: 1.18rem;
+}
+
+.mars-colony-directory-card p {
+  margin: 0;
+  opacity: 0.55;
+  font-size: 0.75rem;
+}
+
+.mars-colony-directory-card dl {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.mars-colony-directory-card dt {
+  font-size: 0.7rem;
+  opacity: 0.5;
+}
+
+.mars-colony-directory-card dd {
+  margin: 5px 0 0;
+  font-weight: 700;
+}
+
+.mars-colony-directory-card button {
+  margin-top: auto;
+}
+
+.mars-colony-request-status {
+  border-color: rgba(185, 156, 255, 0.22);
+}
+
+.mars-colony-request-status p {
+  margin-bottom: 0;
+  color: rgba(245, 247, 255, 0.62);
+}
+
+.mars-colony-action-error {
+  color: #ff9a8b;
+}
+
+@media (max-width: 900px) {
+  .mars-colony-directory-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .mars-colony-directory-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .mars-colony-directory-heading {
+    flex-direction: column;
+  }
+
+  .mars-colony-entry-actions {
+    flex-direction: column;
+  }
+
+  .mars-colony-entry-actions button {
+    width: 100%;
+  }
+}
+
+/* ============================================================
+   Colony Management
+   ============================================================ */
+
+.mars-colony-management {
+  margin-top: 1.25rem;
+  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.mars-colony-management-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.mars-colony-management-heading h4 {
+  margin: 0.2rem 0 0;
+}
+
+.mars-colony-request-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.mars-colony-request-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+}
+
+.mars-colony-request-item > div:first-child {
+  min-width: 0;
+  display: grid;
+  gap: 0.25rem;
+}
+
+.mars-colony-request-item strong {
+  overflow-wrap: anywhere;
+}
+
+.mars-colony-request-item small {
+  opacity: 0.65;
+}
+
+.mars-colony-request-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+@media (max-width: 720px) {
+  .mars-colony-management-heading,
+  .mars-colony-request-item {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .mars-colony-request-actions {
+    width: 100%;
+  }
+
+  .mars-colony-request-actions button {
+    flex: 1;
+  }
+}

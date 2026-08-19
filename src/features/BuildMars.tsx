@@ -22,8 +22,18 @@ import {
 } from "../core/mars/MarsAccessService";
 
 import {
+  approveMarsColonyJoinRequest,
+  createMyMarsColony,
+  getMarsColonyDirectory,
   getMyMarsColony,
+  getMyMarsColonyJoinRequests,
+  getMyPendingMarsColonyJoinRequest,
+  rejectMarsColonyJoinRequest,
+  requestJoinMarsColony,
   type MarsColony,
+  type MarsColonyDirectoryEntry,
+  type MarsColonyJoinRequest,
+  type MarsColonyJoinRequestResult,
 } from "../core/mars/MarsColonyService";
 
 import {
@@ -57,6 +67,51 @@ export function BuildMars() {
     useState(true);
 
   const [colonyError, setColonyError] =
+    useState<string | null>(null);
+
+  const [colonyDirectory, setColonyDirectory] =
+    useState<MarsColonyDirectoryEntry[]>([]);
+
+  const [directoryLoading, setDirectoryLoading] =
+    useState(false);
+
+  const [directoryError, setDirectoryError] =
+    useState<string | null>(null);
+
+  const [showCreateColony, setShowCreateColony] =
+    useState(false);
+
+  const [showColonyDirectory, setShowColonyDirectory] =
+    useState(false);
+
+  const [newColonyName, setNewColonyName] =
+    useState("");
+
+  const [newColonySpecialization, setNewColonySpecialization] =
+    useState("general");
+
+  const [creatingColony, setCreatingColony] =
+    useState(false);
+
+  const [colonyActionError, setColonyActionError] =
+    useState<string | null>(null);
+
+  const [joiningColonyId, setJoiningColonyId] =
+    useState<string | null>(null);
+
+  const [pendingJoinRequest, setPendingJoinRequest] =
+    useState<MarsColonyJoinRequestResult | null>(null);
+
+  const [colonyJoinRequests, setColonyJoinRequests] =
+    useState<MarsColonyJoinRequest[]>([]);
+
+  const [joinRequestsLoading, setJoinRequestsLoading] =
+    useState(false);
+
+  const [joinRequestsError, setJoinRequestsError] =
+    useState<string | null>(null);
+
+  const [resolvingJoinRequestId, setResolvingJoinRequestId] =
     useState<string | null>(null);
 
   const [sectors, setSectors] =
@@ -192,10 +247,29 @@ export function BuildMars() {
         setColonyLoading(true);
         setColonyError(null);
 
-        const colony = await getMyMarsColony();
+        const [colony, pendingRequest] =
+          await Promise.all([
+            getMyMarsColony(),
+            getMyPendingMarsColonyJoinRequest(),
+          ]);
 
         if (!cancelled) {
           setMyColony(colony);
+
+          if (!colony && pendingRequest) {
+            setPendingJoinRequest({
+              membership_id:
+                pendingRequest.membership_id,
+              colony_id: pendingRequest.colony_id,
+              colony_name: pendingRequest.colony_name,
+              membership_status:
+                pendingRequest.membership_status,
+              requested_at:
+                pendingRequest.requested_at,
+            });
+          } else {
+            setPendingJoinRequest(null);
+          }
         }
       } catch (loadError) {
         console.error(
@@ -221,6 +295,97 @@ export function BuildMars() {
       cancelled = true;
     };
   }, [marsAccess?.unlocked]);
+
+  const loadColonyDirectory = async () => {
+    try {
+      setDirectoryLoading(true);
+      setDirectoryError(null);
+
+      const colonies = await getMarsColonyDirectory();
+
+      setColonyDirectory(colonies);
+    } catch (loadError) {
+      console.error(
+        "BUILD MARS Colony directory failed:",
+        loadError,
+      );
+
+      setDirectoryError(
+        "Colony directory is temporarily unavailable.",
+      );
+    } finally {
+      setDirectoryLoading(false);
+    }
+  };
+
+  const handleCreateColony = async () => {
+    const trimmedName = newColonyName.trim();
+
+    if (!trimmedName || creatingColony) {
+      return;
+    }
+
+    try {
+      setCreatingColony(true);
+      setColonyActionError(null);
+
+      await createMyMarsColony(
+        trimmedName,
+        newColonySpecialization,
+      );
+
+      const colony = await getMyMarsColony();
+
+      setMyColony(colony);
+      setShowCreateColony(false);
+      setShowColonyDirectory(false);
+      setNewColonyName("");
+    } catch (actionError) {
+      console.error(
+        "BUILD MARS Colony creation failed:",
+        actionError,
+      );
+
+      setColonyActionError(
+        actionError instanceof Error
+          ? actionError.message
+          : "Colony creation failed.",
+      );
+    } finally {
+      setCreatingColony(false);
+    }
+  };
+
+  const handleRequestJoinColony = async (
+    colonyId: string,
+  ) => {
+    if (joiningColonyId) {
+      return;
+    }
+
+    try {
+      setJoiningColonyId(colonyId);
+      setColonyActionError(null);
+
+      const request =
+        await requestJoinMarsColony(colonyId);
+
+      setPendingJoinRequest(request);
+    } catch (actionError) {
+      console.error(
+        "BUILD MARS Colony join request failed:",
+        actionError,
+      );
+
+      setColonyActionError(
+        actionError instanceof Error
+          ? actionError.message
+          : "Colony join request failed.",
+      );
+    } finally {
+      setJoiningColonyId(null);
+    }
+  };
 
   const loadSectors = async () => {
     try {
@@ -300,6 +465,127 @@ export function BuildMars() {
       setSectorActionError(message);
     } finally {
       setAssigningSectorId(null);
+    }
+  };
+
+  const loadColonyJoinRequests = async () => {
+    if (
+      !myColony ||
+      !["founder", "leader"].includes(myColony.my_role)
+    ) {
+      setColonyJoinRequests([]);
+      return;
+    }
+
+    try {
+      setJoinRequestsLoading(true);
+      setJoinRequestsError(null);
+
+      const requests =
+        await getMyMarsColonyJoinRequests();
+
+      setColonyJoinRequests(requests);
+    } catch (loadError) {
+      console.error(
+        "BUILD MARS Colony join requests failed:",
+        loadError,
+      );
+
+      setJoinRequestsError(
+        loadError instanceof Error
+          ? loadError.message
+          : "Unable to load Colony join requests.",
+      );
+    } finally {
+      setJoinRequestsLoading(false);
+    }
+  };
+
+  const handleApproveJoinRequest = async (
+    membershipId: string,
+  ) => {
+    if (resolvingJoinRequestId) {
+      return;
+    }
+
+    try {
+      setResolvingJoinRequestId(membershipId);
+      setJoinRequestsError(null);
+
+      const result =
+        await approveMarsColonyJoinRequest(
+          membershipId,
+        );
+
+      setColonyJoinRequests((current) =>
+        current.filter(
+          (request) =>
+            request.membership_id !== membershipId,
+        ),
+      );
+
+      setMyColony((current) =>
+        current
+          ? {
+              ...current,
+              member_count: result.member_count,
+            }
+          : current,
+      );
+    } catch (actionError) {
+      console.error(
+        "BUILD MARS Colony join approval failed:",
+        actionError,
+      );
+
+      setJoinRequestsError(
+        actionError instanceof Error
+          ? actionError.message
+          : "Unable to approve Colony join request.",
+      );
+
+      await loadColonyJoinRequests();
+    } finally {
+      setResolvingJoinRequestId(null);
+    }
+  };
+
+  const handleRejectJoinRequest = async (
+    membershipId: string,
+  ) => {
+    if (resolvingJoinRequestId) {
+      return;
+    }
+
+    try {
+      setResolvingJoinRequestId(membershipId);
+      setJoinRequestsError(null);
+
+      await rejectMarsColonyJoinRequest(
+        membershipId,
+      );
+
+      setColonyJoinRequests((current) =>
+        current.filter(
+          (request) =>
+            request.membership_id !== membershipId,
+        ),
+      );
+    } catch (actionError) {
+      console.error(
+        "BUILD MARS Colony join rejection failed:",
+        actionError,
+      );
+
+      setJoinRequestsError(
+        actionError instanceof Error
+          ? actionError.message
+          : "Unable to reject Colony join request.",
+      );
+
+      await loadColonyJoinRequests();
+    } finally {
+      setResolvingJoinRequestId(null);
     }
   };
 
@@ -588,13 +874,258 @@ export function BuildMars() {
         {!colonyLoading &&
           !colonyError &&
           !myColony && (
-            <div className="mars-colony-empty">
-              <strong>No active Colony</strong>
+            <div className="mars-colony-onboarding">
+              <div className="mars-colony-empty">
+                <strong>No active Colony</strong>
 
-              <p>
-                You are not currently an active member of a
-                Mars Colony.
-              </p>
+                <p>
+                  Establish a new Colony or request membership
+                  in an existing Mars Colony.
+                </p>
+
+                <div className="mars-colony-entry-actions">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowCreateColony((value) => !value);
+                      setShowColonyDirectory(false);
+                      setColonyActionError(null);
+                    }}
+                  >
+                    Create Colony
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const next = !showColonyDirectory;
+
+                      setShowColonyDirectory(next);
+                      setShowCreateColony(false);
+                      setColonyActionError(null);
+
+                      if (
+                        next &&
+                        colonyDirectory.length === 0
+                      ) {
+                        void loadColonyDirectory();
+                      }
+                    }}
+                  >
+                    Explore Colonies
+                  </button>
+                </div>
+              </div>
+
+              {showCreateColony && (
+                <div className="mars-colony-create">
+                  <span className="mars-section-label">
+                    NEW COLONY
+                  </span>
+
+                  <h3>Establish a Mars Colony</h3>
+
+                  <label>
+                    Colony Name
+                    <input
+                      type="text"
+                      value={newColonyName}
+                      maxLength={48}
+                      disabled={creatingColony}
+                      placeholder="Enter Colony name"
+                      onChange={(event) =>
+                        setNewColonyName(
+                          event.target.value,
+                        )
+                      }
+                    />
+                  </label>
+
+                  <label>
+                    Specialization
+                    <select
+                      value={newColonySpecialization}
+                      disabled={creatingColony}
+                      onChange={(event) =>
+                        setNewColonySpecialization(
+                          event.target.value,
+                        )
+                      }
+                    >
+                      <option value="general">
+                        General
+                      </option>
+                      <option value="science">
+                        Science
+                      </option>
+                      <option value="exploration">
+                        Exploration
+                      </option>
+                      <option value="infrastructure">
+                        Infrastructure
+                      </option>
+                      <option value="security">
+                        Security
+                      </option>
+                    </select>
+                  </label>
+
+                  <button
+                    type="button"
+                    disabled={
+                      creatingColony ||
+                      newColonyName.trim().length === 0
+                    }
+                    onClick={() =>
+                      void handleCreateColony()
+                    }
+                  >
+                    {creatingColony
+                      ? "Establishing..."
+                      : "Establish Colony"}
+                  </button>
+                </div>
+              )}
+
+              {showColonyDirectory && (
+                <div className="mars-colony-directory">
+                  <div className="mars-colony-directory-heading">
+                    <div>
+                      <span className="mars-section-label">
+                        COLONY DIRECTORY
+                      </span>
+
+                      <h3>Explore Mars Colonies</h3>
+                    </div>
+
+                    <button
+                      type="button"
+                      disabled={directoryLoading}
+                      onClick={() =>
+                        void loadColonyDirectory()
+                      }
+                    >
+                      Refresh
+                    </button>
+                  </div>
+
+                  {directoryLoading && (
+                    <div className="mars-colony-state">
+                      Synchronizing Colony directory...
+                    </div>
+                  )}
+
+                  {!directoryLoading &&
+                    directoryError && (
+                      <div className="mars-colony-state mars-state-error">
+                        {directoryError}
+                      </div>
+                    )}
+
+                  {!directoryLoading &&
+                    !directoryError &&
+                    colonyDirectory.length === 0 && (
+                      <div className="mars-colony-state">
+                        No active Colonies have been
+                        established yet.
+                      </div>
+                    )}
+
+                  {!directoryLoading &&
+                    !directoryError &&
+                    colonyDirectory.length > 0 && (
+                      <div className="mars-colony-directory-grid">
+                        {colonyDirectory.map((colony) => {
+                          const isPending =
+                            pendingJoinRequest?.colony_id ===
+                            colony.colony_id;
+
+                          const joining =
+                            joiningColonyId ===
+                            colony.colony_id;
+
+                          return (
+                            <article
+                              className="mars-colony-directory-card"
+                              key={colony.colony_id}
+                            >
+                              <div>
+                                <span>
+                                  {colony.colony_code}
+                                </span>
+
+                                <strong>
+                                  {colony.colony_status.toUpperCase()}
+                                </strong>
+                              </div>
+
+                              <h4>
+                                {colony.colony_name}
+                              </h4>
+
+                              <p>
+                                {colony.specialization.toUpperCase()}
+                              </p>
+
+                              <dl>
+                                <div>
+                                  <dt>Members</dt>
+                                  <dd>
+                                    {colony.member_count.toLocaleString()}
+                                  </dd>
+                                </div>
+
+                                <div>
+                                  <dt>Contribution</dt>
+                                  <dd>
+                                    {colony.total_contribution.toLocaleString()}
+                                  </dd>
+                                </div>
+                              </dl>
+
+                              <button
+                                type="button"
+                                disabled={
+                                  joiningColonyId !== null ||
+                                  isPending
+                                }
+                                onClick={() =>
+                                  void handleRequestJoinColony(
+                                    colony.colony_id,
+                                  )
+                                }
+                              >
+                                {isPending
+                                  ? "Request Pending"
+                                  : joining
+                                    ? "Requesting..."
+                                    : "Request to Join"}
+                              </button>
+                            </article>
+                          );
+                        })}
+                      </div>
+                    )}
+                </div>
+              )}
+
+              {pendingJoinRequest && (
+                <div className="mars-colony-request-status">
+                  <strong>Join Request Pending</strong>
+
+                  <p>
+                    Your membership request for{" "}
+                    {pendingJoinRequest.colony_name} is
+                    awaiting Colony leadership approval.
+                  </p>
+                </div>
+              )}
+
+              {colonyActionError && (
+                <div className="mars-colony-action-error">
+                  {colonyActionError}
+                </div>
+              )}
             </div>
           )}
 
@@ -611,6 +1142,113 @@ export function BuildMars() {
                   {myColony.specialization.toUpperCase()}
                 </p>
               </div>
+
+              {["founder", "leader"].includes(
+                myColony.my_role,
+              ) && (
+                <div className="mars-colony-management">
+                  <div className="mars-colony-management-heading">
+                    <div>
+                      <span className="mars-section-label">
+                        COLONY MANAGEMENT
+                      </span>
+
+                      <h4>Pending Join Requests</h4>
+                    </div>
+
+                    <button
+                      type="button"
+                      disabled={joinRequestsLoading}
+                      onClick={() =>
+                        void loadColonyJoinRequests()
+                      }
+                    >
+                      {joinRequestsLoading
+                        ? "Loading..."
+                        : "Load Requests"}
+                    </button>
+                  </div>
+
+                  {joinRequestsError && (
+                    <div className="mars-colony-action-error">
+                      {joinRequestsError}
+                    </div>
+                  )}
+
+                  {!joinRequestsLoading &&
+                    !joinRequestsError &&
+                    colonyJoinRequests.length === 0 && (
+                      <div className="mars-colony-state">
+                        No pending membership requests.
+                      </div>
+                    )}
+
+                  {colonyJoinRequests.length > 0 && (
+                    <div className="mars-colony-request-list">
+                      {colonyJoinRequests.map(
+                        (request) => {
+                          const resolving =
+                            resolvingJoinRequestId ===
+                            request.membership_id;
+
+                          return (
+                            <article
+                              className="mars-colony-request-item"
+                              key={request.membership_id}
+                            >
+                              <div>
+                                <span>BUILDER</span>
+
+                                <strong>
+                                  {request.builder_id}
+                                </strong>
+
+                                <small>
+                                  {request.membership_status.toUpperCase()}
+                                </small>
+                              </div>
+
+                              <div className="mars-colony-request-actions">
+                                <button
+                                  type="button"
+                                  disabled={
+                                    resolvingJoinRequestId !==
+                                    null
+                                  }
+                                  onClick={() =>
+                                    void handleApproveJoinRequest(
+                                      request.membership_id,
+                                    )
+                                  }
+                                >
+                                  {resolving
+                                    ? "Processing..."
+                                    : "Approve"}
+                                </button>
+
+                                <button
+                                  type="button"
+                                  disabled={
+                                    resolvingJoinRequestId !==
+                                    null
+                                  }
+                                  onClick={() =>
+                                    void handleRejectJoinRequest(
+                                      request.membership_id,
+                                    )
+                                  }
+                                >
+                                  Reject
+                                </button>
+                              </div>
+                            </article>
+                          );
+                        },
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
 
               <div className="mars-colony-stats">
                 <div>
