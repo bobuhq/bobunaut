@@ -20,6 +20,12 @@ import {
   type MarsColony,
 } from "../core/mars/MarsColonyService";
 
+import {
+  assignMyColonyToMarsSector,
+  getMarsSectorDirectory,
+  type MarsSector,
+} from "../core/mars/MarsSectorService";
+
 import "./BuildMars.css";
 
 export function BuildMars() {
@@ -36,6 +42,21 @@ export function BuildMars() {
     useState(true);
 
   const [colonyError, setColonyError] =
+    useState<string | null>(null);
+
+  const [sectors, setSectors] =
+    useState<MarsSector[]>([]);
+
+  const [sectorsLoading, setSectorsLoading] =
+    useState(true);
+
+  const [sectorsError, setSectorsError] =
+    useState<string | null>(null);
+
+  const [assigningSectorId, setAssigningSectorId] =
+    useState<string | null>(null);
+
+  const [sectorActionError, setSectorActionError] =
     useState<string | null>(null);
 
   useEffect(() => {
@@ -114,6 +135,63 @@ export function BuildMars() {
       cancelled = true;
     };
   }, []);
+
+  const loadSectors = async () => {
+    try {
+      setSectorsLoading(true);
+      setSectorsError(null);
+
+      const data = await getMarsSectorDirectory();
+
+      setSectors(data);
+    } catch (loadError) {
+      console.error(
+        "BUILD MARS Sector directory failed:",
+        loadError,
+      );
+
+      setSectorsError(
+        "Mars Sector data is temporarily unavailable.",
+      );
+    } finally {
+      setSectorsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    void loadSectors();
+  }, []);
+
+  const handleAssignSector = async (
+    sectorId: string,
+  ) => {
+    if (assigningSectorId) {
+      return;
+    }
+
+    try {
+      setAssigningSectorId(sectorId);
+      setSectorActionError(null);
+
+      await assignMyColonyToMarsSector(sectorId);
+
+      await loadSectors();
+    } catch (actionError) {
+      console.error(
+        "BUILD MARS Sector assignment failed:",
+        actionError,
+      );
+
+      const message =
+        actionError instanceof Error
+          ? actionError.message
+          : "Sector assignment failed.";
+
+      setSectorActionError(message);
+    } finally {
+      setAssigningSectorId(null);
+    }
+  };
 
   const builderProgress = useMemo(() => {
     if (!overview || overview.target_builder_count <= 0) {
@@ -364,6 +442,155 @@ export function BuildMars() {
                   </strong>
                 </div>
               </div>
+            </div>
+          )}
+      </section>
+
+      <section className="mars-sector-network">
+        <div className="mars-sector-heading">
+          <div>
+            <span className="mars-section-label">
+              MARS SECTORS
+            </span>
+
+            <h2>Sector Network</h2>
+
+            <p>
+              Explore active Mars Sectors and establish your
+              Colony inside one operational region.
+            </p>
+          </div>
+
+          <Rocket size={26} />
+        </div>
+
+        {sectorsLoading && (
+          <div className="mars-sector-state">
+            Synchronizing Mars Sectors...
+          </div>
+        )}
+
+        {!sectorsLoading && sectorsError && (
+          <div className="mars-sector-state mars-state-error">
+            {sectorsError}
+          </div>
+        )}
+
+        {!sectorsLoading &&
+          !sectorsError &&
+          sectors.length === 0 && (
+            <div className="mars-sector-state">
+              No active Mars Sectors are currently available.
+            </div>
+          )}
+
+        {!sectorsLoading &&
+          !sectorsError &&
+          sectors.length > 0 && (
+            <div className="mars-sector-grid">
+              {sectors.map((sector) => {
+                const capacityPercent =
+                  sector.max_colonies > 0
+                    ? Math.min(
+                        (sector.current_colonies /
+                          sector.max_colonies) *
+                          100,
+                        100,
+                      )
+                    : 0;
+
+                const isLeader =
+                  myColony?.my_role === "leader";
+
+                const capacityReached =
+                  sector.current_colonies >=
+                  sector.max_colonies;
+
+                const assigning =
+                  assigningSectorId === sector.sector_id;
+
+                return (
+                  <article
+                    className="mars-sector-card"
+                    key={sector.sector_id}
+                  >
+                    <div className="mars-sector-card-top">
+                      <span>{sector.sector_code}</span>
+
+                      <strong>
+                        {sector.sector_status.toUpperCase()}
+                      </strong>
+                    </div>
+
+                    <h3>{sector.sector_name}</h3>
+
+                    <div className="mars-sector-capacity">
+                      <div>
+                        <span>Colonies</span>
+
+                        <strong>
+                          {sector.current_colonies.toLocaleString()}
+                          {" / "}
+                          {sector.max_colonies.toLocaleString()}
+                        </strong>
+                      </div>
+
+                      <div className="mars-progress">
+                        <div
+                          className="mars-progress-fill"
+                          style={{
+                            width: `${capacityPercent}%`,
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="mars-sector-contribution">
+                      <span>Sector Contribution</span>
+
+                      <strong>
+                        {sector.total_contribution.toLocaleString()}
+                      </strong>
+                    </div>
+
+                    {isLeader && (
+                      <button
+                        className="mars-sector-assign"
+                        type="button"
+                        disabled={
+                          capacityReached ||
+                          assigningSectorId !== null
+                        }
+                        onClick={() =>
+                          void handleAssignSector(
+                            sector.sector_id,
+                          )
+                        }
+                      >
+                        {assigning
+                          ? "Assigning..."
+                          : capacityReached
+                            ? "Sector Full"
+                            : "Assign Colony"}
+                      </button>
+                    )}
+                  </article>
+                );
+              })}
+            </div>
+          )}
+
+        {sectorActionError && (
+          <div className="mars-sector-action-error">
+            {sectorActionError}
+          </div>
+        )}
+
+        {myColony &&
+          myColony.my_role !== "leader" && (
+            <div className="mars-sector-permission">
+              Sector assignment is controlled by the active
+              Colony Leader.
             </div>
           )}
       </section>
