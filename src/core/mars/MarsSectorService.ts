@@ -8,6 +8,8 @@ export type MarsSector = {
   max_colonies: number;
   current_colonies: number;
   total_contribution: number;
+  map_x: number | null;
+  map_y: number | null;
 };
 
 export type MarsSectorAssignment = {

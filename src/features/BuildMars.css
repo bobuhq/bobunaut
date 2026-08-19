@@ -1049,3 +1049,457 @@
     width: 100%;
   }
 }
+
+/* ============================================================
+   BUILD MARS — Interactive Mars Map v1
+   ============================================================ */
+
+.mars-map-shell {
+  margin: 1.5rem 0 1.75rem;
+  padding: 1.2rem;
+  border: 1px solid rgba(255, 180, 110, 0.16);
+  border-radius: 22px;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(63, 27, 16, 0.34),
+      rgba(7, 8, 14, 0.88)
+    );
+  overflow: hidden;
+}
+
+.mars-map-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.mars-map-heading h3 {
+  margin: 0.2rem 0 0.35rem;
+}
+
+.mars-map-heading p {
+  max-width: 620px;
+  margin: 0;
+  opacity: 0.62;
+}
+
+.mars-map-summary {
+  flex-shrink: 0;
+  display: grid;
+  gap: 0.15rem;
+  text-align: right;
+}
+
+.mars-map-summary span {
+  font-size: 0.65rem;
+  letter-spacing: 0.11em;
+  opacity: 0.5;
+}
+
+.mars-map-summary strong {
+  font-size: 1.4rem;
+}
+
+.mars-map {
+  position: relative;
+  min-height: 480px;
+  border: 1px solid rgba(255, 191, 125, 0.14);
+  border-radius: 20px;
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    radial-gradient(
+      circle at 52% 45%,
+      rgba(255, 159, 87, 0.17),
+      transparent 40%
+    ),
+    radial-gradient(
+      circle at 35% 55%,
+      rgba(126, 51, 27, 0.32),
+      transparent 32%
+    ),
+    linear-gradient(
+      145deg,
+      #4a1f12 0%,
+      #6b2e17 28%,
+      #35170f 62%,
+      #120c0b 100%
+    );
+  box-shadow:
+    inset 0 0 70px rgba(0, 0, 0, 0.6),
+    0 18px 60px rgba(0, 0, 0, 0.22);
+}
+
+.mars-map::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -3;
+  opacity: 0.48;
+  background:
+    repeating-radial-gradient(
+      ellipse at 30% 40%,
+      rgba(255, 205, 160, 0.08) 0 2px,
+      transparent 3px 18px
+    );
+  transform: scale(1.4);
+}
+
+.mars-map-planet-glow {
+  position: absolute;
+  inset: 7%;
+  z-index: -2;
+  border-radius: 50%;
+  background:
+    radial-gradient(
+      circle at 38% 34%,
+      rgba(255, 191, 126, 0.15),
+      transparent 24%
+    );
+  box-shadow:
+    inset -40px -30px 90px rgba(0, 0, 0, 0.34);
+}
+
+.mars-map-crater {
+  position: absolute;
+  z-index: -1;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 187, 128, 0.08);
+  box-shadow:
+    inset 8px 8px 18px rgba(0, 0, 0, 0.25),
+    inset -4px -4px 12px rgba(255, 170, 90, 0.04);
+}
+
+.mars-map-crater-a {
+  width: 110px;
+  height: 70px;
+  left: 12%;
+  top: 18%;
+  transform: rotate(-14deg);
+}
+
+.mars-map-crater-b {
+  width: 150px;
+  height: 95px;
+  right: 13%;
+  bottom: 16%;
+  transform: rotate(18deg);
+}
+
+.mars-map-crater-c {
+  width: 70px;
+  height: 48px;
+  left: 46%;
+  bottom: 12%;
+}
+
+.mars-map-ridge {
+  position: absolute;
+  z-index: -1;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 190, 128, 0.15),
+    transparent
+  );
+}
+
+.mars-map-ridge-a {
+  width: 42%;
+  left: 8%;
+  top: 57%;
+  transform: rotate(-11deg);
+}
+
+.mars-map-ridge-b {
+  width: 38%;
+  right: 7%;
+  top: 39%;
+  transform: rotate(13deg);
+}
+
+.mars-map-network {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.mars-map-network path {
+  fill: none;
+  stroke: rgba(255, 190, 132, 0.18);
+  stroke-width: 0.22;
+  stroke-dasharray: 1.3 1.2;
+  vector-effect: non-scaling-stroke;
+}
+
+.mars-map-node {
+  position: absolute;
+  z-index: 3;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+}
+
+.mars-map-node-core {
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  background: #ffc186;
+  box-shadow:
+    0 0 10px rgba(255, 160, 90, 0.8),
+    0 0 22px rgba(255, 120, 60, 0.38);
+}
+
+.mars-map-node-pulse {
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgba(255, 188, 128, 0.7);
+  border-radius: 50%;
+  animation: marsMapPulse 2.2s ease-out infinite;
+}
+
+.mars-map-node-current .mars-map-node-core {
+  background: #d7c0ff;
+  box-shadow:
+    0 0 12px rgba(190, 160, 255, 0.95),
+    0 0 30px rgba(150, 110, 255, 0.5);
+}
+
+.mars-map-node-current .mars-map-node-pulse {
+  border-color: rgba(190, 160, 255, 0.9);
+}
+
+.mars-map-node-label {
+  position: absolute;
+  left: 50%;
+  top: 23px;
+  min-width: 94px;
+  padding: 7px 8px;
+  border: 1px solid rgba(255, 193, 137, 0.12);
+  border-radius: 9px;
+  transform: translateX(-50%);
+  background: rgba(14, 9, 9, 0.82);
+  backdrop-filter: blur(8px);
+  display: grid;
+  gap: 2px;
+  text-align: center;
+  pointer-events: none;
+}
+
+.mars-map-node-label strong {
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+}
+
+.mars-map-node-label small {
+  font-size: 0.61rem;
+  opacity: 0.6;
+}
+
+.mars-map-node-capacity {
+  height: 2px;
+  margin-top: 3px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.mars-map-node-capacity i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: rgba(255, 187, 126, 0.8);
+}
+
+.mars-map-legend {
+  position: absolute;
+  left: 18px;
+  bottom: 16px;
+  display: flex;
+  gap: 1rem;
+  padding: 8px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  background: rgba(10, 8, 10, 0.58);
+  backdrop-filter: blur(8px);
+}
+
+.mars-map-legend span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.64rem;
+  opacity: 0.7;
+}
+
+.mars-map-legend i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.mars-map-legend-node {
+  background: #ffc186;
+}
+
+.mars-map-legend-current {
+  background: #d7c0ff;
+}
+
+@keyframes marsMapPulse {
+  0% {
+    opacity: 0.85;
+    transform: scale(0.8);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(2.2);
+  }
+}
+
+@media (max-width: 720px) {
+  .mars-map-heading {
+    flex-direction: column;
+  }
+
+  .mars-map-summary {
+    text-align: left;
+  }
+
+  .mars-map {
+    min-height: 420px;
+  }
+
+  .mars-map-node-label {
+    min-width: 72px;
+    padding: 5px 6px;
+  }
+
+  .mars-map-legend {
+    right: 12px;
+    left: 12px;
+    flex-wrap: wrap;
+  }
+}
+
+/* ============================================================
+   BUILD MARS — Selected Sector Detail
+   ============================================================ */
+
+.mars-map-node-selected .mars-map-node-core {
+  transform: scale(1.25);
+}
+
+.mars-map-node-selected .mars-map-node-label {
+  border-color: rgba(255, 194, 137, 0.34);
+  background: rgba(30, 15, 10, 0.9);
+}
+
+.mars-map-sector-detail {
+  position: absolute;
+  z-index: 8;
+  right: 18px;
+  top: 18px;
+  width: min(290px, calc(100% - 36px));
+  padding: 14px;
+  border: 1px solid rgba(255, 191, 129, 0.2);
+  border-radius: 14px;
+  background: rgba(13, 9, 9, 0.9);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.35);
+}
+
+.mars-map-sector-detail-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.mars-map-sector-detail-top > div {
+  display: grid;
+  gap: 2px;
+}
+
+.mars-map-sector-detail-top span {
+  font-size: 0.64rem;
+  letter-spacing: 0.12em;
+  opacity: 0.55;
+}
+
+.mars-map-sector-detail-top strong {
+  font-size: 1rem;
+}
+
+.mars-map-sector-detail-top button {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  color: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.mars-map-sector-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 7px;
+  margin-top: 12px;
+}
+
+.mars-map-sector-detail-grid > div {
+  display: grid;
+  gap: 3px;
+  padding: 8px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.mars-map-sector-detail-grid span {
+  font-size: 0.58rem;
+  opacity: 0.5;
+}
+
+.mars-map-sector-detail-grid strong {
+  font-size: 0.72rem;
+}
+
+.mars-map-sector-jump {
+  width: 100%;
+  margin-top: 10px;
+  padding: 9px 10px;
+  border: 1px solid rgba(255, 186, 125, 0.2);
+  border-radius: 9px;
+  background: rgba(255, 140, 76, 0.08);
+  color: #ffe0c3;
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.mars-map-sector-jump:hover {
+  background: rgba(255, 140, 76, 0.14);
+}
+
+@media (max-width: 720px) {
+  .mars-map-sector-detail {
+    right: 12px;
+    top: 12px;
+    width: calc(100% - 24px);
+  }
+}

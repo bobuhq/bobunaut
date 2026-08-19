@@ -147,6 +147,9 @@ export function BuildMars() {
   const [assigningSectorId, setAssigningSectorId] =
     useState<string | null>(null);
 
+  const [selectedSectorId, setSelectedSectorId] =
+    useState<string | null>(null);
+
   const [sectorActionError, setSectorActionError] =
     useState<string | null>(null);
 
@@ -817,6 +820,15 @@ export function BuildMars() {
       setLeavingColony(false);
     }
   };
+
+  const selectedSector = useMemo(
+    () =>
+      sectors.find(
+        (sector) =>
+          sector.sector_id === selectedSectorId,
+      ) ?? null,
+    [sectors, selectedSectorId],
+  );
 
   const builderProgress = useMemo(() => {
     if (!overview || overview.target_builder_count <= 0) {
@@ -1781,6 +1793,213 @@ export function BuildMars() {
         {!sectorsLoading &&
           !sectorsError &&
           sectors.length > 0 && (
+            <div className="mars-map-shell">
+              <div className="mars-map-heading">
+                <div>
+                  <span className="mars-section-label">
+                    INTERACTIVE MARS MAP
+                  </span>
+
+                  <h3>Operational Surface</h3>
+
+                  <p>
+                    Explore live Mars Sectors and monitor Colony
+                    expansion across the surface.
+                  </p>
+                </div>
+
+                <div className="mars-map-summary">
+                  <span>ACTIVE SECTORS</span>
+                  <strong>{sectors.length}</strong>
+                </div>
+              </div>
+
+              <div
+                className="mars-map"
+                role="img"
+                aria-label="Interactive BUILD MARS sector map"
+              >
+                <div className="mars-map-planet-glow" />
+                <div className="mars-map-crater mars-map-crater-a" />
+                <div className="mars-map-crater mars-map-crater-b" />
+                <div className="mars-map-crater mars-map-crater-c" />
+                <div className="mars-map-ridge mars-map-ridge-a" />
+                <div className="mars-map-ridge mars-map-ridge-b" />
+
+                <svg
+                  className="mars-map-network"
+                  viewBox="0 0 100 100"
+                  preserveAspectRatio="none"
+                  aria-hidden="true"
+                >
+                  <path d="M28 30 L50 39 L73 28" />
+                  <path d="M50 39 L79 51 L67 69" />
+                  <path d="M50 39 L35 67 L67 69" />
+                  <path d="M35 67 L28 30" />
+                  <path d="M73 28 L79 51" />
+                </svg>
+
+                {sectors.map((sector) => {
+                  if (
+                    sector.map_x === null ||
+                    sector.map_y === null
+                  ) {
+                    return null;
+                  }
+
+                  const isCurrentSector =
+                    myColony?.active_sector_id ===
+                    sector.sector_id;
+
+                  const capacityPercent =
+                    sector.max_colonies > 0
+                      ? Math.min(
+                          (sector.current_colonies /
+                            sector.max_colonies) *
+                            100,
+                          100,
+                        )
+                      : 0;
+
+                  return (
+                    <button
+                      key={sector.sector_id}
+                      type="button"
+                      className={`mars-map-node${
+                        isCurrentSector
+                          ? " mars-map-node-current"
+                          : ""
+                      }${
+                        selectedSectorId ===
+                        sector.sector_id
+                          ? " mars-map-node-selected"
+                          : ""
+                      }`}
+                      style={{
+                        left: `${sector.map_x}%`,
+                        top: `${sector.map_y}%`,
+                      }}
+                      title={`${sector.sector_name} — ${sector.current_colonies}/${sector.max_colonies} Colonies`}
+                      onClick={() => {
+                        setSelectedSectorId(
+                          sector.sector_id,
+                        );
+                      }}
+                    >
+                      <span className="mars-map-node-pulse" />
+
+                      <span className="mars-map-node-core" />
+
+                      <span className="mars-map-node-label">
+                        <strong>
+                          {sector.sector_code}
+                        </strong>
+
+                        <small>
+                          {sector.current_colonies}
+                          {" / "}
+                          {sector.max_colonies}
+                        </small>
+
+                        <span className="mars-map-node-capacity">
+                          <i
+                            style={{
+                              width: `${capacityPercent}%`,
+                            }}
+                          />
+                        </span>
+                      </span>
+                    </button>
+                  );
+                })}
+
+                {selectedSector && (
+                  <div className="mars-map-sector-detail">
+                    <div className="mars-map-sector-detail-top">
+                      <div>
+                        <span>
+                          {selectedSector.sector_code}
+                        </span>
+
+                        <strong>
+                          {selectedSector.sector_name}
+                        </strong>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setSelectedSectorId(null)
+                        }
+                        aria-label="Close sector details"
+                      >
+                        ×
+                      </button>
+                    </div>
+
+                    <div className="mars-map-sector-detail-grid">
+                      <div>
+                        <span>Colonies</span>
+                        <strong>
+                          {selectedSector.current_colonies}
+                          {" / "}
+                          {selectedSector.max_colonies}
+                        </strong>
+                      </div>
+
+                      <div>
+                        <span>Contribution</span>
+                        <strong>
+                          {selectedSector.total_contribution.toLocaleString()}
+                        </strong>
+                      </div>
+
+                      <div>
+                        <span>Status</span>
+                        <strong>
+                          {selectedSector.sector_status.toUpperCase()}
+                        </strong>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      className="mars-map-sector-jump"
+                      onClick={() => {
+                        const target =
+                          document.getElementById(
+                            `mars-sector-${selectedSector.sector_id}`,
+                          );
+
+                        target?.scrollIntoView({
+                          behavior: "smooth",
+                          block: "center",
+                        });
+                      }}
+                    >
+                      View Sector Controls
+                    </button>
+                  </div>
+                )}
+
+                <div className="mars-map-legend">
+                  <span>
+                    <i className="mars-map-legend-node" />
+                    Sector
+                  </span>
+
+                  <span>
+                    <i className="mars-map-legend-current" />
+                    Your Colony Sector
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+
+        {!sectorsLoading &&
+          !sectorsError &&
+          sectors.length > 0 && (
             <div className="mars-sector-grid">
               {sectors.map((sector) => {
                 const capacityPercent =
@@ -1817,6 +2036,7 @@ export function BuildMars() {
 
                 return (
                   <article
+                    id={`mars-sector-${sector.sector_id}`}
                     className="mars-sector-card"
                     key={sector.sector_id}
                   >
