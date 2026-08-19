@@ -48,6 +48,12 @@ import {
   type MarsSector,
 } from "../core/mars/MarsSectorService";
 
+import {
+  constructMyMarsColonyBuilding,
+  getMyMarsColonyBase,
+  type MarsColonyBaseBuilding,
+} from "../core/mars/MarsColonyBaseService";
+
 import "./BuildMars.css";
 
 export function BuildMars() {
@@ -130,6 +136,18 @@ export function BuildMars() {
     useState<string | null>(null);
 
   const [memberActionBuilderId, setMemberActionBuilderId] =
+    useState<string | null>(null);
+
+  const [colonyBase, setColonyBase] =
+    useState<MarsColonyBaseBuilding[]>([]);
+
+  const [baseLoading, setBaseLoading] =
+    useState(false);
+
+  const [baseError, setBaseError] =
+    useState<string | null>(null);
+
+  const [constructingBuildingKey, setConstructingBuildingKey] =
     useState<string | null>(null);
 
   const [leavingColony, setLeavingColony] =
@@ -829,6 +847,84 @@ export function BuildMars() {
       ) ?? null,
     [sectors, selectedSectorId],
   );
+
+  const loadColonyBase = async () => {
+    if (!myColony) {
+      setColonyBase([]);
+      return;
+    }
+
+    try {
+      setBaseLoading(true);
+      setBaseError(null);
+
+      const buildings =
+        await getMyMarsColonyBase();
+
+      setColonyBase(buildings);
+    } catch (loadError) {
+      console.error(
+        "BUILD MARS Colony Base failed:",
+        loadError,
+      );
+
+      setBaseError(
+        loadError instanceof Error
+          ? loadError.message
+          : "Unable to load Colony Base.",
+      );
+    } finally {
+      setBaseLoading(false);
+    }
+  };
+
+  const handleConstructBuilding = async (
+    buildingKey: string,
+  ) => {
+    if (
+      !myColony ||
+      constructingBuildingKey ||
+      !["founder", "leader"].includes(myColony.my_role)
+    ) {
+      return;
+    }
+
+    try {
+      setConstructingBuildingKey(buildingKey);
+      setBaseError(null);
+
+      await constructMyMarsColonyBuilding(
+        buildingKey,
+      );
+
+      const buildings =
+        await getMyMarsColonyBase();
+
+      setColonyBase(buildings);
+    } catch (actionError) {
+      console.error(
+        "BUILD MARS building construction failed:",
+        actionError,
+      );
+
+      setBaseError(
+        actionError instanceof Error
+          ? actionError.message
+          : "Unable to construct Colony building.",
+      );
+    } finally {
+      setConstructingBuildingKey(null);
+    }
+  };
+
+  useEffect(() => {
+    if (!myColony) {
+      setColonyBase([]);
+      return;
+    }
+
+    void loadColonyBase();
+  }, [myColony?.colony_id]);
 
   const builderProgress = useMemo(() => {
     if (!overview || overview.target_builder_count <= 0) {
@@ -1751,6 +1847,135 @@ export function BuildMars() {
             </div>
           )}
       </section>
+
+      {myColony && (
+        <section className="mars-colony-base-section">
+          <div className="mars-colony-base-heading">
+            <div>
+              <span className="mars-section-label">
+                COLONY BASE
+              </span>
+
+              <h2>{myColony.colony_name} Base</h2>
+
+              <p>
+                Construct and expand permanent Colony infrastructure
+                on the Mars surface.
+              </p>
+            </div>
+
+            <div className="mars-colony-base-summary">
+              <span>STRUCTURES</span>
+              <strong>
+                {
+                  colonyBase.filter(
+                    (building) => building.built,
+                  ).length
+                }
+                {" / "}
+                {colonyBase.length}
+              </strong>
+            </div>
+          </div>
+
+          {baseLoading && (
+            <div className="mars-colony-base-state">
+              Synchronizing Colony Base...
+            </div>
+          )}
+
+          {!baseLoading && baseError && (
+            <div className="mars-colony-base-state mars-state-error">
+              {baseError}
+            </div>
+          )}
+
+          {!baseLoading &&
+            !baseError &&
+            colonyBase.length > 0 && (
+              <div className="mars-base-surface">
+                <div className="mars-base-horizon" />
+                <div className="mars-base-ridge mars-base-ridge-a" />
+                <div className="mars-base-ridge mars-base-ridge-b" />
+                <div className="mars-base-crater mars-base-crater-a" />
+                <div className="mars-base-crater mars-base-crater-b" />
+
+                {colonyBase.map((building) => {
+                  const positionClass =
+                    `mars-base-building-${building.building_key}`;
+
+                  const canConstruct =
+                    !building.built &&
+                    ["founder", "leader"].includes(
+                      myColony.my_role,
+                    );
+
+                  const constructing =
+                    constructingBuildingKey ===
+                    building.building_key;
+
+                  return (
+                    <article
+                      key={building.building_key}
+                      className={`mars-base-building ${positionClass}${
+                        building.built
+                          ? " mars-base-building-built"
+                          : " mars-base-building-ghost"
+                      }`}
+                    >
+                      <div className="mars-base-building-visual">
+                        <div className="mars-base-building-body" />
+                        <div className="mars-base-building-light" />
+                      </div>
+
+                      <div className="mars-base-building-info">
+                        <span>
+                          {building.building_category.toUpperCase()}
+                        </span>
+
+                        <strong>
+                          {building.building_name}
+                        </strong>
+
+                        <small>
+                          {building.built
+                            ? `LEVEL ${building.building_level}`
+                            : "NOT CONSTRUCTED"}
+                        </small>
+
+                        {canConstruct && (
+                          <button
+                            type="button"
+                            disabled={
+                              constructingBuildingKey !== null
+                            }
+                            onClick={() =>
+                              void handleConstructBuilding(
+                                building.building_key,
+                              )
+                            }
+                          >
+                            {constructing
+                              ? "Constructing..."
+                              : "Construct"}
+                          </button>
+                        )}
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            )}
+
+          {!baseLoading &&
+            !baseError &&
+            colonyBase.length === 0 && (
+              <div className="mars-colony-base-state">
+                Colony Base infrastructure is not available.
+              </div>
+            )}
+        </section>
+      )}
 
       <section className="mars-sector-network">
         <div className="mars-sector-heading">

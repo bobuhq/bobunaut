@@ -1503,3 +1503,311 @@
     width: calc(100% - 24px);
   }
 }
+
+/* ============================================================
+   BUILD MARS — Colony Base v1
+   ============================================================ */
+
+.mars-colony-base-section {
+  margin-top: 1.75rem;
+}
+
+.mars-colony-base-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.mars-colony-base-heading h2 {
+  margin: 0.25rem 0 0.35rem;
+}
+
+.mars-colony-base-heading p {
+  margin: 0;
+  max-width: 650px;
+  opacity: 0.62;
+}
+
+.mars-colony-base-summary {
+  flex-shrink: 0;
+  text-align: right;
+  display: grid;
+  gap: 0.15rem;
+}
+
+.mars-colony-base-summary span {
+  font-size: 0.65rem;
+  letter-spacing: 0.11em;
+  opacity: 0.5;
+}
+
+.mars-colony-base-summary strong {
+  font-size: 1.4rem;
+}
+
+.mars-colony-base-state {
+  padding: 1rem;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  background: rgba(255,255,255,0.025);
+}
+
+.mars-base-surface {
+  position: relative;
+  min-height: 560px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 169, 95, 0.18);
+  border-radius: 22px;
+  background:
+    radial-gradient(
+      ellipse at 52% 72%,
+      rgba(163, 74, 33, 0.45),
+      transparent 48%
+    ),
+    linear-gradient(
+      180deg,
+      #3a1a10 0%,
+      #5d2916 42%,
+      #3a190e 70%,
+      #1c0d09 100%
+    );
+  box-shadow:
+    inset 0 0 90px rgba(0,0,0,0.45);
+}
+
+.mars-base-horizon {
+  position: absolute;
+  left: -10%;
+  right: -10%;
+  bottom: 0;
+  height: 46%;
+  border-radius: 50% 50% 0 0;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(124, 52, 25, 0.35),
+      rgba(45, 18, 10, 0.8)
+    );
+}
+
+.mars-base-ridge,
+.mars-base-crater {
+  position: absolute;
+  pointer-events: none;
+}
+
+.mars-base-ridge {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 181, 115, 0.18),
+    transparent
+  );
+}
+
+.mars-base-ridge-a {
+  width: 48%;
+  left: 7%;
+  top: 56%;
+  transform: rotate(-7deg);
+}
+
+.mars-base-ridge-b {
+  width: 42%;
+  right: 7%;
+  top: 43%;
+  transform: rotate(8deg);
+}
+
+.mars-base-crater {
+  border-radius: 50%;
+  border: 1px solid rgba(255, 185, 120, 0.08);
+  box-shadow: inset 8px 8px 20px rgba(0,0,0,0.3);
+}
+
+.mars-base-crater-a {
+  width: 130px;
+  height: 75px;
+  left: 9%;
+  bottom: 14%;
+}
+
+.mars-base-crater-b {
+  width: 170px;
+  height: 90px;
+  right: 8%;
+  bottom: 10%;
+}
+
+.mars-base-building {
+  position: absolute;
+  width: 150px;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.mars-base-building-command_hub {
+  left: 50%;
+  top: 48%;
+}
+
+.mars-base-building-habitat {
+  left: 27%;
+  top: 62%;
+}
+
+.mars-base-building-energy {
+  left: 72%;
+  top: 60%;
+}
+
+.mars-base-building-water {
+  left: 31%;
+  top: 30%;
+}
+
+.mars-base-building-science_lab {
+  left: 70%;
+  top: 29%;
+}
+
+.mars-base-building-visual {
+  position: relative;
+  width: 92px;
+  height: 64px;
+  margin: 0 auto 8px;
+}
+
+.mars-base-building-body {
+  position: absolute;
+  inset: 12px 10px 0;
+  border: 1px solid rgba(255, 206, 160, 0.22);
+  border-radius: 16px 16px 7px 7px;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(135, 92, 68, 0.95),
+      rgba(69, 43, 32, 0.96)
+    );
+  box-shadow:
+    0 10px 20px rgba(0,0,0,0.35),
+    inset 0 1px rgba(255,255,255,0.06);
+}
+
+.mars-base-building-command_hub .mars-base-building-body {
+  inset: 3px 6px 0;
+  border-radius: 22px 22px 8px 8px;
+}
+
+.mars-base-building-light {
+  position: absolute;
+  left: 50%;
+  top: 28px;
+  width: 16px;
+  height: 4px;
+  border-radius: 999px;
+  transform: translateX(-50%);
+  background: #ffbd75;
+  box-shadow: 0 0 12px rgba(255, 153, 75, 0.7);
+}
+
+.mars-base-building-info {
+  display: grid;
+  gap: 3px;
+  padding: 8px;
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 10px;
+  background: rgba(15, 9, 8, 0.78);
+  backdrop-filter: blur(7px);
+}
+
+.mars-base-building-info span {
+  font-size: 0.56rem;
+  letter-spacing: 0.1em;
+  opacity: 0.48;
+}
+
+.mars-base-building-info strong {
+  font-size: 0.78rem;
+}
+
+.mars-base-building-info small {
+  font-size: 0.6rem;
+  opacity: 0.6;
+}
+
+.mars-base-building-info button {
+  margin-top: 4px;
+  padding: 7px 9px;
+  border: 1px solid rgba(255, 176, 105, 0.22);
+  border-radius: 8px;
+  background: rgba(255, 128, 60, 0.08);
+  color: #ffd9b4;
+  font: inherit;
+  font-size: 0.68rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.mars-base-building-info button:hover:not(:disabled) {
+  background: rgba(255, 128, 60, 0.15);
+}
+
+.mars-base-building-info button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.mars-base-building-ghost {
+  opacity: 0.36;
+  filter: grayscale(0.45);
+}
+
+.mars-base-building-built {
+  opacity: 1;
+}
+
+@media (max-width: 720px) {
+  .mars-colony-base-heading {
+    flex-direction: column;
+  }
+
+  .mars-colony-base-summary {
+    text-align: left;
+  }
+
+  .mars-base-surface {
+    min-height: 720px;
+  }
+
+  .mars-base-building {
+    width: 128px;
+  }
+
+  .mars-base-building-command_hub {
+    left: 50%;
+    top: 44%;
+  }
+
+  .mars-base-building-habitat {
+    left: 28%;
+    top: 65%;
+  }
+
+  .mars-base-building-energy {
+    left: 72%;
+    top: 65%;
+  }
+
+  .mars-base-building-water {
+    left: 27%;
+    top: 22%;
+  }
+
+  .mars-base-building-science_lab {
+    left: 73%;
+    top: 22%;
+  }
+}
