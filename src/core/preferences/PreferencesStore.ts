@@ -86,6 +86,16 @@ export const preferencesStore = {
     });
   },
 
+  beginRestore(): void {
+    replaceSnapshot({
+      preferences: createInitialPreferences(),
+      source: "local",
+      isRestoring: true,
+      isSaving: false,
+      lastError: null,
+    });
+  },
+
   setRestoring(isRestoring: boolean): void {
     replaceSnapshot({
       ...snapshot,

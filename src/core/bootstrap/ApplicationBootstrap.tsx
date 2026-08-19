@@ -26,7 +26,10 @@ import {
 import {
   missionProgressRestoreService,
 } from "../game/services/MissionProgressRestoreService";
-import { preferencesService } from "../preferences";
+import {
+  preferencesService,
+  preferencesStore,
+} from "../preferences";
 
 interface ApplicationBootstrapProps {
   children: ReactNode;
@@ -69,7 +72,7 @@ export function ApplicationBootstrap({
     coreEngine.stop();
 
     builderStore.reset();
-    preferencesService.reset();
+    preferencesStore.beginRestore();
     missionRepository.reset();
     achievementRepository.reset();
 
