@@ -362,3 +362,32 @@ Promise<MyPendingMarsColonyJoinRequest | null> {
 
   return rows?.[0] ?? null;
 }
+
+
+// ============================================================
+// Colony Members
+// ============================================================
+
+export type MarsColonyMember = {
+  membership_id: string;
+  colony_id: string;
+  builder_id: string;
+  username: string | null;
+  display_name: string | null;
+  membership_role: string;
+  membership_status: string;
+  joined_at: string | null;
+};
+
+export async function getMyMarsColonyMembers():
+Promise<MarsColonyMember[]> {
+  const { data, error } = await supabase.rpc(
+    "get_my_mars_colony_members",
+  );
+
+  if (error) {
+    throw error;
+  }
+
+  return (data as MarsColonyMember[] | null) ?? [];
+}

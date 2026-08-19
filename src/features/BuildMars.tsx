@@ -24,16 +24,22 @@ import {
 import {
   approveMarsColonyJoinRequest,
   createMyMarsColony,
+  demoteMarsColonyOfficer,
   getMarsColonyDirectory,
   getMyMarsColony,
   getMyMarsColonyJoinRequests,
+  getMyMarsColonyMembers,
   getMyPendingMarsColonyJoinRequest,
+  leaveMyMarsColony,
+  promoteMarsColonyOfficer,
   rejectMarsColonyJoinRequest,
   requestJoinMarsColony,
+  transferMyMarsColonyLeadership,
   type MarsColony,
   type MarsColonyDirectoryEntry,
   type MarsColonyJoinRequest,
   type MarsColonyJoinRequestResult,
+  type MarsColonyMember,
 } from "../core/mars/MarsColonyService";
 
 import {
@@ -113,6 +119,21 @@ export function BuildMars() {
 
   const [resolvingJoinRequestId, setResolvingJoinRequestId] =
     useState<string | null>(null);
+
+  const [colonyMembers, setColonyMembers] =
+    useState<MarsColonyMember[]>([]);
+
+  const [membersLoading, setMembersLoading] =
+    useState(false);
+
+  const [membersError, setMembersError] =
+    useState<string | null>(null);
+
+  const [memberActionBuilderId, setMemberActionBuilderId] =
+    useState<string | null>(null);
+
+  const [leavingColony, setLeavingColony] =
+    useState(false);
 
   const [sectors, setSectors] =
     useState<MarsSector[]>([]);
@@ -586,6 +607,214 @@ export function BuildMars() {
       await loadColonyJoinRequests();
     } finally {
       setResolvingJoinRequestId(null);
+    }
+  };
+
+  const loadColonyMembers = async () => {
+    if (!myColony) {
+      setColonyMembers([]);
+      return;
+    }
+
+    try {
+      setMembersLoading(true);
+      setMembersError(null);
+
+      const members =
+        await getMyMarsColonyMembers();
+
+      setColonyMembers(members);
+    } catch (loadError) {
+      console.error(
+        "BUILD MARS Colony members failed:",
+        loadError,
+      );
+
+      setMembersError(
+        loadError instanceof Error
+          ? loadError.message
+          : "Unable to load Colony members.",
+      );
+    } finally {
+      setMembersLoading(false);
+    }
+  };
+
+  const refreshColonyAfterMemberAction = async () => {
+    const refreshedColony =
+      await getMyMarsColony();
+
+    setMyColony(refreshedColony);
+
+    if (refreshedColony) {
+      const members =
+        await getMyMarsColonyMembers();
+
+      setColonyMembers(members);
+    } else {
+      setColonyMembers([]);
+    }
+  };
+
+  const handlePromoteOfficer = async (
+    builderId: string,
+  ) => {
+    if (memberActionBuilderId) {
+      return;
+    }
+
+    try {
+      setMemberActionBuilderId(builderId);
+      setMembersError(null);
+
+      await promoteMarsColonyOfficer(builderId);
+
+      await refreshColonyAfterMemberAction();
+    } catch (actionError) {
+      console.error(
+        "BUILD MARS Officer promotion failed:",
+        actionError,
+      );
+
+      setMembersError(
+        actionError instanceof Error
+          ? actionError.message
+          : "Unable to promote Colony Officer.",
+      );
+    } finally {
+      setMemberActionBuilderId(null);
+    }
+  };
+
+  const handleDemoteOfficer = async (
+    builderId: string,
+  ) => {
+    if (memberActionBuilderId) {
+      return;
+    }
+
+    try {
+      setMemberActionBuilderId(builderId);
+      setMembersError(null);
+
+      await demoteMarsColonyOfficer(builderId);
+
+      await refreshColonyAfterMemberAction();
+    } catch (actionError) {
+      console.error(
+        "BUILD MARS Officer demotion failed:",
+        actionError,
+      );
+
+      setMembersError(
+        actionError instanceof Error
+          ? actionError.message
+          : "Unable to demote Colony Officer.",
+      );
+    } finally {
+      setMemberActionBuilderId(null);
+    }
+  };
+
+  const handleTransferLeadership = async (
+    builderId: string,
+  ) => {
+    if (
+      memberActionBuilderId ||
+      !myColony ||
+      builderId === currentBuilderId
+    ) {
+      return;
+    }
+
+    const confirmed = window.confirm(
+      "Transfer operational Colony leadership to this Builder?",
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setMemberActionBuilderId(builderId);
+      setMembersError(null);
+
+      await transferMyMarsColonyLeadership(
+        builderId,
+      );
+
+      await refreshColonyAfterMemberAction();
+    } catch (actionError) {
+      console.error(
+        "BUILD MARS leadership transfer failed:",
+        actionError,
+      );
+
+      setMembersError(
+        actionError instanceof Error
+          ? actionError.message
+          : "Unable to transfer Colony leadership.",
+      );
+    } finally {
+      setMemberActionBuilderId(null);
+    }
+  };
+
+  useEffect(() => {
+    if (!myColony) {
+      setColonyMembers([]);
+      return;
+    }
+
+    void loadColonyMembers();
+  }, [myColony?.colony_id]);
+
+  const handleLeaveColony = async () => {
+    if (
+      !myColony ||
+      leavingColony ||
+      !["member", "officer"].includes(myColony.my_role)
+    ) {
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Leave ${myColony.colony_name}?`,
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setLeavingColony(true);
+      setMembersError(null);
+      setColonyActionError(null);
+
+      await leaveMyMarsColony();
+
+      setMyColony(null);
+      setColonyMembers([]);
+      setColonyJoinRequests([]);
+      setPendingJoinRequest(null);
+
+      setShowCreateColony(false);
+      setShowColonyDirectory(false);
+
+      await loadColonyDirectory();
+    } catch (actionError) {
+      console.error(
+        "BUILD MARS leave Colony failed:",
+        actionError,
+      );
+
+      setMembersError(
+        actionError instanceof Error
+          ? actionError.message
+          : "Unable to leave Colony.",
+      );
+    } finally {
+      setLeavingColony(false);
     }
   };
 
@@ -1250,6 +1479,194 @@ export function BuildMars() {
                 </div>
               )}
 
+              <div className="mars-colony-members">
+                <div className="mars-colony-members-heading">
+                  <div>
+                    <span className="mars-section-label">
+                      COLONY MEMBERS
+                    </span>
+
+                    <h4>
+                      Active Builders
+                    </h4>
+                  </div>
+
+                  <button
+                    type="button"
+                    disabled={membersLoading}
+                    onClick={() =>
+                      void loadColonyMembers()
+                    }
+                  >
+                    {membersLoading
+                      ? "Loading..."
+                      : "Refresh Members"}
+                  </button>
+                </div>
+
+                {membersError && (
+                  <div className="mars-colony-action-error">
+                    {membersError}
+                  </div>
+                )}
+
+                {membersLoading &&
+                  colonyMembers.length === 0 && (
+                    <div className="mars-colony-state">
+                      Synchronizing Colony members...
+                    </div>
+                  )}
+
+                {!membersLoading &&
+                  !membersError &&
+                  colonyMembers.length === 0 && (
+                    <div className="mars-colony-state">
+                      No active Colony members found.
+                    </div>
+                  )}
+
+                {colonyMembers.length > 0 && (
+                  <div className="mars-colony-member-list">
+                    {colonyMembers.map((member) => {
+                      const isCurrentBuilder =
+                        member.builder_id ===
+                        currentBuilderId;
+
+                      const isCurrentLeader =
+                        myColony.leader_builder_id ===
+                        currentBuilderId;
+
+                      const processing =
+                        memberActionBuilderId ===
+                        member.builder_id;
+
+                      const visibleName =
+                        member.display_name?.trim() ||
+                        member.username?.trim() ||
+                        "BOBU Builder";
+
+                      return (
+                        <article
+                          className="mars-colony-member-card"
+                          key={member.membership_id}
+                        >
+                          <div className="mars-colony-member-identity">
+                            <div>
+                              <strong>
+                                {visibleName}
+                              </strong>
+
+                              {member.username && (
+                                <span>
+                                  @{member.username}
+                                </span>
+                              )}
+                            </div>
+
+                            <span
+                              className={`mars-colony-role mars-colony-role-${member.membership_role}`}
+                            >
+                              {member.membership_role.toUpperCase()}
+                            </span>
+                          </div>
+
+                          <div className="mars-colony-member-meta">
+                            <span>
+                              Builder
+                            </span>
+
+                            <strong>
+                              {member.builder_id}
+                            </strong>
+
+                            <span>
+                              Joined
+                            </span>
+
+                            <strong>
+                              {member.joined_at
+                                ? new Date(
+                                    member.joined_at,
+                                  ).toLocaleDateString()
+                                : "—"}
+                            </strong>
+                          </div>
+
+                          {isCurrentBuilder && (
+                            <div className="mars-colony-member-you">
+                              YOU
+                            </div>
+                          )}
+
+                          {isCurrentLeader &&
+                            !isCurrentBuilder && (
+                              <div className="mars-colony-member-actions">
+                                {member.membership_role ===
+                                  "member" && (
+                                  <button
+                                    type="button"
+                                    disabled={
+                                      memberActionBuilderId !==
+                                      null
+                                    }
+                                    onClick={() =>
+                                      void handlePromoteOfficer(
+                                        member.builder_id,
+                                      )
+                                    }
+                                  >
+                                    {processing
+                                      ? "Processing..."
+                                      : "Promote Officer"}
+                                  </button>
+                                )}
+
+                                {member.membership_role ===
+                                  "officer" && (
+                                  <button
+                                    type="button"
+                                    disabled={
+                                      memberActionBuilderId !==
+                                      null
+                                    }
+                                    onClick={() =>
+                                      void handleDemoteOfficer(
+                                        member.builder_id,
+                                      )
+                                    }
+                                  >
+                                    {processing
+                                      ? "Processing..."
+                                      : "Demote Officer"}
+                                  </button>
+                                )}
+
+                                {member.membership_role !==
+                                  "founder" && (
+                                  <button
+                                    type="button"
+                                    disabled={
+                                      memberActionBuilderId !==
+                                      null
+                                    }
+                                    onClick={() =>
+                                      void handleTransferLeadership(
+                                        member.builder_id,
+                                      )
+                                    }
+                                  >
+                                    Transfer Leadership
+                                  </button>
+                                )}
+                              </div>
+                            )}
+                        </article>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
               <div className="mars-colony-stats">
                 <div>
                   <span>Role</span>
@@ -1286,6 +1703,38 @@ export function BuildMars() {
                       "UNASSIGNED"}
                   </strong>
                 </div>
+              </div>
+
+              <div className="mars-colony-lifecycle">
+                {["member", "officer"].includes(
+                  myColony.my_role,
+                ) && (
+                  <button
+                    type="button"
+                    className="mars-colony-leave-button"
+                    disabled={leavingColony}
+                    onClick={() =>
+                      void handleLeaveColony()
+                    }
+                  >
+                    {leavingColony
+                      ? "Leaving Colony..."
+                      : "Leave Colony"}
+                  </button>
+                )}
+
+                {myColony.my_role === "leader" && (
+                  <p>
+                    Transfer Colony leadership before leaving.
+                  </p>
+                )}
+
+                {myColony.my_role === "founder" && (
+                  <p>
+                    Founder membership cannot be abandoned
+                    directly. Transfer Colony control first.
+                  </p>
+                )}
               </div>
             </div>
           )}

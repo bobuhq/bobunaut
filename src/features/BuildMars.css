@@ -841,3 +841,211 @@
     flex: 1;
   }
 }
+
+/* ============================================================
+   BUILD MARS — Colony Members
+   ============================================================ */
+
+.mars-colony-members {
+  margin-top: 1.25rem;
+  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.mars-colony-members-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.mars-colony-members-heading h4 {
+  margin: 0.2rem 0 0;
+}
+
+.mars-colony-members-heading button {
+  flex-shrink: 0;
+}
+
+.mars-colony-member-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.mars-colony-member-card {
+  position: relative;
+  display: grid;
+  gap: 0.85rem;
+  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  background: rgba(5, 7, 15, 0.42);
+}
+
+.mars-colony-member-identity {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.mars-colony-member-identity > div {
+  min-width: 0;
+  display: grid;
+  gap: 0.25rem;
+}
+
+.mars-colony-member-identity strong {
+  font-size: 1rem;
+}
+
+.mars-colony-member-identity span {
+  font-size: 0.76rem;
+  opacity: 0.62;
+}
+
+.mars-colony-role {
+  flex-shrink: 0;
+  padding: 0.35rem 0.55rem;
+  border: 1px solid rgba(185, 156, 255, 0.22);
+  border-radius: 999px;
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.mars-colony-role-founder,
+.mars-colony-role-leader {
+  border-color: rgba(185, 156, 255, 0.5);
+}
+
+.mars-colony-member-meta {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.35rem 0.7rem;
+  font-size: 0.72rem;
+}
+
+.mars-colony-member-meta span {
+  opacity: 0.52;
+}
+
+.mars-colony-member-meta strong {
+  overflow-wrap: anywhere;
+  font-weight: 600;
+}
+
+.mars-colony-member-you {
+  position: absolute;
+  right: 1rem;
+  bottom: 1rem;
+  font-size: 0.64rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  opacity: 0.55;
+}
+
+.mars-colony-member-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.mars-colony-member-actions button,
+.mars-colony-members-heading button {
+  padding: 10px 13px;
+  border: 1px solid rgba(185, 156, 255, 0.26);
+  border-radius: 10px;
+  background: rgba(143, 114, 255, 0.1);
+  color: #eee8ff;
+  font: inherit;
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.mars-colony-member-actions button:hover:not(:disabled),
+.mars-colony-members-heading button:hover:not(:disabled) {
+  background: rgba(143, 114, 255, 0.18);
+}
+
+.mars-colony-member-actions button:disabled,
+.mars-colony-members-heading button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+@media (max-width: 720px) {
+  .mars-colony-members-heading,
+  .mars-colony-member-identity {
+    flex-direction: column;
+  }
+
+  .mars-colony-member-actions {
+    flex-direction: column;
+  }
+
+  .mars-colony-member-actions button,
+  .mars-colony-members-heading button {
+    width: 100%;
+  }
+
+  .mars-colony-member-you {
+    position: static;
+  }
+}
+
+/* ============================================================
+   BUILD MARS — Colony Lifecycle
+   ============================================================ */
+
+.mars-colony-lifecycle {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.075);
+}
+
+.mars-colony-lifecycle p {
+  margin: 0;
+  font-size: 0.78rem;
+  color: rgba(245, 247, 255, 0.55);
+}
+
+.mars-colony-leave-button {
+  padding: 10px 14px;
+  border: 1px solid rgba(255, 120, 120, 0.32);
+  border-radius: 10px;
+  background: rgba(255, 90, 90, 0.08);
+  color: #ffb0a8;
+  font: inherit;
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.mars-colony-leave-button:hover:not(:disabled) {
+  background: rgba(255, 90, 90, 0.14);
+}
+
+.mars-colony-leave-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+@media (max-width: 720px) {
+  .mars-colony-lifecycle {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .mars-colony-leave-button {
+    width: 100%;
+  }
+}
