@@ -508,3 +508,68 @@
     flex-direction: column;
   }
 }
+
+/* ============================================================
+   BUILD MARS — Access Gate
+   ============================================================ */
+
+.mars-access-hero {
+  margin-bottom: 24px;
+}
+
+.mars-access-panel {
+  padding: 34px;
+  border: 1px solid rgba(185, 156, 255, 0.18);
+  border-radius: 24px;
+  background:
+    radial-gradient(
+      circle at 100% 0%,
+      rgba(143, 114, 255, 0.14),
+      transparent 44%
+    ),
+    rgba(10, 13, 22, 0.92);
+}
+
+.mars-access-panel h2 {
+  margin: 10px 0 24px;
+  font-size: 2rem;
+}
+
+.mars-access-balance {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.mars-access-balance strong {
+  font-size: 2rem;
+}
+
+.mars-access-balance span {
+  color: rgba(245, 247, 255, 0.55);
+}
+
+.mars-access-remaining {
+  margin: 16px 0 0;
+  font-weight: 700;
+  color: #c8b6ff;
+}
+
+.mars-access-copy {
+  max-width: 720px;
+  margin: 14px 0 0;
+  line-height: 1.65;
+  color: rgba(245, 247, 255, 0.62);
+}
+
+@media (max-width: 600px) {
+  .mars-access-panel {
+    padding: 24px;
+  }
+
+  .mars-access-balance strong {
+    font-size: 1.55rem;
+  }
+}

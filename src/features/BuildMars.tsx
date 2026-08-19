@@ -17,6 +17,11 @@ import {
 } from "../core/mars/MarsCivilizationService";
 
 import {
+  getMyMarsAccess,
+  type MarsAccess,
+} from "../core/mars/MarsAccessService";
+
+import {
   getMyMarsColony,
   type MarsColony,
 } from "../core/mars/MarsColonyService";
@@ -30,6 +35,15 @@ import {
 import "./BuildMars.css";
 
 export function BuildMars() {
+  const [marsAccess, setMarsAccess] =
+    useState<MarsAccess | null>(null);
+
+  const [accessLoading, setAccessLoading] =
+    useState(true);
+
+  const [accessError, setAccessError] =
+    useState<string | null>(null);
+
   const [overview, setOverview] =
     useState<MarsCivilizationOverview | null>(null);
 
@@ -86,6 +100,49 @@ export function BuildMars() {
   useEffect(() => {
     let cancelled = false;
 
+    const loadAccess = async () => {
+      try {
+        setAccessLoading(true);
+        setAccessError(null);
+
+        const access = await getMyMarsAccess();
+
+        if (!cancelled) {
+          setMarsAccess(access);
+        }
+      } catch (loadError) {
+        console.error(
+          "BUILD MARS access load failed:",
+          loadError,
+        );
+
+        if (!cancelled) {
+          setAccessError(
+            "Mars access state is temporarily unavailable.",
+          );
+        }
+      } finally {
+        if (!cancelled) {
+          setAccessLoading(false);
+        }
+      }
+    };
+
+    void loadAccess();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!marsAccess?.unlocked) {
+      setLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+
     const load = async () => {
       try {
         setLoading(true);
@@ -120,9 +177,14 @@ export function BuildMars() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [marsAccess?.unlocked]);
 
   useEffect(() => {
+    if (!marsAccess?.unlocked) {
+      setColonyLoading(false);
+      return;
+    }
+
     let cancelled = false;
 
     const loadColony = async () => {
@@ -158,7 +220,7 @@ export function BuildMars() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [marsAccess?.unlocked]);
 
   const loadSectors = async () => {
     try {
@@ -183,8 +245,13 @@ export function BuildMars() {
   };
 
   useEffect(() => {
+    if (!marsAccess?.unlocked) {
+      setSectorsLoading(false);
+      return;
+    }
+
     void loadSectors();
-  }, []);
+  }, [marsAccess?.unlocked]);
 
   const handleAssignSector = async (
     sectorId: string,
@@ -265,6 +332,95 @@ export function BuildMars() {
       100,
     );
   }, [overview]);
+
+  if (accessLoading) {
+    return (
+      <main className="mars-page">
+        <div className="mars-state">
+          Checking Mars access...
+        </div>
+      </main>
+    );
+  }
+
+  if (accessError || !marsAccess) {
+    return (
+      <main className="mars-page">
+        <div className="mars-state mars-state-error">
+          {accessError ?? "Mars access unavailable."}
+        </div>
+      </main>
+    );
+  }
+
+  if (!marsAccess.unlocked) {
+    const accessProgress =
+      marsAccess.required_gp > 0
+        ? Math.min(
+            (marsAccess.current_gp /
+              marsAccess.required_gp) *
+              100,
+            100,
+          )
+        : 0;
+
+    return (
+      <main className="mars-page">
+        <section className="mars-hero mars-access-hero">
+          <div className="mars-kicker">
+            BOBU CIVILIZATION PROTOCOL
+          </div>
+
+          <h1>BUILD MARS</h1>
+
+          <p>
+            Mars participation unlocks permanently when your
+            Builder reaches the required Total GP.
+          </p>
+        </section>
+
+        <section className="mars-access-panel">
+          <span className="mars-section-label">
+            MARS ACCESS
+          </span>
+
+          <h2>Access Locked</h2>
+
+          <div className="mars-access-balance">
+            <strong>
+              {marsAccess.current_gp.toLocaleString()}
+            </strong>
+
+            <span>/</span>
+
+            <strong>
+              {marsAccess.required_gp.toLocaleString()}
+            </strong>
+
+            <span>GP</span>
+          </div>
+
+          <div className="mars-progress">
+            <div
+              className="mars-progress-fill"
+              style={{ width: `${accessProgress}%` }}
+            />
+          </div>
+
+          <p className="mars-access-remaining">
+            {marsAccess.remaining_gp.toLocaleString()} GP
+            remaining
+          </p>
+
+          <p className="mars-access-copy">
+            Reach the required Total GP to permanently unlock
+            Colony creation, Colony membership, Mars Sectors,
+            and civilization participation.
+          </p>
+        </section>
+      </main>
+    );
+  }
 
   if (loading) {
     return (
