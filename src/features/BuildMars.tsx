@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { supabase } from "../lib/supabase";
 import {
   Atom,
   Droplets,
@@ -58,6 +59,29 @@ export function BuildMars() {
 
   const [sectorActionError, setSectorActionError] =
     useState<string | null>(null);
+
+  const [currentBuilderId, setCurrentBuilderId] =
+    useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadCurrentBuilder = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!cancelled) {
+        setCurrentBuilderId(session?.user.id ?? null);
+      }
+    };
+
+    void loadCurrentBuilder();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -173,7 +197,26 @@ export function BuildMars() {
       setAssigningSectorId(sectorId);
       setSectorActionError(null);
 
-      await assignMyColonyToMarsSector(sectorId);
+      const assignment =
+        await assignMyColonyToMarsSector(sectorId);
+
+      setMyColony((currentColony) =>
+        currentColony
+          ? {
+              ...currentColony,
+              active_sector_id: assignment.sector_id,
+              active_sector_code:
+                sectors.find(
+                  (sector) =>
+                    sector.sector_id === assignment.sector_id,
+                )?.sector_code ?? null,
+              active_sector_name: assignment.sector_name,
+              active_sector_status:
+                assignment.assignment_status,
+              sector_assigned_at: assignment.assigned_at,
+            }
+          : currentColony,
+      );
 
       await loadSectors();
     } catch (actionError) {
@@ -441,6 +484,14 @@ export function BuildMars() {
                     {myColony.colony_status.toUpperCase()}
                   </strong>
                 </div>
+
+                <div>
+                  <span>Sector</span>
+                  <strong>
+                    {myColony.active_sector_name ??
+                      "UNASSIGNED"}
+                  </strong>
+                </div>
               </div>
             </div>
           )}
@@ -500,7 +551,19 @@ export function BuildMars() {
                     : 0;
 
                 const isLeader =
-                  myColony?.my_role === "leader";
+                  Boolean(
+                    myColony &&
+                      currentBuilderId &&
+                      myColony.leader_builder_id ===
+                        currentBuilderId,
+                  );
+
+                const hasActiveSector =
+                  Boolean(myColony?.active_sector_id);
+
+                const isCurrentSector =
+                  myColony?.active_sector_id ===
+                  sector.sector_id;
 
                 const capacityReached =
                   sector.current_colonies >=
@@ -553,27 +616,39 @@ export function BuildMars() {
                       </strong>
                     </div>
 
-                    {isLeader && (
-                      <button
-                        className="mars-sector-assign"
-                        type="button"
-                        disabled={
-                          capacityReached ||
-                          assigningSectorId !== null
-                        }
-                        onClick={() =>
-                          void handleAssignSector(
-                            sector.sector_id,
-                          )
-                        }
-                      >
-                        {assigning
-                          ? "Assigning..."
-                          : capacityReached
-                            ? "Sector Full"
-                            : "Assign Colony"}
-                      </button>
-                    )}
+                    {isLeader &&
+                      !hasActiveSector && (
+                        <button
+                          className="mars-sector-assign"
+                          type="button"
+                          disabled={
+                            capacityReached ||
+                            assigningSectorId !== null
+                          }
+                          onClick={() =>
+                            void handleAssignSector(
+                              sector.sector_id,
+                            )
+                          }
+                        >
+                          {assigning
+                            ? "Assigning..."
+                            : capacityReached
+                              ? "Sector Full"
+                              : "Assign Colony"}
+                        </button>
+                      )}
+
+                    {isLeader &&
+                      isCurrentSector && (
+                        <button
+                          className="mars-sector-assign"
+                          type="button"
+                          disabled
+                        >
+                          Current Sector
+                        </button>
+                      )}
                   </article>
                 );
               })}
@@ -587,7 +662,9 @@ export function BuildMars() {
         )}
 
         {myColony &&
-          myColony.my_role !== "leader" && (
+          currentBuilderId &&
+          myColony.leader_builder_id !==
+            currentBuilderId && (
             <div className="mars-sector-permission">
               Sector assignment is controlled by the active
               Colony Leader.

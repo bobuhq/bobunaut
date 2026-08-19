@@ -16,6 +16,12 @@ export type MarsColony = {
   founder_builder_id: string;
   leader_builder_id: string;
 
+  active_sector_id: string | null;
+  active_sector_code: string | null;
+  active_sector_name: string | null;
+  active_sector_status: string | null;
+  sector_assigned_at: string | null;
+
   created_at: string;
 };
 
@@ -31,7 +37,7 @@ export type CreatedMarsColony = {
 
 export async function getMyMarsColony(): Promise<MarsColony | null> {
   const { data, error } = await supabase.rpc(
-    "get_my_mars_colony",
+    "get_my_mars_colony_v2",
   );
 
   if (error) {
