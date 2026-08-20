@@ -857,3 +857,204 @@
     width: 126px;
   }
 }
+
+/* =========================================================
+   BOBU MARS — TRUE TOP-DOWN 2D COLONY WORKSPACE
+   Colony workspace only.
+   No planet curvature, horizon, perspective or 3D transforms.
+   ========================================================= */
+
+.mars-territory--workspace .mars-territory__viewport {
+  perspective: none !important;
+  transform-style: flat !important;
+  min-height: calc(100vh - 72px);
+  overflow: hidden;
+}
+
+/*
+ * Mars is now a flat operational surface.
+ * Keep the real Mars texture, remove the circular planet.
+ */
+.mars-territory--workspace .mars-territory__planet {
+  display: block !important;
+  position: absolute;
+  z-index: -3;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  border-radius: 0;
+  transform: none !important;
+
+  background:
+    linear-gradient(
+      rgba(76, 29, 13, 0.18),
+      rgba(31, 13, 9, 0.34)
+    ),
+    url("/images/mars/nasa-mars-world.jpg")
+      center / cover no-repeat;
+
+  box-shadow:
+    inset 0 0 110px rgba(0, 0, 0, 0.34);
+
+  filter:
+    saturate(1.12)
+    contrast(1.08);
+
+  pointer-events: none;
+}
+
+/* No spherical atmosphere vignette. */
+.mars-territory--workspace .mars-territory__atmosphere {
+  z-index: -2;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(31, 12, 8, 0.08),
+      rgba(38, 14, 8, 0.04) 48%,
+      rgba(12, 7, 7, 0.16)
+    );
+}
+
+/*
+ * These belonged to the cinematic perspective surface.
+ * A top-down map has no horizon or perspective ridges.
+ */
+.mars-territory--workspace .mars-colony-workspace__horizon,
+.mars-territory--workspace .mars-colony-workspace__ridge {
+  display: none !important;
+}
+
+/*
+ * Craters remain only as subtle TOP-DOWN terrain marks.
+ * They must not look like foreground perspective objects.
+ */
+.mars-territory--workspace .mars-colony-workspace__crater {
+  z-index: -1;
+  border:
+    1px solid rgba(74, 28, 16, 0.22);
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(35, 14, 10, 0.18) 0%,
+      rgba(49, 18, 11, 0.08) 48%,
+      transparent 72%
+    );
+  box-shadow:
+    inset 0 0 24px rgba(22, 8, 6, 0.18);
+  opacity: 0.55;
+}
+
+.mars-territory--workspace
+.mars-colony-workspace__crater--a {
+  width: 150px;
+  height: 150px;
+  left: 16%;
+  bottom: 14%;
+}
+
+.mars-territory--workspace
+.mars-colony-workspace__crater--b {
+  width: 190px;
+  height: 190px;
+  right: 13%;
+  bottom: 12%;
+}
+
+/*
+ * Entire build layer is a flat XY workspace.
+ */
+.mars-territory--workspace
+.mars-colony-workspace__base {
+  position: absolute;
+  z-index: 8;
+  inset: 0;
+  transform: none !important;
+  transform-style: flat !important;
+}
+
+/*
+ * Building slots remain distributed over the real Mars surface.
+ * Remove any inherited 3D transform behavior.
+ */
+.mars-territory--workspace
+.mars-base-building {
+  transform-style: flat !important;
+  perspective: none !important;
+}
+
+.mars-territory--workspace
+.mars-base-building-visual,
+.mars-territory--workspace
+.mars-base-building-body,
+.mars-territory--workspace
+.mars-base-building-light {
+  transform-style: flat !important;
+}
+
+/*
+ * Top-down visual footprint.
+ * Structures sit on the surface instead of floating toward camera.
+ */
+.mars-territory--workspace
+.mars-base-building-visual {
+  transform: none !important;
+}
+
+.mars-territory--workspace
+.mars-base-building-body {
+  border-radius: 50% !important;
+  transform: none !important;
+}
+
+/*
+ * Information panels stay readable but are secondary.
+ */
+.mars-territory--workspace
+.mars-base-building-info {
+  transform: none !important;
+}
+
+/*
+ * HUD remains floating at viewport edges.
+ * It does not consume buildable terrain.
+ */
+.mars-territory--workspace
+.mars-territory-hud {
+  z-index: 30;
+}
+
+/*
+ * Workspace title remains overlay UI.
+ */
+.mars-territory--workspace
+.mars-colony-workspace__title {
+  z-index: 30;
+}
+
+/* Desktop: maximize actual Mars work area. */
+@media (min-width: 761px) {
+  .mars-territory--workspace
+  .mars-territory__viewport {
+    height: calc(100vh - 72px);
+    min-height: 720px;
+  }
+}
+
+/* Mobile remains true 2D as well. */
+@media (max-width: 760px) {
+  .mars-territory--workspace
+  .mars-territory__viewport {
+    perspective: none !important;
+    min-height: calc(100vh - 64px);
+  }
+
+  .mars-territory--workspace
+  .mars-territory__planet {
+    width: 100%;
+    height: 100%;
+    inset: 0;
+    transform: none !important;
+  }
+}
