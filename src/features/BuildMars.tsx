@@ -2581,9 +2581,7 @@ export function BuildMars() {
                 </div>
               )}
 
-              {selectedSector &&
-                enteredSectorId ===
-                  selectedSector.sector_id && (
+              {enteredSectorId !== null && (
                 <div className="mars-sector-entry mars-sector-entry--arriving">
                   <div className="mars-sector-return-row">
                     <button
