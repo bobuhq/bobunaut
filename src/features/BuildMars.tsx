@@ -1331,6 +1331,13 @@ export function BuildMars() {
         </div>
       </section>
 
+      <div
+        className={`mars-orbit-secondary${
+          enteredSectorId !== null
+            ? " is-surface-mode"
+            : ""
+        }`}
+      >
       <section className="mars-unlock">
         <div>
           <span className="mars-section-label">
@@ -2476,7 +2483,15 @@ export function BuildMars() {
             )}
       </section>
 
-      <section className="mars-sector-network">
+      </div>
+
+      <section
+        className={`mars-sector-network${
+          enteredSectorId !== null
+            ? " is-surface-mode"
+            : " is-orbit-mode"
+        }`}
+      >
         <div className="mars-sector-heading">
           <div>
             <span className="mars-section-label">

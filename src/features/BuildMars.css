@@ -2274,3 +2274,210 @@
       center center;
   }
 }
+
+/* =========================================================
+   BOBU MARS — CIVILIZATION LAYOUT V2
+   Compact command header + isolated territory experience
+   ========================================================= */
+
+.mars-page {
+  width: min(1380px, calc(100% - 32px));
+  padding-top: 28px;
+}
+
+/* BUILD MARS becomes a command header instead of a giant hero */
+.mars-hero {
+  padding: 24px 30px;
+  border-radius: 22px;
+}
+
+.mars-hero h1 {
+  margin: 8px 0 8px;
+  font-size: clamp(2.4rem, 5vw, 4.8rem);
+  line-height: 0.92;
+}
+
+.mars-hero p {
+  max-width: 760px;
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+
+.mars-population {
+  margin-top: 20px;
+}
+
+.mars-hero .mars-progress {
+  height: 5px;
+  margin-top: 12px;
+}
+
+/* Make civilization overview secondary to the planet */
+.mars-unlock {
+  margin-top: 14px;
+  padding: 18px 22px;
+  border-radius: 18px;
+}
+
+.mars-unlock h2 {
+  font-size: 1.35rem;
+}
+
+.mars-metrics {
+  gap: 12px;
+}
+
+.mars-metric {
+  min-height: 92px;
+}
+
+.mars-contribution {
+  min-height: 78px;
+}
+
+/* Sector network becomes the primary planetary command area */
+.mars-sector-network {
+  position: relative;
+}
+
+/* 2D territory should feel like its own Mars workspace */
+.mars-sector-network:has(.mars-territory) {
+  margin-top: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+/* When territory is active, remove sector-network chrome */
+.mars-sector-network:has(.mars-territory)
+  > .mars-sector-heading {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  .mars-page {
+    width: min(100% - 20px, 1380px);
+    padding-top: 18px;
+  }
+
+  .mars-hero {
+    padding: 20px;
+  }
+
+  .mars-hero h1 {
+    font-size: clamp(2.3rem, 13vw, 3.8rem);
+  }
+}
+
+/* =========================================================
+   BOBU MARS — ORBIT FIRST LAYOUT
+   ========================================================= */
+
+/*
+ * Dashboard data remains mounted and production-backed,
+ * but the planet becomes the primary experience.
+ */
+.mars-orbit-secondary {
+  margin-top: 14px;
+}
+
+/* In surface/sector mode, remove the old dashboard entirely */
+.mars-orbit-secondary.is-surface-mode {
+  display: none;
+}
+
+/* Pull the 3D Mars experience directly under BUILD MARS */
+.mars-sector-network.is-orbit-mode {
+  display: flex;
+  flex-direction: column;
+  margin-top: 18px;
+}
+
+/* Move the planet visually ahead of secondary dashboard sections */
+.mars-sector-network.is-orbit-mode {
+  order: 2;
+}
+
+.mars-orbit-secondary {
+  order: 3;
+}
+
+/*
+ * BuildMars main becomes a layout container.
+ * This lets us reorder visual sections without moving
+ * production JSX/service logic.
+ */
+.mars-page {
+  display: flex;
+  flex-direction: column;
+}
+
+.mars-hero {
+  order: 1;
+}
+
+/*
+ * In orbit mode we only want the 3D planet.
+ * The global 2D surface appears after entering a sector.
+ */
+.mars-sector-network.is-orbit-mode
+  .mars-sector-grid {
+  display: none;
+}
+
+/* Compact orbit container */
+.mars-sector-network.is-orbit-mode {
+  padding: 18px;
+  border-radius: 24px;
+}
+
+.mars-sector-network.is-orbit-mode
+  > .mars-sector-heading {
+  margin-bottom: 10px;
+}
+
+/* 3D Mars should dominate the viewport */
+.mars-sector-network.is-orbit-mode
+  .mars-planet-map-section {
+  min-height: 620px;
+}
+
+/* Surface mode becomes a clean isolated workspace */
+.mars-sector-network.is-surface-mode {
+  order: 1;
+  margin-top: 0;
+  padding-top: 20px;
+}
+
+/*
+ * Once a user has entered a sector, the BUILD MARS hero
+ * should not consume screen space.
+ */
+.mars-page:has(.mars-sector-network.is-surface-mode)
+  .mars-hero {
+  display: none;
+}
+
+/* Remove old general sector chrome while inside territory */
+.mars-sector-network.is-surface-mode:has(.mars-territory)
+  > .mars-sector-heading {
+  display: none;
+}
+
+/* Territory gets nearly the full available width */
+.mars-sector-network.is-surface-mode
+  .mars-sector-entry {
+  width: 100%;
+}
+
+.mars-sector-network.is-surface-mode
+  .mars-territory {
+  width: 100%;
+}
+
+@media (max-width: 760px) {
+  .mars-sector-network.is-orbit-mode
+    .mars-planet-map-section {
+    min-height: 520px;
+  }
+}
