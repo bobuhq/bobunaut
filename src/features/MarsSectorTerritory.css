@@ -528,3 +528,165 @@
     flex-wrap: wrap;
   }
 }
+
+
+/* =========================================================
+   BOBU MARS — TERRITORY HUD V2
+   Floating overlay. Does NOT consume terrain width.
+   ========================================================= */
+
+.mars-territory-hud {
+  position: absolute;
+  z-index: 14;
+  top: 50%;
+  display: grid;
+  gap: 10px;
+  width: 92px;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.mars-territory-hud--left {
+  left: 16px;
+}
+
+.mars-territory-hud--right {
+  right: 16px;
+}
+
+.mars-territory-hud__item {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  min-height: 72px;
+  padding: 9px 6px;
+  border: 1px solid rgba(255, 173, 103, 0.14);
+  border-radius: 14px;
+  background:
+    linear-gradient(
+      155deg,
+      rgba(26, 15, 14, 0.64),
+      rgba(6, 8, 13, 0.7)
+    );
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.22),
+    inset 0 0 18px rgba(255, 116, 46, 0.025);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.mars-territory-hud__icon {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  color: #ffb16f;
+  font-size: 1.15rem;
+  line-height: 1;
+  text-shadow:
+    0 0 14px rgba(255, 126, 55, 0.38);
+}
+
+.mars-territory-hud__item strong {
+  max-width: 100%;
+  overflow: hidden;
+  color: rgba(255, 255, 255, 0.94);
+  font-size: 0.82rem;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mars-territory-hud__item small {
+  color: rgba(255, 255, 255, 0.43);
+  font-size: 0.48rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/*
+ * Keep the actual territory centered on the FULL viewport.
+ * HUD is an overlay only; no padding is reserved for it.
+ */
+.mars-territory__hex-field {
+  left: 50%;
+}
+
+/* Tablet: HUD becomes even more compact. */
+@media (max-width: 980px) {
+  .mars-territory-hud {
+    width: 68px;
+    gap: 7px;
+  }
+
+  .mars-territory-hud--left {
+    left: 8px;
+  }
+
+  .mars-territory-hud--right {
+    right: 8px;
+  }
+
+  .mars-territory-hud__item {
+    min-height: 58px;
+    padding: 6px 4px;
+    border-radius: 11px;
+  }
+
+  .mars-territory-hud__icon {
+    width: 21px;
+    height: 21px;
+    font-size: 0.95rem;
+  }
+
+  .mars-territory-hud__item strong {
+    font-size: 0.7rem;
+  }
+
+  .mars-territory-hud__item small {
+    display: none;
+  }
+}
+
+/*
+ * Mobile: horizontal floating strips.
+ * Still overlaying the surface — never creating columns.
+ */
+@media (max-width: 620px) {
+  .mars-territory-hud {
+    top: auto;
+    right: 10px;
+    left: 10px;
+    width: auto;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 5px;
+    transform: none;
+  }
+
+  .mars-territory-hud--left {
+    top: 76px;
+    bottom: auto;
+  }
+
+  .mars-territory-hud--right {
+    top: auto;
+    bottom: 54px;
+  }
+
+  .mars-territory-hud__item {
+    min-height: 48px;
+    padding: 5px 2px;
+  }
+
+  .mars-territory-hud__icon {
+    width: 18px;
+    height: 18px;
+    font-size: 0.8rem;
+  }
+
+  .mars-territory-hud__item strong {
+    font-size: 0.62rem;
+  }
+}

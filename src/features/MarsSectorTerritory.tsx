@@ -4,9 +4,23 @@ import type { MarsSector } from "../core/mars/MarsSectorService";
 
 import "./MarsSectorTerritory.css";
 
+type TerritoryResources = {
+  materials: number;
+  energy: number;
+  water: number;
+  science: number;
+  food: number;
+};
+
 type Props = {
   sector: MarsSector;
   isMyColonySector: boolean;
+  resources: TerritoryResources | null;
+  structures: {
+    constructed: number;
+    total: number;
+  };
+  contribution: number;
   onBack: () => void;
 };
 
@@ -64,6 +78,9 @@ function buildHexPlots(
 export default function MarsSectorTerritory({
   sector,
   isMyColonySector,
+  resources,
+  structures,
+  contribution,
   onBack,
 }: Props) {
   const [selectedPlotId, setSelectedPlotId] =
@@ -118,6 +135,102 @@ export default function MarsSectorTerritory({
         />
 
         <div className="mars-territory__atmosphere" />
+
+        {isMyColonySector && (
+          <>
+            <aside
+              className="mars-territory-hud mars-territory-hud--left"
+              aria-label="Colony territory status"
+            >
+              <div
+                className="mars-territory-hud__item"
+                title="Materials"
+              >
+                <span className="mars-territory-hud__icon">◆</span>
+                <strong>{resources?.materials ?? 0}</strong>
+                <small>Materials</small>
+              </div>
+
+              <div
+                className="mars-territory-hud__item"
+                title="Water"
+              >
+                <span className="mars-territory-hud__icon">◉</span>
+                <strong>{resources?.water ?? 0}</strong>
+                <small>Water</small>
+              </div>
+
+              <div
+                className="mars-territory-hud__item"
+                title="Science"
+              >
+                <span className="mars-territory-hud__icon">✦</span>
+                <strong>{resources?.science ?? 0}</strong>
+                <small>Science</small>
+              </div>
+
+              <div
+                className="mars-territory-hud__item"
+                title="Contribution"
+              >
+                <span className="mars-territory-hud__icon">★</span>
+                <strong>
+                  {contribution.toLocaleString()}
+                </strong>
+                <small>Contribution</small>
+              </div>
+            </aside>
+
+            <aside
+              className="mars-territory-hud mars-territory-hud--right"
+              aria-label="Colony resource status"
+            >
+              <div
+                className="mars-territory-hud__item"
+                title="Energy"
+              >
+                <span className="mars-territory-hud__icon">ϟ</span>
+                <strong>{resources?.energy ?? 0}</strong>
+                <small>Energy</small>
+              </div>
+
+              <div
+                className="mars-territory-hud__item"
+                title="Food"
+              >
+                <span className="mars-territory-hud__icon">●</span>
+                <strong>{resources?.food ?? 0}</strong>
+                <small>Food</small>
+              </div>
+
+              <div
+                className="mars-territory-hud__item"
+                title="Structures"
+              >
+                <span className="mars-territory-hud__icon">⌂</span>
+                <strong>
+                  {structures.constructed}
+                  {" / "}
+                  {structures.total}
+                </strong>
+                <small>Structures</small>
+              </div>
+
+              <div
+                className="mars-territory-hud__item"
+                title="Sector Colonies"
+              >
+                <span className="mars-territory-hud__icon">◎</span>
+                <strong>
+                  {sector.current_colonies}
+                  {" / "}
+                  {sector.max_colonies}
+                </strong>
+                <small>Colonies</small>
+              </div>
+            </aside>
+          </>
+        )}
 
         <div className="mars-territory__hex-field">
           {plots.map((plot) => {

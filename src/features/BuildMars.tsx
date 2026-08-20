@@ -2840,6 +2840,17 @@ export function BuildMars() {
                           myColony?.active_sector_id ===
                           territorySector.sector_id
                         }
+                        resources={colonyResources}
+                        structures={{
+                          constructed: colonyBase.filter(
+                            (building) =>
+                              building.built,
+                          ).length,
+                          total: colonyBase.length,
+                        }}
+                        contribution={
+                          myColony?.total_contribution ?? 0
+                        }
                         onBack={() => {
                           setTerritorySectorId(null);
                           setSelectedSectorId(
