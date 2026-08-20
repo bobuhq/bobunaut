@@ -199,10 +199,15 @@ function SectorMarker({
           distanceFactor={7.8}
           position={[0, 0.22, 0]}
           style={{
-            pointerEvents: "none",
+            pointerEvents: "auto",
           }}
         >
-          <div
+          <button
+            type="button"
+            onClick={(event) => {
+              event.stopPropagation();
+              onSelect();
+            }}
             className={[
               "mars-planet-map__sector-label",
               current
@@ -223,7 +228,7 @@ function SectorMarker({
                 ? "MY TERRITORY"
                 : `${sector.current_colonies} / ${sector.max_colonies}`}
             </small>
-          </div>
+          </button>
         </Html>
       )}
     </group>

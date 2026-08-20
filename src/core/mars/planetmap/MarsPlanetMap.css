@@ -2215,3 +2215,15 @@
     width: 100%;
   }
 }
+
+/* Current/selected sector label is an interactive map control. */
+.mars-planet-map__sector-label {
+  appearance: none;
+  font: inherit;
+  cursor: pointer;
+}
+
+.mars-planet-map__sector-label:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 190, 130, 0.72);
+}
