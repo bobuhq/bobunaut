@@ -6,6 +6,7 @@ import {
   Html,
   OrbitControls,
   Stars,
+  useGLTF,
 } from "@react-three/drei";
 import {
   useMemo,
@@ -16,7 +17,6 @@ import type {
   Mesh,
 } from "three";
 import {
-  Color,
   DoubleSide,
   Vector3,
 } from "three";
@@ -190,20 +190,19 @@ function MarsPlanet({
   MarsGlobeProps,
   "ariaLabel" | "className"
 >) {
-  const atmosphereRef =
-    useRef<Mesh | null>(null);
-
   const groupRef =
     useRef<Group | null>(null);
 
-  const surfaceColor = useMemo(
-    () => new Color("#a7462d"),
-    [],
+  const atmosphereRef =
+    useRef<Mesh | null>(null);
+
+  const { scene } = useGLTF(
+    "/models/mars/nasa-mars.glb",
   );
 
-  const atmosphereColor = useMemo(
-    () => new Color("#ff7b46"),
-    [],
+  const marsScene = useMemo(
+    () => scene.clone(true),
+    [scene],
   );
 
   useFrame((_, delta) => {
@@ -223,41 +222,23 @@ function MarsPlanet({
       ref={groupRef}
       rotation={[0.14, -0.55, 0]}
     >
-      <mesh
-        castShadow
-        receiveShadow
-      >
-        <sphereGeometry
-          args={[
-            PLANET_RADIUS,
-            128,
-            128,
-          ]}
-        />
-
-        <meshStandardMaterial
-          color={surfaceColor}
-          roughness={0.92}
-          metalness={0.02}
-        />
-      </mesh>
+      <primitive
+        object={marsScene}
+        scale={PLANET_RADIUS}
+      />
 
       <mesh
-        scale={1.018}
+        scale={PLANET_RADIUS * 1.018}
         ref={atmosphereRef}
       >
         <sphereGeometry
-          args={[
-            PLANET_RADIUS,
-            96,
-            96,
-          ]}
+          args={[1, 96, 96]}
         />
 
         <meshBasicMaterial
-          color={atmosphereColor}
+          color="#ff7b46"
           transparent
-          opacity={0.075}
+          opacity={0.055}
           side={DoubleSide}
           depthWrite={false}
         />
@@ -392,3 +373,5 @@ export function MarsGlobe({
     </div>
   );
 }
+
+useGLTF.preload("/models/mars/nasa-mars.glb");
