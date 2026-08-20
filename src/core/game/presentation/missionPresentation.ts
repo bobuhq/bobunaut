@@ -4,6 +4,7 @@ import {
   Users,
   Sparkles,
   Gamepad2,
+  Rocket,
 } from "lucide-react";
 
 export interface MissionPresentation {
@@ -40,6 +41,66 @@ export const missionPresentation: Record<
     actionKey:
       "missions.presentation.action.startMining",
     icon: RadioTower,
+  },
+
+  "mars-create-colony": {
+    categoryKey:
+      "missions.presentation.category.mars",
+    difficultyKey:
+      "missions.presentation.difficulty.medium",
+    durationKey:
+      "missions.presentation.duration.unknown",
+    actionKey:
+      "missions.presentation.action.enterMars",
+    icon: Rocket,
+  },
+
+  "mars-assign-sector": {
+    categoryKey:
+      "missions.presentation.category.mars",
+    difficultyKey:
+      "missions.presentation.difficulty.easy",
+    durationKey:
+      "missions.presentation.duration.unknown",
+    actionKey:
+      "missions.presentation.action.enterMars",
+    icon: Rocket,
+  },
+
+  "mars-construct-building": {
+    categoryKey:
+      "missions.presentation.category.mars",
+    difficultyKey:
+      "missions.presentation.difficulty.medium",
+    durationKey:
+      "missions.presentation.duration.unknown",
+    actionKey:
+      "missions.presentation.action.enterMars",
+    icon: Rocket,
+  },
+
+  "mars-upgrade-building": {
+    categoryKey:
+      "missions.presentation.category.mars",
+    difficultyKey:
+      "missions.presentation.difficulty.medium",
+    durationKey:
+      "missions.presentation.duration.unknown",
+    actionKey:
+      "missions.presentation.action.enterMars",
+    icon: Rocket,
+  },
+
+  "mars-claim-resources": {
+    categoryKey:
+      "missions.presentation.category.mars",
+    difficultyKey:
+      "missions.presentation.difficulty.easy",
+    durationKey:
+      "missions.presentation.duration.unknown",
+    actionKey:
+      "missions.presentation.action.enterMars",
+    icon: Rocket,
   },
 
   "join-community": {

@@ -54,6 +54,39 @@ const fallbackPresentation: MissionPresentation = {
   icon: missionPresentation["start-mining"].icon,
 };
 
+const missionTranslationKeys: Record<
+  string,
+  {
+    title: string;
+    description: string;
+  }
+> = {
+  "start-mining": {
+    title: "missions.catalog.startMining.title",
+    description: "missions.catalog.startMining.description",
+  },
+  "mars-create-colony": {
+    title: "missions.catalog.marsCreateColony.title",
+    description: "missions.catalog.marsCreateColony.description",
+  },
+  "mars-assign-sector": {
+    title: "missions.catalog.marsAssignSector.title",
+    description: "missions.catalog.marsAssignSector.description",
+  },
+  "mars-construct-building": {
+    title: "missions.catalog.marsConstructBuilding.title",
+    description: "missions.catalog.marsConstructBuilding.description",
+  },
+  "mars-upgrade-building": {
+    title: "missions.catalog.marsUpgradeBuilding.title",
+    description: "missions.catalog.marsUpgradeBuilding.description",
+  },
+  "mars-claim-resources": {
+    title: "missions.catalog.marsClaimResources.title",
+    description: "missions.catalog.marsClaimResources.description",
+  },
+};
+
 export type MissionTranslationFunction = (
   key: string,
   variables?: Record<string, string | number>,
@@ -122,15 +155,14 @@ export function createMissionViewModel(
         )} GP`
       : options.t("missions.presentation.noGp");
 
+  const translationKeys =
+    missionTranslationKeys[definition.id];
+
   const titleKey =
-    definition.id === "start-mining"
-      ? "missions.catalog.startMining.title"
-      : null;
+    translationKeys?.title ?? null;
 
   const descriptionKey =
-    definition.id === "start-mining"
-      ? "missions.catalog.startMining.description"
-      : null;
+    translationKeys?.description ?? null;
 
   return {
     id: definition.id,

@@ -348,6 +348,11 @@ export function Missions() {
       return;
     }
 
+    if (missionId.startsWith("mars-")) {
+      window.location.assign("/mars");
+      return;
+    }
+
     if (missionId === "join-community") {
       setShowChannels(
         (current) => !current,
