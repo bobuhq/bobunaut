@@ -566,3 +566,255 @@
     padding: 8px;
   }
 }
+
+/* =========================================================
+   BOBU MARS — ORBITAL DIVE
+   Planet -> darkness -> Sector Surface
+   ========================================================= */
+
+.mars-orbital-dive {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  overflow: hidden;
+  background: transparent;
+  pointer-events: all;
+  animation:
+    marsDiveDarkness 1.45s
+    cubic-bezier(0.7, 0, 0.25, 1)
+    both;
+}
+
+.mars-orbital-dive__tunnel {
+  position: absolute;
+  inset: -35%;
+  background:
+    radial-gradient(
+      circle at 50% 50%,
+      transparent 0 7%,
+      rgba(20, 9, 7, 0.08) 12%,
+      rgba(5, 3, 5, 0.42) 31%,
+      rgba(0, 0, 0, 0.94) 63%,
+      #000 79%
+    );
+  transform: scale(0.7);
+  animation:
+    marsDiveTunnel 1.05s
+    cubic-bezier(0.78, 0.02, 0.22, 1)
+    forwards;
+}
+
+.mars-orbital-dive__core {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 18vmin;
+  height: 18vmin;
+  border-radius: 50%;
+  background:
+    radial-gradient(
+      circle,
+      rgba(255, 178, 105, 0.24),
+      rgba(151, 68, 38, 0.12) 36%,
+      transparent 70%
+    );
+  box-shadow:
+    0 0 80px rgba(255, 105, 47, 0.12);
+  transform:
+    translate(-50%, -50%)
+    scale(0.3);
+  animation:
+    marsDiveCore 0.82s
+    cubic-bezier(0.7, 0, 0.28, 1)
+    forwards;
+}
+
+.mars-orbital-dive__flash {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  opacity: 0;
+  animation:
+    marsDiveFlash 1.45s ease both;
+}
+
+.mars-sector-entry--arriving {
+  transform-origin: center top;
+  animation:
+    marsSectorArrival 720ms
+    cubic-bezier(0.18, 0.72, 0.24, 1)
+    both;
+}
+
+@keyframes marsDiveTunnel {
+  0% {
+    transform: scale(0.72);
+    filter: blur(0);
+  }
+
+  46% {
+    transform: scale(1.18);
+    filter: blur(1px);
+  }
+
+  100% {
+    transform: scale(4.2);
+    filter: blur(7px);
+  }
+}
+
+@keyframes marsDiveCore {
+  0% {
+    opacity: 0;
+    transform:
+      translate(-50%, -50%)
+      scale(0.2);
+  }
+
+  28% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform:
+      translate(-50%, -50%)
+      scale(8);
+  }
+}
+
+@keyframes marsDiveDarkness {
+  0% {
+    background: rgba(0, 0, 0, 0);
+  }
+
+  38% {
+    background: rgba(0, 0, 0, 0.28);
+  }
+
+  57% {
+    background: rgba(0, 0, 0, 1);
+  }
+
+  78% {
+    background: rgba(0, 0, 0, 1);
+  }
+
+  100% {
+    background: rgba(0, 0, 0, 0);
+  }
+}
+
+@keyframes marsDiveFlash {
+  0%,
+  48% {
+    opacity: 0;
+  }
+
+  58% {
+    opacity: 1;
+  }
+
+  76% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes marsSectorArrival {
+  0% {
+    opacity: 0;
+    transform:
+      perspective(900px)
+      translateY(-90px)
+      translateZ(180px)
+      scale(1.34);
+    filter: blur(9px);
+  }
+
+  45% {
+    opacity: 1;
+    filter: blur(2px);
+  }
+
+  100% {
+    opacity: 1;
+    transform:
+      perspective(900px)
+      translateY(0)
+      translateZ(0)
+      scale(1);
+    filter: blur(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mars-orbital-dive,
+  .mars-orbital-dive__tunnel,
+  .mars-orbital-dive__core,
+  .mars-orbital-dive__flash,
+  .mars-sector-entry--arriving {
+    animation-duration: 1ms !important;
+  }
+}
+
+/* =========================================================
+   BOBU MARS — REAL 3D ORBITAL DESCENT V2
+   ========================================================= */
+
+.mars-planet-map.is-diving {
+  overflow: hidden;
+}
+
+.mars-planet-map.is-diving
+  .mars-planet-map__hud,
+.mars-planet-map.is-diving
+  .mars-planet-map__focus-panel {
+  opacity: 0;
+  transform: translateY(18px) scale(0.96);
+  pointer-events: none;
+  transition:
+    opacity 220ms ease,
+    transform 320ms ease;
+}
+
+.mars-planet-map.is-diving
+  .mars-planet-map__canvas {
+  animation:
+    marsRealDiveCamera 1.25s
+    cubic-bezier(0.55, 0.02, 0.2, 1)
+    both;
+}
+
+@keyframes marsRealDiveCamera {
+  0% {
+    filter:
+      brightness(1)
+      contrast(1)
+      blur(0);
+  }
+
+  45% {
+    filter:
+      brightness(1.08)
+      contrast(1.04)
+      blur(0);
+  }
+
+  78% {
+    filter:
+      brightness(0.82)
+      contrast(1.12)
+      blur(0.4px);
+  }
+
+  100% {
+    filter:
+      brightness(0.28)
+      contrast(1.3)
+      blur(2px);
+  }
+}

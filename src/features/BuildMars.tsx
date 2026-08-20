@@ -220,6 +220,9 @@ export function BuildMars() {
   const [enteredSectorId, setEnteredSectorId] =
     useState<string | null>(null);
 
+  const [sectorDiveActive, setSectorDiveActive] =
+    useState(false);
+
   const [sectorActionError, setSectorActionError] =
     useState<string | null>(null);
 
@@ -896,20 +899,26 @@ export function BuildMars() {
   const handleEnterSector = (
     sectorId: string,
   ) => {
-    setEnteredSectorId(
-      sectorId,
-    );
+    if (sectorDiveActive) {
+      return;
+    }
+
+    setSectorDiveActive(true);
+
+    /*
+     * Orbital dive:
+     * keep the 3D planet visible while the
+     * transition closes around the viewport.
+     */
+    window.setTimeout(() => {
+      setEnteredSectorId(
+        sectorId,
+      );
+    }, 1180);
 
     window.setTimeout(() => {
-      document
-        .querySelector(
-          ".mars-sector-entry",
-        )
-        ?.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        });
-    }, 80);
+      setSectorDiveActive(false);
+    }, 1780);
   };
 
   const selectedSector = useMemo(
@@ -2531,15 +2540,27 @@ export function BuildMars() {
                     onEnterSector={
                       handleEnterSector
                     }
+                    diving={sectorDiveActive}
                     ariaLabel={t("mars.map.ariaLabel")}
                   />
                 </Suspense>
               </div>
 
+              {sectorDiveActive && (
+                <div
+                  className="mars-orbital-dive"
+                  aria-hidden="true"
+                >
+                  <div className="mars-orbital-dive__tunnel" />
+                  <div className="mars-orbital-dive__core" />
+                  <div className="mars-orbital-dive__flash" />
+                </div>
+              )}
+
               {selectedSector &&
                 enteredSectorId ===
                   selectedSector.sector_id && (
-                <div className="mars-sector-entry">
+                <div className="mars-sector-entry mars-sector-entry--arriving">
                   <div className="mars-map-shell">
               <div className="mars-map-heading">
                 <div>

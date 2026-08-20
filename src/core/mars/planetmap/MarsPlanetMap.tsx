@@ -43,6 +43,7 @@ type MarsPlanetMapProps = {
   onEnterSector: (
     sectorId: string,
   ) => void;
+  diving: boolean;
   ariaLabel: string;
 };
 
@@ -234,10 +235,13 @@ function MarsPlanet({
   currentSectorId,
   selectedSectorId,
   onSelectSector,
+  diving,
 }: Omit<
   MarsPlanetMapProps,
-  "ariaLabel" | "onEnterSector"
->) {
+  "ariaLabel" | "onEnterSector" | "diving"
+> & {
+  diving: boolean;
+}) {
   const groupRef =
     useRef<Group | null>(null);
 
@@ -320,17 +324,29 @@ function MarsPlanet({
        * Visual focus zoom without
        * fighting OrbitControls camera.
        */
+      /*
+       * Selection focus = subtle zoom.
+       * ENTER SECTOR = real 3D orbital descent.
+       *
+       * During the dive the planet itself expands
+       * toward the camera until the Mars surface
+       * fills the viewport.
+       */
+      const targetScale =
+        diving ? 4.85 : 1.1;
+
+      const damping =
+        diving ? 2.75 : 3.6;
+
       const scale =
         MathUtils.damp(
           group.scale.x,
-          1.1,
-          3.6,
+          targetScale,
+          damping,
           delta,
         );
 
-      group.scale.setScalar(
-        scale,
-      );
+      group.scale.setScalar(scale);
     } else {
       group.rotation.x =
         MathUtils.damp(
@@ -417,7 +433,8 @@ function MarsPlanet({
         />
       </mesh>
 
-      {sectors.map(
+      {!diving &&
+        sectors.map(
         (sector) => (
           <SectorMarker
             key={
@@ -491,9 +508,12 @@ function MarsScene(
       <OrbitControls
         makeDefault
         enablePan={false}
+        enabled={!props.diving}
         enableRotate={
-          !props.selectedSectorId
+          !props.selectedSectorId &&
+          !props.diving
         }
+        enableZoom={!props.diving}
         enableDamping
         dampingFactor={0.055}
         minDistance={3.45}
@@ -515,6 +535,7 @@ export function MarsPlanetMap({
   selectedSectorId,
   onSelectSector,
   onEnterSector,
+  diving,
   ariaLabel,
 }: MarsPlanetMapProps) {
   const selectedSector =
@@ -541,6 +562,9 @@ export function MarsPlanetMap({
         "mars-planet-map",
         selectedSector
           ? "has-selection"
+          : "",
+        diving
+          ? "is-diving"
           : "",
       ].join(" ")}
       aria-label={ariaLabel}
@@ -586,6 +610,7 @@ export function MarsPlanetMap({
           onSelectSector={
             onSelectSector
           }
+          diving={diving}
         />
       </Canvas>
 
