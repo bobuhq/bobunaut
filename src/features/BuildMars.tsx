@@ -1947,49 +1947,90 @@ export function BuildMars() {
           )}
       </section>
 
-      {myColony && (
-        <section className="mars-colony-base-section">
+      <section className="mars-colony-base-section">
           <div className="mars-colony-base-heading">
             <div>
               <span className="mars-section-label">
                 COLONY BASE
               </span>
 
-              <h2>{myColony.colony_name} Base</h2>
+              <h2>
+                {myColony
+                  ? `${myColony.colony_name} Base`
+                  : "Colony Base"}
+              </h2>
 
               <p>
-                Construct and expand permanent Colony infrastructure
-                on the Mars surface.
+                {myColony
+                  ? "Construct and expand permanent Colony infrastructure on the Mars surface."
+                  : "Establish or join a Mars Colony to activate your planetary base."}
               </p>
             </div>
 
             <div className="mars-colony-base-summary">
-              <span>STRUCTURES</span>
+              <span>
+                {myColony ? "STRUCTURES" : "BASE STATUS"}
+              </span>
+
               <strong>
-                {
-                  colonyBase.filter(
-                    (building) => building.built,
-                  ).length
-                }
-                {" / "}
-                {colonyBase.length}
+                {myColony
+                  ? `${colonyBase.filter(
+                      (building) => building.built,
+                    ).length} / ${colonyBase.length}`
+                  : "OFFLINE"}
               </strong>
             </div>
           </div>
 
-          {baseLoading && (
+          {!myColony && (
+            <div className="mars-colony-base-locked">
+              <div className="mars-colony-base-lock-copy">
+                <span>BASE OFFLINE</span>
+
+                <strong>
+                  Establish a Colony to activate your Mars Base
+                </strong>
+
+                <p>
+                  Command Hub, Habitat, Energy, Water, and Science Lab
+                  infrastructure will become available after Colony activation.
+                </p>
+              </div>
+
+              <div className="mars-colony-base-lock-grid">
+                {[
+                  "COMMAND HUB",
+                  "HABITAT",
+                  "ENERGY",
+                  "WATER",
+                  "SCIENCE LAB",
+                ].map((building) => (
+                  <div
+                    key={building}
+                    className="mars-colony-base-lock-card"
+                  >
+                    <span>{building}</span>
+                    <small>LOCKED</small>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {myColony && baseLoading && (
             <div className="mars-colony-base-state">
               Synchronizing Colony Base...
             </div>
           )}
 
-          {!baseLoading && baseError && (
+          {myColony && !baseLoading && baseError && (
             <div className="mars-colony-base-state mars-state-error">
               {baseError}
             </div>
           )}
 
-          {!baseLoading &&
+          {myColony &&
+            !baseLoading &&
             !baseError &&
             colonyBase.length > 0 && (
               <>
@@ -2153,15 +2194,15 @@ export function BuildMars() {
               </>
             )}
 
-          {!baseLoading &&
+          {myColony &&
+            !baseLoading &&
             !baseError &&
             colonyBase.length === 0 && (
               <div className="mars-colony-base-state">
                 Colony Base infrastructure is not available.
               </div>
             )}
-        </section>
-      )}
+      </section>
 
       <section className="mars-sector-network">
         <div className="mars-sector-heading">
