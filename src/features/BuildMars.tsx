@@ -835,7 +835,9 @@ export function BuildMars() {
     }
 
     const confirmed = window.confirm(
-      `Leave ${myColony.colony_name}?`,
+      t("mars.colony.leaveConfirm", {
+        colony: myColony.colony_name,
+      }),
     );
 
     if (!confirmed) {
@@ -1166,7 +1168,7 @@ export function BuildMars() {
       <main className="mars-page">
         <section className="mars-hero mars-access-hero">
           <div className="mars-kicker">
-            BOBU CIVILIZATION PROTOCOL
+            {t("mars.kicker")}
           </div>
 
           <h1>{t("mars.title")}</h1>
@@ -1248,7 +1250,7 @@ export function BuildMars() {
     <main className="mars-page">
       <section className="mars-hero">
         <div className="mars-kicker">
-          BOBU CIVILIZATION PROTOCOL
+          {t("mars.kicker")}
         </div>
 
         <h1>{t("mars.title")}</h1>
@@ -1282,21 +1284,21 @@ export function BuildMars() {
       <section className="mars-unlock">
         <div>
           <span className="mars-section-label">
-            NEXT CIVILIZATION UNLOCK
+            {t("mars.unlock.label")}
           </span>
 
           <h2>
-            {overview.next_unlock_title ??
-              t("mars.unlock.awaitingObjective")}
+            {overview.next_unlock_key
+              ? t(`mars.unlock.${overview.next_unlock_key}`)
+              : t("mars.unlock.awaitingObjective")}
           </h2>
 
           <p>
             {overview.next_unlock_status === "locked"
               ? t("mars.common.locked")
-              : (
-                  overview.next_unlock_status ??
-                  t("mars.common.unknown")
-                ).toUpperCase()}
+              : overview.next_unlock_status
+                ? t(`mars.status.${overview.next_unlock_status}`)
+                : t("mars.common.unknown")}
           </p>
         </div>
 
@@ -1353,7 +1355,7 @@ export function BuildMars() {
         <div className="mars-colony-heading">
           <div>
             <span className="mars-section-label">
-              COLONY NETWORK
+              {t("mars.colony.network")}
             </span>
 
             <h2>{t("mars.colony.myColony")}</h2>
@@ -1554,7 +1556,7 @@ export function BuildMars() {
                                 </span>
 
                                 <strong>
-                                  {colony.colony_status.toUpperCase()}
+                                  {t(`mars.status.${colony.colony_status}`)}
                                 </strong>
                               </div>
 
@@ -1563,7 +1565,7 @@ export function BuildMars() {
                               </h4>
 
                               <p>
-                                {colony.specialization.toUpperCase()}
+                                {t(`mars.specialization.${colony.specialization}`)}
                               </p>
 
                               <dl>
@@ -1638,7 +1640,7 @@ export function BuildMars() {
                 <h3>{myColony.colony_name}</h3>
 
                 <p>
-                  {myColony.specialization.toUpperCase()}
+                  {t(`mars.specialization.${myColony.specialization}`)}
                 </p>
               </div>
 
@@ -1649,7 +1651,7 @@ export function BuildMars() {
                   <div className="mars-colony-management-heading">
                     <div>
                       <span className="mars-section-label">
-                        COLONY MANAGEMENT
+                        {t("mars.colony.management")}
                       </span>
 
                       <h4>{t("mars.colony.pendingRequests")}</h4>
@@ -1664,7 +1666,7 @@ export function BuildMars() {
                     >
                       {joinRequestsLoading
                         ? "Loading..."
-                        : "Load Requests"}
+                        : t("mars.colony.loadRequests")}
                     </button>
                   </div>
 
@@ -1678,7 +1680,7 @@ export function BuildMars() {
                     !joinRequestsError &&
                     colonyJoinRequests.length === 0 && (
                       <div className="mars-colony-state">
-                        No pending membership requests.
+                        {t("mars.colony.noPendingRequests")}
                       </div>
                     )}
 
@@ -1696,14 +1698,14 @@ export function BuildMars() {
                               key={request.membership_id}
                             >
                               <div>
-                                <span>BUILDER</span>
+                                <span>{t("mars.member.builder")}</span>
 
                                 <strong>
                                   {request.builder_id}
                                 </strong>
 
                                 <small>
-                                  {request.membership_status.toUpperCase()}
+                                  {t(`mars.status.${request.membership_status}`)}
                                 </small>
                               </div>
 
@@ -1753,11 +1755,11 @@ export function BuildMars() {
                 <div className="mars-colony-members-heading">
                   <div>
                     <span className="mars-section-label">
-                      COLONY MEMBERS
+                      {t("mars.colony.members")}
                     </span>
 
                     <h4>
-                      Active Builders
+                      {t("mars.colony.activeBuilders")}
                     </h4>
                   </div>
 
@@ -1770,7 +1772,7 @@ export function BuildMars() {
                   >
                     {membersLoading
                       ? "Loading..."
-                      : "Refresh Members"}
+                      : t("mars.colony.refreshMembers")}
                   </button>
                 </div>
 
@@ -1791,7 +1793,7 @@ export function BuildMars() {
                   !membersError &&
                   colonyMembers.length === 0 && (
                     <div className="mars-colony-state">
-                      No active Colony members found.
+                      {t("mars.colony.noActiveMembers")}
                     </div>
                   )}
 
@@ -1937,7 +1939,7 @@ export function BuildMars() {
                 <div>
                   <span>{t("mars.common.role")}</span>
                   <strong>
-                    {myColony.my_role.toUpperCase()}
+                    {t(`mars.role.${myColony.my_role}`)}
                   </strong>
                 </div>
 
@@ -1958,7 +1960,7 @@ export function BuildMars() {
                 <div>
                   <span>{t("mars.common.status")}</span>
                   <strong>
-                    {myColony.colony_status.toUpperCase()}
+                    {t(`mars.status.${myColony.colony_status}`)}
                   </strong>
                 </div>
 
@@ -2297,7 +2299,7 @@ export function BuildMars() {
 
                       <div className="mars-base-building-info">
                         <span>
-                          {building.building_category.toUpperCase()}
+                          {t(`mars.buildingCategory.${building.building_category}`)}
                         </span>
 
                         <strong>
@@ -2631,7 +2633,7 @@ export function BuildMars() {
                       <div>
                         <span>{t("mars.common.status")}</span>
                         <strong>
-                          {selectedSector.sector_status.toUpperCase()}
+                          {t(`mars.status.${selectedSector.sector_status}`)}
                         </strong>
                       </div>
                     </div>
@@ -2718,7 +2720,7 @@ export function BuildMars() {
                       <span>{sector.sector_code}</span>
 
                       <strong>
-                        {sector.sector_status.toUpperCase()}
+                        {t(`mars.status.${sector.sector_status}`)}
                       </strong>
                     </div>
 
