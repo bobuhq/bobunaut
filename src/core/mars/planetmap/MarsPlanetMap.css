@@ -818,3 +818,687 @@
       blur(2px);
   }
 }
+
+
+/* =========================================================
+   BOBU MARS — STELLAR DESCENT V3
+   Mars -> Deep Space -> Galaxies -> Sector Surface
+   ========================================================= */
+
+.mars-orbital-dive {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  overflow: hidden;
+  background: #000;
+  pointer-events: all;
+  perspective: 900px;
+  animation:
+    marsStellarMaster 5.2s
+    cubic-bezier(0.45, 0, 0.2, 1)
+    both;
+}
+
+.mars-orbital-dive__space {
+  position: absolute;
+  inset: -20%;
+  overflow: hidden;
+  background:
+    radial-gradient(
+      ellipse at 50% 50%,
+      #101226 0%,
+      #050611 38%,
+      #010208 68%,
+      #000 100%
+    );
+  transform-origin: center;
+  animation:
+    marsSpaceFall 5.2s
+    cubic-bezier(0.3, 0, 0.12, 1)
+    both;
+}
+
+/* -------------------------
+   STAR FIELDS
+   ------------------------- */
+
+.mars-orbital-dive__stars {
+  position: absolute;
+  inset: -70%;
+  transform-origin: center;
+  opacity: 0;
+}
+
+.mars-orbital-dive__stars--a {
+  background-image:
+    radial-gradient(circle, #fff 0 1px, transparent 1.6px),
+    radial-gradient(circle, #b9d8ff 0 1px, transparent 1.7px),
+    radial-gradient(circle, #ffd8bc 0 1px, transparent 1.6px);
+
+  background-size:
+    83px 83px,
+    127px 127px,
+    191px 191px;
+
+  background-position:
+    11px 23px,
+    47px 71px,
+    91px 31px;
+
+  animation:
+    marsStarsRushA 4.5s
+    cubic-bezier(0.2, 0, 0.1, 1)
+    0.25s both;
+}
+
+.mars-orbital-dive__stars--b {
+  background-image:
+    radial-gradient(circle, rgba(255,255,255,.95) 0 1.3px, transparent 2px),
+    radial-gradient(circle, rgba(164,196,255,.8) 0 .8px, transparent 1.5px);
+
+  background-size:
+    151px 151px,
+    217px 217px;
+
+  background-position:
+    63px 19px,
+    121px 83px;
+
+  animation:
+    marsStarsRushB 4.25s
+    cubic-bezier(0.22, 0, 0.08, 1)
+    .4s both;
+}
+
+.mars-orbital-dive__stars--c {
+  background-image:
+    radial-gradient(circle, rgba(255,255,255,.75) 0 .7px, transparent 1.4px);
+
+  background-size: 49px 49px;
+
+  animation:
+    marsStarsRushC 4s
+    cubic-bezier(0.18, 0, 0.08, 1)
+    .55s both;
+}
+
+/* -------------------------
+   GALAXIES
+   ------------------------- */
+
+.mars-orbital-dive__galaxy {
+  position: absolute;
+  width: 42vmin;
+  height: 17vmin;
+  border-radius: 50%;
+  opacity: 0;
+  filter: blur(.4px);
+  transform-origin: center;
+}
+
+.mars-orbital-dive__galaxy::before,
+.mars-orbital-dive__galaxy::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.mars-orbital-dive__galaxy::before {
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(255,255,255,.92) 0%,
+      rgba(190,205,255,.72) 4%,
+      rgba(126,101,255,.34) 14%,
+      rgba(91,61,184,.18) 29%,
+      transparent 62%
+    );
+  box-shadow:
+    0 0 70px rgba(111,91,255,.18);
+}
+
+.mars-orbital-dive__galaxy::after {
+  inset: 23% -10%;
+  border: 1px solid rgba(185,199,255,.13);
+  transform: rotate(-8deg);
+  box-shadow:
+    0 0 24px rgba(150,130,255,.12);
+}
+
+.mars-orbital-dive__galaxy--a {
+  left: 8%;
+  top: 17%;
+  transform: rotate(-21deg) scale(.25);
+  animation:
+    marsGalaxyFlyA 3.3s
+    cubic-bezier(0.22, 0, 0.1, 1)
+    .75s both;
+}
+
+.mars-orbital-dive__galaxy--b {
+  right: 5%;
+  bottom: 13%;
+  transform: rotate(31deg) scale(.18);
+  animation:
+    marsGalaxyFlyB 3.1s
+    cubic-bezier(0.22, 0, 0.1, 1)
+    1.35s both;
+}
+
+/* -------------------------
+   NEBULAE
+   ------------------------- */
+
+.mars-orbital-dive__nebula {
+  position: absolute;
+  width: 52vmin;
+  height: 38vmin;
+  border-radius: 50%;
+  opacity: 0;
+  filter: blur(38px);
+  mix-blend-mode: screen;
+}
+
+.mars-orbital-dive__nebula--a {
+  left: 5%;
+  bottom: 2%;
+  background:
+    radial-gradient(
+      ellipse,
+      rgba(87,68,190,.22),
+      rgba(47,63,160,.12) 42%,
+      transparent 72%
+    );
+  animation:
+    marsNebulaPassA 3.4s ease 1s both;
+}
+
+.mars-orbital-dive__nebula--b {
+  right: 2%;
+  top: 5%;
+  background:
+    radial-gradient(
+      ellipse,
+      rgba(169,66,94,.16),
+      rgba(108,45,130,.1) 40%,
+      transparent 72%
+    );
+  animation:
+    marsNebulaPassB 3.1s ease 1.65s both;
+}
+
+/* -------------------------
+   SPEED STREAKS
+   ------------------------- */
+
+.mars-orbital-dive__streaks {
+  position: absolute;
+  inset: -35%;
+  opacity: 0;
+  background:
+    repeating-conic-gradient(
+      from 0deg at 50% 50%,
+      transparent 0deg 2.8deg,
+      rgba(255,255,255,.14) 3deg 3.08deg,
+      transparent 3.25deg 6deg
+    );
+
+  mask-image:
+    radial-gradient(
+      circle,
+      transparent 0 8%,
+      #000 22%,
+      #000 72%,
+      transparent 96%
+    );
+
+  transform: scale(.35);
+  animation:
+    marsStarStreak 2.9s
+    cubic-bezier(0.2, 0, 0.05, 1)
+    1.15s both;
+}
+
+/* -------------------------
+   VANISHING POINT
+   ------------------------- */
+
+.mars-orbital-dive__vanishing-point {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 3vmin;
+  height: 3vmin;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(225,235,255,.9);
+  box-shadow:
+    0 0 18px rgba(255,255,255,.8),
+    0 0 70px rgba(126,156,255,.48),
+    0 0 160px rgba(97,77,255,.24);
+
+  opacity: 0;
+
+  animation:
+    marsVanishingPoint 4.5s ease .35s both;
+}
+
+/* Old tunnel becomes final descent vignette */
+
+.mars-orbital-dive__tunnel {
+  position: absolute;
+  inset: -30%;
+  pointer-events: none;
+
+  background:
+    radial-gradient(
+      circle at center,
+      transparent 0 13%,
+      rgba(0,0,0,.04) 25%,
+      rgba(0,0,0,.38) 58%,
+      #000 86%
+    );
+
+  transform: scale(.75);
+  opacity: 0;
+
+  animation:
+    marsFinalTunnel 2.1s
+    cubic-bezier(.4,0,.15,1)
+    2.7s both;
+}
+
+.mars-orbital-dive__core {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 10vmin;
+  height: 10vmin;
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(255,225,194,.8),
+      rgba(255,133,72,.2) 25%,
+      transparent 70%
+    );
+
+  transform:
+    translate(-50%, -50%)
+    scale(.08);
+
+  opacity: 0;
+
+  animation:
+    marsLandingCore 1.4s
+    cubic-bezier(.25,0,.1,1)
+    3.45s both;
+}
+
+.mars-orbital-dive__flash {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  opacity: 0;
+  pointer-events: none;
+
+  animation:
+    marsLandingBlackout 5.2s
+    ease both;
+}
+
+
+/* =========================================================
+   KEYFRAMES
+   ========================================================= */
+
+@keyframes marsStellarMaster {
+  0% {
+    opacity: 0;
+  }
+
+  6% {
+    opacity: 1;
+  }
+
+  88% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes marsSpaceFall {
+  0% {
+    transform:
+      translateZ(-700px)
+      scale(.45);
+    filter: blur(8px);
+  }
+
+  15% {
+    transform:
+      translateZ(-150px)
+      scale(.8);
+    filter: blur(2px);
+  }
+
+  35% {
+    transform:
+      translateZ(0)
+      scale(1);
+    filter: blur(0);
+  }
+
+  72% {
+    transform:
+      translateZ(300px)
+      scale(1.45);
+    filter: blur(.4px);
+  }
+
+  100% {
+    transform:
+      translateZ(700px)
+      scale(2.5);
+    filter: blur(5px);
+  }
+}
+
+@keyframes marsStarsRushA {
+  0% {
+    opacity: 0;
+    transform: scale(.18) rotate(0deg);
+  }
+
+  18% {
+    opacity: .9;
+  }
+
+  72% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(4.8) rotate(.8deg);
+  }
+}
+
+@keyframes marsStarsRushB {
+  0% {
+    opacity: 0;
+    transform: scale(.12) rotate(0deg);
+  }
+
+  16% {
+    opacity: .7;
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(6.2) rotate(-1.2deg);
+  }
+}
+
+@keyframes marsStarsRushC {
+  0% {
+    opacity: 0;
+    transform: scale(.08);
+  }
+
+  20% {
+    opacity: .62;
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(8);
+  }
+}
+
+@keyframes marsGalaxyFlyA {
+  0% {
+    opacity: 0;
+    transform:
+      translate(-18vw, -10vh)
+      rotate(-21deg)
+      scale(.12);
+  }
+
+  25% {
+    opacity: .72;
+  }
+
+  72% {
+    opacity: .55;
+  }
+
+  100% {
+    opacity: 0;
+    transform:
+      translate(34vw, 27vh)
+      rotate(-16deg)
+      scale(3.4);
+  }
+}
+
+@keyframes marsGalaxyFlyB {
+  0% {
+    opacity: 0;
+    transform:
+      translate(18vw, 12vh)
+      rotate(31deg)
+      scale(.1);
+  }
+
+  26% {
+    opacity: .58;
+  }
+
+  100% {
+    opacity: 0;
+    transform:
+      translate(-39vw, -28vh)
+      rotate(25deg)
+      scale(3.8);
+  }
+}
+
+@keyframes marsNebulaPassA {
+  0% {
+    opacity: 0;
+    transform: translate(-20vw, 20vh) scale(.4);
+  }
+
+  42% {
+    opacity: .85;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(35vw, -18vh) scale(2.5);
+  }
+}
+
+@keyframes marsNebulaPassB {
+  0% {
+    opacity: 0;
+    transform: translate(25vw, -18vh) scale(.4);
+  }
+
+  40% {
+    opacity: .72;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(-32vw, 28vh) scale(2.8);
+  }
+}
+
+@keyframes marsStarStreak {
+  0% {
+    opacity: 0;
+    transform: scale(.25);
+  }
+
+  28% {
+    opacity: .18;
+  }
+
+  58% {
+    opacity: .52;
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(5.8);
+  }
+}
+
+@keyframes marsVanishingPoint {
+  0% {
+    opacity: 0;
+    transform:
+      translate(-50%, -50%)
+      scale(.1);
+  }
+
+  20% {
+    opacity: .95;
+  }
+
+  68% {
+    opacity: .45;
+    transform:
+      translate(-50%, -50%)
+      scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform:
+      translate(-50%, -50%)
+      scale(14);
+  }
+}
+
+@keyframes marsFinalTunnel {
+  0% {
+    opacity: 0;
+    transform: scale(.7);
+  }
+
+  30% {
+    opacity: .4;
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(4.5);
+  }
+}
+
+@keyframes marsLandingCore {
+  0% {
+    opacity: 0;
+    transform:
+      translate(-50%, -50%)
+      scale(.08);
+  }
+
+  25% {
+    opacity: .8;
+  }
+
+  100% {
+    opacity: 0;
+    transform:
+      translate(-50%, -50%)
+      scale(18);
+  }
+}
+
+@keyframes marsLandingBlackout {
+  0%,
+  73% {
+    opacity: 0;
+  }
+
+  82% {
+    opacity: 1;
+  }
+
+  88% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+
+/* Sector surface lands from depth */
+
+.mars-sector-entry--arriving {
+  transform-origin: center center;
+
+  animation:
+    marsSectorStellarArrival 900ms
+    cubic-bezier(.16,.78,.2,1)
+    both;
+}
+
+@keyframes marsSectorStellarArrival {
+  0% {
+    opacity: 0;
+    transform:
+      perspective(1100px)
+      translateZ(-500px)
+      scale(.62);
+    filter:
+      blur(14px)
+      brightness(.35);
+  }
+
+  45% {
+    opacity: 1;
+    filter:
+      blur(3px)
+      brightness(.72);
+  }
+
+  100% {
+    opacity: 1;
+    transform:
+      perspective(1100px)
+      translateZ(0)
+      scale(1);
+    filter:
+      blur(0)
+      brightness(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mars-orbital-dive,
+  .mars-orbital-dive__space,
+  .mars-orbital-dive__stars,
+  .mars-orbital-dive__galaxy,
+  .mars-orbital-dive__nebula,
+  .mars-orbital-dive__streaks,
+  .mars-orbital-dive__vanishing-point,
+  .mars-orbital-dive__tunnel,
+  .mars-orbital-dive__core,
+  .mars-orbital-dive__flash,
+  .mars-sector-entry--arriving {
+    animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
+  }
+}

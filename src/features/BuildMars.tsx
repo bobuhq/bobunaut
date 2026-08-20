@@ -914,11 +914,11 @@ export function BuildMars() {
       setEnteredSectorId(
         sectorId,
       );
-    }, 1180);
+    }, 4300);
 
     window.setTimeout(() => {
       setSectorDiveActive(false);
-    }, 1780);
+    }, 5200);
   };
 
   const selectedSector = useMemo(
@@ -2512,6 +2512,7 @@ export function BuildMars() {
           !sectorsError &&
           sectors.length > 0 && (
             <>
+              {!enteredSectorId && (
               <div className="mars-planet-map-section">
                 <Suspense
                   fallback={
@@ -2545,12 +2546,27 @@ export function BuildMars() {
                   />
                 </Suspense>
               </div>
+              )}
 
               {sectorDiveActive && (
                 <div
                   className="mars-orbital-dive"
                   aria-hidden="true"
                 >
+                  <div className="mars-orbital-dive__space">
+                    <div className="mars-orbital-dive__stars mars-orbital-dive__stars--a" />
+                    <div className="mars-orbital-dive__stars mars-orbital-dive__stars--b" />
+                    <div className="mars-orbital-dive__stars mars-orbital-dive__stars--c" />
+
+                    <div className="mars-orbital-dive__galaxy mars-orbital-dive__galaxy--a" />
+                    <div className="mars-orbital-dive__galaxy mars-orbital-dive__galaxy--b" />
+                    <div className="mars-orbital-dive__nebula mars-orbital-dive__nebula--a" />
+                    <div className="mars-orbital-dive__nebula mars-orbital-dive__nebula--b" />
+
+                    <div className="mars-orbital-dive__streaks" />
+                    <div className="mars-orbital-dive__vanishing-point" />
+                  </div>
+
                   <div className="mars-orbital-dive__tunnel" />
                   <div className="mars-orbital-dive__core" />
                   <div className="mars-orbital-dive__flash" />
