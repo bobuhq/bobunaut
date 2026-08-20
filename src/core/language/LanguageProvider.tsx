@@ -23,7 +23,7 @@ export interface LanguageContextValue {
   languages: readonly LanguageOption[];
   setLanguage: (
     language: SupportedLanguage,
-  ) => void;
+  ) => Promise<void>;
   t: (
     key: string,
     variables?: Record<string, string | number>,
@@ -65,31 +65,41 @@ export function LanguageProvider({
     LanguageService.getDirection(language);
 
   const setLanguage = useCallback(
-    (nextLanguage: SupportedLanguage) => {
+    async (
+      nextLanguage: SupportedLanguage,
+    ): Promise<void> => {
       const requestId =
         languageRequestId.current + 1;
 
       languageRequestId.current = requestId;
 
-      void LanguageService
-        .loadLanguage(nextLanguage)
-        .then(() => {
-          if (
-            languageRequestId.current !== requestId
-          ) {
-            return;
-          }
+      try {
+        await LanguageService.loadLanguage(
+          nextLanguage,
+        );
 
-          preferencesStore.updateLocal({
-            preferredLanguage: nextLanguage,
-          });
-        })
-        .catch((error: unknown) => {
-          console.error(
-            `Failed to load ${nextLanguage} locale:`,
-            error,
-          );
+        if (
+          languageRequestId.current !== requestId
+        ) {
+          return;
+        }
+
+        preferencesStore.updateLocal({
+          preferredLanguage: nextLanguage,
         });
+
+        setDictionaryVersion(
+          (currentVersion) =>
+            currentVersion + 1,
+        );
+      } catch (error: unknown) {
+        console.error(
+          `Failed to load ${nextLanguage} locale:`,
+          error,
+        );
+
+        throw error;
+      }
     },
     [],
   );

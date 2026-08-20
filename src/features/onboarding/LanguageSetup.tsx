@@ -37,6 +37,8 @@ export default function LanguageSetup() {
     useState<SupportedLanguage>(language);
 
   const [saving, setSaving] = useState(false);
+  const [loadingLanguage, setLoadingLanguage] =
+    useState(false);
   const [errorMessage, setErrorMessage] =
     useState<string | null>(null);
 
@@ -53,12 +55,31 @@ export default function LanguageSetup() {
     [languages, selectedLanguage],
   );
 
-  const handleSelect = (
+  const handleSelect = async (
     nextLanguage: SupportedLanguage,
-  ) => {
+  ): Promise<void> => {
+    if (loadingLanguage || saving) {
+      return;
+    }
+
     setErrorMessage(null);
     setSelectedLanguage(nextLanguage);
-    setLanguage(nextLanguage);
+    setLoadingLanguage(true);
+
+    try {
+      await setLanguage(nextLanguage);
+    } catch (error) {
+      console.error(
+        "Language could not be loaded:",
+        error,
+      );
+
+      setErrorMessage(
+        "Selected language could not be loaded.",
+      );
+    } finally {
+      setLoadingLanguage(false);
+    }
   };
 
   const handleConfirm = async () => {
@@ -140,9 +161,9 @@ export default function LanguageSetup() {
                     : "language-setup-option"
                 }
                 onClick={() =>
-                  handleSelect(option.code)
+                  void handleSelect(option.code)
                 }
-                disabled={saving}
+                disabled={saving || loadingLanguage}
               >
                 <span>
                   <strong>
@@ -177,7 +198,7 @@ export default function LanguageSetup() {
           type="button"
           className="language-setup-confirm"
           onClick={() => void handleConfirm()}
-          disabled={saving}
+          disabled={saving || loadingLanguage}
         >
           {saving ? (
             <LoaderCircle
