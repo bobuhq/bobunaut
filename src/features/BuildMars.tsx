@@ -1,4 +1,10 @@
-import { useEffect, useMemo, useState } from "react";
+import {
+  lazy,
+  Suspense,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { supabase } from "../lib/supabase";
 import { useLanguage } from "../core/language";
 import {
@@ -69,6 +75,14 @@ import {
   type MarsColonyBuildingUpgrade,
   type MarsColonyResourceProduction,
 } from "../core/mars/MarsColonyBaseService";
+
+const MarsGlobe = lazy(() =>
+  import("../core/mars/globe/MarsGlobe").then(
+    (module) => ({
+      default: module.MarsGlobe,
+    }),
+  ),
+);
 
 export function BuildMars() {
   const { t } = useLanguage();
@@ -2466,7 +2480,32 @@ export function BuildMars() {
         {!sectorsLoading &&
           !sectorsError &&
           sectors.length > 0 && (
-            <div className="mars-map-shell">
+            <>
+              <div className="mars-globe-section">
+                <Suspense
+                  fallback={
+                    <div className="mars-globe-loading">
+                      {t("mars.sector.synchronizing")}
+                    </div>
+                  }
+                >
+                  <MarsGlobe
+                    sectors={sectors}
+                    currentSectorId={
+                      myColony?.active_sector_id ?? null
+                    }
+                    selectedSectorId={
+                      selectedSectorId
+                    }
+                    onSelectSector={
+                      setSelectedSectorId
+                    }
+                    ariaLabel={t("mars.map.ariaLabel")}
+                  />
+                </Suspense>
+              </div>
+
+              <div className="mars-map-shell">
               <div className="mars-map-heading">
                 <div>
                   <span className="mars-section-label">
@@ -2671,6 +2710,8 @@ export function BuildMars() {
                 </div>
               </div>
             </div>
+            </>
+
           )}
 
         {!sectorsLoading &&

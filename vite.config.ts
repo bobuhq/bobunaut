@@ -41,7 +41,27 @@ const resolveVendorChunk = (
     return "vendor-state";
   }
 
-  return "vendor";
+  if (
+    moduleId.includes("/three/") ||
+    moduleId.includes("/@react-three/") ||
+    moduleId.includes("/three-stdlib/") ||
+    moduleId.includes("/camera-controls/") ||
+    moduleId.includes("/maath/") ||
+    moduleId.includes("/meshline/") ||
+    moduleId.includes("/three-mesh-bvh/") ||
+    moduleId.includes("/troika-three-") ||
+    moduleId.includes("/stats-gl/")
+  ) {
+    return "vendor-three";
+  }
+
+  /*
+   * Let Rollup decide the remaining shared modules instead of
+   * forcing every dependency into one generic vendor chunk.
+   * This prevents circular vendor relationships introduced by
+   * the optional Mars 3D runtime.
+   */
+  return undefined;
 };
 
 export default defineConfig({

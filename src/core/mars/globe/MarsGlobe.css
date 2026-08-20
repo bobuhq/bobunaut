@@ -1,0 +1,203 @@
+.mars-globe-shell {
+  position: relative;
+  width: 100%;
+  min-height: 620px;
+  overflow: hidden;
+  border: 1px solid rgba(154, 92, 255, 0.22);
+  border-radius: 28px;
+  background:
+    radial-gradient(
+      circle at 50% 45%,
+      rgba(121, 53, 31, 0.22),
+      rgba(3, 5, 12, 0.98) 58%
+    );
+  box-shadow:
+    0 32px 90px rgba(0, 0, 0, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.mars-globe-canvas {
+  display: block;
+  width: 100% !important;
+  min-height: 620px;
+  touch-action: none;
+}
+
+.mars-globe-hud {
+  position: absolute;
+  top: 22px;
+  left: 24px;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  pointer-events: none;
+}
+
+.mars-globe-hud span {
+  color: rgba(132, 221, 255, 0.78);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+}
+
+.mars-globe-hud strong {
+  color: #ffffff;
+  font-size: 22px;
+  font-weight: 850;
+  letter-spacing: -0.02em;
+}
+
+.mars-globe-controls-hint {
+  position: absolute;
+  right: 22px;
+  bottom: 18px;
+  z-index: 3;
+  display: flex;
+  gap: 12px;
+  pointer-events: none;
+}
+
+.mars-globe-controls-hint span {
+  border: 1px solid rgba(157, 135, 255, 0.15);
+  border-radius: 999px;
+  padding: 7px 10px;
+  background: rgba(5, 8, 18, 0.68);
+  color: rgba(228, 231, 255, 0.68);
+  font-size: 10px;
+  font-weight: 700;
+  backdrop-filter: blur(14px);
+}
+
+@media (max-width: 860px) {
+  .mars-globe-shell,
+  .mars-globe-canvas {
+    min-height: 520px;
+  }
+
+  .mars-globe-hud {
+    top: 16px;
+    left: 16px;
+  }
+
+  .mars-globe-hud strong {
+    font-size: 18px;
+  }
+
+  .mars-globe-controls-hint {
+    right: 14px;
+    bottom: 14px;
+    left: 14px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 520px) {
+  .mars-globe-shell,
+  .mars-globe-canvas {
+    min-height: 440px;
+  }
+
+  .mars-globe-shell {
+    border-radius: 22px;
+  }
+
+  .mars-globe-controls-hint span {
+    font-size: 9px;
+  }
+}
+
+.mars-globe-section {
+  margin: 24px 0 28px;
+}
+
+.mars-globe-section {
+  margin: 24px 0 28px;
+}
+
+.mars-globe-sector-label {
+  min-width: 118px;
+  transform: translateY(-50%);
+  border: 1px solid rgba(255, 178, 109, 0.35);
+  border-radius: 12px;
+  padding: 8px 10px;
+  background: rgba(5, 7, 15, 0.86);
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.36),
+    0 0 18px rgba(255, 126, 58, 0.12);
+  color: #fff;
+  text-align: center;
+  backdrop-filter: blur(12px);
+  white-space: nowrap;
+}
+
+.mars-globe-sector-label strong,
+.mars-globe-sector-label span,
+.mars-globe-sector-label small {
+  display: block;
+}
+
+.mars-globe-sector-label strong {
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+}
+
+.mars-globe-sector-label span {
+  margin-top: 3px;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.mars-globe-sector-label small {
+  margin-top: 4px;
+  color: rgba(226, 230, 255, 0.68);
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.mars-globe-sector-label.is-current {
+  border-color: rgba(99, 245, 255, 0.52);
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.36),
+    0 0 24px rgba(99, 245, 255, 0.2);
+}
+
+.mars-globe-sector-label.is-selected {
+  border-color: rgba(187, 140, 255, 0.52);
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.36),
+    0 0 24px rgba(187, 140, 255, 0.18);
+}
+
+.mars-globe-loading {
+  display: grid;
+  min-height: 620px;
+  place-items: center;
+  border: 1px solid rgba(154, 92, 255, 0.22);
+  border-radius: 28px;
+  background:
+    radial-gradient(
+      circle at 50% 45%,
+      rgba(121, 53, 31, 0.18),
+      rgba(3, 5, 12, 0.98) 60%
+    );
+  color: rgba(224, 231, 255, 0.72);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+@media (max-width: 860px) {
+  .mars-globe-loading {
+    min-height: 520px;
+  }
+}
+
+@media (max-width: 520px) {
+  .mars-globe-loading {
+    min-height: 440px;
+    border-radius: 22px;
+  }
+}
