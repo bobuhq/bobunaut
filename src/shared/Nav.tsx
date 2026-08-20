@@ -101,7 +101,7 @@ export function Nav() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [authDialogOpen, setAuthDialogOpen] =
     useState(false);
-  const [logoSource, setLogoSource] = useState(buboLogoUrl);
+  const [logoSource, setLogoSource] = useState("/images/bobu/bobu-app-icon.png");
   const [logoVisible, setLogoVisible] = useState(true);
   const [miningActive, setMiningActive] =
     useState(false);
@@ -375,12 +375,12 @@ export function Nav() {
           place-items: center;
           overflow: hidden;
           border: 1px solid rgba(100, 222, 255, 0.58);
-          border-radius: 50%;
+          border-radius: 16px;
           background:
             radial-gradient(
               circle at 50% 38%,
-              rgba(151, 91, 255, 0.48),
-              rgba(14, 11, 41, 0.98) 70%
+              rgba(151, 91, 255, 0.28),
+              rgba(14, 11, 41, 0.98) 72%
             );
           box-shadow:
             0 0 0 3px rgba(126, 78, 255, 0.1),
@@ -420,28 +420,14 @@ export function Nav() {
             );
         }
 
-        .bobu-brand-logo::after {
-          content: "";
-          position: absolute;
-          right: 5px;
-          bottom: 5px;
-          z-index: 4;
-          width: 7px;
-          height: 7px;
-          border: 2px solid rgba(5, 14, 25, 0.95);
-          border-radius: 50%;
-          background: #25f89a;
-          box-shadow: 0 0 10px rgba(37, 248, 154, 0.85);
-        }
-
         .bobu-brand-logo img {
           display: block;
           width: 100%;
           height: 100%;
           border-radius: inherit;
-          object-fit: cover;
-          object-position: center 30%;
-          transform: scale(1.08);
+          object-fit: contain;
+          object-position: center;
+          transform: scale(1);
           filter:
             saturate(1.12)
             contrast(1.08)
