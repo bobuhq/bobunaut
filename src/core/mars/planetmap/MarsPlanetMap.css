@@ -1502,3 +1502,603 @@
     animation-delay: 0ms !important;
   }
 }
+
+
+/* =========================================================
+   BOBU MARS — SURFACE ARRIVAL V4
+   Deep Space -> Mars Target -> Atmosphere -> Surface
+   ========================================================= */
+
+
+/*
+ * V4 extends the complete cinematic sequence.
+ */
+
+.mars-orbital-dive {
+  animation:
+    marsStellarMasterV4 6.5s
+    cubic-bezier(0.45, 0, 0.2, 1)
+    both;
+}
+
+
+/* =========================================================
+   MARS ARRIVAL TARGET
+   ========================================================= */
+
+.mars-orbital-dive__arrival {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+
+.mars-orbital-dive__mars-target {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+
+  width: 48vmin;
+  height: 48vmin;
+
+  overflow: hidden;
+
+  border-radius: 50%;
+
+  background-image:
+    url("/images/mars/nasa-mars-world.jpg");
+
+  background-size: 200% 100%;
+  background-position: 53% 48%;
+  background-repeat: no-repeat;
+
+  box-shadow:
+    inset -8vmin -2vmin 12vmin rgba(0, 0, 0, 0.7),
+    inset 5vmin 1vmin 7vmin rgba(255, 186, 118, 0.1),
+    0 0 3vmin rgba(255, 119, 59, 0.18),
+    0 0 11vmin rgba(255, 84, 32, 0.12);
+
+  opacity: 0;
+
+  transform:
+    translate(-50%, -50%)
+    scale(0.015);
+
+  animation:
+    marsTargetApproach 3.15s
+    cubic-bezier(0.18, 0, 0.06, 1)
+    3.05s both;
+}
+
+
+.mars-orbital-dive__mars-shade {
+  position: absolute;
+  inset: 0;
+
+  border-radius: inherit;
+
+  background:
+    radial-gradient(
+      circle at 64% 38%,
+      rgba(255, 215, 166, 0.15),
+      transparent 28%
+    ),
+    linear-gradient(
+      105deg,
+      rgba(0, 0, 0, 0.63) 0%,
+      rgba(0, 0, 0, 0.15) 38%,
+      transparent 62%
+    );
+
+  mix-blend-mode: multiply;
+}
+
+
+/* =========================================================
+   ATMOSPHERIC ENTRY
+   ========================================================= */
+
+.mars-orbital-dive__atmosphere {
+  position: absolute;
+
+  left: 50%;
+  top: 50%;
+
+  width: 46vmin;
+  height: 46vmin;
+
+  border-radius: 50%;
+
+  opacity: 0;
+
+  transform:
+    translate(-50%, -50%)
+    scale(0.03);
+
+  border:
+    1.2vmin solid
+    rgba(255, 139, 77, 0.24);
+
+  box-shadow:
+    0 0 4vmin rgba(255, 117, 56, 0.55),
+    0 0 12vmin rgba(255, 76, 35, 0.34),
+    inset 0 0 5vmin rgba(255, 144, 83, 0.22);
+
+  filter: blur(1px);
+
+  animation:
+    marsAtmosphereEntry 2.35s
+    cubic-bezier(0.2, 0, 0.08, 1)
+    3.55s both;
+}
+
+
+/* =========================================================
+   RE-TIME SPACE ELEMENTS
+   ========================================================= */
+
+.mars-orbital-dive__space {
+  animation:
+    marsSpaceFallV4 6.1s
+    cubic-bezier(0.3, 0, 0.12, 1)
+    both;
+}
+
+
+.mars-orbital-dive__stars--a {
+  animation:
+    marsStarsRushA 4.55s
+    cubic-bezier(0.2, 0, 0.1, 1)
+    0.2s both;
+}
+
+
+.mars-orbital-dive__stars--b {
+  animation:
+    marsStarsRushB 4.35s
+    cubic-bezier(0.22, 0, 0.08, 1)
+    0.35s both;
+}
+
+
+.mars-orbital-dive__stars--c {
+  animation:
+    marsStarsRushC 4.15s
+    cubic-bezier(0.18, 0, 0.08, 1)
+    0.5s both;
+}
+
+
+.mars-orbital-dive__streaks {
+  animation:
+    marsStarStreakV4 3.6s
+    cubic-bezier(0.18, 0, 0.04, 1)
+    1.05s both;
+}
+
+
+.mars-orbital-dive__vanishing-point {
+  animation:
+    marsVanishingPointV4 4.6s
+    cubic-bezier(0.2, 0, 0.08, 1)
+    0.3s both;
+}
+
+
+/* =========================================================
+   FINAL ATMOSPHERIC VIGNETTE
+   ========================================================= */
+
+.mars-orbital-dive__tunnel {
+  opacity: 0;
+
+  animation:
+    marsAtmosphericTunnel 1.65s
+    cubic-bezier(0.3, 0, 0.08, 1)
+    4.55s both;
+}
+
+
+.mars-orbital-dive__core {
+  display: none;
+}
+
+
+/*
+ * V3 had a long black section.
+ * V4 uses only a very short blackout at actual surface impact.
+ */
+
+.mars-orbital-dive__flash {
+  background:
+    radial-gradient(
+      circle at center,
+      rgba(94, 31, 16, 0.86),
+      rgba(20, 7, 5, 0.96) 48%,
+      #000 90%
+    );
+
+  animation:
+    marsSurfaceImpact 6.5s
+    ease both;
+}
+
+
+/* =========================================================
+   KEYFRAMES — V4
+   ========================================================= */
+
+@keyframes marsStellarMasterV4 {
+  0% {
+    opacity: 0;
+  }
+
+  4% {
+    opacity: 1;
+  }
+
+  94% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+
+@keyframes marsSpaceFallV4 {
+  0% {
+    transform:
+      translateZ(-700px)
+      scale(0.45);
+
+    filter: blur(7px);
+  }
+
+  14% {
+    transform:
+      translateZ(-120px)
+      scale(0.82);
+
+    filter: blur(1px);
+  }
+
+  34% {
+    transform:
+      translateZ(0)
+      scale(1);
+
+    filter: blur(0);
+  }
+
+  62% {
+    transform:
+      translateZ(180px)
+      scale(1.3);
+
+    filter: blur(0);
+  }
+
+  78% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0.1;
+
+    transform:
+      translateZ(480px)
+      scale(2);
+
+    filter: blur(3px);
+  }
+}
+
+
+@keyframes marsStarStreakV4 {
+  0% {
+    opacity: 0;
+    transform: scale(0.22);
+  }
+
+  20% {
+    opacity: 0.13;
+  }
+
+  48% {
+    opacity: 0.48;
+  }
+
+  76% {
+    opacity: 0.62;
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(7.4);
+  }
+}
+
+
+@keyframes marsVanishingPointV4 {
+  0% {
+    opacity: 0;
+
+    transform:
+      translate(-50%, -50%)
+      scale(0.08);
+  }
+
+  18% {
+    opacity: 0.9;
+  }
+
+  62% {
+    opacity: 0.45;
+
+    transform:
+      translate(-50%, -50%)
+      scale(1);
+  }
+
+  100% {
+    opacity: 0;
+
+    transform:
+      translate(-50%, -50%)
+      scale(8);
+  }
+}
+
+
+/* =========================================================
+   MARS GROWS FROM DEEP SPACE
+   ========================================================= */
+
+@keyframes marsTargetApproach {
+  0% {
+    opacity: 0;
+
+    transform:
+      translate(-50%, -50%)
+      scale(0.015);
+
+    filter:
+      blur(7px)
+      brightness(0.5);
+  }
+
+  12% {
+    opacity: 0.45;
+  }
+
+  28% {
+    opacity: 1;
+
+    filter:
+      blur(2px)
+      brightness(0.72);
+  }
+
+  55% {
+    opacity: 1;
+
+    transform:
+      translate(-50%, -50%)
+      scale(0.55);
+
+    filter:
+      blur(0)
+      brightness(0.9);
+  }
+
+  78% {
+    transform:
+      translate(-50%, -50%)
+      scale(1.7);
+
+    filter:
+      brightness(1);
+  }
+
+  100% {
+    opacity: 1;
+
+    transform:
+      translate(-50%, -50%)
+      scale(8.6);
+
+    filter:
+      blur(1px)
+      brightness(0.8);
+  }
+}
+
+
+@keyframes marsAtmosphereEntry {
+  0% {
+    opacity: 0;
+
+    transform:
+      translate(-50%, -50%)
+      scale(0.03);
+  }
+
+  25% {
+    opacity: 0.15;
+  }
+
+  55% {
+    opacity: 0.72;
+
+    transform:
+      translate(-50%, -50%)
+      scale(0.95);
+  }
+
+  76% {
+    opacity: 1;
+
+    transform:
+      translate(-50%, -50%)
+      scale(2.4);
+  }
+
+  100% {
+    opacity: 0;
+
+    transform:
+      translate(-50%, -50%)
+      scale(7.5);
+
+    filter: blur(8px);
+  }
+}
+
+
+@keyframes marsAtmosphericTunnel {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+
+  35% {
+    opacity: 0.12;
+  }
+
+  75% {
+    opacity: 0.42;
+  }
+
+  100% {
+    opacity: 0.72;
+    transform: scale(4.8);
+  }
+}
+
+
+/*
+ * Almost no dead-black time:
+ * only a short surface-impact closure.
+ */
+
+@keyframes marsSurfaceImpact {
+  0%,
+  82% {
+    opacity: 0;
+  }
+
+  88% {
+    opacity: 0.12;
+  }
+
+  92% {
+    opacity: 0.88;
+  }
+
+  95% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+
+/* =========================================================
+   SECTOR SURFACE ARRIVAL
+   ========================================================= */
+
+.mars-sector-entry--arriving {
+  animation:
+    marsSectorSurfaceArrival 920ms
+    cubic-bezier(0.12, 0.76, 0.18, 1)
+    both;
+}
+
+
+@keyframes marsSectorSurfaceArrival {
+  0% {
+    opacity: 0;
+
+    transform:
+      perspective(1200px)
+      translateZ(380px)
+      scale(1.32);
+
+    filter:
+      blur(13px)
+      brightness(0.38)
+      saturate(0.7);
+  }
+
+  35% {
+    opacity: 0.75;
+
+    filter:
+      blur(5px)
+      brightness(0.65);
+  }
+
+  72% {
+    opacity: 1;
+
+    transform:
+      perspective(1200px)
+      translateZ(40px)
+      scale(1.045);
+
+    filter:
+      blur(1px)
+      brightness(0.92);
+  }
+
+  100% {
+    opacity: 1;
+
+    transform:
+      perspective(1200px)
+      translateZ(0)
+      scale(1);
+
+    filter:
+      blur(0)
+      brightness(1);
+  }
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 680px) {
+  .mars-orbital-dive__mars-target {
+    width: 58vmin;
+    height: 58vmin;
+  }
+
+  .mars-orbital-dive__atmosphere {
+    width: 56vmin;
+    height: 56vmin;
+  }
+
+  .mars-orbital-dive__galaxy {
+    width: 52vmin;
+    height: 21vmin;
+  }
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+  .mars-orbital-dive__arrival,
+  .mars-orbital-dive__mars-target,
+  .mars-orbital-dive__atmosphere {
+    animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
+  }
+}

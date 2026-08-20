@@ -914,11 +914,11 @@ export function BuildMars() {
       setEnteredSectorId(
         sectorId,
       );
-    }, 4300);
+    }, 5550);
 
     window.setTimeout(() => {
       setSectorDiveActive(false);
-    }, 5200);
+    }, 6500);
   };
 
   const selectedSector = useMemo(
@@ -2565,6 +2565,14 @@ export function BuildMars() {
 
                     <div className="mars-orbital-dive__streaks" />
                     <div className="mars-orbital-dive__vanishing-point" />
+
+                    <div className="mars-orbital-dive__arrival">
+                      <div className="mars-orbital-dive__atmosphere" />
+
+                      <div className="mars-orbital-dive__mars-target">
+                        <div className="mars-orbital-dive__mars-shade" />
+                      </div>
+                    </div>
                   </div>
 
                   <div className="mars-orbital-dive__tunnel" />
