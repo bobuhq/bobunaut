@@ -63,6 +63,8 @@ import {
   type MarsColonyBuildingConstructionCost,
 } from "../core/mars/MarsColonyBaseService";
 
+import MarsSectorTerritory from "./MarsSectorTerritory";
+
 import "./BuildMars.css";
 
 import {
@@ -218,6 +220,9 @@ export function BuildMars() {
     useState<string | null>(null);
 
   const [enteredSectorId, setEnteredSectorId] =
+    useState<string | null>(null);
+
+  const [territorySectorId, setTerritorySectorId] =
     useState<string | null>(null);
 
   const [sectorDiveActive, setSectorDiveActive] =
@@ -2588,6 +2593,8 @@ export function BuildMars() {
                       type="button"
                       className="mars-sector-return-button"
                       onClick={() => {
+                        setTerritorySectorId(null);
+                        setSelectedSectorId(null);
                         setEnteredSectorId(null);
                       }}
                     >
@@ -2596,7 +2603,10 @@ export function BuildMars() {
                     </button>
                   </div>
 
-                  <div className="mars-map-shell">
+                  <div
+                    className="mars-map-shell"
+                    hidden={territorySectorId !== null}
+                  >
               <div className="mars-map-heading">
                 <div>
                   <span className="mars-section-label">
@@ -2772,15 +2782,9 @@ export function BuildMars() {
                       type="button"
                       className="mars-map-sector-jump"
                       onClick={() => {
-                        const target =
-                          document.getElementById(
-                            `mars-sector-${selectedSector.sector_id}`,
-                          );
-
-                        target?.scrollIntoView({
-                          behavior: "smooth",
-                          block: "center",
-                        });
+                        setTerritorySectorId(
+                          selectedSector.sector_id,
+                        );
                       }}
                     >
                       {t("mars.sector.viewControls")}
@@ -2801,13 +2805,43 @@ export function BuildMars() {
                 </div>
               </div>
             </div>
+
+                  {territorySectorId !== null && (() => {
+                    const territorySector =
+                      sectors.find(
+                        (sector) =>
+                          sector.sector_id ===
+                          territorySectorId,
+                      ) ?? null;
+
+                    if (!territorySector) {
+                      return null;
+                    }
+
+                    return (
+                      <MarsSectorTerritory
+                        sector={territorySector}
+                        isMyColonySector={
+                          myColony?.active_sector_id ===
+                          territorySector.sector_id
+                        }
+                        onBack={() => {
+                          setTerritorySectorId(null);
+                          setSelectedSectorId(
+                            territorySector.sector_id,
+                          );
+                        }}
+                      />
+                    );
+                  })()}
                   </div>
                 )}
             </>
 
           )}
 
-        {!sectorsLoading &&
+        {territorySectorId === null &&
+          !sectorsLoading &&
           !sectorsError &&
           sectors.length > 0 && (
             <div className="mars-sector-grid">
