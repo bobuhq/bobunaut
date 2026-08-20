@@ -1,6 +1,4 @@
 import {
-  lazy,
-  Suspense,
   useEffect,
   useMemo,
   useState,
@@ -56,6 +54,10 @@ import {
 } from "../core/mars/MarsSectorService";
 
 import {
+  MarsWorldMap,
+} from "../core/mars/worldmap/MarsWorldMap";
+
+import {
   constructMyMarsColonyBuilding,
   getMyMarsColonyBase,
   getMyMarsColonyConstructionCosts,
@@ -75,14 +77,6 @@ import {
   type MarsColonyBuildingUpgrade,
   type MarsColonyResourceProduction,
 } from "../core/mars/MarsColonyBaseService";
-
-const MarsGlobe = lazy(() =>
-  import("../core/mars/globe/MarsGlobe").then(
-    (module) => ({
-      default: module.MarsGlobe,
-    }),
-  ),
-);
 
 export function BuildMars() {
   const { t } = useLanguage();
@@ -2481,28 +2475,20 @@ export function BuildMars() {
           !sectorsError &&
           sectors.length > 0 && (
             <>
-              <div className="mars-globe-section">
-                <Suspense
-                  fallback={
-                    <div className="mars-globe-loading">
-                      {t("mars.sector.synchronizing")}
-                    </div>
+              <div className="mars-world-map-section">
+                <MarsWorldMap
+                  sectors={sectors}
+                  currentSectorId={
+                    myColony?.active_sector_id ?? null
                   }
-                >
-                  <MarsGlobe
-                    sectors={sectors}
-                    currentSectorId={
-                      myColony?.active_sector_id ?? null
-                    }
-                    selectedSectorId={
-                      selectedSectorId
-                    }
-                    onSelectSector={
-                      setSelectedSectorId
-                    }
-                    ariaLabel={t("mars.map.ariaLabel")}
-                  />
-                </Suspense>
+                  selectedSectorId={
+                    selectedSectorId
+                  }
+                  onSelectSector={
+                    setSelectedSectorId
+                  }
+                  ariaLabel={t("mars.map.ariaLabel")}
+                />
               </div>
 
               <div className="mars-map-shell">

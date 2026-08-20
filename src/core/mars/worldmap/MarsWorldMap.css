@@ -1,0 +1,341 @@
+.mars-world-map {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255, 138, 79, 0.22);
+  border-radius: 28px;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(15, 9, 9, 0.98),
+      rgba(4, 5, 10, 0.99)
+    );
+  box-shadow:
+    0 26px 80px rgba(0, 0, 0, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.035);
+}
+
+.mars-world-map__surface {
+  position: relative;
+  min-height: 620px;
+  overflow: hidden;
+  background-image:
+    linear-gradient(
+      180deg,
+      rgba(12, 7, 9, 0.12),
+      rgba(7, 5, 8, 0.34)
+    ),
+    url("/images/mars/nasa-mars-world.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.mars-world-map__surface::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-radial-gradient(
+      ellipse at 50% 48%,
+      rgba(255, 155, 91, 0.07) 0 2px,
+      transparent 3px 18px
+    ),
+    linear-gradient(
+      115deg,
+      transparent 0 39%,
+      rgba(255, 154, 93, 0.05) 40% 42%,
+      transparent 43% 100%
+    );
+  opacity: 0.32;
+  pointer-events: none;
+}
+
+.mars-world-map__surface::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      circle at 50% 50%,
+      transparent 45%,
+      rgba(0, 0, 0, 0.48) 78%,
+      rgba(0, 0, 0, 0.75) 100%
+    );
+  pointer-events: none;
+}
+
+.mars-world-map__terrain,
+.mars-world-map__crater,
+.mars-world-map__ridge {
+  position: absolute;
+  pointer-events: none;
+}
+
+.mars-world-map__terrain {
+  border-radius: 50%;
+  filter: blur(2px);
+  opacity: 0.45;
+}
+
+.mars-world-map__terrain--a {
+  width: 34%;
+  height: 24%;
+  left: 9%;
+  top: 19%;
+  background:
+    radial-gradient(
+      ellipse,
+      rgba(184, 92, 52, 0.28),
+      transparent 70%
+    );
+  transform: rotate(-13deg);
+}
+
+.mars-world-map__terrain--b {
+  width: 42%;
+  height: 31%;
+  right: 5%;
+  top: 18%;
+  background:
+    radial-gradient(
+      ellipse,
+      rgba(106, 44, 32, 0.44),
+      transparent 72%
+    );
+  transform: rotate(9deg);
+}
+
+.mars-world-map__terrain--c {
+  width: 58%;
+  height: 26%;
+  left: 23%;
+  bottom: 8%;
+  background:
+    radial-gradient(
+      ellipse,
+      rgba(101, 38, 25, 0.48),
+      transparent 74%
+    );
+}
+
+.mars-world-map__crater {
+  border: 1px solid rgba(255, 168, 112, 0.11);
+  border-radius: 50%;
+  box-shadow:
+    inset 12px 12px 24px rgba(0, 0, 0, 0.28),
+    inset -9px -7px 16px rgba(255, 136, 73, 0.035);
+}
+
+.mars-world-map__crater--a {
+  width: 120px;
+  height: 82px;
+  left: 13%;
+  top: 18%;
+  transform: rotate(-10deg);
+}
+
+.mars-world-map__crater--b {
+  width: 90px;
+  height: 64px;
+  right: 13%;
+  top: 26%;
+  transform: rotate(14deg);
+}
+
+.mars-world-map__crater--c {
+  width: 150px;
+  height: 88px;
+  left: 42%;
+  bottom: 13%;
+  transform: rotate(8deg);
+}
+
+.mars-world-map__crater--d {
+  width: 76px;
+  height: 54px;
+  right: 31%;
+  bottom: 28%;
+}
+
+.mars-world-map__ridge {
+  height: 1px;
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 149, 89, 0.2),
+      transparent
+    );
+  box-shadow:
+    0 0 18px rgba(255, 116, 56, 0.04);
+}
+
+.mars-world-map__ridge--a {
+  width: 54%;
+  left: 8%;
+  top: 47%;
+  transform: rotate(-8deg);
+}
+
+.mars-world-map__ridge--b {
+  width: 45%;
+  right: 7%;
+  top: 58%;
+  transform: rotate(9deg);
+}
+
+.mars-world-map__ridge--c {
+  width: 37%;
+  left: 31%;
+  top: 72%;
+  transform: rotate(-3deg);
+}
+
+.mars-world-map__sector {
+  position: absolute;
+  z-index: 4;
+  width: 1px;
+  height: 1px;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.mars-world-map__sector-core {
+  position: absolute;
+  left: -7px;
+  top: -7px;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(16, 8, 8, 0.95);
+  border-radius: 50%;
+  background: #ff9b55;
+  box-shadow:
+    0 0 12px rgba(255, 137, 70, 0.7),
+    0 0 28px rgba(255, 111, 47, 0.28);
+}
+
+.mars-world-map__sector-glow {
+  position: absolute;
+  left: -15px;
+  top: -15px;
+  width: 30px;
+  height: 30px;
+  border: 1px solid rgba(255, 151, 92, 0.34);
+  border-radius: 50%;
+  animation: marsWorldPulse 2.8s ease-in-out infinite;
+}
+
+.mars-world-map__sector-label {
+  position: absolute;
+  left: 18px;
+  top: -22px;
+  min-width: 120px;
+  border: 1px solid rgba(255, 167, 109, 0.18);
+  border-radius: 11px;
+  padding: 8px 10px;
+  background: rgba(14, 8, 10, 0.8);
+  color: #fff;
+  text-align: left;
+  backdrop-filter: blur(12px);
+}
+
+.mars-world-map__sector-label strong,
+.mars-world-map__sector-label small,
+.mars-world-map__sector-label em {
+  display: block;
+}
+
+.mars-world-map__sector-label strong {
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+}
+
+.mars-world-map__sector-label small {
+  margin-top: 3px;
+  color: rgba(244, 235, 232, 0.86);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.mars-world-map__sector-label em {
+  margin-top: 4px;
+  color: rgba(220, 206, 204, 0.6);
+  font-size: 9px;
+  font-style: normal;
+}
+
+.mars-world-map__sector.is-current
+  .mars-world-map__sector-core {
+  background: #64f2ff;
+  box-shadow:
+    0 0 14px rgba(100, 242, 255, 0.88),
+    0 0 34px rgba(100, 242, 255, 0.4);
+}
+
+.mars-world-map__sector.is-selected
+  .mars-world-map__sector-core {
+  background: #b88cff;
+  box-shadow:
+    0 0 14px rgba(184, 140, 255, 0.88),
+    0 0 34px rgba(184, 140, 255, 0.4);
+}
+
+.mars-world-map__sector.is-locked {
+  opacity: 0.36;
+  filter: grayscale(0.75);
+}
+
+.mars-world-map__sector.is-locked
+  .mars-world-map__sector-core {
+  background: #645755;
+  box-shadow: none;
+}
+
+@keyframes marsWorldPulse {
+  0%,
+  100% {
+    transform: scale(0.82);
+    opacity: 0.35;
+  }
+
+  50% {
+    transform: scale(1.25);
+    opacity: 0.82;
+  }
+}
+
+@media (max-width: 860px) {
+  .mars-world-map__surface {
+    min-height: 520px;
+  }
+
+  .mars-world-map__sector-label {
+    min-width: 96px;
+    padding: 7px 8px;
+  }
+}
+
+@media (max-width: 520px) {
+  .mars-world-map {
+    border-radius: 22px;
+  }
+
+  .mars-world-map__surface {
+    min-height: 440px;
+  }
+
+  .mars-world-map__sector-label {
+    min-width: 84px;
+  }
+
+  .mars-world-map__sector-label small {
+    display: none;
+  }
+}
+
+.mars-world-map-section {
+  margin: 24px 0 28px;
+}
