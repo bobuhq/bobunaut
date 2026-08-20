@@ -51,7 +51,9 @@ import {
 import {
   constructMyMarsColonyBuilding,
   getMyMarsColonyBase,
+  getMyMarsColonyConstructionCosts,
   type MarsColonyBaseBuilding,
+  type MarsColonyBuildingConstructionCost,
 } from "../core/mars/MarsColonyBaseService";
 
 import "./BuildMars.css";
@@ -163,6 +165,9 @@ export function BuildMars() {
 
   const [buildingUpgrades, setBuildingUpgrades] =
     useState<MarsColonyBuildingUpgrade[]>([]);
+
+  const [constructionCosts, setConstructionCosts] =
+    useState<MarsColonyBuildingConstructionCost[]>([]);
 
   const [upgradingBuildingKey, setUpgradingBuildingKey] =
     useState<string | null>(null);
@@ -915,10 +920,18 @@ export function BuildMars() {
         buildingKey,
       );
 
-      const buildings =
-        await getMyMarsColonyBase();
+      const [buildings, resources, upgrades, costs] =
+        await Promise.all([
+          getMyMarsColonyBase(),
+          getMyMarsColonyResources(),
+          getMyMarsColonyBuildingUpgrades(),
+          getMyMarsColonyConstructionCosts(),
+        ]);
 
       setColonyBase(buildings);
+      setColonyResources(resources);
+      setBuildingUpgrades(upgrades);
+      setConstructionCosts(costs);
     } catch (actionError) {
       console.error(
         "BUILD MARS building construction failed:",
@@ -939,17 +952,20 @@ export function BuildMars() {
     if (!myColony) {
       setColonyResources(null);
       setBuildingUpgrades([]);
+      setConstructionCosts([]);
       return;
     }
 
     try {
-      const [resources, upgrades] = await Promise.all([
+      const [resources, upgrades, costs] = await Promise.all([
         getMyMarsColonyResources(),
         getMyMarsColonyBuildingUpgrades(),
+        getMyMarsColonyConstructionCosts(),
       ]);
 
       setColonyResources(resources);
       setBuildingUpgrades(upgrades);
+      setConstructionCosts(costs);
     } catch (loadError) {
       console.error(
         "BUILD MARS Colony economy failed:",
@@ -965,16 +981,18 @@ export function BuildMars() {
   };
 
   const refreshColonyBase = async () => {
-    const [buildings, resources, upgrades] =
+    const [buildings, resources, upgrades, costs] =
       await Promise.all([
         getMyMarsColonyBase(),
         getMyMarsColonyResources(),
         getMyMarsColonyBuildingUpgrades(),
+        getMyMarsColonyConstructionCosts(),
       ]);
 
     setColonyBase(buildings);
     setColonyResources(resources);
     setBuildingUpgrades(upgrades);
+    setConstructionCosts(costs);
   };
 
   const handleUpgradeBuilding = async (
@@ -1016,6 +1034,7 @@ export function BuildMars() {
       setColonyBase([]);
       setColonyResources(null);
       setBuildingUpgrades([]);
+      setConstructionCosts([]);
       return;
     }
 
@@ -2067,8 +2086,30 @@ export function BuildMars() {
                   const positionClass =
                     `mars-base-building-${building.building_key}`;
 
+                  const constructionCost =
+                    constructionCosts.find(
+                      (candidate) =>
+                        candidate.building_key ===
+                        building.building_key,
+                    ) ?? null;
+
+                  const hasConstructionResources =
+                    constructionCost !== null &&
+                    colonyResources !== null &&
+                    colonyResources.materials >=
+                      constructionCost.materials_cost &&
+                    colonyResources.energy >=
+                      constructionCost.energy_cost &&
+                    colonyResources.water >=
+                      constructionCost.water_cost &&
+                    colonyResources.science >=
+                      constructionCost.science_cost &&
+                    colonyResources.food >=
+                      constructionCost.food_cost;
+
                   const canConstruct =
                     !building.built &&
+                    constructionCost !== null &&
                     ["founder", "leader"].includes(
                       myColony.my_role,
                     );
@@ -2122,22 +2163,44 @@ export function BuildMars() {
                             : "NOT CONSTRUCTED"}
                         </small>
 
-                        {canConstruct && (
-                          <button
-                            type="button"
-                            disabled={
-                              constructingBuildingKey !== null
-                            }
-                            onClick={() =>
-                              void handleConstructBuilding(
-                                building.building_key,
-                              )
-                            }
-                          >
-                            {constructing
-                              ? "Constructing..."
-                              : "Construct"}
-                          </button>
+                        {canConstruct && constructionCost && (
+                          <div className="mars-building-upgrade">
+                            <div className="mars-building-upgrade-cost">
+                              <span>CONSTRUCTION COST</span>
+
+                              <small>
+                                M {constructionCost.materials_cost.toLocaleString()}
+                                {" · "}
+                                E {constructionCost.energy_cost.toLocaleString()}
+                                {" · "}
+                                W {constructionCost.water_cost.toLocaleString()}
+                                {" · "}
+                                S {constructionCost.science_cost.toLocaleString()}
+                                {" · "}
+                                F {constructionCost.food_cost.toLocaleString()}
+                              </small>
+                            </div>
+
+                            <button
+                              type="button"
+                              disabled={
+                                constructingBuildingKey !== null ||
+                                upgradingBuildingKey !== null ||
+                                !hasConstructionResources
+                              }
+                              onClick={() =>
+                                void handleConstructBuilding(
+                                  building.building_key,
+                                )
+                              }
+                            >
+                              {constructing
+                                ? "Constructing..."
+                                : hasConstructionResources
+                                  ? "Construct"
+                                  : "Insufficient Resources"}
+                            </button>
+                          </div>
                         )}
 
                         {building.built && upgrade && (

@@ -28,6 +28,17 @@ export type MarsColonyBuildingConstruction = {
   constructed_at: string;
 };
 
+
+export type MarsColonyBuildingConstructionCost = {
+  building_key: string;
+  building_name: string;
+  materials_cost: number;
+  energy_cost: number;
+  water_cost: number;
+  science_cost: number;
+  food_cost: number;
+};
+
 function firstRpcRow<T>(
   data: unknown,
   message: string,
@@ -96,6 +107,22 @@ Promise<MarsColonyBaseBuilding[]> {
 
   return (data as MarsColonyBaseBuilding[] | null) ?? [];
 }
+
+export async function getMyMarsColonyConstructionCosts():
+Promise<MarsColonyBuildingConstructionCost[]> {
+  const { data, error } = await supabase.rpc(
+    "get_my_mars_colony_construction_costs",
+  );
+
+  if (error) {
+    throw error;
+  }
+
+  return (
+    (data as MarsColonyBuildingConstructionCost[] | null) ?? []
+  );
+}
+
 
 export async function constructMyMarsColonyBuilding(
   buildingKey: string,
