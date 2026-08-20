@@ -56,6 +56,14 @@ import {
 
 import "./BuildMars.css";
 
+import {
+  getMyMarsColonyResources,
+  getMyMarsColonyBuildingUpgrades,
+  upgradeMyMarsColonyBuilding,
+  type MarsColonyResources,
+  type MarsColonyBuildingUpgrade,
+} from "../core/mars/MarsColonyBaseService";
+
 export function BuildMars() {
   const [marsAccess, setMarsAccess] =
     useState<MarsAccess | null>(null);
@@ -149,6 +157,16 @@ export function BuildMars() {
 
   const [constructingBuildingKey, setConstructingBuildingKey] =
     useState<string | null>(null);
+
+  const [colonyResources, setColonyResources] =
+    useState<MarsColonyResources | null>(null);
+
+  const [buildingUpgrades, setBuildingUpgrades] =
+    useState<MarsColonyBuildingUpgrade[]>([]);
+
+  const [upgradingBuildingKey, setUpgradingBuildingKey] =
+    useState<string | null>(null);
+
 
   const [leavingColony, setLeavingColony] =
     useState(false);
@@ -917,13 +935,94 @@ export function BuildMars() {
     }
   };
 
-  useEffect(() => {
+  const loadColonyEconomy = async () => {
     if (!myColony) {
-      setColonyBase([]);
+      setColonyResources(null);
+      setBuildingUpgrades([]);
       return;
     }
 
-    void loadColonyBase();
+    try {
+      const [resources, upgrades] = await Promise.all([
+        getMyMarsColonyResources(),
+        getMyMarsColonyBuildingUpgrades(),
+      ]);
+
+      setColonyResources(resources);
+      setBuildingUpgrades(upgrades);
+    } catch (loadError) {
+      console.error(
+        "BUILD MARS Colony economy failed:",
+        loadError,
+      );
+
+      setBaseError(
+        loadError instanceof Error
+          ? loadError.message
+          : "Unable to load Colony resources.",
+      );
+    }
+  };
+
+  const refreshColonyBase = async () => {
+    const [buildings, resources, upgrades] =
+      await Promise.all([
+        getMyMarsColonyBase(),
+        getMyMarsColonyResources(),
+        getMyMarsColonyBuildingUpgrades(),
+      ]);
+
+    setColonyBase(buildings);
+    setColonyResources(resources);
+    setBuildingUpgrades(upgrades);
+  };
+
+  const handleUpgradeBuilding = async (
+    buildingKey: string,
+  ) => {
+    if (
+      !myColony ||
+      upgradingBuildingKey ||
+      !["founder", "leader"].includes(myColony.my_role)
+    ) {
+      return;
+    }
+
+    try {
+      setUpgradingBuildingKey(buildingKey);
+      setBaseError(null);
+
+      await upgradeMyMarsColonyBuilding(buildingKey);
+
+      await refreshColonyBase();
+    } catch (actionError) {
+      console.error(
+        "BUILD MARS building upgrade failed:",
+        actionError,
+      );
+
+      setBaseError(
+        actionError instanceof Error
+          ? actionError.message
+          : "Unable to upgrade Colony building.",
+      );
+    } finally {
+      setUpgradingBuildingKey(null);
+    }
+  };
+
+  useEffect(() => {
+    if (!myColony) {
+      setColonyBase([]);
+      setColonyResources(null);
+      setBuildingUpgrades([]);
+      return;
+    }
+
+    void Promise.all([
+      loadColonyBase(),
+      loadColonyEconomy(),
+    ]);
   }, [myColony?.colony_id]);
 
   const builderProgress = useMemo(() => {
@@ -1893,6 +1992,29 @@ export function BuildMars() {
           {!baseLoading &&
             !baseError &&
             colonyBase.length > 0 && (
+              <>
+                {colonyResources && (
+                <div className="mars-colony-resources">
+                  {[
+                    ["MATERIALS", colonyResources.materials],
+                    ["ENERGY", colonyResources.energy],
+                    ["WATER", colonyResources.water],
+                    ["SCIENCE", colonyResources.science],
+                    ["FOOD", colonyResources.food],
+                  ].map(([label, value]) => (
+                    <div
+                      key={String(label)}
+                      className="mars-colony-resource"
+                    >
+                      <span>{label}</span>
+                      <strong>
+                        {Number(value).toLocaleString()}
+                      </strong>
+                    </div>
+                  ))}
+                </div>
+              )}
+
               <div className="mars-base-surface">
                 <div className="mars-base-horizon" />
                 <div className="mars-base-ridge mars-base-ridge-a" />
@@ -1912,6 +2034,22 @@ export function BuildMars() {
 
                   const constructing =
                     constructingBuildingKey ===
+                    building.building_key;
+
+                  const upgrade =
+                    buildingUpgrades.find(
+                      (candidate) =>
+                        candidate.building_key ===
+                        building.building_key,
+                    ) ?? null;
+
+                  const canManage =
+                    ["founder", "leader"].includes(
+                      myColony.my_role,
+                    );
+
+                  const upgrading =
+                    upgradingBuildingKey ===
                     building.building_key;
 
                   return (
@@ -1960,11 +2098,59 @@ export function BuildMars() {
                               : "Construct"}
                           </button>
                         )}
+
+                        {building.built && upgrade && (
+                          <div className="mars-building-upgrade">
+                            {upgrade.can_upgrade ? (
+                              <>
+                                <div className="mars-building-upgrade-cost">
+                                  <span>
+                                    NEXT LEVEL {upgrade.next_level}
+                                  </span>
+
+                                  <small>
+                                    M {upgrade.materials_cost.toLocaleString()}
+                                    {" · "}
+                                    E {upgrade.energy_cost.toLocaleString()}
+                                    {" · "}
+                                    W {upgrade.water_cost.toLocaleString()}
+                                    {" · "}
+                                    S {upgrade.science_cost.toLocaleString()}
+                                    {" · "}
+                                    F {upgrade.food_cost.toLocaleString()}
+                                  </small>
+                                </div>
+
+                                {canManage && (
+                                  <button
+                                    type="button"
+                                    disabled={
+                                      upgradingBuildingKey !== null ||
+                                      constructingBuildingKey !== null
+                                    }
+                                    onClick={() =>
+                                      void handleUpgradeBuilding(
+                                        building.building_key,
+                                      )
+                                    }
+                                  >
+                                    {upgrading
+                                      ? "Upgrading..."
+                                      : `Upgrade to Level ${upgrade.next_level}`}
+                                  </button>
+                                )}
+                              </>
+                            ) : (
+                              <small>MAX LEVEL</small>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </article>
                   );
                 })}
               </div>
+              </>
             )}
 
           {!baseLoading &&
