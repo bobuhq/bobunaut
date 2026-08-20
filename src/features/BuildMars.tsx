@@ -59,11 +59,14 @@ import {
 import "./BuildMars.css";
 
 import {
+  claimMyMarsColonyResources,
   getMyMarsColonyResources,
   getMyMarsColonyBuildingUpgrades,
+  getMyMarsResourceProduction,
   upgradeMyMarsColonyBuilding,
   type MarsColonyResources,
   type MarsColonyBuildingUpgrade,
+  type MarsColonyResourceProduction,
 } from "../core/mars/MarsColonyBaseService";
 
 export function BuildMars() {
@@ -168,6 +171,12 @@ export function BuildMars() {
 
   const [constructionCosts, setConstructionCosts] =
     useState<MarsColonyBuildingConstructionCost[]>([]);
+
+  const [resourceProduction, setResourceProduction] =
+    useState<MarsColonyResourceProduction | null>(null);
+
+  const [claimingResources, setClaimingResources] =
+    useState(false);
 
   const [upgradingBuildingKey, setUpgradingBuildingKey] =
     useState<string | null>(null);
@@ -953,19 +962,23 @@ export function BuildMars() {
       setColonyResources(null);
       setBuildingUpgrades([]);
       setConstructionCosts([]);
+      setResourceProduction(null);
       return;
     }
 
     try {
-      const [resources, upgrades, costs] = await Promise.all([
-        getMyMarsColonyResources(),
-        getMyMarsColonyBuildingUpgrades(),
-        getMyMarsColonyConstructionCosts(),
-      ]);
+      const [resources, upgrades, costs, production] =
+        await Promise.all([
+          getMyMarsColonyResources(),
+          getMyMarsColonyBuildingUpgrades(),
+          getMyMarsColonyConstructionCosts(),
+          getMyMarsResourceProduction(),
+        ]);
 
       setColonyResources(resources);
       setBuildingUpgrades(upgrades);
       setConstructionCosts(costs);
+      setResourceProduction(production);
     } catch (loadError) {
       console.error(
         "BUILD MARS Colony economy failed:",
@@ -981,18 +994,58 @@ export function BuildMars() {
   };
 
   const refreshColonyBase = async () => {
-    const [buildings, resources, upgrades, costs] =
+    const [buildings, resources, upgrades, costs, production] =
       await Promise.all([
         getMyMarsColonyBase(),
         getMyMarsColonyResources(),
         getMyMarsColonyBuildingUpgrades(),
         getMyMarsColonyConstructionCosts(),
+        getMyMarsResourceProduction(),
       ]);
 
     setColonyBase(buildings);
     setColonyResources(resources);
     setBuildingUpgrades(upgrades);
     setConstructionCosts(costs);
+    setResourceProduction(production);
+  };
+
+  const handleClaimResources = async () => {
+    if (
+      !myColony ||
+      claimingResources ||
+      !["founder", "leader"].includes(myColony.my_role)
+    ) {
+      return;
+    }
+
+    try {
+      setClaimingResources(true);
+      setBaseError(null);
+
+      await claimMyMarsColonyResources();
+
+      const [resources, production] = await Promise.all([
+        getMyMarsColonyResources(),
+        getMyMarsResourceProduction(),
+      ]);
+
+      setColonyResources(resources);
+      setResourceProduction(production);
+    } catch (claimError) {
+      console.error(
+        "BUILD MARS resource claim failed:",
+        claimError,
+      );
+
+      setBaseError(
+        claimError instanceof Error
+          ? claimError.message
+          : "Unable to collect Colony resources.",
+      );
+    } finally {
+      setClaimingResources(false);
+    }
   };
 
   const handleUpgradeBuilding = async (
@@ -1035,6 +1088,7 @@ export function BuildMars() {
       setColonyResources(null);
       setBuildingUpgrades([]);
       setConstructionCosts([]);
+      setResourceProduction(null);
       return;
     }
 
@@ -2072,6 +2126,109 @@ export function BuildMars() {
                       </strong>
                     </div>
                   ))}
+                </div>
+              )}
+
+              {resourceProduction && (
+                <div className="mars-colony-production">
+                  <div className="mars-colony-production-header">
+                    <div>
+                      <span>COLONY PRODUCTION</span>
+                      <strong>Resource Production Online</strong>
+                    </div>
+
+                    {["founder", "leader"].includes(
+                      myColony.my_role,
+                    ) && (
+                      <button
+                        type="button"
+                        disabled={
+                          claimingResources ||
+                          (
+                            resourceProduction.claimable_materials <= 0 &&
+                            resourceProduction.claimable_energy <= 0 &&
+                            resourceProduction.claimable_water <= 0 &&
+                            resourceProduction.claimable_science <= 0 &&
+                            resourceProduction.claimable_food <= 0
+                          )
+                        }
+                        onClick={() =>
+                          void handleClaimResources()
+                        }
+                      >
+                        {claimingResources
+                          ? "Collecting..."
+                          : "Collect Resources"}
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="mars-colony-production-grid">
+                    {[
+                      [
+                        "MATERIALS",
+                        resourceProduction.materials_per_hour,
+                        resourceProduction.claimable_materials,
+                      ],
+                      [
+                        "ENERGY",
+                        resourceProduction.energy_per_hour,
+                        resourceProduction.claimable_energy,
+                      ],
+                      [
+                        "WATER",
+                        resourceProduction.water_per_hour,
+                        resourceProduction.claimable_water,
+                      ],
+                      [
+                        "SCIENCE",
+                        resourceProduction.science_per_hour,
+                        resourceProduction.claimable_science,
+                      ],
+                      [
+                        "FOOD",
+                        resourceProduction.food_per_hour,
+                        resourceProduction.claimable_food,
+                      ],
+                    ].map(([label, rate, claimable]) => (
+                      <div
+                        key={String(label)}
+                        className="mars-colony-production-resource"
+                      >
+                        <span>{label}</span>
+
+                        <strong>
+                          +{Number(claimable).toLocaleString()}
+                        </strong>
+
+                        <small>
+                          {Number(rate).toLocaleString()} / HOUR
+                        </small>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="mars-colony-production-meta">
+                    <span>
+                      ACCRUED{" "}
+                      {Math.floor(
+                        resourceProduction.accrued_seconds / 3600,
+                      )}
+                      H{" "}
+                      {Math.floor(
+                        (resourceProduction.accrued_seconds % 3600) / 60,
+                      )}
+                      M
+                    </span>
+
+                    <span>
+                      MAX{" "}
+                      {Math.floor(
+                        resourceProduction.max_accrual_seconds / 3600,
+                      )}
+                      H
+                    </span>
+                  </div>
                 </div>
               )}
 

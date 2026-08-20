@@ -95,6 +95,48 @@ export type MarsColonyBuildingUpgradeResult = {
 };
 
 
+export type MarsColonyResourceProduction = {
+  colony_id: string;
+  colony_name: string;
+  last_claim_at: string;
+  accrued_seconds: number;
+  max_accrual_seconds: number;
+
+  materials_per_hour: number;
+  energy_per_hour: number;
+  water_per_hour: number;
+  science_per_hour: number;
+  food_per_hour: number;
+
+  claimable_materials: number;
+  claimable_energy: number;
+  claimable_water: number;
+  claimable_science: number;
+  claimable_food: number;
+};
+
+export type MarsColonyResourceClaim = {
+  claim_id: string;
+  colony_id: string;
+  colony_name: string;
+  elapsed_seconds: number;
+
+  materials_claimed: number;
+  energy_claimed: number;
+  water_claimed: number;
+  science_claimed: number;
+  food_claimed: number;
+
+  materials_balance: number;
+  energy_balance: number;
+  water_balance: number;
+  science_balance: number;
+  food_balance: number;
+
+  claimed_at: string;
+};
+
+
 export async function getMyMarsColonyBase():
 Promise<MarsColonyBaseBuilding[]> {
   const { data, error } = await supabase.rpc(
@@ -188,6 +230,36 @@ export async function upgradeMyMarsColonyBuilding(
   return firstRpcRow<MarsColonyBuildingUpgradeResult>(
     data,
     "Mars Colony building upgrade returned no result.",
+  );
+}
+
+export async function getMyMarsResourceProduction():
+Promise<MarsColonyResourceProduction | null> {
+  const { data, error } = await supabase.rpc(
+    "get_my_mars_resource_production",
+  );
+
+  if (error) {
+    throw error;
+  }
+
+  const rows = data as MarsColonyResourceProduction[] | null;
+  return rows?.[0] ?? null;
+}
+
+export async function claimMyMarsColonyResources():
+Promise<MarsColonyResourceClaim> {
+  const { data, error } = await supabase.rpc(
+    "claim_my_mars_colony_resources",
+  );
+
+  if (error) {
+    throw error;
+  }
+
+  return firstRpcRow<MarsColonyResourceClaim>(
+    data,
+    "Mars Colony resource claim returned no result.",
   );
 }
 

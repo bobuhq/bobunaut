@@ -1961,3 +1961,121 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+/* Mars Colony Resource Production */
+
+.mars-colony-production {
+  margin: 18px 0;
+  padding: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.055),
+      rgba(255, 255, 255, 0.015)
+    );
+  backdrop-filter: blur(14px);
+}
+
+.mars-colony-production-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.mars-colony-production-header > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mars-colony-production-header span {
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  opacity: 0.65;
+}
+
+.mars-colony-production-header strong {
+  font-size: 1rem;
+}
+
+.mars-colony-production-header button {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  padding: 10px 16px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.mars-colony-production-header button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.mars-colony-production-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.mars-colony-production-resource {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.16);
+}
+
+.mars-colony-production-resource span {
+  font-size: 0.64rem;
+  letter-spacing: 0.1em;
+  opacity: 0.6;
+}
+
+.mars-colony-production-resource strong {
+  font-size: 1rem;
+}
+
+.mars-colony-production-resource small {
+  font-size: 0.68rem;
+  opacity: 0.58;
+}
+
+.mars-colony-production-meta {
+  display: flex;
+  justify-content: flex-end;
+  gap: 14px;
+  margin-top: 12px;
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  opacity: 0.55;
+}
+
+@media (max-width: 760px) {
+  .mars-colony-production-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .mars-colony-production-header button {
+    width: 100%;
+  }
+
+  .mars-colony-production-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .mars-colony-production-resource:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .mars-colony-production-meta {
+    justify-content: space-between;
+  }
+}
