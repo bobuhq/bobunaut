@@ -217,6 +217,9 @@ export function BuildMars() {
   const [selectedSectorId, setSelectedSectorId] =
     useState<string | null>(null);
 
+  const [enteredSectorId, setEnteredSectorId] =
+    useState<string | null>(null);
+
   const [sectorActionError, setSectorActionError] =
     useState<string | null>(null);
 
@@ -888,6 +891,25 @@ export function BuildMars() {
     } finally {
       setLeavingColony(false);
     }
+  };
+
+  const handleEnterSector = (
+    sectorId: string,
+  ) => {
+    setEnteredSectorId(
+      sectorId,
+    );
+
+    window.setTimeout(() => {
+      document
+        .querySelector(
+          ".mars-sector-entry",
+        )
+        ?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+    }, 80);
   };
 
   const selectedSector = useMemo(
@@ -2497,15 +2519,26 @@ export function BuildMars() {
                     selectedSectorId={
                       selectedSectorId
                     }
-                    onSelectSector={
-                      setSelectedSectorId
+                    onSelectSector={(sectorId) => {
+                      setSelectedSectorId(
+                        sectorId,
+                      );
+
+                      setEnteredSectorId(
+                        null,
+                      );
+                    }}
+                    onEnterSector={
+                      handleEnterSector
                     }
                     ariaLabel={t("mars.map.ariaLabel")}
                   />
                 </Suspense>
               </div>
 
-              {selectedSector && (
+              {selectedSector &&
+                enteredSectorId ===
+                  selectedSector.sector_id && (
                 <div className="mars-sector-entry">
                   <div className="mars-map-shell">
               <div className="mars-map-heading">

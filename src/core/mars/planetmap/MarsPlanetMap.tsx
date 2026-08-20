@@ -22,6 +22,7 @@ import type {
 
 import {
   DoubleSide,
+  MathUtils,
   SRGBColorSpace,
   Vector3,
 } from "three";
@@ -36,7 +37,12 @@ type MarsPlanetMapProps = {
   sectors: MarsSector[];
   currentSectorId: string | null;
   selectedSectorId: string | null;
-  onSelectSector: (sectorId: string) => void;
+  onSelectSector: (
+    sectorId: string | null,
+  ) => void;
+  onEnterSector: (
+    sectorId: string,
+  ) => void;
   ariaLabel: string;
 };
 
@@ -50,10 +56,10 @@ type SectorMarkerProps = {
 const PLANET_RADIUS = 2.62;
 const MARKER_RADIUS = 2.68;
 
-function mapPositionToSphere(
+function mapCoordinatesToAngles(
   mapX: number,
   mapY: number,
-): Vector3 {
+) {
   const longitude =
     (mapX / 100) * Math.PI * 2 -
     Math.PI;
@@ -61,6 +67,24 @@ function mapPositionToSphere(
   const latitude =
     Math.PI / 2 -
     (mapY / 100) * Math.PI;
+
+  return {
+    longitude,
+    latitude,
+  };
+}
+
+function mapPositionToSphere(
+  mapX: number,
+  mapY: number,
+): Vector3 {
+  const {
+    longitude,
+    latitude,
+  } = mapCoordinatesToAngles(
+    mapX,
+    mapY,
+  );
 
   const cosLatitude =
     Math.cos(latitude);
@@ -119,6 +143,7 @@ function SectorMarker({
         }}
         onPointerOver={(event) => {
           event.stopPropagation();
+
           document.body.style.cursor =
             "pointer";
         }}
@@ -211,7 +236,7 @@ function MarsPlanet({
   onSelectSector,
 }: Omit<
   MarsPlanetMapProps,
-  "ariaLabel"
+  "ariaLabel" | "onEnterSector"
 >) {
   const groupRef =
     useRef<Group | null>(null);
@@ -226,17 +251,114 @@ function MarsPlanet({
   texture.colorSpace =
     SRGBColorSpace;
 
+  const selectedSector =
+    useMemo(
+      () =>
+        sectors.find(
+          (sector) =>
+            sector.sector_id ===
+            selectedSectorId,
+        ) ?? null,
+      [
+        sectors,
+        selectedSectorId,
+      ],
+    );
+
+  const focusAngles =
+    useMemo(() => {
+      if (
+        !selectedSector ||
+        selectedSector.map_x === null ||
+        selectedSector.map_y === null
+      ) {
+        return null;
+      }
+
+      return mapCoordinatesToAngles(
+        selectedSector.map_x,
+        selectedSector.map_y,
+      );
+    }, [selectedSector]);
+
   useFrame((_, delta) => {
-    /*
-     * Extremely slow idle movement.
-     * User interaction remains primary.
-     */
-    if (groupRef.current) {
-      groupRef.current.rotation.y +=
-        delta * 0.006;
+    const group =
+      groupRef.current;
+
+    if (!group) {
+      return;
     }
 
-    if (atmosphereRef.current) {
+    if (focusAngles) {
+      /*
+       * Bring selected sector toward
+       * the front of the planet.
+       */
+      const targetX =
+        focusAngles.latitude;
+
+      const targetY =
+        -focusAngles.longitude;
+
+      group.rotation.x =
+        MathUtils.damp(
+          group.rotation.x,
+          targetX,
+          3.8,
+          delta,
+        );
+
+      group.rotation.y =
+        MathUtils.damp(
+          group.rotation.y,
+          targetY,
+          3.8,
+          delta,
+        );
+
+      /*
+       * Visual focus zoom without
+       * fighting OrbitControls camera.
+       */
+      const scale =
+        MathUtils.damp(
+          group.scale.x,
+          1.1,
+          3.6,
+          delta,
+        );
+
+      group.scale.setScalar(
+        scale,
+      );
+    } else {
+      group.rotation.x =
+        MathUtils.damp(
+          group.rotation.x,
+          0.08,
+          2,
+          delta,
+        );
+
+      group.rotation.y +=
+        delta * 0.006;
+
+      const scale =
+        MathUtils.damp(
+          group.scale.x,
+          1,
+          3,
+          delta,
+        );
+
+      group.scale.setScalar(
+        scale,
+      );
+    }
+
+    if (
+      atmosphereRef.current
+    ) {
       atmosphereRef.current.rotation.y -=
         delta * 0.002;
     }
@@ -254,6 +376,11 @@ function MarsPlanet({
       <mesh
         castShadow
         receiveShadow
+        onClick={() => {
+          if (selectedSectorId) {
+            onSelectSector(null);
+          }
+        }}
       >
         <sphereGeometry
           args={[
@@ -290,25 +417,29 @@ function MarsPlanet({
         />
       </mesh>
 
-      {sectors.map((sector) => (
-        <SectorMarker
-          key={sector.sector_id}
-          sector={sector}
-          current={
-            sector.sector_id ===
-            currentSectorId
-          }
-          selected={
-            sector.sector_id ===
-            selectedSectorId
-          }
-          onSelect={() =>
-            onSelectSector(
-              sector.sector_id,
-            )
-          }
-        />
-      ))}
+      {sectors.map(
+        (sector) => (
+          <SectorMarker
+            key={
+              sector.sector_id
+            }
+            sector={sector}
+            current={
+              sector.sector_id ===
+              currentSectorId
+            }
+            selected={
+              sector.sector_id ===
+              selectedSectorId
+            }
+            onSelect={() =>
+              onSelectSector(
+                sector.sector_id,
+              )
+            }
+          />
+        ),
+      )}
     </group>
   );
 }
@@ -316,7 +447,7 @@ function MarsPlanet({
 function MarsScene(
   props: Omit<
     MarsPlanetMapProps,
-    "ariaLabel"
+    "ariaLabel" | "onEnterSector"
   >,
 ) {
   return (
@@ -336,7 +467,11 @@ function MarsScene(
       />
 
       <directionalLight
-        position={[-5, -2, -4]}
+        position={[
+          -5,
+          -2,
+          -4,
+        ]}
         intensity={0.32}
         color="#8e4b35"
       />
@@ -356,6 +491,9 @@ function MarsScene(
       <OrbitControls
         makeDefault
         enablePan={false}
+        enableRotate={
+          !props.selectedSectorId
+        }
         enableDamping
         dampingFactor={0.055}
         minDistance={3.45}
@@ -376,11 +514,35 @@ export function MarsPlanetMap({
   currentSectorId,
   selectedSectorId,
   onSelectSector,
+  onEnterSector,
   ariaLabel,
 }: MarsPlanetMapProps) {
+  const selectedSector =
+    useMemo(
+      () =>
+        sectors.find(
+          (sector) =>
+            sector.sector_id ===
+            selectedSectorId,
+        ) ?? null,
+      [
+        sectors,
+        selectedSectorId,
+      ],
+    );
+
+  const current =
+    selectedSector?.sector_id ===
+    currentSectorId;
+
   return (
     <section
-      className="mars-planet-map"
+      className={[
+        "mars-planet-map",
+        selectedSector
+          ? "has-selection"
+          : "",
+      ].join(" ")}
       aria-label={ariaLabel}
     >
       <div className="mars-planet-map__hud">
@@ -426,6 +588,88 @@ export function MarsPlanetMap({
           }
         />
       </Canvas>
+
+      {selectedSector && (
+        <aside
+          className="mars-planet-map__focus-panel"
+        >
+          <button
+            type="button"
+            className="mars-planet-map__focus-close"
+            aria-label="Close sector"
+            onClick={() =>
+              onSelectSector(null)
+            }
+          >
+            ×
+          </button>
+
+          <span className="mars-planet-map__focus-eyebrow">
+            {current
+              ? "MY TERRITORY"
+              : "SELECTED SECTOR"}
+          </span>
+
+          <h3>
+            {selectedSector.sector_name}
+          </h3>
+
+          <div className="mars-planet-map__focus-code">
+            {selectedSector.sector_code}
+          </div>
+
+          <div className="mars-planet-map__focus-stats">
+            <div>
+              <span>COLONIES</span>
+
+              <strong>
+                {
+                  selectedSector.current_colonies
+                }
+                {" / "}
+                {
+                  selectedSector.max_colonies
+                }
+              </strong>
+            </div>
+
+            <div>
+              <span>
+                CONTRIBUTION
+              </span>
+
+              <strong>
+                {
+                  selectedSector.total_contribution
+                }
+              </strong>
+            </div>
+
+            <div>
+              <span>STATUS</span>
+
+              <strong>
+                {
+                  selectedSector.sector_status
+                }
+              </strong>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            className="mars-planet-map__enter"
+            onClick={() =>
+              onEnterSector(
+                selectedSector.sector_id,
+              )
+            }
+          >
+            ENTER SECTOR
+            <span>→</span>
+          </button>
+        </aside>
+      )}
 
       <div className="mars-planet-map__controls">
         <span>
