@@ -1,4 +1,6 @@
 import {
+  lazy,
+  Suspense,
   useEffect,
   useMemo,
   useState,
@@ -54,10 +56,6 @@ import {
 } from "../core/mars/MarsSectorService";
 
 import {
-  MarsWorldMap,
-} from "../core/mars/worldmap/MarsWorldMap";
-
-import {
   constructMyMarsColonyBuilding,
   getMyMarsColonyBase,
   getMyMarsColonyConstructionCosts,
@@ -77,6 +75,14 @@ import {
   type MarsColonyBuildingUpgrade,
   type MarsColonyResourceProduction,
 } from "../core/mars/MarsColonyBaseService";
+
+const MarsPlanetMap = lazy(() =>
+  import("../core/mars/planetmap/MarsPlanetMap").then(
+    (module) => ({
+      default: module.MarsPlanetMap,
+    }),
+  ),
+);
 
 export function BuildMars() {
   const { t } = useLanguage();
@@ -2475,23 +2481,33 @@ export function BuildMars() {
           !sectorsError &&
           sectors.length > 0 && (
             <>
-              <div className="mars-world-map-section">
-                <MarsWorldMap
-                  sectors={sectors}
-                  currentSectorId={
-                    myColony?.active_sector_id ?? null
+              <div className="mars-planet-map-section">
+                <Suspense
+                  fallback={
+                    <div className="mars-planet-map-loading">
+                      {t("mars.sector.synchronizing")}
+                    </div>
                   }
-                  selectedSectorId={
-                    selectedSectorId
-                  }
-                  onSelectSector={
-                    setSelectedSectorId
-                  }
-                  ariaLabel={t("mars.map.ariaLabel")}
-                />
+                >
+                  <MarsPlanetMap
+                    sectors={sectors}
+                    currentSectorId={
+                      myColony?.active_sector_id ?? null
+                    }
+                    selectedSectorId={
+                      selectedSectorId
+                    }
+                    onSelectSector={
+                      setSelectedSectorId
+                    }
+                    ariaLabel={t("mars.map.ariaLabel")}
+                  />
+                </Suspense>
               </div>
 
-              <div className="mars-map-shell">
+              {selectedSector && (
+                <div className="mars-sector-entry">
+                  <div className="mars-map-shell">
               <div className="mars-map-heading">
                 <div>
                   <span className="mars-section-label">
@@ -2696,6 +2712,8 @@ export function BuildMars() {
                 </div>
               </div>
             </div>
+                  </div>
+                )}
             </>
 
           )}
