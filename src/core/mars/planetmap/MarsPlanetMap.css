@@ -2102,3 +2102,116 @@
     animation-delay: 0ms !important;
   }
 }
+
+
+/* =========================================================
+   BOBU MARS — RETURN TO ORBIT
+   ========================================================= */
+
+.mars-sector-return-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+
+  margin:
+    0
+    0
+    14px;
+}
+
+
+.mars-sector-return-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  min-height: 42px;
+
+  padding:
+    0
+    16px;
+
+  border:
+    1px solid
+    rgba(255, 139, 83, 0.28);
+
+  border-radius: 12px;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(44, 18, 13, 0.92),
+      rgba(19, 13, 22, 0.92)
+    );
+
+  color:
+    rgba(255, 226, 211, 0.92);
+
+  font: inherit;
+  font-size: 11px;
+  font-weight: 800;
+
+  letter-spacing: 0.16em;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 10px 28px
+    rgba(0, 0, 0, 0.24);
+
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease,
+    box-shadow 160ms ease;
+}
+
+
+.mars-sector-return-button:hover {
+  transform:
+    translateY(-2px);
+
+  border-color:
+    rgba(255, 159, 102, 0.58);
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(73, 28, 18, 0.96),
+      rgba(30, 18, 34, 0.96)
+    );
+
+  box-shadow:
+    0 14px 34px
+    rgba(0, 0, 0, 0.32);
+}
+
+
+.mars-sector-return-button:active {
+  transform:
+    translateY(0)
+    scale(0.98);
+}
+
+
+.mars-sector-return-button:focus-visible {
+  outline:
+    2px solid
+    rgba(255, 166, 112, 0.88);
+
+  outline-offset: 3px;
+}
+
+
+.mars-sector-return-button > span:first-child {
+  font-size: 17px;
+  line-height: 1;
+}
+
+
+@media (max-width: 680px) {
+  .mars-sector-return-button {
+    width: 100%;
+  }
+}

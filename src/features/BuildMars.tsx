@@ -2585,6 +2585,19 @@ export function BuildMars() {
                 enteredSectorId ===
                   selectedSector.sector_id && (
                 <div className="mars-sector-entry mars-sector-entry--arriving">
+                  <div className="mars-sector-return-row">
+                    <button
+                      type="button"
+                      className="mars-sector-return-button"
+                      onClick={() => {
+                        setEnteredSectorId(null);
+                      }}
+                    >
+                      <span aria-hidden="true">←</span>
+                      <span>RETURN TO ORBIT</span>
+                    </button>
+                  </div>
+
                   <div className="mars-map-shell">
               <div className="mars-map-heading">
                 <div>
