@@ -690,3 +690,170 @@
     font-size: 0.62rem;
   }
 }
+
+
+/* =========================================================
+   BOBU MARS — COLONY WORKSPACE V3
+   Real production colony state. No generated territory plots.
+   ========================================================= */
+
+.mars-territory--workspace {
+  width: 100%;
+  margin: 0;
+  border-radius: 0;
+}
+
+.mars-territory--workspace .mars-territory__viewport {
+  min-height: calc(100vh - 72px);
+}
+
+.mars-colony-workspace {
+  position: relative;
+  background:
+    radial-gradient(
+      ellipse at 50% 82%,
+      rgba(188, 82, 37, 0.46),
+      transparent 48%
+    ),
+    linear-gradient(
+      180deg,
+      #35170f 0%,
+      #632b17 42%,
+      #431c10 69%,
+      #160a08 100%
+    );
+}
+
+.mars-colony-workspace__horizon {
+  position: absolute;
+  z-index: -1;
+  right: -8%;
+  bottom: -5%;
+  left: -8%;
+  height: 57%;
+  border-radius: 50% 50% 0 0;
+  background:
+    radial-gradient(
+      ellipse at 50% 0%,
+      rgba(206, 97, 46, 0.22),
+      rgba(67, 27, 16, 0.78) 58%,
+      rgba(20, 9, 8, 0.96)
+    );
+  pointer-events: none;
+}
+
+.mars-colony-workspace__ridge {
+  position: absolute;
+  z-index: 0;
+  height: 1px;
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 185, 120, 0.2),
+      transparent
+    );
+  pointer-events: none;
+}
+
+.mars-colony-workspace__ridge--a {
+  top: 55%;
+  left: 9%;
+  width: 45%;
+  transform: rotate(-6deg);
+}
+
+.mars-colony-workspace__ridge--b {
+  top: 42%;
+  right: 8%;
+  width: 41%;
+  transform: rotate(7deg);
+}
+
+.mars-colony-workspace__crater {
+  position: absolute;
+  z-index: 0;
+  border: 1px solid rgba(255, 184, 120, 0.07);
+  border-radius: 50%;
+  box-shadow:
+    inset 10px 10px 28px rgba(0, 0, 0, 0.34);
+  pointer-events: none;
+}
+
+.mars-colony-workspace__crater--a {
+  bottom: 13%;
+  left: 11%;
+  width: 160px;
+  height: 84px;
+}
+
+.mars-colony-workspace__crater--b {
+  right: 9%;
+  bottom: 10%;
+  width: 210px;
+  height: 105px;
+}
+
+.mars-colony-workspace__title {
+  position: absolute;
+  z-index: 10;
+  top: 26px;
+  left: 28px;
+  display: grid;
+  gap: 4px;
+  pointer-events: none;
+}
+
+.mars-colony-workspace__title span {
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  opacity: 0.5;
+}
+
+.mars-colony-workspace__title strong {
+  font-size: clamp(1.5rem, 3vw, 2.6rem);
+  letter-spacing: 0.035em;
+}
+
+.mars-colony-workspace__title small {
+  opacity: 0.52;
+}
+
+.mars-colony-workspace__base {
+  position: absolute;
+  z-index: 8;
+  inset: 0;
+}
+
+/*
+ * Reuse the production Colony Base positioning classes,
+ * but scale them for the full workspace.
+ */
+.mars-colony-workspace__base .mars-base-building {
+  width: 168px;
+}
+
+.mars-colony-workspace__base .mars-base-building-info {
+  box-shadow:
+    0 14px 34px rgba(0, 0, 0, 0.28);
+}
+
+@media (max-width: 760px) {
+  .mars-territory--workspace .mars-territory__viewport {
+    min-height: calc(100vh - 64px);
+  }
+
+  .mars-colony-workspace__title {
+    top: 16px;
+    left: 14px;
+  }
+
+  .mars-colony-workspace__title strong {
+    font-size: 1.2rem;
+  }
+
+  .mars-colony-workspace__base .mars-base-building {
+    width: 126px;
+  }
+}

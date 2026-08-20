@@ -2555,75 +2555,42 @@
   }
 }
 
-/* =========================================================
-   BOBU MARS — FULL SURFACE WORKSPACE
-   ========================================================= */
-
-.mars-sector-network.is-surface-mode {
+/* BOBU MARS — COLONY WORKSPACE PAGE OVERRIDE */
+.mars-page:has(.mars-sector-network.is-surface-mode .mars-territory--workspace) {
   width: 100%;
   max-width: none;
   margin: 0;
   padding: 0;
-  border: 0;
-  background: transparent;
 }
 
-.mars-sector-network.is-surface-mode
-  .mars-sector-entry {
+.mars-sector-network.is-surface-mode:has(.mars-territory--workspace) {
   width: 100%;
+  max-width: none;
   margin: 0;
+  padding: 0;
 }
 
-.mars-sector-network.is-surface-mode
+/*
+ * The workspace has its own Return To Orbit control.
+ * Remove the old sector-level return bar completely.
+ */
+.mars-sector-network.is-surface-mode:has(.mars-territory--workspace)
   .mars-sector-return-row {
-  position: relative;
-  z-index: 30;
-  margin: 0 0 10px;
+  display: none !important;
 }
 
 .mars-sector-network.is-surface-mode
-  .mars-territory {
+  .mars-sector-entry:has(.mars-territory--workspace) {
   width: 100%;
+  max-width: none;
   margin: 0;
-  border-radius: 20px;
+  padding: 0;
 }
 
 .mars-sector-network.is-surface-mode
-  .mars-territory__viewport {
-  min-height: calc(100vh - 190px);
-}
-
-.mars-sector-network.is-surface-mode
-  .mars-map-shell[hidden] {
-  display: none !important;
-}
-
-/* Hide old sector cards completely while on the surface */
-.mars-sector-network.is-surface-mode
-  .mars-sector-grid {
-  display: none !important;
-}
-
-/* Surface mode becomes the page itself */
-.mars-page:has(.mars-sector-network.is-surface-mode) {
-  width: min(1600px, calc(100% - 20px));
-  padding-top: 14px;
-  padding-bottom: 24px;
-}
-
-/* Global Mars dashboard must not appear under the territory */
-.mars-page:has(.mars-sector-network.is-surface-mode)
-  .mars-orbit-secondary {
-  display: none !important;
-}
-
-@media (max-width: 760px) {
-  .mars-sector-network.is-surface-mode
-    .mars-territory__viewport {
-    min-height: calc(100vh - 150px);
-  }
-
-  .mars-page:has(.mars-sector-network.is-surface-mode) {
-    width: calc(100% - 10px);
-  }
+  .mars-territory--workspace {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  border-radius: 0;
 }

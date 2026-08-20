@@ -1,6 +1,9 @@
-import { useMemo, useState } from "react";
-
 import type { MarsSector } from "../core/mars/MarsSectorService";
+import type {
+  MarsColonyBaseBuilding,
+  MarsColonyBuildingConstructionCost,
+  MarsColonyBuildingUpgrade,
+} from "../core/mars/MarsColonyBaseService";
 
 import "./MarsSectorTerritory.css";
 
@@ -21,58 +24,27 @@ type Props = {
     total: number;
   };
   contribution: number;
+  colonyBase: MarsColonyBaseBuilding[];
+  constructionCosts: MarsColonyBuildingConstructionCost[];
+  buildingUpgrades: MarsColonyBuildingUpgrade[];
+  canManageColony: boolean;
+  constructingBuildingKey: string | null;
+  upgradingBuildingKey: string | null;
+  onConstructBuilding: (buildingKey: string) => void;
+  onUpgradeBuilding: (buildingKey: string) => void;
   onBack: () => void;
 };
 
-type HexPlot = {
-  id: string;
-  q: number;
-  r: number;
-  state: "colony" | "available" | "locked";
-};
-
-const HEX_RADIUS = 3;
-
-function buildHexPlots(
-  isMyColonySector: boolean,
-): HexPlot[] {
-  const plots: HexPlot[] = [];
-
-  for (let q = -HEX_RADIUS; q <= HEX_RADIUS; q += 1) {
-    const r1 = Math.max(
-      -HEX_RADIUS,
-      -q - HEX_RADIUS,
-    );
-
-    const r2 = Math.min(
-      HEX_RADIUS,
-      -q + HEX_RADIUS,
-    );
-
-    for (let r = r1; r <= r2; r += 1) {
-      const isCenter = q === 0 && r === 0;
-
-      const distance = Math.max(
-        Math.abs(q),
-        Math.abs(r),
-        Math.abs(-q - r),
-      );
-
-      plots.push({
-        id: `${q}:${r}`,
-        q,
-        r,
-        state:
-          isCenter && isMyColonySector
-            ? "colony"
-            : distance <= 1
-              ? "available"
-              : "locked",
-      });
-    }
-  }
-
-  return plots;
+function formatCost(
+  cost: MarsColonyBuildingConstructionCost | MarsColonyBuildingUpgrade,
+) {
+  return [
+    `M ${cost.materials_cost.toLocaleString()}`,
+    `E ${cost.energy_cost.toLocaleString()}`,
+    `W ${cost.water_cost.toLocaleString()}`,
+    `S ${cost.science_cost.toLocaleString()}`,
+    `F ${cost.food_cost.toLocaleString()}`,
+  ].join(" · ");
 }
 
 export default function MarsSectorTerritory({
@@ -81,22 +53,21 @@ export default function MarsSectorTerritory({
   resources,
   structures,
   contribution,
+  colonyBase,
+  constructionCosts,
+  buildingUpgrades,
+  canManageColony,
+  constructingBuildingKey,
+  upgradingBuildingKey,
+  onConstructBuilding,
+  onUpgradeBuilding,
   onBack,
 }: Props) {
-  const [selectedPlotId, setSelectedPlotId] =
-    useState<string | null>(null);
-
-  const plots = useMemo(
-    () => buildHexPlots(isMyColonySector),
-    [isMyColonySector],
-  );
-
-  const selectedPlot =
-    plots.find((plot) => plot.id === selectedPlotId) ??
-    null;
+  const colonyName =
+    colonyBase[0]?.colony_name ?? "COLONY";
 
   return (
-    <section className="mars-territory">
+    <section className="mars-territory mars-territory--workspace">
       <div className="mars-territory__topbar">
         <button
           type="button"
@@ -104,31 +75,31 @@ export default function MarsSectorTerritory({
           onClick={onBack}
         >
           <span aria-hidden="true">←</span>
-          <span>MARS MAP</span>
+          <span>RETURN TO ORBIT</span>
         </button>
 
         <div className="mars-territory__identity">
-          <span>SECTOR TERRITORY</span>
+          <span>COLONY WORKSPACE</span>
 
           <strong>
-            {sector.sector_code}
+            {colonyName}
             {" · "}
-            {sector.sector_name}
+            {sector.sector_code}
           </strong>
         </div>
 
         <div className="mars-territory__capacity">
-          <span>COLONIES</span>
+          <span>STRUCTURES</span>
 
           <strong>
-            {sector.current_colonies}
+            {structures.constructed}
             {" / "}
-            {sector.max_colonies}
+            {structures.total}
           </strong>
         </div>
       </div>
 
-      <div className="mars-territory__viewport">
+      <div className="mars-territory__viewport mars-colony-workspace">
         <div
           className="mars-territory__planet"
           aria-hidden="true"
@@ -136,47 +107,39 @@ export default function MarsSectorTerritory({
 
         <div className="mars-territory__atmosphere" />
 
+        <div className="mars-colony-workspace__horizon" />
+        <div className="mars-colony-workspace__ridge mars-colony-workspace__ridge--a" />
+        <div className="mars-colony-workspace__ridge mars-colony-workspace__ridge--b" />
+        <div className="mars-colony-workspace__crater mars-colony-workspace__crater--a" />
+        <div className="mars-colony-workspace__crater mars-colony-workspace__crater--b" />
+
         {isMyColonySector && (
           <>
             <aside
               className="mars-territory-hud mars-territory-hud--left"
               aria-label="Colony territory status"
             >
-              <div
-                className="mars-territory-hud__item"
-                title="Materials"
-              >
+              <div className="mars-territory-hud__item" title="Materials">
                 <span className="mars-territory-hud__icon">◆</span>
-                <strong>{resources?.materials ?? 0}</strong>
+                <strong>{resources?.materials.toLocaleString() ?? "0"}</strong>
                 <small>Materials</small>
               </div>
 
-              <div
-                className="mars-territory-hud__item"
-                title="Water"
-              >
+              <div className="mars-territory-hud__item" title="Water">
                 <span className="mars-territory-hud__icon">◉</span>
-                <strong>{resources?.water ?? 0}</strong>
+                <strong>{resources?.water.toLocaleString() ?? "0"}</strong>
                 <small>Water</small>
               </div>
 
-              <div
-                className="mars-territory-hud__item"
-                title="Science"
-              >
+              <div className="mars-territory-hud__item" title="Science">
                 <span className="mars-territory-hud__icon">✦</span>
-                <strong>{resources?.science ?? 0}</strong>
+                <strong>{resources?.science.toLocaleString() ?? "0"}</strong>
                 <small>Science</small>
               </div>
 
-              <div
-                className="mars-territory-hud__item"
-                title="Contribution"
-              >
+              <div className="mars-territory-hud__item" title="Contribution">
                 <span className="mars-territory-hud__icon">★</span>
-                <strong>
-                  {contribution.toLocaleString()}
-                </strong>
+                <strong>{contribution.toLocaleString()}</strong>
                 <small>Contribution</small>
               </div>
             </aside>
@@ -185,28 +148,19 @@ export default function MarsSectorTerritory({
               className="mars-territory-hud mars-territory-hud--right"
               aria-label="Colony resource status"
             >
-              <div
-                className="mars-territory-hud__item"
-                title="Energy"
-              >
+              <div className="mars-territory-hud__item" title="Energy">
                 <span className="mars-territory-hud__icon">ϟ</span>
-                <strong>{resources?.energy ?? 0}</strong>
+                <strong>{resources?.energy.toLocaleString() ?? "0"}</strong>
                 <small>Energy</small>
               </div>
 
-              <div
-                className="mars-territory-hud__item"
-                title="Food"
-              >
+              <div className="mars-territory-hud__item" title="Food">
                 <span className="mars-territory-hud__icon">●</span>
-                <strong>{resources?.food ?? 0}</strong>
+                <strong>{resources?.food.toLocaleString() ?? "0"}</strong>
                 <small>Food</small>
               </div>
 
-              <div
-                className="mars-territory-hud__item"
-                title="Structures"
-              >
+              <div className="mars-territory-hud__item" title="Structures">
                 <span className="mars-territory-hud__icon">⌂</span>
                 <strong>
                   {structures.constructed}
@@ -216,164 +170,160 @@ export default function MarsSectorTerritory({
                 <small>Structures</small>
               </div>
 
-              <div
-                className="mars-territory-hud__item"
-                title="Sector Colonies"
-              >
+              <div className="mars-territory-hud__item" title="Sector">
                 <span className="mars-territory-hud__icon">◎</span>
-                <strong>
-                  {sector.current_colonies}
-                  {" / "}
-                  {sector.max_colonies}
-                </strong>
-                <small>Colonies</small>
+                <strong>{sector.sector_code}</strong>
+                <small>Sector</small>
               </div>
             </aside>
           </>
         )}
 
-        <div className="mars-territory__hex-field">
-          {plots.map((plot) => {
-            const x =
-              plot.q * 74 +
-              plot.r * 37;
-
-            const y =
-              plot.r * 64;
-
-            const isSelected =
-              selectedPlotId === plot.id;
-
-            return (
-              <button
-                key={plot.id}
-                type="button"
-                className={[
-                  "mars-territory-hex",
-                  `mars-territory-hex--${plot.state}`,
-                  isSelected
-                    ? "mars-territory-hex--selected"
-                    : "",
-                ]
-                  .filter(Boolean)
-                  .join(" ")}
-                style={{
-                  transform: `translate3d(${x}px, ${y}px, 0)`,
-                }}
-                onClick={() =>
-                  setSelectedPlotId(plot.id)
-                }
-                aria-label={`Territory plot ${plot.id}`}
-              >
-                <span className="mars-territory-hex__surface" />
-
-                {plot.state === "locked" && (
-                  <span className="mars-territory-hex__lock">
-                    🔒
-                  </span>
-                )}
-
-                {plot.state === "available" && (
-                  <span className="mars-territory-hex__marker">
-                    +
-                  </span>
-                )}
-
-                {plot.state === "colony" && (
-                  <span className="mars-territory-colony">
-                    <i className="mars-territory-colony__beam" />
-                    <i className="mars-territory-colony__tower" />
-                    <i className="mars-territory-colony__dome" />
-                    <i className="mars-territory-colony__wing mars-territory-colony__wing--left" />
-                    <i className="mars-territory-colony__wing mars-territory-colony__wing--right" />
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </div>
-
-        <div className="mars-territory__title">
-          <span>MARS SECTOR</span>
-          <strong>{sector.sector_code}</strong>
+        <div className="mars-colony-workspace__title">
+          <span>MARS SURFACE OPERATIONS</span>
+          <strong>{colonyName}</strong>
           <small>
-            Select a territory plot to inspect its status.
+            {sector.sector_code}
+            {" · "}
+            {sector.sector_name}
           </small>
         </div>
 
-        <div className="mars-territory__legend">
-          <span>
-            <i className="mars-territory__legend-colony" />
-            Colony
-          </span>
+        <div className="mars-colony-workspace__base">
+          {colonyBase.map((building) => {
+            const positionClass =
+              `mars-base-building-${building.building_key}`;
 
-          <span>
-            <i className="mars-territory__legend-open" />
-            Available
-          </span>
+            const constructionCost =
+              constructionCosts.find(
+                (candidate) =>
+                  candidate.building_key === building.building_key,
+              ) ?? null;
 
-          <span>
-            <i className="mars-territory__legend-locked" />
-            Locked
-          </span>
-        </div>
+            const upgrade =
+              buildingUpgrades.find(
+                (candidate) =>
+                  candidate.building_key === building.building_key,
+              ) ?? null;
 
-        {selectedPlot && (
-          <aside className="mars-territory-panel">
-            <button
-              type="button"
-              className="mars-territory-panel__close"
-              onClick={() => setSelectedPlotId(null)}
-              aria-label="Close territory details"
-            >
-              ×
-            </button>
+            const hasConstructionResources =
+              constructionCost !== null &&
+              resources !== null &&
+              resources.materials >= constructionCost.materials_cost &&
+              resources.energy >= constructionCost.energy_cost &&
+              resources.water >= constructionCost.water_cost &&
+              resources.science >= constructionCost.science_cost &&
+              resources.food >= constructionCost.food_cost;
 
-            <span>TERRITORY PLOT</span>
+            const constructing =
+              constructingBuildingKey === building.building_key;
 
-            <strong>
-              {sector.sector_code}
-              {" · "}
-              {selectedPlot.id}
-            </strong>
+            const upgrading =
+              upgradingBuildingKey === building.building_key;
 
-            <div>
-              <small>STATUS</small>
-
-              <b>
-                {selectedPlot.state === "colony"
-                  ? "YOUR COLONY"
-                  : selectedPlot.state === "available"
-                    ? "UNASSIGNED"
-                    : "LOCKED"}
-              </b>
-            </div>
-
-            {selectedPlot.state === "colony" && (
-              <button
-                type="button"
-                className="mars-territory-panel__enter"
-                disabled
+            return (
+              <article
+                key={building.building_key}
+                className={`mars-base-building ${positionClass}${
+                  building.built
+                    ? " mars-base-building-built"
+                    : " mars-base-building-ghost"
+                }`}
               >
-                COLONY BASE · SOON
-              </button>
-            )}
+                <div className="mars-base-building-visual">
+                  <div className="mars-base-building-body" />
+                  <div className="mars-base-building-light" />
+                </div>
 
-            {selectedPlot.state === "available" && (
-              <p>
-                This territory is not assigned to a
-                Builder.
-              </p>
-            )}
+                <div className="mars-base-building-info">
+                  <span>{building.building_category}</span>
 
-            {selectedPlot.state === "locked" && (
-              <p>
-                This territory is not currently open for
-                settlement.
-              </p>
-            )}
-          </aside>
-        )}
+                  <strong>{building.building_name}</strong>
+
+                  <small>
+                    {building.built
+                      ? `LEVEL ${building.building_level}`
+                      : "NOT CONSTRUCTED"}
+                  </small>
+
+                  {building.built && (
+                    <small>
+                      {building.building_status.toUpperCase()}
+                    </small>
+                  )}
+
+                  {!building.built &&
+                    constructionCost &&
+                    canManageColony && (
+                      <div className="mars-building-upgrade">
+                        <div className="mars-building-upgrade-cost">
+                          <span>CONSTRUCTION COST</span>
+                          <small>{formatCost(constructionCost)}</small>
+                        </div>
+
+                        <button
+                          type="button"
+                          disabled={
+                            constructingBuildingKey !== null ||
+                            upgradingBuildingKey !== null ||
+                            !hasConstructionResources
+                          }
+                          onClick={() =>
+                            onConstructBuilding(building.building_key)
+                          }
+                        >
+                          {constructing
+                            ? "CONSTRUCTING..."
+                            : hasConstructionResources
+                              ? "CONSTRUCT"
+                              : "INSUFFICIENT RESOURCES"}
+                        </button>
+                      </div>
+                    )}
+
+                  {building.built &&
+                    upgrade &&
+                    canManageColony && (
+                      <div className="mars-building-upgrade">
+                        {upgrade.can_upgrade ? (
+                          <>
+                            <div className="mars-building-upgrade-cost">
+                              <span>
+                                {upgrade.next_level !== null
+                                  ? `NEXT LEVEL ${upgrade.next_level}`
+                                  : "MAX LEVEL"}
+                              </span>
+
+                              <small>{formatCost(upgrade)}</small>
+                            </div>
+
+                            <button
+                              type="button"
+                              disabled={
+                                upgradingBuildingKey !== null ||
+                                constructingBuildingKey !== null
+                              }
+                              onClick={() =>
+                                onUpgradeBuilding(building.building_key)
+                              }
+                            >
+                              {upgrading
+                                ? "UPGRADING..."
+                                : upgrade.next_level !== null
+                                  ? `UPGRADE TO LEVEL ${upgrade.next_level}`
+                                  : "MAX LEVEL"}
+                            </button>
+                          </>
+                        ) : (
+                          <small>MAX LEVEL</small>
+                        )}
+                      </div>
+                    )}
+                </div>
+              </article>
+            );
+          })}
+        </div>
       </div>
     </section>
   );

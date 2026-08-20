@@ -919,6 +919,12 @@ export function BuildMars() {
       setEnteredSectorId(
         sectorId,
       );
+
+      setTerritorySectorId(
+        myColony?.active_sector_id === sectorId
+          ? sectorId
+          : null,
+      );
     }, 5550);
 
     window.setTimeout(() => {
@@ -2851,11 +2857,31 @@ export function BuildMars() {
                         contribution={
                           myColony?.total_contribution ?? 0
                         }
+                        colonyBase={colonyBase}
+                        constructionCosts={constructionCosts}
+                        buildingUpgrades={buildingUpgrades}
+                        canManageColony={
+                          myColony !== null &&
+                          ["founder", "leader"].includes(
+                            myColony.my_role,
+                          )
+                        }
+                        constructingBuildingKey={
+                          constructingBuildingKey
+                        }
+                        upgradingBuildingKey={
+                          upgradingBuildingKey
+                        }
+                        onConstructBuilding={(buildingKey) => {
+                          void handleConstructBuilding(buildingKey);
+                        }}
+                        onUpgradeBuilding={(buildingKey) => {
+                          void handleUpgradeBuilding(buildingKey);
+                        }}
                         onBack={() => {
                           setTerritorySectorId(null);
-                          setSelectedSectorId(
-                            territorySector.sector_id,
-                          );
+                          setSelectedSectorId(null);
+                          setEnteredSectorId(null);
                         }}
                       />
                     );
