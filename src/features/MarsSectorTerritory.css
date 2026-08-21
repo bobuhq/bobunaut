@@ -1058,3 +1058,59 @@
     transform: none !important;
   }
 }
+
+/* =========================================================
+   BOBU MARS — LOCAL 2D SURFACE CROP
+   Use the production NASA Mars texture as local terrain,
+   not as a full planetary world map.
+   ========================================================= */
+
+.mars-territory--workspace .mars-territory__planet {
+  /*
+   * The source image is a 2:1 global Mars map.
+   * Zoom into the equatorial/mid-latitude terrain so the
+   * colony workspace reads as a local top-down surface.
+   */
+  background-image:
+    linear-gradient(
+      180deg,
+      rgba(47, 19, 11, 0.10) 0%,
+      rgba(44, 17, 10, 0.08) 48%,
+      rgba(24, 10, 8, 0.22) 100%
+    ),
+    url("/images/mars/nasa-mars-world.jpg");
+
+  background-size:
+    100% 100%,
+    220% auto;
+
+  background-position:
+    center,
+    58% 48%;
+
+  background-repeat:
+    no-repeat,
+    no-repeat;
+
+  filter:
+    saturate(1.16)
+    contrast(1.10)
+    brightness(0.88);
+
+  box-shadow:
+    inset 0 0 90px rgba(0, 0, 0, 0.28);
+}
+
+/*
+ * Keep the flat surface readable all the way to the edges.
+ * No planetary limb or polar treatment.
+ */
+.mars-territory--workspace .mars-territory__atmosphere {
+  background:
+    radial-gradient(
+      ellipse at center,
+      transparent 42%,
+      rgba(20, 8, 7, 0.10) 78%,
+      rgba(10, 6, 7, 0.22) 100%
+    );
+}
