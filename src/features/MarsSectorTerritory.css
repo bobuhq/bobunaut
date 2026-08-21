@@ -1114,3 +1114,750 @@
       rgba(10, 6, 7, 0.22) 100%
     );
 }
+
+
+/* =========================================================
+   BOBU MARS — LUMINOUS COLONY BUILDINGS V1
+   Production buildings on the true 2D Mars workspace.
+   ========================================================= */
+
+.mars-territory--workspace .mars-base-building {
+  width: 210px !important;
+  z-index: 10;
+}
+
+.mars-territory--workspace .mars-base-building-visual {
+  position: relative;
+  width: 190px;
+  height: 138px;
+  margin: 0 auto;
+  overflow: visible;
+  filter:
+    drop-shadow(0 16px 18px rgba(0, 0, 0, 0.48));
+  transition:
+    filter 180ms ease,
+    transform 180ms ease;
+}
+
+.mars-territory--workspace
+.mars-base-building-built
+.mars-base-building-visual:hover {
+  filter:
+    brightness(1.13)
+    drop-shadow(0 18px 25px rgba(0, 0, 0, 0.58));
+}
+
+/* Surface footprint */
+.mars-territory--workspace .mars-base-building-pad {
+  position: absolute;
+  z-index: 0;
+  left: 50%;
+  bottom: 17px;
+  width: 128px;
+  height: 55px;
+  border: 1px solid rgba(255, 194, 137, 0.2);
+  border-radius: 50%;
+  transform: translateX(-50%);
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(50, 26, 23, 0.84) 0%,
+      rgba(28, 16, 14, 0.72) 52%,
+      transparent 72%
+    );
+  box-shadow:
+    inset 0 0 20px rgba(0, 0, 0, 0.62),
+    0 7px 18px rgba(0, 0, 0, 0.42);
+}
+
+/* Generic building shell */
+.mars-territory--workspace .mars-base-building-body {
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  top: 34px;
+  width: 86px;
+  height: 62px;
+  inset: auto !important;
+  border:
+    1px solid rgba(205, 226, 255, 0.42) !important;
+  border-radius: 18px !important;
+  transform: translateX(-50%) !important;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(203, 216, 229, 0.92),
+      rgba(67, 78, 96, 0.98) 45%,
+      rgba(24, 31, 43, 1)
+    ) !important;
+  box-shadow:
+    inset 0 1px 3px rgba(255, 255, 255, 0.44),
+    inset 0 -14px 20px rgba(0, 0, 0, 0.42),
+    0 8px 17px rgba(0, 0, 0, 0.5);
+}
+
+.mars-territory--workspace .mars-base-building-core {
+  position: absolute;
+  z-index: 5;
+  left: 50%;
+  top: 48px;
+  width: 25px;
+  height: 25px;
+  border: 1px solid rgba(147, 193, 255, 0.76);
+  border-radius: 50%;
+  transform: translateX(-50%);
+  background:
+    radial-gradient(
+      circle,
+      #eff8ff 0%,
+      #85caff 24%,
+      #2877ce 52%,
+      #112948 74%
+    );
+  box-shadow:
+    0 0 9px rgba(100, 190, 255, 0.95),
+    0 0 24px rgba(61, 133, 255, 0.58);
+  animation: bobu-building-core 2.8s ease-in-out infinite;
+}
+
+.mars-territory--workspace .mars-base-building-light {
+  z-index: 6;
+  top: 75px !important;
+  width: 46px !important;
+  height: 4px !important;
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      #d9efff,
+      #6dc5ff,
+      #d9efff,
+      transparent
+    ) !important;
+  box-shadow:
+    0 0 8px rgba(97, 192, 255, 0.95),
+    0 0 18px rgba(56, 132, 255, 0.58) !important;
+}
+
+.mars-territory--workspace .mars-base-building-aux {
+  position: absolute;
+  z-index: 2;
+  top: 55px;
+  width: 34px;
+  height: 30px;
+  border:
+    1px solid rgba(190, 214, 242, 0.25);
+  border-radius: 8px;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(119, 137, 160, 0.94),
+      rgba(37, 46, 61, 0.98)
+    );
+  box-shadow:
+    0 8px 13px rgba(0, 0, 0, 0.36);
+}
+
+.mars-territory--workspace
+.mars-base-building-aux--a {
+  left: 27px;
+}
+
+.mars-territory--workspace
+.mars-base-building-aux--b {
+  right: 27px;
+}
+
+.mars-territory--workspace
+.mars-base-building-level {
+  position: absolute;
+  z-index: 10;
+  top: 16px;
+  left: 50%;
+  padding: 3px 7px;
+  border: 1px solid rgba(145, 207, 255, 0.34);
+  border-radius: 999px;
+  transform: translateX(-50%);
+  background: rgba(7, 13, 22, 0.82);
+  color: #d9efff;
+  font-size: 0.52rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  box-shadow:
+    0 0 14px rgba(63, 149, 255, 0.2);
+}
+
+.mars-territory--workspace
+.mars-base-building-label {
+  position: absolute;
+  z-index: 12;
+  bottom: -13px;
+  left: 50%;
+  display: grid;
+  min-width: 116px;
+  gap: 1px;
+  padding: 5px 9px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 9px;
+  transform: translateX(-50%);
+  background: rgba(7, 9, 14, 0.76);
+  backdrop-filter: blur(7px);
+  -webkit-backdrop-filter: blur(7px);
+  pointer-events: none;
+}
+
+.mars-territory--workspace
+.mars-base-building-label strong {
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 0.57rem;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.mars-territory--workspace
+.mars-base-building-label small {
+  color: rgba(158, 199, 255, 0.64);
+  font-size: 0.45rem;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+}
+
+/* ---------------------------------------------------------
+   COMMAND HUB — central illuminated control dome
+   --------------------------------------------------------- */
+
+.mars-territory--workspace
+.mars-base-building-command_hub
+.mars-base-building-body {
+  top: 29px;
+  width: 104px;
+  height: 70px;
+  border-radius: 54px 54px 17px 17px !important;
+  background:
+    radial-gradient(
+      circle at 43% 24%,
+      rgba(230, 247, 255, 0.98),
+      rgba(92, 152, 205, 0.96) 24%,
+      rgba(37, 60, 83, 0.98) 58%,
+      rgba(13, 21, 31, 1) 84%
+    ) !important;
+  box-shadow:
+    inset 0 2px 8px rgba(255, 255, 255, 0.5),
+    0 0 19px rgba(91, 178, 255, 0.4),
+    0 10px 22px rgba(0, 0, 0, 0.55);
+}
+
+.mars-territory--workspace
+.mars-base-building-command_hub
+.mars-base-building-core {
+  top: 19px;
+  width: 13px;
+  height: 56px;
+  border-radius: 9px 9px 3px 3px;
+  background:
+    linear-gradient(
+      90deg,
+      #24354b,
+      #e4f3ff 46%,
+      #506b8d
+    );
+  box-shadow:
+    0 0 9px rgba(123, 199, 255, 0.68);
+}
+
+.mars-territory--workspace
+.mars-base-building-command_hub
+.mars-base-building-core::after {
+  content: "";
+  position: absolute;
+  top: -19px;
+  left: 50%;
+  width: 3px;
+  height: 24px;
+  transform: translateX(-50%);
+  background:
+    linear-gradient(
+      to top,
+      #8dcbff,
+      rgba(154, 213, 255, 0)
+    );
+  box-shadow:
+    0 0 10px #6ec4ff;
+}
+
+/* ---------------------------------------------------------
+   HABITAT — illuminated habitation dome
+   --------------------------------------------------------- */
+
+.mars-territory--workspace
+.mars-base-building-habitat
+.mars-base-building-body {
+  top: 38px;
+  width: 96px;
+  height: 58px;
+  border-radius: 60px 60px 20px 20px !important;
+  background:
+    radial-gradient(
+      circle at 40% 25%,
+      rgba(234, 247, 255, 0.96),
+      rgba(125, 169, 202, 0.9) 26%,
+      rgba(41, 63, 82, 0.98) 61%,
+      rgba(13, 24, 32, 1)
+    ) !important;
+  box-shadow:
+    inset 0 0 15px rgba(174, 221, 255, 0.26),
+    0 0 18px rgba(75, 179, 255, 0.32),
+    0 11px 20px rgba(0, 0, 0, 0.5);
+}
+
+.mars-territory--workspace
+.mars-base-building-habitat
+.mars-base-building-aux {
+  top: 67px;
+  width: 36px;
+  height: 20px;
+}
+
+/* ---------------------------------------------------------
+   WATER PLANT — cyan processing core
+   --------------------------------------------------------- */
+
+.mars-territory--workspace
+.mars-base-building-water
+.mars-base-building-body {
+  top: 39px;
+  width: 88px;
+  height: 54px;
+  border-color:
+    rgba(100, 221, 255, 0.62) !important;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(175, 226, 242, 0.96),
+      rgba(49, 108, 133, 0.98) 44%,
+      rgba(17, 49, 65, 1)
+    ) !important;
+  box-shadow:
+    inset 0 2px 7px rgba(228, 251, 255, 0.45),
+    0 0 17px rgba(61, 202, 255, 0.36),
+    0 10px 20px rgba(0, 0, 0, 0.52);
+}
+
+.mars-territory--workspace
+.mars-base-building-water
+.mars-base-building-core {
+  background:
+    radial-gradient(
+      circle,
+      #efffff,
+      #6ceaff 30%,
+      #138dbf 56%,
+      #0a3755 78%
+    );
+  box-shadow:
+    0 0 10px rgba(74, 231, 255, 0.98),
+    0 0 24px rgba(36, 184, 255, 0.54);
+}
+
+/* ---------------------------------------------------------
+   SCIENCE LAB — violet/blue research array
+   --------------------------------------------------------- */
+
+.mars-territory--workspace
+.mars-base-building-science_lab
+.mars-base-building-body {
+  top: 34px;
+  width: 94px;
+  height: 60px;
+  border-color:
+    rgba(175, 175, 255, 0.58) !important;
+  clip-path:
+    polygon(
+      16% 0,
+      84% 0,
+      100% 28%,
+      91% 100%,
+      9% 100%,
+      0 28%
+    );
+  background:
+    linear-gradient(
+      145deg,
+      rgba(220, 225, 246, 0.96),
+      rgba(88, 93, 143, 0.96) 43%,
+      rgba(29, 30, 58, 1)
+    ) !important;
+  box-shadow:
+    0 0 20px rgba(136, 112, 255, 0.35),
+    0 10px 21px rgba(0, 0, 0, 0.52);
+}
+
+.mars-territory--workspace
+.mars-base-building-science_lab
+.mars-base-building-core {
+  background:
+    radial-gradient(
+      circle,
+      #fff,
+      #c9b4ff 25%,
+      #7857ff 53%,
+      #281f62 77%
+    );
+  box-shadow:
+    0 0 10px rgba(171, 140, 255, 1),
+    0 0 25px rgba(116, 76, 255, 0.58);
+}
+
+/* =========================================================
+   ENERGY — SOLAR ARRAY -> PURPLE BOBU CRYSTALS
+   Real values: energy_per_hour + claimable_energy.
+   ========================================================= */
+
+.mars-territory--workspace
+.mars-base-building-energy {
+  width: 280px !important;
+}
+
+.mars-territory--workspace
+.mars-base-building-energy
+.mars-base-building-visual {
+  width: 280px;
+  height: 150px;
+}
+
+.mars-territory--workspace
+.mars-base-building-energy
+.mars-base-building-pad {
+  width: 225px;
+  height: 63px;
+}
+
+/* Energy conversion module */
+.mars-territory--workspace
+.mars-base-building-energy
+.mars-base-building-body {
+  top: 47px;
+  width: 60px;
+  height: 51px;
+  border-color:
+    rgba(181, 139, 255, 0.52) !important;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(193, 204, 219, 0.96),
+      rgba(76, 72, 103, 0.98) 48%,
+      rgba(26, 22, 43, 1)
+    ) !important;
+  box-shadow:
+    inset 0 2px 7px rgba(255, 255, 255, 0.35),
+    0 0 16px rgba(155, 99, 255, 0.3),
+    0 9px 20px rgba(0, 0, 0, 0.54);
+}
+
+.mars-territory--workspace
+.mars-base-building-energy
+.mars-base-building-core {
+  top: 59px;
+  width: 20px;
+  height: 20px;
+  background:
+    radial-gradient(
+      circle,
+      #fff,
+      #dfc5ff 22%,
+      #9a59ff 48%,
+      #461b8c 76%
+    );
+  box-shadow:
+    0 0 10px #b679ff,
+    0 0 30px rgba(151, 81, 255, 0.82);
+}
+
+/* Solar collection on LEFT */
+.mars-energy-solar {
+  position: absolute;
+  z-index: 4;
+  left: 8px;
+  top: 51px;
+  display: flex;
+  gap: 4px;
+  width: 82px;
+  transform: skewY(-6deg);
+}
+
+.mars-energy-solar span {
+  width: 25px;
+  height: 38px;
+  border:
+    1px solid rgba(116, 183, 255, 0.42);
+  border-radius: 3px;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      rgba(25, 70, 123, 0.95) 0 6px,
+      rgba(68, 127, 188, 0.98) 6px 7px
+    ),
+    linear-gradient(
+      180deg,
+      #275c95,
+      #102d55
+    );
+  box-shadow:
+    inset 0 0 7px rgba(129, 205, 255, 0.18),
+    0 0 10px rgba(45, 141, 255, 0.16);
+}
+
+/* Animated power transfer */
+.mars-energy-flow {
+  position: absolute;
+  z-index: 5;
+  left: 91px;
+  top: 71px;
+  width: 102px;
+  height: 8px;
+}
+
+.mars-energy-flow::before {
+  content: "";
+  position: absolute;
+  inset: 3px 0 auto;
+  height: 2px;
+  background:
+    linear-gradient(
+      90deg,
+      #59b7ff,
+      #af72ff,
+      #d3a6ff
+    );
+  box-shadow:
+    0 0 8px rgba(160, 101, 255, 0.85);
+}
+
+.mars-energy-flow span {
+  position: absolute;
+  top: 0;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #e7d3ff;
+  box-shadow:
+    0 0 9px #ab62ff;
+  animation:
+    bobu-energy-transfer 1.8s linear infinite;
+}
+
+.mars-energy-flow span:nth-child(2) {
+  animation-delay: -0.6s;
+}
+
+.mars-energy-flow span:nth-child(3) {
+  animation-delay: -1.2s;
+}
+
+/* Crystal storage on RIGHT */
+.mars-energy-crystal-vault {
+  position: absolute;
+  z-index: 6;
+  right: 4px;
+  top: 37px;
+  width: 86px;
+  height: 74px;
+}
+
+.mars-energy-crystals {
+  position: relative;
+  width: 100%;
+  height: 46px;
+}
+
+.mars-energy-crystals i {
+  position: absolute;
+  bottom: 4px;
+  width: 15px;
+  height: 34px;
+  clip-path:
+    polygon(
+      50% 0,
+      100% 35%,
+      78% 100%,
+      22% 100%,
+      0 35%
+    );
+  background:
+    linear-gradient(
+      135deg,
+      #f3ddff 0%,
+      #b970ff 28%,
+      #7134dc 62%,
+      #351078 100%
+    );
+  box-shadow:
+    0 0 13px #a951ff,
+    0 0 27px rgba(151, 63, 255, 0.72);
+  filter:
+    drop-shadow(0 0 8px rgba(177, 86, 255, 0.8));
+  animation:
+    bobu-crystal-pulse 2.5s ease-in-out infinite;
+}
+
+.mars-energy-crystals i:nth-child(1) {
+  left: 9px;
+  height: 27px;
+}
+
+.mars-energy-crystals i:nth-child(2) {
+  left: 28px;
+  height: 40px;
+  animation-delay: -0.7s;
+}
+
+.mars-energy-crystals i:nth-child(3) {
+  left: 47px;
+  height: 31px;
+  animation-delay: -1.3s;
+}
+
+.mars-energy-crystals i:nth-child(4) {
+  left: 63px;
+  height: 23px;
+  animation-delay: -1.8s;
+}
+
+.mars-energy-production-readout {
+  display: grid;
+  justify-items: center;
+  gap: 1px;
+  width: 100%;
+  padding: 3px 4px;
+  border:
+    1px solid rgba(186, 118, 255, 0.24);
+  border-radius: 7px;
+  background:
+    rgba(29, 10, 49, 0.78);
+  box-shadow:
+    0 0 17px rgba(122, 45, 255, 0.18);
+}
+
+.mars-energy-production-readout strong {
+  color: #e4c6ff;
+  font-size: 0.62rem;
+  text-shadow:
+    0 0 8px rgba(190, 118, 255, 0.8);
+}
+
+.mars-energy-production-readout small {
+  color: rgba(221, 187, 255, 0.68);
+  font-size: 0.38rem;
+  font-weight: 900;
+  letter-spacing: 0.055em;
+  white-space: nowrap;
+}
+
+/* Ghost/build-site mode remains visibly inactive */
+.mars-territory--workspace
+.mars-base-building-ghost
+.mars-base-building-visual {
+  opacity: 0.36;
+  filter:
+    grayscale(0.72)
+    brightness(0.58);
+}
+
+.mars-territory--workspace
+.mars-base-building-ghost
+.mars-base-building-core,
+.mars-territory--workspace
+.mars-base-building-ghost
+.mars-base-building-light {
+  animation: none;
+  box-shadow: none;
+}
+
+/* Animations */
+@keyframes bobu-building-core {
+  0%,
+  100% {
+    filter: brightness(0.86);
+  }
+
+  50% {
+    filter: brightness(1.35);
+  }
+}
+
+@keyframes bobu-crystal-pulse {
+  0%,
+  100% {
+    filter:
+      brightness(0.9)
+      drop-shadow(
+        0 0 7px
+        rgba(177, 86, 255, 0.72)
+      );
+  }
+
+  50% {
+    filter:
+      brightness(1.38)
+      drop-shadow(
+        0 0 13px
+        rgba(211, 150, 255, 1)
+      );
+  }
+}
+
+@keyframes bobu-energy-transfer {
+  from {
+    left: 0;
+    opacity: 0;
+  }
+
+  12% {
+    opacity: 1;
+  }
+
+  88% {
+    opacity: 1;
+  }
+
+  to {
+    left: calc(100% - 7px);
+    opacity: 0;
+  }
+}
+
+@media (max-width: 760px) {
+  .mars-territory--workspace
+  .mars-base-building {
+    width: 150px !important;
+  }
+
+  .mars-territory--workspace
+  .mars-base-building-visual {
+    width: 145px;
+    transform: scale(0.78) !important;
+    transform-origin: center center;
+  }
+
+  .mars-territory--workspace
+  .mars-base-building-energy {
+    width: 205px !important;
+  }
+
+  .mars-territory--workspace
+  .mars-base-building-energy
+  .mars-base-building-visual {
+    width: 280px;
+    margin-left: -38px;
+    transform: scale(0.68) !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mars-territory--workspace
+  .mars-base-building-core,
+  .mars-energy-flow span,
+  .mars-energy-crystals i {
+    animation: none !important;
+  }
+}

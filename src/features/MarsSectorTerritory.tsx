@@ -3,6 +3,7 @@ import type {
   MarsColonyBaseBuilding,
   MarsColonyBuildingConstructionCost,
   MarsColonyBuildingUpgrade,
+  MarsColonyResourceProduction,
 } from "../core/mars/MarsColonyBaseService";
 
 import "./MarsSectorTerritory.css";
@@ -19,6 +20,7 @@ type Props = {
   sector: MarsSector;
   isMyColonySector: boolean;
   resources: TerritoryResources | null;
+  resourceProduction: MarsColonyResourceProduction | null;
   structures: {
     constructed: number;
     total: number;
@@ -51,6 +53,7 @@ export default function MarsSectorTerritory({
   sector,
   isMyColonySector,
   resources,
+  resourceProduction,
   structures,
   contribution,
   colonyBase,
@@ -230,9 +233,79 @@ export default function MarsSectorTerritory({
                     : " mars-base-building-ghost"
                 }`}
               >
-                <div className="mars-base-building-visual">
+                <div
+                  className="mars-base-building-visual"
+                  data-building={building.building_key}
+                >
+                  <div className="mars-base-building-pad" />
+
                   <div className="mars-base-building-body" />
+
+                  <div className="mars-base-building-aux mars-base-building-aux--a" />
+                  <div className="mars-base-building-aux mars-base-building-aux--b" />
+
+                  <div className="mars-base-building-core" />
                   <div className="mars-base-building-light" />
+
+                  {building.built && (
+                    <div className="mars-base-building-level">
+                      L{building.building_level}
+                    </div>
+                  )}
+
+                  {building.building_key === "energy" &&
+                    building.built && (
+                      <div
+                        className="mars-energy-system"
+                        aria-label="BOBU crystal energy production"
+                      >
+                        <div className="mars-energy-solar">
+                          <span />
+                          <span />
+                          <span />
+                        </div>
+
+                        <div className="mars-energy-flow">
+                          <span />
+                          <span />
+                          <span />
+                        </div>
+
+                        <div className="mars-energy-crystal-vault">
+                          <div className="mars-energy-crystals">
+                            <i />
+                            <i />
+                            <i />
+                            <i />
+                          </div>
+
+                          <div className="mars-energy-production-readout">
+                            <strong>
+                              +
+                              {resourceProduction?.claimable_energy
+                                .toLocaleString() ?? "0"}
+                            </strong>
+
+                            <small>
+                              CRYSTALS ·{" "}
+                              {resourceProduction?.energy_per_hour
+                                .toLocaleString() ?? "0"}
+                              /H
+                            </small>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                  <div className="mars-base-building-label">
+                    <strong>{building.building_name}</strong>
+
+                    <small>
+                      {building.built
+                        ? `LEVEL ${building.building_level}`
+                        : "BUILD SITE"}
+                    </small>
+                  </div>
                 </div>
 
                 <div className="mars-base-building-info">

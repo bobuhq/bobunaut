@@ -2847,6 +2847,7 @@ export function BuildMars() {
                           territorySector.sector_id
                         }
                         resources={colonyResources}
+                        resourceProduction={resourceProduction}
                         structures={{
                           constructed: colonyBase.filter(
                             (building) =>
