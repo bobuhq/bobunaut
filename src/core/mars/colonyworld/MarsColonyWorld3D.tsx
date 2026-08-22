@@ -1,24 +1,28 @@
 import {
   Canvas,
-  useThree,
+  type ThreeEvent,
 } from "@react-three/fiber";
 
 import {
   ContactShadows,
-  MapControls,
-  useTexture,
 } from "@react-three/drei";
 
 import {
   Suspense,
   useEffect,
   useMemo,
+  useState,
 } from "react";
 
 import * as THREE from "three";
 
 import type {
   MarsColonyBaseBuilding,
+  MarsColonyRotation,
+} from "../MarsColonyBaseService";
+
+import {
+  moveMyMarsColonyBuilding,
 } from "../MarsColonyBaseService";
 
 import {
@@ -30,31 +34,170 @@ import "./MarsColonyWorld3D.css";
 
 type Props = {
   buildings: MarsColonyBaseBuilding[];
+  canManageColony?: boolean;
 };
 
 
-const GRID_UNIT = 1.55;
+type Placement = {
+  gridX: number;
+  gridZ: number;
+  rotationY: MarsColonyRotation;
+};
+
+
+const GRID_UNIT = 1.35;
+
 const MAP_MIN = -12;
 const MAP_MAX = 12;
-const MAP_CELLS =
-  MAP_MAX - MAP_MIN + 1;
-
-const TERRAIN_SIZE =
-  MAP_CELLS * GRID_UNIT;
 
 
-/*
- * DB grid coordinates represent the minimum occupied cell.
- * Three.js objects need the visual center of that footprint.
- */
-function placementToWorld(
-  building: MarsColonyBaseBuilding,
+function clampPlacement(
+  value: number,
+  footprintSize: number,
 ) {
-  const gridX =
-    building.grid_x ?? 0;
+  return THREE.MathUtils.clamp(
+    value,
+    MAP_MIN,
+    MAP_MAX - footprintSize + 1,
+  );
+}
 
-  const gridZ =
-    building.grid_z ?? 0;
+
+function placementToWorld(
+  gridX: number,
+  gridZ: number,
+  footprintWidth: number,
+  footprintDepth: number,
+) {
+  return {
+    x:
+      (
+        gridX +
+        (footprintWidth - 1) / 2
+      ) *
+      GRID_UNIT,
+
+    z:
+      (
+        gridZ +
+        (footprintDepth - 1) / 2
+      ) *
+      GRID_UNIT,
+  };
+}
+
+
+function worldToPlacement(
+  x: number,
+  z: number,
+  footprintWidth: number,
+  footprintDepth: number,
+) {
+  const rawX =
+    Math.round(
+      x / GRID_UNIT -
+      (footprintWidth - 1) / 2,
+    );
+
+  const rawZ =
+    Math.round(
+      z / GRID_UNIT -
+      (footprintDepth - 1) / 2,
+    );
+
+  return {
+    gridX:
+      clampPlacement(
+        rawX,
+        footprintWidth,
+      ),
+
+    gridZ:
+      clampPlacement(
+        rawZ,
+        footprintDepth,
+      ),
+  };
+}
+
+
+function PlacementGrid() {
+  return (
+    <gridHelper
+      args={[
+        25 * GRID_UNIT,
+        25,
+        new THREE.Color("#aa74df"),
+        new THREE.Color("#754e67"),
+      ]}
+      position={[0, 0.025, 0]}
+      material-transparent
+      material-opacity={0.16}
+    />
+  );
+}
+
+
+function CommandHub({
+  building,
+  canManageColony,
+}: {
+  building: MarsColonyBaseBuilding;
+  canManageColony: boolean;
+}) {
+  const initialPlacement =
+    useMemo<Placement>(
+      () => ({
+        gridX:
+          building.grid_x ?? 0,
+
+        gridZ:
+          building.grid_z ?? 0,
+
+        rotationY:
+          building.rotation_y,
+      }),
+      [
+        building.grid_x,
+        building.grid_z,
+        building.rotation_y,
+      ],
+    );
+
+  const [
+    placement,
+    setPlacement,
+  ] = useState<Placement>(
+    initialPlacement,
+  );
+
+  const [
+    dragging,
+    setDragging,
+  ] = useState(false);
+
+  const [
+    saving,
+    setSaving,
+  ] = useState(false);
+
+  const [
+    saveError,
+    setSaveError,
+  ] = useState(false);
+
+
+  useEffect(() => {
+    if (!dragging) {
+      setPlacement(
+        initialPlacement,
+      );
+    }
+  }, [
+    dragging,
+    initialPlacement,
+  ]);
+
 
   const width =
     Math.max(
@@ -68,180 +211,247 @@ function placementToWorld(
       1,
     );
 
-  const centerGridX =
-    gridX + (width - 1) / 2;
 
-  const centerGridZ =
-    gridZ + (depth - 1) / 2;
-
-  return {
-    x: centerGridX * GRID_UNIT,
-    z: centerGridZ * GRID_UNIT,
-  };
-}
+  const world =
+    placementToWorld(
+      placement.gridX,
+      placement.gridZ,
+      width,
+      depth,
+    );
 
 
-function MarsTerrain() {
-  const texture = useTexture(
-    "/images/mars/nasa-mars-world.jpg",
-  );
+  async function savePlacement() {
+    if (
+      !canManageColony ||
+      saving
+    ) {
+      return;
+    }
 
-  const { gl } = useThree();
+    setSaving(true);
+    setSaveError(false);
 
-  useEffect(() => {
-    texture.colorSpace =
-      THREE.SRGBColorSpace;
+    try {
+      const result =
+        await moveMyMarsColonyBuilding(
+          building.building_key,
+          placement.gridX,
+          placement.gridZ,
+          placement.rotationY,
+        );
 
-    texture.wrapS =
-      THREE.ClampToEdgeWrapping;
+      setPlacement({
+        gridX:
+          result.grid_x,
 
-    texture.wrapT =
-      THREE.ClampToEdgeWrapping;
+        gridZ:
+          result.grid_z,
 
-    texture.anisotropy =
-      Math.min(
-        12,
-        gl.capabilities.getMaxAnisotropy(),
+        rotationY:
+          result.rotation_y,
+      });
+    } catch (error) {
+      console.error(
+        "Mars building placement failed:",
+        error,
       );
 
-    texture.needsUpdate = true;
-  }, [gl, texture]);
+      setPlacement(
+        initialPlacement,
+      );
 
-  return (
-    <group>
-      {/* Physical Mars ground */}
-      <mesh
-        rotation={[
-          -Math.PI / 2,
-          0,
-          0,
-        ]}
-        receiveShadow
-      >
-        <planeGeometry
-          args={[
-            TERRAIN_SIZE,
-            TERRAIN_SIZE,
-            1,
-            1,
-          ]}
-        />
-
-        <meshStandardMaterial
-          map={texture}
-          color="#b56b49"
-          roughness={0.94}
-          metalness={0}
-        />
-      </mesh>
-
-      {/* Very subtle operational grid */}
-      <gridHelper
-        args={[
-          TERRAIN_SIZE,
-          MAP_CELLS,
-          new THREE.Color(
-            "#b179d9",
-          ),
-          new THREE.Color(
-            "#774d57",
-          ),
-        ]}
-        position={[
-          0,
-          0.025,
-          0,
-        ]}
-      />
-    </group>
-  );
-}
+      setSaveError(true);
+    } finally {
+      setSaving(false);
+    }
+  }
 
 
-function CommandHub({
-  building,
-}: {
-  building: MarsColonyBaseBuilding;
-}) {
-  const position =
-    useMemo(
-      () =>
-        placementToWorld(
-          building,
-        ),
-      [building],
+  function handlePointerDown(
+    event: ThreeEvent<PointerEvent>,
+  ) {
+    if (
+      !canManageColony ||
+      saving
+    ) {
+      return;
+    }
+
+    event.stopPropagation();
+
+    setSaveError(false);
+    setDragging(true);
+
+    document.body.style.cursor =
+      "grabbing";
+  }
+
+
+  function handlePointerMove(
+    event: ThreeEvent<PointerEvent>,
+  ) {
+    if (
+      !dragging ||
+      !canManageColony
+    ) {
+      return;
+    }
+
+    event.stopPropagation();
+
+    const next =
+      worldToPlacement(
+        event.point.x,
+        event.point.z,
+        width,
+        depth,
+      );
+
+    setPlacement(
+      (current) => ({
+        ...current,
+        ...next,
+      }),
     );
-
-  const rotation =
-    THREE.MathUtils.degToRad(
-      building.rotation_y,
-    );
-
-  return (
-    <group
-      position={[
-        position.x,
-        0.08,
-        position.z,
-      ]}
-      rotation={[
-        0,
-        rotation,
-        0,
-      ]}
-      scale={0.78}
-    >
-      <MarsCommandHubModel
-        level={building.building_level}
-      />
-    </group>
-  );
-}
+  }
 
 
-function ColonyStructures({
-  buildings,
-}: Props) {
-  const builtBuildings =
-    useMemo(
-      () =>
-        buildings.filter(
-          (building) =>
-            building.built &&
-            building.grid_x !== null &&
-            building.grid_z !== null,
-        ),
-      [buildings],
-    );
+  async function handlePointerUp(
+    event: ThreeEvent<PointerEvent>,
+  ) {
+    if (!dragging) {
+      return;
+    }
+
+    event.stopPropagation();
+
+    setDragging(false);
+
+    document.body.style.cursor =
+      "";
+
+    await savePlacement();
+  }
+
 
   return (
     <>
-      {builtBuildings.map(
-        (building) => {
-          /*
-           * V1 only renders structures that already have
-           * a real Three.js production model.
-           *
-           * Other building types remain in the existing
-           * UI until their actual 3D models are created.
-           * No fake geometry is introduced here.
-           */
-          if (
-            building.building_key ===
-            "command_hub"
-          ) {
-            return (
-              <CommandHub
-                key={
-                  building.building_key
-                }
-                building={building}
-              />
-            );
+      {/* Large invisible interaction field */}
+      {dragging && (
+        <mesh
+          rotation={[
+            -Math.PI / 2,
+            0,
+            0,
+          ]}
+          position={[
+            0,
+            0.01,
+            0,
+          ]}
+          onPointerMove={
+            handlePointerMove
           }
+          onPointerUp={
+            handlePointerUp
+          }
+        >
+          <planeGeometry
+            args={[
+              80,
+              80,
+            ]}
+          />
 
-          return null;
-        },
+          <meshBasicMaterial
+            transparent
+            opacity={0}
+            depthWrite={false}
+          />
+        </mesh>
+      )}
+
+
+      {/* Placement footprint */}
+      {dragging && (
+        <mesh
+          position={[
+            world.x,
+            0.055,
+            world.z,
+          ]}
+          rotation={[
+            -Math.PI / 2,
+            0,
+            0,
+          ]}
+        >
+          <planeGeometry
+            args={[
+              width *
+                GRID_UNIT *
+                0.96,
+
+              depth *
+                GRID_UNIT *
+                0.96,
+            ]}
+          />
+
+          <meshBasicMaterial
+            color="#a950ff"
+            transparent
+            opacity={0.28}
+            depthWrite={false}
+          />
+        </mesh>
+      )}
+
+
+      <group
+        position={[
+          world.x,
+          dragging
+            ? 0.38
+            : 0.08,
+          world.z,
+        ]}
+        rotation={[
+          0,
+          THREE.MathUtils.degToRad(
+            placement.rotationY,
+          ),
+          0,
+        ]}
+        scale={
+          dragging
+            ? 1.16
+            : 1.1
+        }
+        onPointerDown={
+          handlePointerDown
+        }
+      >
+        <MarsCommandHubModel
+          level={
+            building.building_level
+          }
+        />
+      </group>
+
+
+      {saveError && (
+        <pointLight
+          position={[
+            world.x,
+            2.5,
+            world.z,
+          ]}
+          color="#ff334f"
+          intensity={8}
+          distance={4}
+        />
       )}
     </>
   );
@@ -250,106 +460,74 @@ function ColonyStructures({
 
 function ColonyScene({
   buildings,
-}: Props) {
+  canManageColony,
+}: Required<Props>) {
+  const commandHub =
+    buildings.find(
+      (building) =>
+        building.building_key ===
+          "command_hub" &&
+        building.built,
+    );
+
+
   return (
     <>
       <ambientLight
-        intensity={0.52}
-        color="#9fa9ba"
+        intensity={0.68}
+        color="#aab3c6"
       />
 
       <hemisphereLight
-        intensity={0.72}
-        color="#d8e3f0"
-        groundColor="#632f1d"
+        intensity={0.84}
+        color="#dbe8ff"
+        groundColor="#63301d"
       />
 
-      {/* Mars sunlight */}
       <directionalLight
         castShadow
         position={[
-          14,
-          22,
           12,
+          20,
+          10,
         ]}
-        intensity={3.4}
-        color="#ffd3a2"
-        shadow-mapSize-width={2048}
-        shadow-mapSize-height={2048}
-        shadow-camera-near={1}
-        shadow-camera-far={65}
-        shadow-camera-left={-24}
-        shadow-camera-right={24}
-        shadow-camera-top={24}
-        shadow-camera-bottom={-24}
+        intensity={3.6}
+        color="#ffd0a0"
       />
 
-      {/* BOBU violet fill */}
       <directionalLight
         position={[
-          -12,
-          10,
           -10,
+          9,
+          -8,
         ]}
-        intensity={0.72}
-        color="#8048ff"
+        intensity={0.9}
+        color="#884cff"
       />
 
-      <MarsTerrain />
+      <PlacementGrid />
 
-      <ColonyStructures
-        buildings={buildings}
-      />
+      {commandHub && (
+        <CommandHub
+          building={commandHub}
+          canManageColony={
+            canManageColony
+          }
+        />
+      )}
 
       <ContactShadows
-        position={[0, 0.045, 0]}
-        opacity={0.42}
-        scale={42}
-        blur={2.4}
-        far={18}
+        position={[
+          0,
+          0.04,
+          0,
+        ]}
+        opacity={0.52}
+        scale={36}
+        blur={2.2}
+        far={16}
         resolution={1024}
-        color="#24100b"
-      />
-
-      {/*
-       * Clash-of-Clans style interaction:
-       *
-       * LEFT DRAG = pan
-       * WHEEL = zoom
-       * TOUCH 1 = pan
-       * TOUCH 2 = pinch zoom + pan
-       *
-       * Camera rotation stays locked.
-       */}
-      <MapControls
-        makeDefault
-        enableRotate={false}
-        enablePan
-        enableZoom
-        enableDamping
-        dampingFactor={0.075}
-        zoomSpeed={0.85}
-        panSpeed={0.9}
-        minZoom={23}
-        maxZoom={68}
-        screenSpacePanning={false}
-        mouseButtons={{
-          LEFT: THREE.MOUSE.PAN,
-          MIDDLE: THREE.MOUSE.DOLLY,
-          RIGHT: THREE.MOUSE.PAN,
-        }}
-        touches={{
-          ONE: THREE.TOUCH.PAN,
-          TWO:
-            THREE.TOUCH.DOLLY_PAN,
-        }}
-        minPolarAngle={
-          Math.PI / 3
-        }
-        maxPolarAngle={
-          Math.PI / 3
-        }
-        target={[0, 0, 0]}
+        color="#170b08"
       />
     </>
   );
@@ -358,10 +536,11 @@ function ColonyScene({
 
 export function MarsColonyWorld3D({
   buildings,
+  canManageColony = false,
 }: Props) {
   return (
     <div
-      className="mars-colony-world-3d"
+      className="mars-colony-world-3d mars-colony-world-3d--fixed-surface"
       role="region"
       aria-label="Mars Colony 3D World"
     >
@@ -371,16 +550,16 @@ export function MarsColonyWorld3D({
         dpr={[1, 1.75]}
         camera={{
           position: [
-            23,
-            25,
-            23,
+            12,
+            15,
+            12,
           ],
-          zoom: 35,
+          zoom: 41,
           near: 0.1,
-          far: 150,
+          far: 120,
         }}
         gl={{
-          alpha: false,
+          alpha: true,
           antialias: true,
           powerPreference:
             "high-performance",
@@ -402,17 +581,20 @@ export function MarsColonyWorld3D({
             THREE.ACESFilmicToneMapping;
 
           gl.toneMappingExposure =
-            1.06;
+            1.08;
 
           gl.setClearColor(
-            "#30160f",
-            1,
+            0x000000,
+            0,
           );
         }}
       >
         <Suspense fallback={null}>
           <ColonyScene
             buildings={buildings}
+            canManageColony={
+              canManageColony
+            }
           />
         </Suspense>
       </Canvas>
@@ -421,8 +603,9 @@ export function MarsColonyWorld3D({
         className="mars-colony-world-3d__hint"
         aria-hidden="true"
       >
-        <span>DRAG TO MOVE</span>
-        <span>SCROLL TO ZOOM</span>
+        <span>
+          DRAG BUILDINGS TO MOVE
+        </span>
       </div>
     </div>
   );

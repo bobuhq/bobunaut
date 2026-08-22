@@ -2787,3 +2787,89 @@
     inset: 0;
   }
 }
+
+/* =========================================================
+   BOBU MARS — FIXED SURFACE + 3D STRUCTURES V2
+   Mars terrain remains visually fixed like the original
+   workspace. Only colony structures are interactive.
+   ========================================================= */
+
+.mars-territory--workspace:has(
+  .mars-colony-world-3d--fixed-surface
+)
+.mars-territory__planet {
+  opacity: 1 !important;
+  display: block !important;
+}
+
+/*
+ * Bring back the original full-screen Mars surface.
+ * The Three.js canvas is transparent above it.
+ */
+.mars-territory--workspace:has(
+  .mars-colony-world-3d--fixed-surface
+)
+.mars-territory__planet {
+  position: absolute;
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+
+  border-radius: 0;
+  transform: none !important;
+
+  background-image:
+    linear-gradient(
+      180deg,
+      rgba(47, 19, 11, 0.08),
+      rgba(28, 11, 8, 0.18)
+    ),
+    url("/images/mars/nasa-mars-world.jpg");
+
+  background-size:
+    100% 100%,
+    220% auto;
+
+  background-position:
+    center,
+    58% 48%;
+
+  background-repeat:
+    no-repeat;
+
+  filter:
+    saturate(1.1)
+    contrast(1.07)
+    brightness(0.86);
+
+  box-shadow:
+    inset 0 0 100px
+    rgba(0, 0, 0, 0.25);
+}
+
+/*
+ * Canvas is now a transparent building layer.
+ */
+.mars-colony-world-3d--fixed-surface {
+  background:
+    transparent !important;
+}
+
+.mars-colony-world-3d--fixed-surface
+canvas {
+  background:
+    transparent !important;
+
+  cursor:
+    default;
+}
+
+/*
+ * Grid should be subtle until placement begins.
+ */
+.mars-colony-world-3d--fixed-surface
++ * {
+  pointer-events:
+    none;
+}

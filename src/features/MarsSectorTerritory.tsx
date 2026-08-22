@@ -196,6 +196,7 @@ export default function MarsSectorTerritory({
         <div className="mars-colony-workspace__base mars-colony-workspace__base--3d">
           <MarsColonyWorld3D
             buildings={colonyBase}
+            canManageColony={canManageColony}
           />
         </div>
       </div>
