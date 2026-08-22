@@ -2928,35 +2928,39 @@ canvas {
   inset: 0;
   z-index: 10000;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-  background: rgba(3, 5, 12, 0.78);
-  backdrop-filter: blur(10px);
+  align-items: stretch;
+  justify-content: flex-start;
+  padding: 0;
+  background: transparent;
+  backdrop-filter: none;
+  pointer-events: none;
 }
 
 .mars-market-panel {
-  width: min(1180px, 100%);
-  max-height: min(820px, calc(100vh - 48px));
+  width: min(410px, calc(100vw - 24px));
+  height: 100vh;
+  max-height: 100vh;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  border: 1px solid rgba(255, 157, 82, 0.32);
-  border-radius: 22px;
+  pointer-events: auto;
+  border: 0;
+  border-right: 1px solid rgba(255, 157, 82, 0.32);
+  border-radius: 0 18px 18px 0;
   background:
     radial-gradient(
-      circle at 90% 0%,
+      circle at 0% 0%,
       rgba(176, 67, 25, 0.18),
-      transparent 34%
+      transparent 32%
     ),
     linear-gradient(
       145deg,
-      rgba(14, 17, 28, 0.99),
-      rgba(7, 9, 17, 0.99)
+      rgba(14, 17, 28, 0.98),
+      rgba(7, 9, 17, 0.98)
     );
   box-shadow:
-    0 30px 90px rgba(0, 0, 0, 0.58),
-    inset 0 1px rgba(255, 255, 255, 0.04);
+    22px 0 70px rgba(0, 0, 0, 0.48),
+    inset -1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .mars-market-header {
@@ -2964,7 +2968,7 @@ canvas {
   align-items: flex-start;
   justify-content: space-between;
   gap: 24px;
-  padding: 24px 26px 20px;
+  padding: 20px 18px 16px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.07);
 }
 
@@ -3005,7 +3009,7 @@ canvas {
 .mars-market-tabs {
   display: flex;
   gap: 8px;
-  padding: 14px 26px;
+  padding: 12px 18px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
@@ -3041,7 +3045,7 @@ canvas {
 
 .mars-market-content {
   overflow-y: auto;
-  padding: 22px 26px 30px;
+  padding: 18px 18px 26px;
 }
 
 .mars-market-category + .mars-market-category {
@@ -3067,8 +3071,7 @@ canvas {
 
 .mars-market-grid {
   display: grid;
-  grid-template-columns:
-    repeat(auto-fill, minmax(250px, 1fr));
+  grid-template-columns: 1fr;
   gap: 13px;
 }
 
@@ -3227,8 +3230,7 @@ canvas {
 
 .mars-inventory-grid {
   display: grid;
-  grid-template-columns:
-    repeat(auto-fill, minmax(250px, 1fr));
+  grid-template-columns: 1fr;
   gap: 12px;
 }
 
@@ -3267,12 +3269,14 @@ canvas {
   }
 
   .mars-market-backdrop {
-    padding: 8px;
+    padding: 0;
   }
 
   .mars-market-panel {
-    max-height: calc(100vh - 16px);
-    border-radius: 15px;
+    width: min(390px, calc(100vw - 12px));
+    height: 100vh;
+    max-height: 100vh;
+    border-radius: 0 14px 14px 0;
   }
 
   .mars-market-header {
