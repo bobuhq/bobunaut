@@ -154,9 +154,15 @@ function PlacementGrid() {
 function CommandHub({
   building,
   canManageColony,
+  selected,
+  onSelect,
+  onDeselect,
 }: {
   building: MarsColonyBaseBuilding;
   canManageColony: boolean;
+  selected: boolean;
+  onSelect: () => void;
+  onDeselect: () => void;
 }) {
   const initialPlacement =
     useMemo<Placement>(
@@ -202,15 +208,6 @@ function CommandHub({
   const [
     dragging,
     setDragging,
-  ] = useState(false);
-
-  /*
-   * Command Hub controls stay hidden until the building is
-   * explicitly selected by the user.
-   */
-  const [
-    selected,
-    setSelected,
   ] = useState(false);
 
   const [
@@ -354,7 +351,7 @@ function CommandHub({
     setSaveError(false);
 
     if (!selected) {
-      setSelected(true);
+      onSelect();
       return;
     }
 
@@ -422,7 +419,7 @@ function CommandHub({
       return;
     }
 
-    setSelected(true);
+    onSelect();
     setEditing(true);
     setSaveError(false);
   }
@@ -458,7 +455,7 @@ function CommandHub({
      * Keep Command Hub selected after CANCEL so MOVE remains
      * immediately available.
      */
-    setSelected(false);
+    onDeselect();
 
     setSaveError(false);
 
@@ -495,7 +492,7 @@ function CommandHub({
      * Keep the authoritative building selected so the MOVE
      * action is immediately available again.
      */
-    setSelected(false);
+    onDeselect();
 
     document.body.style.cursor =
       "";
@@ -647,11 +644,11 @@ function CommandHub({
             args={[
               Math.max(width, depth) *
                 GRID_UNIT *
-                0.9,
+                0.54,
               Math.max(width, depth) *
                 GRID_UNIT *
-                0.9,
-              3.2,
+                0.54,
+              2.25,
               32,
             ]}
           />
@@ -1327,9 +1324,15 @@ function InventoryBuildingPlacement({
 function PersistentColonyBuilding({
   building,
   canManageColony,
+  selected,
+  onSelect,
+  onDeselect,
 }: {
   building: MarsColonyBaseBuilding;
   canManageColony: boolean;
+  selected: boolean;
+  onSelect: () => void;
+  onDeselect: () => void;
 }) {
   const initialPlacement =
     useMemo<Placement>(
@@ -1358,11 +1361,6 @@ function PersistentColonyBuilding({
   ] = useState<Placement>(
     initialPlacement,
   );
-
-  const [
-    selected,
-    setSelected,
-  ] = useState(false);
 
   const [
     editing,
@@ -1453,7 +1451,7 @@ function PersistentColonyBuilding({
     setSaveError(false);
 
     if (!selected) {
-      setSelected(true);
+      onSelect();
       return;
     }
 
@@ -1626,6 +1624,39 @@ function PersistentColonyBuilding({
         <PlacementGrid />
       )}
 
+      <Html
+        position={[
+          world.x,
+          1.35,
+          world.z,
+        ]}
+        center
+        transform={false}
+        style={{
+          pointerEvents: "none",
+        }}
+      >
+        <div
+          style={{
+            padding: "5px 8px",
+            borderRadius: "7px",
+            background:
+              "rgba(12, 8, 20, 0.86)",
+            border:
+              selected
+                ? "1px solid rgba(225, 170, 255, 0.85)"
+                : "1px solid rgba(210, 140, 255, 0.35)",
+            color: "#f2e8ff",
+            fontSize: "9px",
+            fontWeight: 800,
+            letterSpacing: "0.08em",
+            whiteSpace: "nowrap",
+          }}
+        >
+          {building.building_name}
+        </div>
+      </Html>
+
       <group
         position={[
           world.x,
@@ -1711,35 +1742,6 @@ function PersistentColonyBuilding({
           />
         </mesh>
 
-        <Html
-          position={[0, 1.05, 0]}
-          center
-          transform={false}
-          style={{
-            pointerEvents: "none",
-          }}
-        >
-          <div
-            style={{
-              padding: "5px 8px",
-              borderRadius: "7px",
-              background:
-                "rgba(12, 8, 20, 0.82)",
-              border:
-                selected
-                  ? "1px solid rgba(225, 170, 255, 0.85)"
-                  : "1px solid rgba(210, 140, 255, 0.35)",
-              color: "#f2e8ff",
-              fontSize: "9px",
-              fontWeight: 800,
-              letterSpacing: "0.08em",
-              whiteSpace: "nowrap",
-            }}
-          >
-            {building.building_name}
-          </div>
-        </Html>
-
         {selected && (
           <Html
             position={[0, 1.72, 0]}
@@ -1780,7 +1782,7 @@ function PersistentColonyBuilding({
                     disabled={saving}
                     onClick={(event) => {
                       event.stopPropagation();
-                      setSelected(false);
+                      onDeselect();
                     }}
                   >
                     CLOSE
@@ -1850,6 +1852,18 @@ function ColonyScene({
 }: Props & {
   canManageColony: boolean;
 }) {
+  /*
+   * Scene-authoritative UI selection.
+   *
+   * Placement remains server-authoritative; this state controls
+   * only which physical building currently exposes its controls.
+   * Exactly one building may be selected at a time.
+   */
+  const [
+    selectedBuildingId,
+    setSelectedBuildingId,
+  ] = useState<string | null>(null);
+
   const commandHub =
     buildings.find(
       (building) =>
@@ -1870,6 +1884,40 @@ function ColonyScene({
 
   return (
     <>
+      {/*
+       * Neutral Mars interaction surface.
+       *
+       * Clicking genuine empty Colony space clears the current
+       * UI selection. Physical building meshes stop propagation,
+       * so this does not steal building clicks.
+       */}
+      <mesh
+        rotation={[
+          -Math.PI / 2,
+          0,
+          0,
+        ]}
+        position={[
+          0,
+          -0.035,
+          0,
+        ]}
+        onPointerDown={(event) => {
+          event.stopPropagation();
+
+          setSelectedBuildingId(null);
+        }}
+      >
+        <planeGeometry args={[80, 80]} />
+
+        <meshBasicMaterial
+          transparent
+          opacity={0}
+          depthWrite={false}
+          colorWrite={false}
+        />
+      </mesh>
+
       <ambientLight
         intensity={0.68}
         color="#aab3c6"
@@ -1908,6 +1956,20 @@ function ColonyScene({
           canManageColony={
             canManageColony
           }
+          selected={
+            selectedBuildingId ===
+            commandHub.building_id
+          }
+          onSelect={() => {
+            if (commandHub.building_id) {
+              setSelectedBuildingId(
+                commandHub.building_id,
+              );
+            }
+          }}
+          onDeselect={() =>
+            setSelectedBuildingId(null)
+          }
         />
       )}
 
@@ -1927,6 +1989,20 @@ function ColonyScene({
             building={building}
             canManageColony={
               canManageColony
+            }
+            selected={
+              selectedBuildingId ===
+              building.building_id
+            }
+            onSelect={() => {
+              if (building.building_id) {
+                setSelectedBuildingId(
+                  building.building_id,
+                );
+              }
+            }}
+            onDeselect={() =>
+              setSelectedBuildingId(null)
             }
           />
         ))}
