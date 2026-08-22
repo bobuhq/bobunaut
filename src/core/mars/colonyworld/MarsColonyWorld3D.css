@@ -114,10 +114,7 @@
    ========================================================= */
 
 .mars-placement-controls {
-  /*
-   * Position follows the real Command Hub 3D anchor.
-   * No screen-space offset is used.
-   */
+
 
   display: flex;
   align-items: center;
