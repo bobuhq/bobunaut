@@ -193,51 +193,18 @@ function CommandHub({
   ] = useState(false);
 
   /*
-   * Command Hub is the primary colony structure.
-   *
-   * Keep it selected when the colony world first opens so
-   * its MOVE control is immediately available without
-   * requiring an initial pointer interaction.
-   *
-   * This changes selection UI only. Placement persistence,
-   * committedPlacement and camera behavior remain untouched.
+   * Command Hub controls stay hidden until the building is
+   * explicitly selected by the user.
    */
   const [
     selected,
     setSelected,
-  ] = useState(
-    canManageColony,
-  );
+  ] = useState(false);
 
   const [
     editing,
     setEditing,
   ] = useState(false);
-
-  /*
-   * Colony management permission can arrive after the first
-   * React render.
-   *
-   * useState(canManageColony) only reads the initial value,
-   * so synchronize selection when the authoritative
-   * permission becomes available.
-   *
-   * This makes MOVE visible immediately without requiring
-   * mouse, wheel or building interaction.
-   */
-  useEffect(() => {
-    if (!canManageColony) {
-      setSelected(false);
-      return;
-    }
-
-    if (!editing) {
-      setSelected(true);
-    }
-  }, [
-    canManageColony,
-    editing,
-  ]);
 
   const [
     saving,
@@ -479,9 +446,7 @@ function CommandHub({
      * Keep Command Hub selected after CANCEL so MOVE remains
      * immediately available.
      */
-    setSelected(
-      canManageColony,
-    );
+    setSelected(false);
 
     setSaveError(false);
 
@@ -518,9 +483,7 @@ function CommandHub({
      * Keep the authoritative building selected so the MOVE
      * action is immediately available again.
      */
-    setSelected(
-      canManageColony,
-    );
+    setSelected(false);
 
     document.body.style.cursor =
       "";
@@ -906,7 +869,7 @@ export function MarsColonyWorld3D({
             14,
             16,
           ],
-          zoom: 48,
+          zoom: 68,
           near: 0.1,
           far: 140,
         }}
