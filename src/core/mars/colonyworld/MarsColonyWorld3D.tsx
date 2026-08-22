@@ -550,13 +550,13 @@ export function MarsColonyWorld3D({
         dpr={[1, 1.75]}
         camera={{
           position: [
-            12,
-            15,
-            12,
+            10,
+            24,
+            10,
           ],
-          zoom: 41,
+          zoom: 27,
           near: 0.1,
-          far: 120,
+          far: 140,
         }}
         gl={{
           alpha: true,
