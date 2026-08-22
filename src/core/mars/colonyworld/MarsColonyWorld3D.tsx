@@ -337,40 +337,45 @@ function CommandHub({
 
   return (
     <>
-      {/* Large invisible interaction field */}
-      {dragging && (
-        <mesh
-          rotation={[
-            -Math.PI / 2,
-            0,
-            0,
+      {/*
+       * Permanent invisible placement surface.
+       *
+       * It remains raycastable even before dragging begins,
+       * so pointer tracking never disappears while a building
+       * is travelling across the colony.
+       */}
+      <mesh
+        rotation={[
+          -Math.PI / 2,
+          0,
+          0,
+        ]}
+        position={[
+          0,
+          0.01,
+          0,
+        ]}
+        onPointerMove={
+          handlePointerMove
+        }
+        onPointerUp={
+          handlePointerUp
+        }
+      >
+        <planeGeometry
+          args={[
+            80,
+            80,
           ]}
-          position={[
-            0,
-            0.01,
-            0,
-          ]}
-          onPointerMove={
-            handlePointerMove
-          }
-          onPointerUp={
-            handlePointerUp
-          }
-        >
-          <planeGeometry
-            args={[
-              80,
-              80,
-            ]}
-          />
+        />
 
-          <meshBasicMaterial
-            transparent
-            opacity={0}
-            depthWrite={false}
-          />
-        </mesh>
-      )}
+        <meshBasicMaterial
+          transparent
+          opacity={0}
+          depthWrite={false}
+          colorWrite={false}
+        />
+      </mesh>
 
 
       {/* Placement footprint */}
@@ -431,6 +436,9 @@ function CommandHub({
         }
         onPointerDown={
           handlePointerDown
+        }
+        onPointerUp={
+          handlePointerUp
         }
       >
         <MarsCommandHubModel
@@ -550,11 +558,11 @@ export function MarsColonyWorld3D({
         dpr={[1, 1.75]}
         camera={{
           position: [
-            10,
-            24,
-            10,
+            -15,
+            14,
+            16,
           ],
-          zoom: 27,
+          zoom: 32,
           near: 0.1,
           far: 140,
         }}
