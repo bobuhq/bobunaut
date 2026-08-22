@@ -550,6 +550,48 @@ function CommandHub({
       )}
 
 
+      {/*
+       * Dedicated Command Hub selection hitbox.
+       *
+       * Do not rely on the decorative child meshes of the
+       * Command Hub model for selection. This invisible mesh
+       * gives the building one stable pointer target while
+       * preserving the existing visual model.
+       */}
+      {!editing && (
+        <mesh
+          position={[
+            world.x,
+            1.35,
+            world.z,
+          ]}
+          onPointerDown={
+            handlePointerDown
+          }
+        >
+          <cylinderGeometry
+            args={[
+              Math.max(width, depth) *
+                GRID_UNIT *
+                0.9,
+              Math.max(width, depth) *
+                GRID_UNIT *
+                0.9,
+              3.2,
+              32,
+            ]}
+          />
+
+          <meshBasicMaterial
+            transparent
+            opacity={0}
+            depthWrite={false}
+            colorWrite={false}
+          />
+        </mesh>
+      )}
+
+
       <group
         position={[
           world.x,
