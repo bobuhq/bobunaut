@@ -1,4 +1,5 @@
 import type { MarsSector } from "../core/mars/MarsSectorService";
+import { MarsCommandHub3D } from "../core/mars/MarsCommandHub3D";
 import type {
   MarsColonyBaseBuilding,
   MarsColonyBuildingConstructionCost,
@@ -239,13 +240,22 @@ export default function MarsSectorTerritory({
                 >
                   <div className="mars-base-building-pad" />
 
-                  <div className="mars-base-building-body" />
+                  {building.building_key === "command_hub" &&
+                  building.built ? (
+                    <MarsCommandHub3D
+                      level={building.building_level}
+                    />
+                  ) : (
+                    <>
+                      <div className="mars-base-building-body" />
 
-                  <div className="mars-base-building-aux mars-base-building-aux--a" />
-                  <div className="mars-base-building-aux mars-base-building-aux--b" />
+                      <div className="mars-base-building-aux mars-base-building-aux--a" />
+                      <div className="mars-base-building-aux mars-base-building-aux--b" />
 
-                  <div className="mars-base-building-core" />
-                  <div className="mars-base-building-light" />
+                      <div className="mars-base-building-core" />
+                      <div className="mars-base-building-light" />
+                    </>
+                  )}
 
                   {building.built && (
                     <div className="mars-base-building-level">
