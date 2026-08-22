@@ -172,6 +172,21 @@ function CommandHub({
     initialPlacement,
   );
 
+  /*
+   * Last placement confirmed by the server.
+   *
+   * This is NOT browser-authoritative placement data.
+   * It is initialized from get_my_mars_colony_base()
+   * and updated only from move_my_mars_colony_building()
+   * successful RPC results.
+   */
+  const [
+    committedPlacement,
+    setCommittedPlacement,
+  ] = useState<Placement>(
+    initialPlacement,
+  );
+
   const [
     dragging,
     setDragging,
@@ -199,17 +214,22 @@ function CommandHub({
 
 
   useEffect(() => {
-    if (
-      !editing &&
-      !dragging
-    ) {
-      setPlacement(
-        initialPlacement,
-      );
-    }
+    /*
+     * Parent data changed because authoritative Colony Base
+     * data was loaded/refreshed.
+     *
+     * Do not depend on editing/dragging here. Doing so caused
+     * a successful SAVE to immediately restore the stale
+     * pre-save prop position when edit mode closed.
+     */
+    setCommittedPlacement(
+      initialPlacement,
+    );
+
+    setPlacement(
+      initialPlacement,
+    );
   }, [
-    editing,
-    dragging,
     initialPlacement,
   ]);
 
@@ -256,7 +276,7 @@ function CommandHub({
           placement.rotationY,
         );
 
-      setPlacement({
+      const savedPlacement: Placement = {
         gridX:
           result.grid_x,
 
@@ -265,7 +285,20 @@ function CommandHub({
 
         rotationY:
           result.rotation_y,
-      });
+      };
+
+      /*
+       * The RPC response is the authoritative placement.
+       * Preserve it when edit mode closes instead of falling
+       * back to stale parent props from before this SAVE.
+       */
+      setCommittedPlacement(
+        savedPlacement,
+      );
+
+      setPlacement(
+        savedPlacement,
+      );
 
       return true;
     } catch (error) {
@@ -408,7 +441,7 @@ function CommandHub({
     setSaveError(false);
 
     setPlacement(
-      initialPlacement,
+      committedPlacement,
     );
 
     document.body.style.cursor =
