@@ -10,6 +10,14 @@ export type MarsColonyBaseBuilding = {
   colony_id: string;
   colony_name: string;
 
+  /*
+   * Physical Colony building instance identity.
+   *
+   * NULL means this row is only a not-yet-built catalog
+   * definition returned by get_my_mars_colony_base().
+   */
+  building_id: string | null;
+
   building_key: string;
   building_name: string;
   building_category: string;

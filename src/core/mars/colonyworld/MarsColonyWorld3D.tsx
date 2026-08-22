@@ -1518,14 +1518,16 @@ function ColonyScene({
         )
         .map((building) => (
           <PersistentColonyBuilding
-            key={building.building_key}
+            key={
+              building.building_id ??
+              `catalog:${building.building_key}`
+            }
             building={building}
           />
         ))}
 
       {inventoryPlacementItem &&
-        inventoryBuildingDefinition &&
-        !inventoryBuildingDefinition.built && (
+        inventoryBuildingDefinition && (
           <InventoryBuildingPlacement
             key={
               inventoryPlacementItem.inventory_id
