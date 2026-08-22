@@ -431,44 +431,47 @@ function CommandHub({
   return (
     <>
       {/*
-       * Permanent invisible placement surface.
+       * Placement raycast surface.
        *
-       * It remains raycastable even before dragging begins,
-       * so pointer tracking never disappears while a building
-       * is travelling across the colony.
+       * IMPORTANT:
+       * This surface must exist only while placement editing
+       * is active. Otherwise an invisible 80x80 mesh can
+       * intercept pointer events intended for Command Hub.
        */}
-      <mesh
-        rotation={[
-          -Math.PI / 2,
-          0,
-          0,
-        ]}
-        position={[
-          0,
-          0.01,
-          0,
-        ]}
-        onPointerMove={
-          handlePointerMove
-        }
-        onPointerUp={
-          handlePointerUp
-        }
-      >
-        <planeGeometry
-          args={[
-            80,
-            80,
+      {editing && (
+        <mesh
+          rotation={[
+            -Math.PI / 2,
+            0,
+            0,
           ]}
-        />
+          position={[
+            0,
+            0.01,
+            0,
+          ]}
+          onPointerMove={
+            handlePointerMove
+          }
+          onPointerUp={
+            handlePointerUp
+          }
+        >
+          <planeGeometry
+            args={[
+              80,
+              80,
+            ]}
+          />
 
-        <meshBasicMaterial
-          transparent
-          opacity={0}
-          depthWrite={false}
-          colorWrite={false}
-        />
-      </mesh>
+          <meshBasicMaterial
+            transparent
+            opacity={0}
+            depthWrite={false}
+            colorWrite={false}
+          />
+        </mesh>
+      )}
 
 
       {editing && (
