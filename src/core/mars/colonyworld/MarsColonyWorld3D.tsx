@@ -449,7 +449,15 @@ function CommandHub({
 
     setDragging(false);
     setEditing(false);
-    setSelected(false);
+
+    /*
+     * Keep Command Hub selected after CANCEL so MOVE remains
+     * immediately available.
+     */
+    setSelected(
+      canManageColony,
+    );
+
     setSaveError(false);
 
     setPlacement(
@@ -478,7 +486,16 @@ function CommandHub({
 
     setDragging(false);
     setEditing(false);
-    setSelected(false);
+
+    /*
+     * SAVE completed successfully.
+     *
+     * Keep the authoritative building selected so the MOVE
+     * action is immediately available again.
+     */
+    setSelected(
+      canManageColony,
+    );
 
     document.body.style.cursor =
       "";
@@ -857,7 +874,7 @@ export function MarsColonyWorld3D({
             14,
             16,
           ],
-          zoom: 43,
+          zoom: 48,
           near: 0.1,
           far: 140,
         }}
