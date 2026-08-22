@@ -36,6 +36,7 @@ import {
 
 import MarsPlacementGrid from "./MarsPlacementGrid";
 import MarsPlacementPreview from "./MarsPlacementPreview";
+import MarsColonyBuildingModel from "../models/MarsColonyBuildingModel";
 
 
 type Placement = {
@@ -451,9 +452,7 @@ export default function MarsPersistentColonyBuilding({
           0,
         ]}
       >
-        <mesh
-          castShadow
-          receiveShadow
+        <group
           onPointerDown={
             handlePointerDown
           }
@@ -481,46 +480,13 @@ export default function MarsPersistentColonyBuilding({
             }
           }}
         >
-          <boxGeometry
-            args={[
-              Math.max(
-                width *
-                  MARS_GRID_UNIT *
-                  0.72,
-                1,
-              ),
-              0.55,
-              Math.max(
-                depth *
-                  MARS_GRID_UNIT *
-                  0.72,
-                1,
-              ),
-            ]}
+          <MarsColonyBuildingModel
+            buildingKey={
+              building.building_key
+            }
+            selected={selected}
           />
-
-          <meshStandardMaterial
-            color={
-              saveError
-                ? "#ff334f"
-                : selected
-                  ? "#c782ff"
-                  : "#a866d8"
-            }
-            roughness={0.62}
-            metalness={0.28}
-            emissive={
-              selected
-                ? "#35104f"
-                : "#000000"
-            }
-            emissiveIntensity={
-              selected
-                ? 0.7
-                : 0
-            }
-          />
-        </mesh>
+        </group>
 
         {selected && (
           <Html

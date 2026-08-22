@@ -37,6 +37,7 @@ import {
 
 import MarsPlacementGrid from "./MarsPlacementGrid";
 import MarsPlacementPreview from "./MarsPlacementPreview";
+import MarsColonyBuildingModel from "../models/MarsColonyBuildingModel";
 
 
 type Placement = {
@@ -469,36 +470,12 @@ export default function MarsInventoryBuildingPlacement({
           handlePointerUp
         }
       >
-        <mesh
-          castShadow
-          receiveShadow
-        >
-          <boxGeometry
-            args={[
-              Math.max(
-                width *
-                  MARS_GRID_UNIT *
-                  0.72,
-                1,
-              ),
-              0.55,
-              Math.max(
-                depth *
-                  MARS_GRID_UNIT *
-                  0.72,
-                1,
-              ),
-            ]}
-          />
-
-          <meshStandardMaterial
-            color="#a866d8"
-            transparent
-            opacity={0.34}
-            roughness={0.62}
-            metalness={0.28}
-          />
-        </mesh>
+        <MarsColonyBuildingModel
+          buildingKey={
+            definition.building_key
+          }
+          preview
+        />
       </group>
 
       <Html
