@@ -562,7 +562,7 @@ export function MarsColonyWorld3D({
             14,
             16,
           ],
-          zoom: 32,
+          zoom: 43,
           near: 0.1,
           far: 140,
         }}
