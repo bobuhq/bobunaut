@@ -236,12 +236,12 @@ function CommandHub({
     );
 
 
-  async function savePlacement() {
+  async function savePlacement(): Promise<boolean> {
     if (
       !canManageColony ||
       saving
     ) {
-      return;
+      return false;
     }
 
     setSaving(true);
@@ -266,17 +266,24 @@ function CommandHub({
         rotationY:
           result.rotation_y,
       });
+
+      return true;
     } catch (error) {
       console.error(
         "Mars building placement failed:",
         error,
       );
 
-      setPlacement(
-        initialPlacement,
-      );
-
+      /*
+       * Keep the attempted placement visible.
+       *
+       * A rejected server placement must not silently
+       * teleport the building back to its old position.
+       * The Builder can retry or explicitly CANCEL.
+       */
       setSaveError(true);
+
+      return false;
     } finally {
       setSaving(false);
     }
@@ -417,7 +424,12 @@ function CommandHub({
       return;
     }
 
-    await savePlacement();
+    const saved =
+      await savePlacement();
+
+    if (!saved) {
+      return;
+    }
 
     setDragging(false);
     setEditing(false);
