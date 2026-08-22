@@ -114,6 +114,14 @@
    ========================================================= */
 
 .mars-placement-controls {
+  /*
+   * The Html anchor sits at the real Command Hub center.
+   * Move the controls upward only in screen space so the
+   * oblique camera cannot introduce horizontal drift.
+   */
+  transform:
+    translateY(-118px);
+
   display: flex;
   align-items: center;
   gap: 7px;

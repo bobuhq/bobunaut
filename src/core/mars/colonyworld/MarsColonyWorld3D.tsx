@@ -699,7 +699,7 @@ function CommandHub({
           <Html
             position={[
               0,
-              2.9,
+              0,
               0,
             ]}
             center
@@ -869,7 +869,7 @@ export function MarsColonyWorld3D({
             14,
             16,
           ],
-          zoom: 68,
+          zoom: 48,
           near: 0.1,
           far: 140,
         }}
