@@ -29,6 +29,15 @@ type Props = {
   open: boolean;
   onClose: () => void;
   onPurchaseComplete?: () => void | Promise<void>;
+
+  /*
+   * Inventory placement begins in the Colony World.
+   * MarsMarket only selects the purchased building.
+   * The 3D world owns placement coordinates and rotation.
+   */
+  onPlaceInventoryBuilding?: (
+    item: MarsInventoryItem,
+  ) => void;
 };
 
 type Tab = "market" | "inventory";
@@ -61,6 +70,7 @@ export default function MarsMarket({
   open,
   onClose,
   onPurchaseComplete,
+  onPlaceInventoryBuilding,
 }: Props) {
   const [tab, setTab] = useState<Tab>("market");
 
@@ -449,12 +459,20 @@ export default function MarsMarket({
                     </div>
 
                     {item.item_type ===
-                      "building" && (
+                      "building" &&
+                      item.quantity > 0 && (
                       <button
                         type="button"
                         className="mars-inventory-place"
-                        disabled
-                        title="Placement Engine is the next stage."
+                        disabled={
+                          !onPlaceInventoryBuilding
+                        }
+                        onClick={() => {
+                          onPlaceInventoryBuilding?.(
+                            item,
+                          );
+                        }}
+                        title="Place this building on your Mars Colony."
                       >
                         PLACE
                       </button>

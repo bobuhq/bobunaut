@@ -27,6 +27,11 @@ import {
 } from "../MarsColonyBaseService";
 
 import {
+  placeMyMarsInventoryBuilding,
+  type MarsInventoryItem,
+} from "../MarsMarketService";
+
+import {
   MarsCommandHubModel,
 } from "../MarsCommandHub3D";
 
@@ -36,6 +41,13 @@ import "./MarsColonyWorld3D.css";
 type Props = {
   buildings: MarsColonyBaseBuilding[];
   canManageColony?: boolean;
+
+  inventoryPlacementItem?: MarsInventoryItem | null;
+
+  onCancelInventoryPlacement?: () => void;
+
+  onInventoryPlacementSaved?: () =>
+    void | Promise<void>;
 };
 
 
@@ -779,10 +791,440 @@ function CommandHub({
 }
 
 
+
+function InventoryBuildingPlacement({
+  item,
+  definition,
+  canManageColony,
+  onCancel,
+  onSaved,
+}: {
+  item: MarsInventoryItem;
+  definition: MarsColonyBaseBuilding;
+  canManageColony: boolean;
+  onCancel?: () => void;
+  onSaved?: () => void | Promise<void>;
+}) {
+  const [
+    placement,
+    setPlacement,
+  ] = useState<Placement>({
+    gridX: 4,
+    gridZ: 4,
+    rotationY: 0,
+  });
+
+  const [
+    dragging,
+    setDragging,
+  ] = useState(false);
+
+  const [
+    saving,
+    setSaving,
+  ] = useState(false);
+
+  const [
+    saveError,
+    setSaveError,
+  ] = useState(false);
+
+  const baseWidth =
+    Math.max(
+      definition.footprint_width,
+      1,
+    );
+
+  const baseDepth =
+    Math.max(
+      definition.footprint_depth,
+      1,
+    );
+
+  const rotated =
+    placement.rotationY === 90 ||
+    placement.rotationY === 270;
+
+  const width =
+    rotated
+      ? baseDepth
+      : baseWidth;
+
+  const depth =
+    rotated
+      ? baseWidth
+      : baseDepth;
+
+  const world =
+    placementToWorld(
+      placement.gridX,
+      placement.gridZ,
+      width,
+      depth,
+    );
+
+  function handlePointerDown(
+    event: ThreeEvent<PointerEvent>,
+  ) {
+    if (
+      !canManageColony ||
+      saving
+    ) {
+      return;
+    }
+
+    event.stopPropagation();
+
+    setSaveError(false);
+    setDragging(true);
+
+    document.body.style.cursor =
+      "grabbing";
+  }
+
+  function handlePointerMove(
+    event: ThreeEvent<PointerEvent>,
+  ) {
+    if (
+      !dragging ||
+      !canManageColony ||
+      saving
+    ) {
+      return;
+    }
+
+    event.stopPropagation();
+
+    const next =
+      worldToPlacement(
+        event.point.x,
+        event.point.z,
+        width,
+        depth,
+      );
+
+    setPlacement(
+      (current) => ({
+        ...current,
+        ...next,
+      }),
+    );
+  }
+
+  function handlePointerUp(
+    event: ThreeEvent<PointerEvent>,
+  ) {
+    if (!dragging) {
+      return;
+    }
+
+    event.stopPropagation();
+
+    setDragging(false);
+
+    document.body.style.cursor =
+      "";
+  }
+
+  function rotateBuilding() {
+    if (saving) {
+      return;
+    }
+
+    setSaveError(false);
+
+    setPlacement(
+      (current) => ({
+        ...current,
+        rotationY:
+          (
+            (current.rotationY + 90) %
+            360
+          ) as MarsColonyRotation,
+      }),
+    );
+  }
+
+  function cancelPlacement() {
+    if (saving) {
+      return;
+    }
+
+    setDragging(false);
+    setSaveError(false);
+
+    document.body.style.cursor =
+      "";
+
+    onCancel?.();
+  }
+
+  async function confirmPlacement() {
+    if (
+      saving ||
+      !canManageColony
+    ) {
+      return;
+    }
+
+    setSaving(true);
+    setSaveError(false);
+
+    try {
+      await placeMyMarsInventoryBuilding(
+        item.item_key,
+        placement.gridX,
+        placement.gridZ,
+        placement.rotationY,
+      );
+
+      setDragging(false);
+
+      document.body.style.cursor =
+        "";
+
+      await onSaved?.();
+    } catch (error) {
+      console.error(
+        "Mars inventory placement failed:",
+        error,
+      );
+
+      /*
+       * Keep attempted placement visible so the Builder
+       * can move/rotate and retry after a server rejection.
+       */
+      setSaveError(true);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <>
+      {/*
+       * Dedicated placement raycast surface.
+       * Exists only while inventory placement is active.
+       */}
+      <mesh
+        rotation={[
+          -Math.PI / 2,
+          0,
+          0,
+        ]}
+        position={[
+          0,
+          0.012,
+          0,
+        ]}
+        onPointerMove={
+          handlePointerMove
+        }
+        onPointerUp={
+          handlePointerUp
+        }
+      >
+        <planeGeometry
+          args={[
+            80,
+            80,
+          ]}
+        />
+
+        <meshBasicMaterial
+          transparent
+          opacity={0}
+          depthWrite={false}
+          colorWrite={false}
+        />
+      </mesh>
+
+      <PlacementGrid />
+
+      {/*
+       * Authoritative footprint preview.
+       * This is placement UI, not a fake production model.
+       */}
+      <mesh
+        position={[
+          world.x,
+          0.065,
+          world.z,
+        ]}
+        rotation={[
+          -Math.PI / 2,
+          0,
+          0,
+        ]}
+      >
+        <planeGeometry
+          args={[
+            width *
+              GRID_UNIT *
+              0.96,
+
+            depth *
+              GRID_UNIT *
+              0.96,
+          ]}
+        />
+
+        <meshBasicMaterial
+          color={
+            saveError
+              ? "#ff334f"
+              : "#d28cff"
+          }
+          transparent
+          opacity={
+            saveError
+              ? 0.44
+              : 0.32
+          }
+          depthWrite={false}
+        />
+      </mesh>
+
+      <group
+        position={[
+          world.x,
+          dragging
+            ? 0.5
+            : 0.24,
+          world.z,
+        ]}
+        rotation={[
+          0,
+          THREE.MathUtils.degToRad(
+            placement.rotationY,
+          ),
+          0,
+        ]}
+        onPointerDown={
+          handlePointerDown
+        }
+        onPointerUp={
+          handlePointerUp
+        }
+      >
+        <mesh
+          castShadow
+          receiveShadow
+        >
+          <boxGeometry
+            args={[
+              Math.max(
+                width *
+                  GRID_UNIT *
+                  0.72,
+                1,
+              ),
+              0.55,
+              Math.max(
+                depth *
+                  GRID_UNIT *
+                  0.72,
+                1,
+              ),
+            ]}
+          />
+
+          <meshStandardMaterial
+            color="#a866d8"
+            transparent
+            opacity={0.34}
+            roughness={0.62}
+            metalness={0.28}
+          />
+        </mesh>
+      </group>
+
+      <Html
+        position={[
+          world.x,
+          2.25,
+          world.z,
+        ]}
+        center
+        transform={false}
+        style={{
+          pointerEvents: "auto",
+        }}
+      >
+        <div
+          className="mars-placement-controls"
+          onPointerDown={(event) =>
+            event.stopPropagation()
+          }
+        >
+          <span
+            style={{
+              padding: "0 7px",
+              opacity: 0.8,
+              fontSize: "10px",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {item.item_name}
+          </span>
+
+          <button
+            type="button"
+            onClick={rotateBuilding}
+            disabled={saving}
+          >
+            ROTATE
+          </button>
+
+          <button
+            type="button"
+            onClick={cancelPlacement}
+            disabled={saving}
+          >
+            CANCEL
+          </button>
+
+          <button
+            type="button"
+            className="mars-placement-controls__save"
+            onClick={() =>
+              void confirmPlacement()
+            }
+            disabled={saving}
+          >
+            {saving
+              ? "SAVING..."
+              : "SAVE"}
+          </button>
+        </div>
+      </Html>
+
+      {saveError && (
+        <pointLight
+          position={[
+            world.x,
+            2.3,
+            world.z,
+          ]}
+          color="#ff334f"
+          intensity={8}
+          distance={4}
+        />
+      )}
+    </>
+  );
+}
+
+
 function ColonyScene({
   buildings,
   canManageColony,
-}: Required<Props>) {
+  inventoryPlacementItem,
+  onCancelInventoryPlacement,
+  onInventoryPlacementSaved,
+}: Props & {
+  canManageColony: boolean;
+}) {
   const commandHub =
     buildings.find(
       (building) =>
@@ -790,6 +1232,15 @@ function ColonyScene({
           "command_hub" &&
         building.built,
     );
+
+  const inventoryBuildingDefinition =
+    inventoryPlacementItem?.building_key
+      ? buildings.find(
+          (building) =>
+            building.building_key ===
+            inventoryPlacementItem.building_key,
+        )
+      : undefined;
 
 
   return (
@@ -835,6 +1286,31 @@ function ColonyScene({
         />
       )}
 
+      {inventoryPlacementItem &&
+        inventoryBuildingDefinition &&
+        !inventoryBuildingDefinition.built && (
+          <InventoryBuildingPlacement
+            key={
+              inventoryPlacementItem.inventory_id
+            }
+            item={
+              inventoryPlacementItem
+            }
+            definition={
+              inventoryBuildingDefinition
+            }
+            canManageColony={
+              canManageColony
+            }
+            onCancel={
+              onCancelInventoryPlacement
+            }
+            onSaved={
+              onInventoryPlacementSaved
+            }
+          />
+        )}
+
       <ContactShadows
         position={[
           0,
@@ -856,6 +1332,9 @@ function ColonyScene({
 export function MarsColonyWorld3D({
   buildings,
   canManageColony = false,
+  inventoryPlacementItem = null,
+  onCancelInventoryPlacement,
+  onInventoryPlacementSaved,
 }: Props) {
   return (
     <div
@@ -913,6 +1392,15 @@ export function MarsColonyWorld3D({
             buildings={buildings}
             canManageColony={
               canManageColony
+            }
+            inventoryPlacementItem={
+              inventoryPlacementItem
+            }
+            onCancelInventoryPlacement={
+              onCancelInventoryPlacement
+            }
+            onInventoryPlacementSaved={
+              onInventoryPlacementSaved
             }
           />
         </Suspense>

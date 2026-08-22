@@ -112,3 +112,66 @@ export async function buyMyMarsMarketItem(
 
   return row as MarsMarketPurchaseResult;
 }
+
+// ============================================================
+// INVENTORY -> 3D COLONY PLACEMENT
+// ============================================================
+
+export type MarsInventoryBuildingPlacementResult = {
+  building_id: string;
+  colony_id: string;
+
+  building_key: string;
+  building_name: string;
+
+  building_level: number;
+  building_status: string;
+
+  grid_x: number;
+  grid_z: number;
+
+  rotation_y: 0 | 90 | 180 | 270;
+
+  footprint_width: number;
+  footprint_depth: number;
+
+  inventory_quantity: number;
+
+  placed_at: string;
+};
+
+export async function placeMyMarsInventoryBuilding(
+  itemKey: string,
+  gridX: number,
+  gridZ: number,
+  rotationY: 0 | 90 | 180 | 270 = 0,
+): Promise<MarsInventoryBuildingPlacementResult> {
+  const { data, error } = await supabase.rpc(
+    "place_my_mars_inventory_building",
+    {
+      p_item_key: itemKey,
+      p_grid_x: gridX,
+      p_grid_z: gridZ,
+      p_rotation_y: rotationY,
+    },
+  );
+
+  if (error) {
+    throw error;
+  }
+
+  const rows =
+    data as
+      | MarsInventoryBuildingPlacementResult[]
+      | null;
+
+  const result = rows?.[0];
+
+  if (!result) {
+    throw new Error(
+      "Mars inventory building placement returned no result.",
+    );
+  }
+
+  return result;
+}

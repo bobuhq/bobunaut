@@ -9,6 +9,9 @@ import type {
 } from "../core/mars/MarsColonyBaseService";
 
 import MarsMarket from "./MarsMarket";
+import type {
+  MarsInventoryItem,
+} from "../core/mars/MarsMarketService";
 
 import "./MarsSectorTerritory.css";
 
@@ -38,6 +41,7 @@ type Props = {
   upgradingBuildingKey: string | null;
   onConstructBuilding: (buildingKey: string) => void;
   onUpgradeBuilding: (buildingKey: string) => void;
+  onInventoryPlacementSaved: () => void | Promise<void>;
   onBack: () => void;
 };
 
@@ -68,6 +72,7 @@ export default function MarsSectorTerritory({
   upgradingBuildingKey,
   onConstructBuilding,
   onUpgradeBuilding,
+  onInventoryPlacementSaved,
   onBack,
 }: Props) {
   const colonyName =
@@ -75,6 +80,33 @@ export default function MarsSectorTerritory({
 
   const [marketOpen, setMarketOpen] =
     useState(false);
+
+  const [
+    placingInventoryItem,
+    setPlacingInventoryItem,
+  ] = useState<MarsInventoryItem | null>(
+    null,
+  );
+
+  const beginInventoryPlacement = (
+    item: MarsInventoryItem,
+  ) => {
+    if (
+      item.item_type !== "building" ||
+      !item.building_key ||
+      item.quantity <= 0
+    ) {
+      return;
+    }
+
+    setPlacingInventoryItem(item);
+
+    /*
+     * Close the Market drawer so the Builder gets
+     * the complete Mars surface for placement.
+     */
+    setMarketOpen(false);
+  };
 
   return (
     <section className="mars-territory mars-territory--workspace">
@@ -216,6 +248,25 @@ export default function MarsSectorTerritory({
           <MarsColonyWorld3D
             buildings={colonyBase}
             canManageColony={canManageColony}
+            inventoryPlacementItem={
+              placingInventoryItem
+            }
+            onCancelInventoryPlacement={() =>
+              setPlacingInventoryItem(null)
+            }
+            onInventoryPlacementSaved={async () => {
+              /*
+               * The placement RPC has already committed the
+               * authoritative building position at this point.
+               *
+               * Refresh the existing production Colony Base
+               * snapshot so the newly placed building appears
+               * immediately and remains server-authoritative.
+               */
+              await onInventoryPlacementSaved();
+
+              setPlacingInventoryItem(null);
+            }}
           />
         </div>
       </div>
@@ -223,6 +274,9 @@ export default function MarsSectorTerritory({
       <MarsMarket
         open={marketOpen}
         onClose={() => setMarketOpen(false)}
+        onPlaceInventoryBuilding={
+          beginInventoryPlacement
+        }
       />
     </section>
   );

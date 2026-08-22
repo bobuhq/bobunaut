@@ -2879,6 +2879,9 @@ export function BuildMars() {
                         onUpgradeBuilding={(buildingKey) => {
                           void handleUpgradeBuilding(buildingKey);
                         }}
+                        onInventoryPlacementSaved={async () => {
+                          await refreshColonyBase();
+                        }}
                         onBack={() => {
                           setTerritorySectorId(null);
                           setSelectedSectorId(null);
