@@ -108,3 +108,88 @@
     scroll-behavior: auto;
   }
 }
+
+/* =========================================================
+   BOBU MARS — PLACEMENT CONTROLS V2
+   ========================================================= */
+
+.mars-placement-controls {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+
+  padding: 7px;
+
+  border:
+    1px solid
+    rgba(199, 142, 255, 0.28);
+
+  border-radius: 12px;
+
+  background:
+    rgba(12, 8, 20, 0.88);
+
+  box-shadow:
+    0 12px 36px
+    rgba(0, 0, 0, 0.42);
+
+  backdrop-filter:
+    blur(14px);
+
+  white-space: nowrap;
+}
+
+.mars-placement-controls button {
+  appearance: none;
+
+  border:
+    1px solid
+    rgba(203, 167, 255, 0.25);
+
+  border-radius: 8px;
+
+  padding:
+    8px
+    11px;
+
+  color:
+    rgba(245, 236, 255, 0.92);
+
+  background:
+    rgba(72, 47, 105, 0.46);
+
+  font:
+    800
+    0.58rem/1
+    ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
+
+  letter-spacing:
+    0.1em;
+
+  cursor: pointer;
+}
+
+.mars-placement-controls button:hover {
+  background:
+    rgba(115, 69, 166, 0.68);
+}
+
+.mars-placement-controls button:disabled {
+  opacity: 0.46;
+  cursor: wait;
+}
+
+.mars-placement-controls__move {
+  min-width: 76px;
+}
+
+.mars-placement-controls__save {
+  border-color:
+    rgba(177, 111, 255, 0.58) !important;
+
+  background:
+    rgba(112, 52, 180, 0.74) !important;
+}

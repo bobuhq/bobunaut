@@ -5,6 +5,7 @@ import {
 
 import {
   ContactShadows,
+  Html,
 } from "@react-three/drei";
 
 import {
@@ -177,6 +178,16 @@ function CommandHub({
   ] = useState(false);
 
   const [
+    selected,
+    setSelected,
+  ] = useState(false);
+
+  const [
+    editing,
+    setEditing,
+  ] = useState(false);
+
+  const [
     saving,
     setSaving,
   ] = useState(false);
@@ -281,6 +292,16 @@ function CommandHub({
     event.stopPropagation();
 
     setSaveError(false);
+
+    if (!selected) {
+      setSelected(true);
+      return;
+    }
+
+    if (!editing) {
+      return;
+    }
+
     setDragging(true);
 
     document.body.style.cursor =
@@ -317,7 +338,7 @@ function CommandHub({
   }
 
 
-  async function handlePointerUp(
+  function handlePointerUp(
     event: ThreeEvent<PointerEvent>,
   ) {
     if (!dragging) {
@@ -330,8 +351,76 @@ function CommandHub({
 
     document.body.style.cursor =
       "";
+  }
+
+
+  function beginMove() {
+    if (
+      !canManageColony ||
+      saving
+    ) {
+      return;
+    }
+
+    setSelected(true);
+    setEditing(true);
+    setSaveError(false);
+  }
+
+
+  function rotateBuilding() {
+    if (
+      !editing ||
+      saving
+    ) {
+      return;
+    }
+
+    setPlacement(
+      (current) => ({
+        ...current,
+        rotationY:
+          ((current.rotationY + 90) % 360) as MarsColonyRotation,
+      }),
+    );
+  }
+
+
+  function cancelPlacement() {
+    if (saving) {
+      return;
+    }
+
+    setDragging(false);
+    setEditing(false);
+    setSelected(false);
+    setSaveError(false);
+
+    setPlacement(
+      initialPlacement,
+    );
+
+    document.body.style.cursor =
+      "";
+  }
+
+
+  async function confirmPlacement() {
+    if (
+      !editing ||
+      saving
+    ) {
+      return;
+    }
 
     await savePlacement();
+
+    setDragging(false);
+    setEditing(false);
+    setSelected(false);
+
+    document.body.style.cursor =
+      "";
   }
 
 
@@ -378,8 +467,13 @@ function CommandHub({
       </mesh>
 
 
+      {editing && (
+        <PlacementGrid />
+      )}
+
+
       {/* Placement footprint */}
-      {dragging && (
+      {editing && (
         <mesh
           position={[
             world.x,
@@ -408,6 +502,41 @@ function CommandHub({
             color="#a950ff"
             transparent
             opacity={0.28}
+            depthWrite={false}
+          />
+        </mesh>
+      )}
+
+
+      {selected && (
+        <mesh
+          position={[
+            world.x,
+            0.07,
+            world.z,
+          ]}
+          rotation={[
+            -Math.PI / 2,
+            0,
+            0,
+          ]}
+        >
+          <ringGeometry
+            args={[
+              Math.max(width, depth) *
+                GRID_UNIT *
+                0.72,
+              Math.max(width, depth) *
+                GRID_UNIT *
+                0.82,
+              64,
+            ]}
+          />
+
+          <meshBasicMaterial
+            color="#c47cff"
+            transparent
+            opacity={0.82}
             depthWrite={false}
           />
         </mesh>
@@ -447,6 +576,68 @@ function CommandHub({
           }
         />
       </group>
+
+
+      {selected && (
+        <Html
+          position={[
+            world.x,
+            3.25,
+            world.z,
+          ]}
+          center
+          transform={false}
+          style={{
+            pointerEvents: "auto",
+          }}
+        >
+          <div
+            className="mars-placement-controls"
+            onPointerDown={(event) =>
+              event.stopPropagation()
+            }
+          >
+            {!editing ? (
+              <button
+                type="button"
+                className="mars-placement-controls__move"
+                onClick={beginMove}
+              >
+                MOVE
+              </button>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={rotateBuilding}
+                  disabled={saving}
+                >
+                  ROTATE
+                </button>
+
+                <button
+                  type="button"
+                  onClick={cancelPlacement}
+                  disabled={saving}
+                >
+                  CANCEL
+                </button>
+
+                <button
+                  type="button"
+                  className="mars-placement-controls__save"
+                  onClick={confirmPlacement}
+                  disabled={saving}
+                >
+                  {saving
+                    ? "SAVING..."
+                    : "SAVE"}
+                </button>
+              </>
+            )}
+          </div>
+        </Html>
+      )}
 
 
       {saveError && (
@@ -512,8 +703,6 @@ function ColonyScene({
         intensity={0.9}
         color="#884cff"
       />
-
-      <PlacementGrid />
 
       {commandHub && (
         <CommandHub
