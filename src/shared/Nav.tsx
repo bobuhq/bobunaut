@@ -22,7 +22,10 @@ import {
   WalletCards,
   X,
 } from "lucide-react";
-import { NavLink } from "react-router-dom";
+import {
+  NavLink,
+  useLocation,
+} from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { useAuthSession } from "../core/auth/useAuthSession";
 import { useBuilderStore } from "../features/identity/hooks/useBuilderStore";
@@ -91,6 +94,16 @@ const buboLogoUrl = `${baseUrl}images/bobu/logo.png`;
 const buboFallbackUrl = `${baseUrl}images/bobu/avatar.png`;
 
 export function Nav() {
+  const location = useLocation();
+
+  /*
+   * Mars is a dedicated gameplay surface.
+   * BOBU AI navigation entry stays outside the Mars game.
+   */
+  const isMarsGame =
+    location.pathname === "/mars" ||
+    location.pathname.startsWith("/mars/");
+
   const { session, loading } = useAuthSession();
   const {
     language,
@@ -1409,26 +1422,28 @@ export function Nav() {
             )}
           </div>
 
-          <button
-            type="button"
-            className="bobu-mobile-ai-card"
-            onClick={openBobuAI}
-          >
-            <span className="bobu-mobile-ai-icon">
-              <Bot size={21} />
-              <Sparkles size={12} />
-            </span>
+          {!isMarsGame && (
+            <button
+              type="button"
+              className="bobu-mobile-ai-card"
+              onClick={openBobuAI}
+            >
+              <span className="bobu-mobile-ai-icon">
+                <Bot size={21} />
+                <Sparkles size={12} />
+              </span>
 
-            <span className="bobu-mobile-ai-copy">
-              <strong>BOBU AI</strong>
-              <small>
-                Ask about GP, Mining, Wallet
-                and your Builder journey
-              </small>
-            </span>
+              <span className="bobu-mobile-ai-copy">
+                <strong>BOBU AI</strong>
+                <small>
+                  Ask about GP, Mining, Wallet
+                  and your Builder journey
+                </small>
+              </span>
 
-            <BadgeCheck size={19} />
-          </button>
+              <BadgeCheck size={19} />
+            </button>
+          )}
 
           <div className="bobu-mobile-account">
             <label
