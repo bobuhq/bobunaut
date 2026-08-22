@@ -795,12 +795,14 @@ function CommandHub({
 function InventoryBuildingPlacement({
   item,
   definition,
+  buildings,
   canManageColony,
   onCancel,
   onSaved,
 }: {
   item: MarsInventoryItem;
   definition: MarsColonyBaseBuilding;
+  buildings: MarsColonyBaseBuilding[];
   canManageColony: boolean;
   onCancel?: () => void;
   onSaved?: () => void | Promise<void>;
@@ -808,10 +810,115 @@ function InventoryBuildingPlacement({
   const [
     placement,
     setPlacement,
-  ] = useState<Placement>({
-    gridX: 4,
-    gridZ: 4,
-    rotationY: 0,
+  ] = useState<Placement>(() => {
+    const targetWidth = Math.max(
+      definition.footprint_width,
+      1,
+    );
+
+    const targetDepth = Math.max(
+      definition.footprint_depth,
+      1,
+    );
+
+    const occupied = buildings
+      .filter(
+        (building) =>
+          building.built &&
+          building.grid_x !== null &&
+          building.grid_z !== null,
+      )
+      .map((building) => {
+        const rotated =
+          building.rotation_y === 90 ||
+          building.rotation_y === 270;
+
+        const baseWidth = Math.max(
+          building.footprint_width,
+          1,
+        );
+
+        const baseDepth = Math.max(
+          building.footprint_depth,
+          1,
+        );
+
+        return {
+          x: building.grid_x as number,
+          z: building.grid_z as number,
+          width: rotated
+            ? baseDepth
+            : baseWidth,
+          depth: rotated
+            ? baseWidth
+            : baseDepth,
+        };
+      });
+
+    const overlaps = (
+      x: number,
+      z: number,
+    ) =>
+      occupied.some(
+        (other) =>
+          x < other.x + other.width &&
+          x + targetWidth > other.x &&
+          z < other.z + other.depth &&
+          z + targetDepth > other.z,
+      );
+
+    /*
+     * Search outward from Colony center.
+     * This only selects the initial preview position.
+     * Final collision authority remains the server RPC.
+     */
+    const candidates: Array<{
+      x: number;
+      z: number;
+      distance: number;
+    }> = [];
+
+    for (
+      let z = MAP_MIN;
+      z <= MAP_MAX - targetDepth + 1;
+      z += 1
+    ) {
+      for (
+        let x = MAP_MIN;
+        x <= MAP_MAX - targetWidth + 1;
+        x += 1
+      ) {
+        candidates.push({
+          x,
+          z,
+          distance:
+            Math.abs(x) +
+            Math.abs(z),
+        });
+      }
+    }
+
+    candidates.sort(
+      (a, b) =>
+        a.distance - b.distance ||
+        a.z - b.z ||
+        a.x - b.x,
+    );
+
+    const available =
+      candidates.find(
+        (candidate) =>
+          !overlaps(
+            candidate.x,
+            candidate.z,
+          ),
+      );
+
+    return {
+      gridX: available?.x ?? MAP_MIN,
+      gridZ: available?.z ?? MAP_MIN,
+      rotationY: 0,
+    };
   });
 
   const [
@@ -1216,6 +1323,122 @@ function InventoryBuildingPlacement({
 }
 
 
+
+function PersistentColonyBuilding({
+  building,
+}: {
+  building: MarsColonyBaseBuilding;
+}) {
+  if (
+    !building.built ||
+    building.building_key === "command_hub" ||
+    building.grid_x === null ||
+    building.grid_z === null
+  ) {
+    return null;
+  }
+
+  const baseWidth = Math.max(
+    building.footprint_width,
+    1,
+  );
+
+  const baseDepth = Math.max(
+    building.footprint_depth,
+    1,
+  );
+
+  const rotated =
+    building.rotation_y === 90 ||
+    building.rotation_y === 270;
+
+  const width =
+    rotated ? baseDepth : baseWidth;
+
+  const depth =
+    rotated ? baseWidth : baseDepth;
+
+  const world = placementToWorld(
+    building.grid_x,
+    building.grid_z,
+    width,
+    depth,
+  );
+
+  return (
+    <group
+      position={[
+        world.x,
+        0.24,
+        world.z,
+      ]}
+      rotation={[
+        0,
+        THREE.MathUtils.degToRad(
+          building.rotation_y,
+        ),
+        0,
+      ]}
+    >
+      <mesh
+        castShadow
+        receiveShadow
+      >
+        <boxGeometry
+          args={[
+            Math.max(
+              width *
+                GRID_UNIT *
+                0.72,
+              1,
+            ),
+            0.55,
+            Math.max(
+              depth *
+                GRID_UNIT *
+                0.72,
+              1,
+            ),
+          ]}
+        />
+
+        <meshStandardMaterial
+          color="#a866d8"
+          roughness={0.62}
+          metalness={0.28}
+        />
+      </mesh>
+
+      <Html
+        position={[0, 1.05, 0]}
+        center
+        transform={false}
+        style={{
+          pointerEvents: "none",
+        }}
+      >
+        <div
+          style={{
+            padding: "5px 8px",
+            borderRadius: "7px",
+            background:
+              "rgba(12, 8, 20, 0.82)",
+            border:
+              "1px solid rgba(210, 140, 255, 0.35)",
+            color: "#f2e8ff",
+            fontSize: "9px",
+            fontWeight: 800,
+            letterSpacing: "0.08em",
+            whiteSpace: "nowrap",
+          }}
+        >
+          {building.building_name}
+        </div>
+      </Html>
+    </group>
+  );
+}
+
 function ColonyScene({
   buildings,
   canManageColony,
@@ -1286,6 +1509,20 @@ function ColonyScene({
         />
       )}
 
+      {buildings
+        .filter(
+          (building) =>
+            building.built &&
+            building.building_key !==
+              "command_hub",
+        )
+        .map((building) => (
+          <PersistentColonyBuilding
+            key={building.building_key}
+            building={building}
+          />
+        ))}
+
       {inventoryPlacementItem &&
         inventoryBuildingDefinition &&
         !inventoryBuildingDefinition.built && (
@@ -1299,6 +1536,7 @@ function ColonyScene({
             definition={
               inventoryBuildingDefinition
             }
+            buildings={buildings}
             canManageColony={
               canManageColony
             }
