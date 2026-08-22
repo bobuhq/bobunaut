@@ -214,6 +214,31 @@ function CommandHub({
     setEditing,
   ] = useState(false);
 
+  /*
+   * Colony management permission can arrive after the first
+   * React render.
+   *
+   * useState(canManageColony) only reads the initial value,
+   * so synchronize selection when the authoritative
+   * permission becomes available.
+   *
+   * This makes MOVE visible immediately without requiring
+   * mouse, wheel or building interaction.
+   */
+  useEffect(() => {
+    if (!canManageColony) {
+      setSelected(false);
+      return;
+    }
+
+    if (!editing) {
+      setSelected(true);
+    }
+  }, [
+    canManageColony,
+    editing,
+  ]);
+
   const [
     saving,
     setSaving,
