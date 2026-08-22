@@ -1323,46 +1323,176 @@
 }
 
 /* ---------------------------------------------------------
-   COMMAND HUB — central illuminated control dome
+   COMMAND HUB — BOBU ARMORED OPERATIONS CORE
+   Low, wide, industrial. No dome / temple silhouette.
    --------------------------------------------------------- */
 
 .mars-territory--workspace
 .mars-base-building-command_hub
 .mars-base-building-body {
-  top: 29px;
-  width: 104px;
-  height: 70px;
-  border-radius: 54px 54px 17px 17px !important;
+  top: 56px;
+  width: 142px;
+  height: 62px;
+  border-radius: 15px !important;
+  clip-path:
+    polygon(
+      10% 0,
+      90% 0,
+      100% 24%,
+      94% 82%,
+      80% 100%,
+      20% 100%,
+      6% 82%,
+      0 24%
+    );
+
   background:
-    radial-gradient(
-      circle at 43% 24%,
-      rgba(230, 247, 255, 0.98),
-      rgba(92, 152, 205, 0.96) 24%,
-      rgba(37, 60, 83, 0.98) 58%,
-      rgba(13, 21, 31, 1) 84%
+    linear-gradient(
+      180deg,
+      rgba(184, 198, 218, 0.98) 0%,
+      rgba(78, 94, 117, 0.98) 25%,
+      rgba(35, 45, 61, 1) 58%,
+      rgba(15, 21, 30, 1) 100%
     ) !important;
+
   box-shadow:
-    inset 0 2px 8px rgba(255, 255, 255, 0.5),
-    0 0 19px rgba(91, 178, 255, 0.4),
-    0 10px 22px rgba(0, 0, 0, 0.55);
+    inset 0 2px 4px rgba(255, 255, 255, 0.38),
+    inset 0 -14px 22px rgba(0, 0, 0, 0.42),
+    0 0 18px rgba(72, 168, 255, 0.28),
+    0 12px 24px rgba(0, 0, 0, 0.58);
+}
+
+/* Central armored command core */
+.mars-territory--workspace
+.mars-base-building-command_hub
+.mars-base-building-body::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 10px;
+  width: 52px;
+  height: 42px;
+  transform: translateX(-50%);
+  border:
+    1px solid rgba(143, 203, 255, 0.54);
+  clip-path:
+    polygon(
+      18% 0,
+      82% 0,
+      100% 25%,
+      86% 100%,
+      14% 100%,
+      0 25%
+    );
+  background:
+    linear-gradient(
+      145deg,
+      #91a9c2 0%,
+      #405978 40%,
+      #1b2a3d 100%
+    );
+  box-shadow:
+    inset 0 0 11px rgba(122, 199, 255, 0.18),
+    0 0 12px rgba(60, 157, 255, 0.24);
+}
+
+/* Main horizontal BOBU light strip */
+.mars-territory--workspace
+.mars-base-building-command_hub
+.mars-base-building-body::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 12px;
+  width: 92px;
+  height: 4px;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      #6ac8ff 16%,
+      #eaf8ff 50%,
+      #6ac8ff 84%,
+      transparent
+    );
+  box-shadow:
+    0 0 8px rgba(91, 196, 255, 0.96),
+    0 0 18px rgba(49, 135, 255, 0.44);
+}
+
+/* Side industrial modules */
+.mars-territory--workspace
+.mars-base-building-command_hub
+.mars-base-building-aux {
+  top: 71px;
+  width: 55px;
+  height: 42px;
+  border-radius: 7px;
+  border:
+    1px solid rgba(175, 199, 227, 0.3);
+  background:
+    linear-gradient(
+      155deg,
+      #70849d,
+      #34455d 46%,
+      #182231
+    );
+  box-shadow:
+    inset 0 1px 3px rgba(255,255,255,0.23),
+    0 8px 15px rgba(0, 0, 0, 0.4);
 }
 
 .mars-territory--workspace
 .mars-base-building-command_hub
+.mars-base-building-aux--a {
+  left: 24px;
+  transform: rotate(-4deg);
+}
+
+.mars-territory--workspace
+.mars-base-building-command_hub
+.mars-base-building-aux--b {
+  right: 24px;
+  transform: rotate(4deg);
+}
+
+/* Short communications mast — intentionally NOT tower-like */
+.mars-territory--workspace
+.mars-base-building-command_hub
 .mars-base-building-core {
-  top: 19px;
-  width: 13px;
-  height: 56px;
-  border-radius: 9px 9px 3px 3px;
+  top: 25px;
+  width: 12px;
+  height: 41px;
+  border-radius: 4px 4px 2px 2px;
   background:
     linear-gradient(
       90deg,
-      #24354b,
-      #e4f3ff 46%,
-      #506b8d
+      #30445c,
+      #d9ebfa 47%,
+      #4f6784
     );
   box-shadow:
-    0 0 9px rgba(123, 199, 255, 0.68);
+    0 0 8px rgba(111, 193, 255, 0.58);
+}
+
+.mars-territory--workspace
+.mars-base-building-command_hub
+.mars-base-building-core::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -8px;
+  width: 28px;
+  height: 8px;
+  transform: translateX(-50%);
+  border:
+    1px solid rgba(137, 200, 255, 0.42);
+  border-radius: 50%;
+  background: rgba(30, 58, 83, 0.92);
+  box-shadow:
+    0 0 10px rgba(80, 179, 255, 0.28);
 }
 
 .mars-territory--workspace
@@ -1370,19 +1500,23 @@
 .mars-base-building-core::after {
   content: "";
   position: absolute;
-  top: -19px;
+  top: -17px;
   left: 50%;
-  width: 3px;
-  height: 24px;
+  width: 2px;
+  height: 11px;
   transform: translateX(-50%);
-  background:
-    linear-gradient(
-      to top,
-      #8dcbff,
-      rgba(154, 213, 255, 0)
-    );
+  background: #8cd4ff;
   box-shadow:
-    0 0 10px #6ec4ff;
+    0 0 7px #63bfff;
+}
+
+/* Remove old vertical light treatment */
+.mars-territory--workspace
+.mars-base-building-command_hub
+.mars-base-building-light {
+  top: 98px !important;
+  width: 96px !important;
+  height: 3px !important;
 }
 
 /* ---------------------------------------------------------
@@ -1869,135 +2003,55 @@
    ========================================================= */
 
 /* ---------------------------------------------------------
-   COMMAND HUB — stronger visual presence on the Mars field
+   COMMAND HUB — workspace scale
    --------------------------------------------------------- */
 
 .mars-territory--workspace
 .mars-base-building-command_hub {
-  width: 300px !important;
+  width: 320px !important;
   z-index: 14;
 }
 
 .mars-territory--workspace
 .mars-base-building-command_hub
 .mars-base-building-visual {
-  width: 270px;
-  height: 190px;
+  width: 290px;
+  height: 175px;
 }
 
 .mars-territory--workspace
 .mars-base-building-command_hub
 .mars-base-building-pad {
-  bottom: 23px;
-  width: 188px;
+  bottom: 20px;
+  width: 225px;
   height: 76px;
-  border-color: rgba(114, 196, 255, 0.26);
+  border-color: rgba(114, 196, 255, 0.24);
   background:
     radial-gradient(
       ellipse at center,
-      rgba(39, 70, 94, 0.34) 0%,
-      rgba(23, 31, 39, 0.42) 42%,
-      rgba(20, 13, 12, 0.65) 68%,
+      rgba(31, 65, 89, 0.34) 0%,
+      rgba(21, 29, 38, 0.46) 45%,
+      rgba(18, 12, 12, 0.65) 68%,
       transparent 76%
     );
   box-shadow:
-    inset 0 0 28px rgba(37, 132, 214, 0.16),
-    0 0 25px rgba(65, 160, 245, 0.12),
+    inset 0 0 28px rgba(37, 132, 214, 0.15),
+    0 0 24px rgba(65, 160, 245, 0.11),
     0 11px 26px rgba(0, 0, 0, 0.5);
 }
 
 .mars-territory--workspace
 .mars-base-building-command_hub
-.mars-base-building-body {
-  top: 37px;
-  width: 146px;
-  height: 96px;
-  border-radius: 76px 76px 21px 21px !important;
-  box-shadow:
-    inset 0 3px 11px rgba(255, 255, 255, 0.52),
-    inset 0 -22px 30px rgba(5, 15, 27, 0.36),
-    0 0 26px rgba(91, 178, 255, 0.54),
-    0 0 48px rgba(54, 132, 224, 0.16),
-    0 15px 29px rgba(0, 0, 0, 0.6);
-}
-
-.mars-territory--workspace
-.mars-base-building-command_hub
-.mars-base-building-aux {
-  top: 88px;
-  width: 48px;
-  height: 35px;
-  border-radius: 9px;
-}
-
-.mars-territory--workspace
-.mars-base-building-command_hub
-.mars-base-building-aux--a {
-  left: 34px;
-}
-
-.mars-territory--workspace
-.mars-base-building-command_hub
-.mars-base-building-aux--b {
-  right: 34px;
-}
-
-.mars-territory--workspace
-.mars-base-building-command_hub
-.mars-base-building-core {
-  top: 22px;
-  width: 17px;
-  height: 83px;
-  border-radius: 10px 10px 4px 4px;
-}
-
-.mars-territory--workspace
-.mars-base-building-command_hub
-.mars-base-building-core::after {
-  top: -28px;
-  width: 4px;
-  height: 34px;
-  box-shadow:
-    0 0 11px #6ec4ff,
-    0 0 25px rgba(78, 170, 255, 0.72);
-}
-
-.mars-territory--workspace
-.mars-base-building-command_hub
-.mars-base-building-light {
-  top: 111px !important;
-  width: 75px !important;
-  height: 5px !important;
-}
-
-.mars-territory--workspace
-.mars-base-building-command_hub
 .mars-base-building-level {
-  top: 10px;
-  padding: 4px 8px;
-  font-size: 0.58rem;
+  top: 11px;
 }
 
 .mars-territory--workspace
 .mars-base-building-command_hub
 .mars-base-building-label {
-  bottom: -5px;
+  bottom: -7px;
   min-width: 145px;
-  padding: 6px 11px;
 }
-
-.mars-territory--workspace
-.mars-base-building-command_hub
-.mars-base-building-label strong {
-  font-size: 0.64rem;
-}
-
-.mars-territory--workspace
-.mars-base-building-command_hub
-.mars-base-building-label small {
-  font-size: 0.49rem;
-}
-
 
 /* ---------------------------------------------------------
    UNBUILT STRUCTURES
@@ -2229,6 +2283,238 @@
   .mars-territory--workspace
   .mars-base-building-ghost
   .mars-base-building-visual::after {
+    animation: none !important;
+  }
+}
+
+/* =========================================================
+   BOBU MARS — COMMAND HUB PURPLE LIVING CORE V1
+   Living BOBU energy inside the Command Hub.
+   ========================================================= */
+
+/* Inner armored core becomes BOBU purple */
+.mars-territory--workspace
+.mars-base-building-command_hub
+.mars-base-building-body::before {
+  border-color: rgba(205, 139, 255, 0.72);
+
+  background:
+    radial-gradient(
+      circle at 50% 58%,
+      rgba(244, 211, 255, 0.96) 0%,
+      rgba(199, 102, 255, 0.88) 13%,
+      rgba(127, 49, 219, 0.72) 32%,
+      rgba(55, 35, 88, 0.88) 58%,
+      rgba(22, 27, 40, 1) 82%
+    );
+
+  box-shadow:
+    inset 0 0 10px rgba(244, 214, 255, 0.44),
+    inset 0 0 24px rgba(163, 67, 255, 0.32),
+    0 0 10px rgba(188, 91, 255, 0.55),
+    0 0 28px rgba(142, 51, 255, 0.30);
+
+  animation:
+    bobu-command-core-live
+    2.35s
+    ease-in-out
+    infinite;
+}
+
+/* Horizontal energy window */
+.mars-territory--workspace
+.mars-base-building-command_hub
+.mars-base-building-body::after {
+  background:
+    linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(152, 66, 255, 0.25) 8%,
+      #b85cff 25%,
+      #f2c7ff 50%,
+      #b85cff 75%,
+      rgba(152, 66, 255, 0.25) 92%,
+      transparent 100%
+    );
+
+  box-shadow:
+    0 0 7px rgba(226, 174, 255, 0.95),
+    0 0 15px rgba(185, 77, 255, 0.80),
+    0 0 30px rgba(128, 48, 255, 0.44);
+
+  animation:
+    bobu-command-window-live
+    1.85s
+    ease-in-out
+    infinite;
+}
+
+/* Purple glow leaking underneath the structure */
+.mars-territory--workspace
+.mars-base-building-command_hub
+.mars-base-building-pad {
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(188, 74, 255, 0.26) 0%,
+      rgba(111, 48, 184, 0.17) 26%,
+      rgba(31, 34, 47, 0.40) 53%,
+      rgba(18, 12, 12, 0.66) 70%,
+      transparent 78%
+    );
+
+  box-shadow:
+    inset 0 0 30px rgba(181, 73, 255, 0.18),
+    0 0 18px rgba(164, 62, 255, 0.17),
+    0 13px 27px rgba(0, 0, 0, 0.52);
+}
+
+/* Small BOBU energy pulses in side modules */
+.mars-territory--workspace
+.mars-base-building-command_hub
+.mars-base-building-aux {
+  border-color: rgba(186, 132, 255, 0.38);
+
+  box-shadow:
+    inset 0 1px 3px rgba(255, 255, 255, 0.20),
+    inset 0 -4px 9px rgba(128, 50, 210, 0.15),
+    0 0 8px rgba(166, 74, 255, 0.18),
+    0 8px 15px rgba(0, 0, 0, 0.42);
+
+  animation:
+    bobu-command-module-live
+    3.1s
+    ease-in-out
+    infinite;
+}
+
+.mars-territory--workspace
+.mars-base-building-command_hub
+.mars-base-building-aux--b {
+  animation-delay: -1.55s;
+}
+
+/* Keep communications mast metallic.
+   Only its transmitter tip carries purple BOBU energy. */
+.mars-territory--workspace
+.mars-base-building-command_hub
+.mars-base-building-core::after {
+  background: #e7b7ff;
+
+  box-shadow:
+    0 0 6px #e1a4ff,
+    0 0 13px rgba(192, 87, 255, 0.92),
+    0 0 25px rgba(137, 50, 255, 0.55);
+
+  animation:
+    bobu-command-beacon
+    1.4s
+    ease-in-out
+    infinite;
+}
+
+
+/* ---------------------------------------------------------
+   LIVING ENERGY ANIMATIONS
+   Not hard flashing — slow organic pulse.
+   --------------------------------------------------------- */
+
+@keyframes bobu-command-core-live {
+  0%,
+  100% {
+    filter:
+      brightness(0.78)
+      saturate(1.05);
+
+    box-shadow:
+      inset 0 0 8px rgba(235, 194, 255, 0.30),
+      inset 0 0 18px rgba(145, 56, 235, 0.22),
+      0 0 8px rgba(177, 77, 255, 0.38),
+      0 0 18px rgba(127, 43, 238, 0.18);
+  }
+
+  45% {
+    filter:
+      brightness(1.34)
+      saturate(1.32);
+
+    box-shadow:
+      inset 0 0 14px rgba(255, 230, 255, 0.62),
+      inset 0 0 31px rgba(184, 74, 255, 0.48),
+      0 0 16px rgba(212, 126, 255, 0.82),
+      0 0 42px rgba(145, 49, 255, 0.42);
+  }
+
+  58% {
+    filter:
+      brightness(1.08)
+      saturate(1.22);
+  }
+}
+
+@keyframes bobu-command-window-live {
+  0%,
+  100% {
+    opacity: 0.55;
+    filter: brightness(0.82);
+  }
+
+  48% {
+    opacity: 1;
+    filter: brightness(1.48);
+  }
+
+  62% {
+    opacity: 0.78;
+    filter: brightness(1.12);
+  }
+}
+
+@keyframes bobu-command-module-live {
+  0%,
+  100% {
+    filter: brightness(0.88);
+  }
+
+  50% {
+    filter:
+      brightness(1.15)
+      drop-shadow(
+        0 0 6px
+        rgba(179, 82, 255, 0.32)
+      );
+  }
+}
+
+@keyframes bobu-command-beacon {
+  0%,
+  100% {
+    opacity: 0.48;
+    filter: brightness(0.8);
+  }
+
+  50% {
+    opacity: 1;
+    filter: brightness(1.65);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mars-territory--workspace
+  .mars-base-building-command_hub
+  .mars-base-building-body::before,
+
+  .mars-territory--workspace
+  .mars-base-building-command_hub
+  .mars-base-building-body::after,
+
+  .mars-territory--workspace
+  .mars-base-building-command_hub
+  .mars-base-building-aux,
+
+  .mars-territory--workspace
+  .mars-base-building-command_hub
+  .mars-base-building-core::after {
     animation: none !important;
   }
 }
