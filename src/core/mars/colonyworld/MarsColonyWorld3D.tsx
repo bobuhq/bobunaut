@@ -32,6 +32,16 @@ import {
 } from "../MarsMarketService";
 
 import {
+  createVerifiedMarsBuildingInstances,
+  marsGridToWorld,
+  marsWorldToGrid,
+  MARS_GRID_MAX,
+  MARS_GRID_MIN,
+  MARS_GRID_UNIT,
+  validateMarsPlacement,
+} from "./engine";
+
+import {
   MarsCommandHubModel,
 } from "../MarsCommandHub3D";
 
@@ -57,88 +67,18 @@ type Placement = {
   rotationY: MarsColonyRotation;
 };
 
+type MarsPhysicalBuildings =
+  ReturnType<
+    typeof createVerifiedMarsBuildingInstances
+  >;
 
-const GRID_UNIT = 1.35;
-
-const MAP_MIN = -12;
-const MAP_MAX = 12;
-
-
-function clampPlacement(
-  value: number,
-  footprintSize: number,
-) {
-  return THREE.MathUtils.clamp(
-    value,
-    MAP_MIN,
-    MAP_MAX - footprintSize + 1,
-  );
-}
-
-
-function placementToWorld(
-  gridX: number,
-  gridZ: number,
-  footprintWidth: number,
-  footprintDepth: number,
-) {
-  return {
-    x:
-      (
-        gridX +
-        (footprintWidth - 1) / 2
-      ) *
-      GRID_UNIT,
-
-    z:
-      (
-        gridZ +
-        (footprintDepth - 1) / 2
-      ) *
-      GRID_UNIT,
-  };
-}
-
-
-function worldToPlacement(
-  x: number,
-  z: number,
-  footprintWidth: number,
-  footprintDepth: number,
-) {
-  const rawX =
-    Math.round(
-      x / GRID_UNIT -
-      (footprintWidth - 1) / 2,
-    );
-
-  const rawZ =
-    Math.round(
-      z / GRID_UNIT -
-      (footprintDepth - 1) / 2,
-    );
-
-  return {
-    gridX:
-      clampPlacement(
-        rawX,
-        footprintWidth,
-      ),
-
-    gridZ:
-      clampPlacement(
-        rawZ,
-        footprintDepth,
-      ),
-  };
-}
 
 
 function PlacementGrid() {
   return (
     <gridHelper
       args={[
-        25 * GRID_UNIT,
+        25 * MARS_GRID_UNIT,
         25,
         new THREE.Color("#aa74df"),
         new THREE.Color("#754e67"),
@@ -261,7 +201,7 @@ function CommandHub({
 
 
   const world =
-    placementToWorld(
+    marsGridToWorld(
       placement.gridX,
       placement.gridZ,
       width,
@@ -379,7 +319,7 @@ function CommandHub({
     event.stopPropagation();
 
     const next =
-      worldToPlacement(
+      marsWorldToGrid(
         event.point.x,
         event.point.z,
         width,
@@ -567,11 +507,11 @@ function CommandHub({
           <planeGeometry
             args={[
               width *
-                GRID_UNIT *
+                MARS_GRID_UNIT *
                 0.96,
 
               depth *
-                GRID_UNIT *
+                MARS_GRID_UNIT *
                 0.96,
             ]}
           />
@@ -602,10 +542,10 @@ function CommandHub({
           <ringGeometry
             args={[
               Math.max(width, depth) *
-                GRID_UNIT *
+                MARS_GRID_UNIT *
                 0.72,
               Math.max(width, depth) *
-                GRID_UNIT *
+                MARS_GRID_UNIT *
                 0.82,
               64,
             ]}
@@ -643,10 +583,10 @@ function CommandHub({
           <cylinderGeometry
             args={[
               Math.max(width, depth) *
-                GRID_UNIT *
+                MARS_GRID_UNIT *
                 0.54,
               Math.max(width, depth) *
-                GRID_UNIT *
+                MARS_GRID_UNIT *
                 0.54,
               2.25,
               32,
@@ -792,14 +732,14 @@ function CommandHub({
 function InventoryBuildingPlacement({
   item,
   definition,
-  buildings,
+  physicalBuildings,
   canManageColony,
   onCancel,
   onSaved,
 }: {
   item: MarsInventoryItem;
   definition: MarsColonyBaseBuilding;
-  buildings: MarsColonyBaseBuilding[];
+  physicalBuildings: MarsPhysicalBuildings;
   canManageColony: boolean;
   onCancel?: () => void;
   onSaved?: () => void | Promise<void>;
@@ -818,79 +758,40 @@ function InventoryBuildingPlacement({
       1,
     );
 
-    const occupied = buildings
-      .filter(
-        (building) =>
-          building.built &&
-          building.grid_x !== null &&
-          building.grid_z !== null,
-      )
-      .map((building) => {
-        const rotated =
-          building.rotation_y === 90 ||
-          building.rotation_y === 270;
-
-        const baseWidth = Math.max(
-          building.footprint_width,
-          1,
-        );
-
-        const baseDepth = Math.max(
-          building.footprint_depth,
-          1,
-        );
-
-        return {
-          x: building.grid_x as number,
-          z: building.grid_z as number,
-          width: rotated
-            ? baseDepth
-            : baseWidth,
-          depth: rotated
-            ? baseWidth
-            : baseDepth,
-        };
-      });
-
-    const overlaps = (
-      x: number,
-      z: number,
-    ) =>
-      occupied.some(
-        (other) =>
-          x < other.x + other.width &&
-          x + targetWidth > other.x &&
-          z < other.z + other.depth &&
-          z + targetDepth > other.z,
-      );
-
     /*
-     * Search outward from Colony center.
-     * This only selects the initial preview position.
-     * Final collision authority remains the server RPC.
+     * Mars Placement Engine V3 initial position search.
+     *
+     * Search every legal top-left grid cell, ordered from
+     * Colony center outward.
+     *
+     * The SAME V3 validator used by drag preview decides
+     * whether a candidate is available.
      */
     const candidates: Array<{
-      x: number;
-      z: number;
+      gridX: number;
+      gridZ: number;
       distance: number;
     }> = [];
 
     for (
-      let z = MAP_MIN;
-      z <= MAP_MAX - targetDepth + 1;
-      z += 1
+      let gridZ = MARS_GRID_MIN;
+      gridZ <=
+      MARS_GRID_MAX - targetDepth + 1;
+      gridZ += 1
     ) {
       for (
-        let x = MAP_MIN;
-        x <= MAP_MAX - targetWidth + 1;
-        x += 1
+        let gridX = MARS_GRID_MIN;
+        gridX <=
+        MARS_GRID_MAX - targetWidth + 1;
+        gridX += 1
       ) {
         candidates.push({
-          x,
-          z,
+          gridX,
+          gridZ,
+
           distance:
-            Math.abs(x) +
-            Math.abs(z),
+            Math.abs(gridX) +
+            Math.abs(gridZ),
         });
       }
     }
@@ -898,22 +799,48 @@ function InventoryBuildingPlacement({
     candidates.sort(
       (a, b) =>
         a.distance - b.distance ||
-        a.z - b.z ||
-        a.x - b.x,
+        a.gridZ - b.gridZ ||
+        a.gridX - b.gridX,
     );
 
     const available =
       candidates.find(
         (candidate) =>
-          !overlaps(
-            candidate.x,
-            candidate.z,
-          ),
+          validateMarsPlacement(
+            {
+              buildingId: null,
+
+              buildingKey:
+                definition.building_key,
+
+              gridX:
+                candidate.gridX,
+
+              gridZ:
+                candidate.gridZ,
+
+              rotationY: 0,
+
+              footprintWidth:
+                targetWidth,
+
+              footprintDepth:
+                targetDepth,
+            },
+
+            physicalBuildings,
+          ).valid,
       );
 
     return {
-      gridX: available?.x ?? MAP_MIN,
-      gridZ: available?.z ?? MAP_MIN,
+      gridX:
+        available?.gridX ??
+        MARS_GRID_MIN,
+
+      gridZ:
+        available?.gridZ ??
+        MARS_GRID_MIN,
+
       rotationY: 0,
     };
   });
@@ -960,11 +887,40 @@ function InventoryBuildingPlacement({
       : baseDepth;
 
   const world =
-    placementToWorld(
+    marsGridToWorld(
       placement.gridX,
       placement.gridZ,
       width,
       depth,
+    );
+
+  /*
+   * Immediate client-side validation.
+   *
+   * This is UX validation only.
+   * Supabase remains the final server-authoritative validator.
+   *
+   * buildingId is NULL because inventory placement creates
+   * a brand-new physical building instance.
+   */
+  const validation =
+    validateMarsPlacement(
+      {
+        buildingId: null,
+        buildingKey:
+          definition.building_key,
+        gridX:
+          placement.gridX,
+        gridZ:
+          placement.gridZ,
+        rotationY:
+          placement.rotationY,
+        footprintWidth:
+          definition.footprint_width,
+        footprintDepth:
+          definition.footprint_depth,
+      },
+      physicalBuildings,
     );
 
   function handlePointerDown(
@@ -1000,7 +956,7 @@ function InventoryBuildingPlacement({
     event.stopPropagation();
 
     const next =
-      worldToPlacement(
+      marsWorldToGrid(
         event.point.x,
         event.point.z,
         width,
@@ -1068,6 +1024,17 @@ function InventoryBuildingPlacement({
       saving ||
       !canManageColony
     ) {
+      return;
+    }
+
+    /*
+     * Reject locally invalid placement before RPC.
+     *
+     * This does NOT replace server validation.
+     * Server remains authoritative.
+     */
+    if (!validation.valid) {
+      setSaveError(true);
       return;
     }
 
@@ -1164,23 +1131,25 @@ function InventoryBuildingPlacement({
         <planeGeometry
           args={[
             width *
-              GRID_UNIT *
+              MARS_GRID_UNIT *
               0.96,
 
             depth *
-              GRID_UNIT *
+              MARS_GRID_UNIT *
               0.96,
           ]}
         />
 
         <meshBasicMaterial
           color={
+            !validation.valid ||
             saveError
               ? "#ff334f"
               : "#d28cff"
           }
           transparent
           opacity={
+            !validation.valid ||
             saveError
               ? 0.44
               : 0.32
@@ -1219,14 +1188,14 @@ function InventoryBuildingPlacement({
             args={[
               Math.max(
                 width *
-                  GRID_UNIT *
+                  MARS_GRID_UNIT *
                   0.72,
                 1,
               ),
               0.55,
               Math.max(
                 depth *
-                  GRID_UNIT *
+                  MARS_GRID_UNIT *
                   0.72,
                 1,
               ),
@@ -1294,7 +1263,10 @@ function InventoryBuildingPlacement({
             onClick={() =>
               void confirmPlacement()
             }
-            disabled={saving}
+            disabled={
+              saving ||
+              !validation.valid
+            }
           >
             {saving
               ? "SAVING..."
@@ -1323,12 +1295,14 @@ function InventoryBuildingPlacement({
 
 function PersistentColonyBuilding({
   building,
+  physicalBuildings,
   canManageColony,
   selected,
   onSelect,
   onDeselect,
 }: {
   building: MarsColonyBaseBuilding;
+  physicalBuildings: MarsPhysicalBuildings;
   canManageColony: boolean;
   selected: boolean;
   onSelect: () => void;
@@ -1429,12 +1403,46 @@ function PersistentColonyBuilding({
       ? baseWidth
       : baseDepth;
 
-  const world = placementToWorld(
+  const world = marsGridToWorld(
     placement.gridX,
     placement.gridZ,
     width,
     depth,
   );
+
+  /*
+   * V3 MOVE validation.
+   *
+   * The moving building excludes itself from occupancy by
+   * physical buildingId.
+   */
+  const validation =
+    validateMarsPlacement(
+      {
+        buildingId:
+          building.building_id,
+
+        buildingKey:
+          building.building_key,
+
+        gridX:
+          placement.gridX,
+
+        gridZ:
+          placement.gridZ,
+
+        rotationY:
+          placement.rotationY,
+
+        footprintWidth:
+          baseWidth,
+
+        footprintDepth:
+          baseDepth,
+      },
+
+      physicalBuildings,
+    );
 
 
   function handlePointerDown(
@@ -1479,7 +1487,7 @@ function PersistentColonyBuilding({
     event.stopPropagation();
 
     const next =
-      worldToPlacement(
+      marsWorldToGrid(
         event.point.x,
         event.point.z,
         width,
@@ -1574,6 +1582,11 @@ function PersistentColonyBuilding({
       return;
     }
 
+    if (!validation.valid) {
+      setSaveError(true);
+      return;
+    }
+
     setSaving(true);
     setSaveError(false);
 
@@ -1621,7 +1634,49 @@ function PersistentColonyBuilding({
   return (
     <>
       {editing && (
-        <PlacementGrid />
+        <>
+          <PlacementGrid />
+
+          <mesh
+            position={[
+              world.x,
+              0.065,
+              world.z,
+            ]}
+            rotation={[
+              -Math.PI / 2,
+              0,
+              0,
+            ]}
+          >
+            <planeGeometry
+              args={[
+                width *
+                  MARS_GRID_UNIT *
+                  0.96,
+
+                depth *
+                  MARS_GRID_UNIT *
+                  0.96,
+              ]}
+            />
+
+            <meshBasicMaterial
+              color={
+                validation.valid
+                  ? "#68d9ff"
+                  : "#ff334f"
+              }
+              transparent
+              opacity={
+                validation.valid
+                  ? 0.28
+                  : 0.45
+              }
+              depthWrite={false}
+            />
+          </mesh>
+        </>
       )}
 
       <Html
@@ -1705,14 +1760,14 @@ function PersistentColonyBuilding({
             args={[
               Math.max(
                 width *
-                  GRID_UNIT *
+                  MARS_GRID_UNIT *
                   0.72,
                 1,
               ),
               0.55,
               Math.max(
                 depth *
-                  GRID_UNIT *
+                  MARS_GRID_UNIT *
                   0.72,
                 1,
               ),
@@ -1814,7 +1869,10 @@ function PersistentColonyBuilding({
 
                   <button
                     type="button"
-                    disabled={saving}
+                    disabled={
+                      saving ||
+                      !validation.valid
+                    }
                     onClick={(event) => {
                       event.stopPropagation();
                       void saveMove();
@@ -1863,6 +1921,21 @@ function ColonyScene({
     selectedBuildingId,
     setSelectedBuildingId,
   ] = useState<string | null>(null);
+
+  /*
+   * One verified V3 physical snapshot for the whole scene.
+   *
+   * All placement systems read the exact same building
+   * instances and occupancy source.
+   */
+  const physicalBuildings =
+    useMemo(
+      () =>
+        createVerifiedMarsBuildingInstances(
+          buildings,
+        ),
+      [buildings],
+    );
 
   const commandHub =
     buildings.find(
@@ -1987,6 +2060,9 @@ function ColonyScene({
               `catalog:${building.building_key}`
             }
             building={building}
+            physicalBuildings={
+              physicalBuildings
+            }
             canManageColony={
               canManageColony
             }
@@ -2019,7 +2095,9 @@ function ColonyScene({
             definition={
               inventoryBuildingDefinition
             }
-            buildings={buildings}
+            physicalBuildings={
+              physicalBuildings
+            }
             canManageColony={
               canManageColony
             }
