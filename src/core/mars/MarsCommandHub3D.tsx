@@ -72,17 +72,18 @@ function CrystalCore() {
 
         <meshPhysicalMaterial
           ref={outerMaterial}
-          color="#c887ff"
-          emissive="#7d22db"
-          emissiveIntensity={1.4}
-          transmission={0.42}
-          thickness={0.45}
-          roughness={0.06}
-          metalness={0}
+          color="#e0adff"
+          emissive="#9e31ff"
+          emissiveIntensity={2.3}
+          transmission={0.08}
+          thickness={0.25}
+          roughness={0.04}
+          metalness={0.02}
           transparent
-          opacity={0.82}
+          opacity={0.92}
           clearcoat={1}
-          clearcoatRoughness={0.05}
+          clearcoatRoughness={0.02}
+          flatShading
           side={THREE.DoubleSide}
         />
       </mesh>
@@ -265,7 +266,7 @@ function CommandHubLevelOne() {
         />
       </mesh>
 
-      {/* glass dome */}
+      {/* faceted BOBU crystal-glass dome */}
 
       <mesh
         position={[0, 0.88, 0]}
@@ -274,8 +275,8 @@ function CommandHubLevelOne() {
         <sphereGeometry
           args={[
             2.05,
-            32,
             18,
+            10,
             0,
             Math.PI * 2,
             0,
@@ -284,19 +285,50 @@ function CommandHubLevelOne() {
         />
 
         <meshPhysicalMaterial
-          color="#b76bff"
-          transmission={0.58}
-          thickness={0.7}
-          roughness={0.07}
-          metalness={0}
+          color="#d7a0ff"
+          transmission={0.12}
+          thickness={0.32}
+          roughness={0.08}
+          metalness={0.02}
           transparent
-          opacity={0.62}
+          opacity={0.48}
+          depthWrite={false}
           clearcoat={1}
-          clearcoatRoughness={0.03}
-          ior={1.42}
-          emissive="#6b169f"
-          emissiveIntensity={0.75}
+          clearcoatRoughness={0.02}
+          ior={1.46}
+          emissive="#7d20c9"
+          emissiveIntensity={1.45}
+          flatShading
           side={THREE.DoubleSide}
+        />
+      </mesh>
+
+      {/* crystal facet light grid */}
+
+      <mesh
+        position={[0, 0.885, 0]}
+      >
+        <sphereGeometry
+          args={[
+            2.065,
+            18,
+            10,
+            0,
+            Math.PI * 2,
+            0,
+            Math.PI / 2,
+          ]}
+        />
+
+        <meshStandardMaterial
+          color="#efc8ff"
+          emissive="#a63fff"
+          emissiveIntensity={2.15}
+          transparent
+          opacity={0.34}
+          wireframe
+          depthWrite={false}
+          roughness={0.08}
         />
       </mesh>
 
@@ -678,9 +710,17 @@ function CommandHubLevelOne() {
 
       <pointLight
         position={[0, 1.45, 0]}
-        color="#ae3cff"
-        intensity={8}
-        distance={6.2}
+        color="#c250ff"
+        intensity={13}
+        distance={6.8}
+        decay={2}
+      />
+
+      <pointLight
+        position={[0, 1.95, 0]}
+        color="#f0c4ff"
+        intensity={4.5}
+        distance={3.8}
         decay={2}
       />
 
