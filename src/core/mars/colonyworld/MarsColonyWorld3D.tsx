@@ -199,12 +199,16 @@ function CommandHub({
 
 
   useEffect(() => {
-    if (!dragging) {
+    if (
+      !editing &&
+      !dragging
+    ) {
       setPlacement(
         initialPlacement,
       );
     }
   }, [
+    editing,
     dragging,
     initialPlacement,
   ]);
