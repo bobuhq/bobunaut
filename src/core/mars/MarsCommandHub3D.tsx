@@ -16,428 +16,732 @@ type Props = {
   level: number;
 };
 
-function CommandHubModel({
-  level,
-}: Props) {
-  const coreMaterial =
+function CrystalCore() {
+  const crystal =
+    useRef<THREE.Group>(null);
+
+  const innerMaterial =
     useRef<THREE.MeshStandardMaterial>(null);
+
+  const outerMaterial =
+    useRef<THREE.MeshPhysicalMaterial>(null);
+
+  useFrame(({ clock }) => {
+    const t = clock.elapsedTime;
+
+    if (crystal.current) {
+      crystal.current.rotation.y =
+        t * 0.26;
+
+      crystal.current.rotation.z =
+        Math.sin(t * 0.35) * 0.035;
+
+      const pulse =
+        1 +
+        Math.sin(t * 2.15) * 0.055;
+
+      crystal.current.scale.setScalar(
+        pulse,
+      );
+    }
+
+    if (innerMaterial.current) {
+      innerMaterial.current.emissiveIntensity =
+        4.6 +
+        Math.sin(t * 2.5) * 1.6 +
+        Math.sin(t * 0.65) * 0.55;
+    }
+
+    if (outerMaterial.current) {
+      outerMaterial.current.emissiveIntensity =
+        1.2 +
+        Math.sin(t * 2.1) * 0.45;
+    }
+  });
+
+  return (
+    <group
+      ref={crystal}
+      position={[0, 1.18, 0]}
+    >
+      {/* outer crystal shell */}
+      <mesh>
+        <octahedronGeometry
+          args={[0.68, 1]}
+        />
+
+        <meshPhysicalMaterial
+          ref={outerMaterial}
+          color="#c887ff"
+          emissive="#7d22db"
+          emissiveIntensity={1.4}
+          transmission={0.42}
+          thickness={0.45}
+          roughness={0.06}
+          metalness={0}
+          transparent
+          opacity={0.82}
+          clearcoat={1}
+          clearcoatRoughness={0.05}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+
+      {/* living internal energy */}
+      <mesh scale={0.58}>
+        <icosahedronGeometry
+          args={[0.72, 2]}
+        />
+
+        <meshStandardMaterial
+          ref={innerMaterial}
+          color="#f1c7ff"
+          emissive="#ad36ff"
+          emissiveIntensity={5}
+          roughness={0.08}
+          metalness={0.04}
+        />
+      </mesh>
+
+      {/* vertical crystal needle */}
+      <mesh
+        position={[0, 0.62, 0]}
+      >
+        <octahedronGeometry
+          args={[0.19, 0]}
+        />
+
+        <meshStandardMaterial
+          color="#f6d8ff"
+          emissive="#c85cff"
+          emissiveIntensity={4.5}
+          roughness={0.06}
+        />
+      </mesh>
+
+      <pointLight
+        color="#b145ff"
+        intensity={7.5}
+        distance={6}
+        decay={2}
+      />
+    </group>
+  );
+}
+
+function CommandHubLevelOne() {
+  const radar =
+    useRef<THREE.Group>(null);
 
   const beaconMaterial =
     useRef<THREE.MeshStandardMaterial>(null);
 
-  const radar =
-    useRef<THREE.Group>(null);
-
-  const purple =
-    useMemo(
-      () => new THREE.Color("#a849ff"),
-      [],
-    );
-
   useFrame(({ clock }, delta) => {
     const t = clock.elapsedTime;
 
-    if (coreMaterial.current) {
-      coreMaterial.current.emissiveIntensity =
-        2.3 +
-        Math.sin(t * 2.4) * 0.85 +
-        Math.sin(t * 0.7) * 0.3;
+    if (radar.current) {
+      radar.current.rotation.y +=
+        delta * 0.46;
     }
 
     if (beaconMaterial.current) {
       beaconMaterial.current.emissiveIntensity =
-        3.2 +
-        Math.sin(t * 5.2) * 1.3;
-    }
-
-    if (radar.current) {
-      radar.current.rotation.y +=
-        delta * 0.58;
+        3.4 +
+        Math.sin(t * 4.8) * 1.15;
     }
   });
 
-  const visibleWingCount =
-    Math.max(
-      1,
-      Math.min(4, level),
+  const purple =
+    useMemo(
+      () => new THREE.Color("#a83cff"),
+      [],
+    );
+
+  const warm =
+    useMemo(
+      () => new THREE.Color("#ffb35f"),
+      [],
     );
 
   return (
     <group
-      rotation={[0, -0.18, 0]}
-      position={[0, -0.15, 0]}
+      rotation={[0, -0.16, 0]}
+      position={[0, -0.12, 0]}
     >
-      {/* =================================================
-          FOUNDATION
-          ================================================= */}
+      {/* ===============================================
+          FOUNDATION — LOW INDUSTRIAL PLATFORM
+          =============================================== */}
 
       <mesh
         position={[0, 0.08, 0]}
         receiveShadow
       >
         <cylinderGeometry
-          args={[2.9, 3.15, 0.22, 8]}
-        />
-
-        <meshStandardMaterial
-          color="#171c24"
-          metalness={0.72}
-          roughness={0.58}
-        />
-      </mesh>
-
-      <mesh position={[0, 0.205, 0]}>
-        <cylinderGeometry
-          args={[2.58, 2.72, 0.08, 8]}
-        />
-
-        <meshStandardMaterial
-          color="#2c3542"
-          metalness={0.84}
-          roughness={0.34}
-        />
-      </mesh>
-
-      {/* Purple energy ring in foundation */}
-
-      <mesh
-        position={[0, 0.255, 0]}
-        rotation={[-Math.PI / 2, 0, 0]}
-      >
-        <ringGeometry
-          args={[2.12, 2.28, 48]}
-        />
-
-        <meshStandardMaterial
-          color="#6c23bd"
-          emissive={purple}
-          emissiveIntensity={1.65}
-          metalness={0.35}
-          roughness={0.28}
-        />
-      </mesh>
-
-      {/* =================================================
-          CENTRAL ARMORED COMMAND CORE
-          ================================================= */}
-
-      <RoundedBox
-        args={[2.8, 0.82, 1.75]}
-        radius={0.18}
-        smoothness={5}
-        position={[0, 0.68, 0]}
-        castShadow
-        receiveShadow
-      >
-        <meshStandardMaterial
-          color="#26303e"
-          metalness={0.78}
-          roughness={0.3}
-        />
-      </RoundedBox>
-
-      {/* Sloped upper armor */}
-
-      <mesh
-        position={[0, 1.17, 0]}
-        castShadow
-      >
-        <cylinderGeometry
-          args={[1.15, 1.48, 0.46, 8]}
-        />
-
-        <meshStandardMaterial
-          color="#394657"
-          metalness={0.82}
-          roughness={0.27}
-        />
-      </mesh>
-
-      {/* Living purple interior */}
-
-      <RoundedBox
-        args={[1.35, 0.34, 1.86]}
-        radius={0.1}
-        smoothness={4}
-        position={[0, 0.76, 0]}
-      >
-        <meshStandardMaterial
-          ref={coreMaterial}
-          color="#56178c"
-          emissive={purple}
-          emissiveIntensity={2.8}
-          metalness={0.2}
-          roughness={0.18}
-        />
-      </RoundedBox>
-
-      {/* Front observation window */}
-
-      <RoundedBox
-        args={[1.88, 0.23, 0.07]}
-        radius={0.07}
-        smoothness={4}
-        position={[
-          0,
-          0.82,
-          0.913,
-        ]}
-      >
-        <meshStandardMaterial
-          color="#c78cff"
-          emissive="#a741ff"
-          emissiveIntensity={2.6}
-          metalness={0.15}
-          roughness={0.12}
-        />
-      </RoundedBox>
-
-      {/* =================================================
-          SIDE OPERATIONS WINGS
-          ================================================= */}
-
-      {visibleWingCount >= 1 && (
-        <>
-          <RoundedBox
-            args={[1.78, 0.62, 1.25]}
-            radius={0.13}
-            smoothness={4}
-            position={[
-              -2.15,
-              0.52,
-              0.12,
-            ]}
-            rotation={[
-              0,
-              0.13,
-              0,
-            ]}
-            castShadow
-          >
-            <meshStandardMaterial
-              color="#313b49"
-              metalness={0.76}
-              roughness={0.34}
-            />
-          </RoundedBox>
-
-          <RoundedBox
-            args={[1.78, 0.62, 1.25]}
-            radius={0.13}
-            smoothness={4}
-            position={[
-              2.15,
-              0.52,
-              0.12,
-            ]}
-            rotation={[
-              0,
-              -0.13,
-              0,
-            ]}
-            castShadow
-          >
-            <meshStandardMaterial
-              color="#313b49"
-              metalness={0.76}
-              roughness={0.34}
-            />
-          </RoundedBox>
-        </>
-      )}
-
-      {/* Side window strips */}
-
-      {[-2.15, 2.15].map(
-        (x) => (
-          <RoundedBox
-            key={x}
-            args={[
-              0.95,
-              0.13,
-              0.05,
-            ]}
-            radius={0.04}
-            smoothness={3}
-            position={[
-              x,
-              0.57,
-              0.765,
-            ]}
-          >
-            <meshStandardMaterial
-              color="#d5a7ff"
-              emissive="#9d3cff"
-              emissiveIntensity={1.9}
-              roughness={0.14}
-            />
-          </RoundedBox>
-        ),
-      )}
-
-      {/* =================================================
-          LEVEL-BASED EXPANSION MODULES
-          ================================================= */}
-
-      {visibleWingCount >= 2 && (
-        <>
-          <mesh
-            position={[
-              -2.58,
-              0.58,
-              -0.95,
-            ]}
-            castShadow
-          >
-            <cylinderGeometry
-              args={[
-                0.48,
-                0.6,
-                0.78,
-                8,
-              ]}
-            />
-
-            <meshStandardMaterial
-              color="#26303d"
-              metalness={0.76}
-              roughness={0.33}
-            />
-          </mesh>
-
-          <mesh
-            position={[
-              2.58,
-              0.58,
-              -0.95,
-            ]}
-            castShadow
-          >
-            <cylinderGeometry
-              args={[
-                0.48,
-                0.6,
-                0.78,
-                8,
-              ]}
-            />
-
-            <meshStandardMaterial
-              color="#26303d"
-              metalness={0.76}
-              roughness={0.33}
-            />
-          </mesh>
-        </>
-      )}
-
-      {/* =================================================
-          COMMUNICATION TOWER
-          ================================================= */}
-
-      <mesh
-        position={[0, 1.75, -0.1]}
-        castShadow
-      >
-        <cylinderGeometry
           args={[
-            0.13,
-            0.23,
-            1.22,
-            8,
+            3.42,
+            3.7,
+            0.24,
+            12,
           ]}
         />
 
         <meshStandardMaterial
-          color="#aab4c3"
-          metalness={0.92}
-          roughness={0.2}
+          color="#121820"
+          metalness={0.8}
+          roughness={0.56}
+        />
+      </mesh>
+
+      <mesh
+        position={[0, 0.225, 0]}
+        receiveShadow
+      >
+        <cylinderGeometry
+          args={[
+            3.05,
+            3.3,
+            0.08,
+            12,
+          ]}
+        />
+
+        <meshStandardMaterial
+          color="#303947"
+          metalness={0.88}
+          roughness={0.31}
+        />
+      </mesh>
+
+      {/* BOBU purple foundation circuit */}
+
+      <mesh
+        position={[0, 0.275, 0]}
+        rotation={[
+          -Math.PI / 2,
+          0,
+          0,
+        ]}
+      >
+        <ringGeometry
+          args={[
+            2.46,
+            2.58,
+            64,
+          ]}
+        />
+
+        <meshStandardMaterial
+          color="#ab4dff"
+          emissive={purple}
+          emissiveIntensity={2.2}
+          roughness={0.16}
+        />
+      </mesh>
+
+      {/* ===============================================
+          CENTRAL FACETED GLASS / CRYSTAL DOME
+          =============================================== */}
+
+      {/* armored lower ring */}
+
+      <mesh
+        position={[0, 0.57, 0]}
+        castShadow
+        receiveShadow
+      >
+        <cylinderGeometry
+          args={[
+            2.18,
+            2.45,
+            0.62,
+            12,
+          ]}
+        />
+
+        <meshStandardMaterial
+          color="#252e3b"
+          metalness={0.86}
+          roughness={0.28}
+        />
+      </mesh>
+
+      {/* glass dome */}
+
+      <mesh
+        position={[0, 0.88, 0]}
+        castShadow
+      >
+        <sphereGeometry
+          args={[
+            2.05,
+            32,
+            18,
+            0,
+            Math.PI * 2,
+            0,
+            Math.PI / 2,
+          ]}
+        />
+
+        <meshPhysicalMaterial
+          color="#b76bff"
+          transmission={0.58}
+          thickness={0.7}
+          roughness={0.07}
+          metalness={0}
+          transparent
+          opacity={0.62}
+          clearcoat={1}
+          clearcoatRoughness={0.03}
+          ior={1.42}
+          emissive="#6b169f"
+          emissiveIntensity={0.75}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+
+      {/* metal ribs around glass */}
+
+      {Array.from({
+        length: 8,
+      }).map((_, index) => {
+        const angle =
+          (index / 8) *
+          Math.PI *
+          2;
+
+        return (
+          <mesh
+            key={index}
+            position={[
+              Math.sin(angle) * 1.42,
+              1.42,
+              Math.cos(angle) * 1.42,
+            ]}
+            rotation={[
+              0,
+              angle,
+              Math.PI / 4.35,
+            ]}
+            castShadow
+          >
+            <cylinderGeometry
+              args={[
+                0.035,
+                0.055,
+                2.4,
+                8,
+              ]}
+            />
+
+            <meshStandardMaterial
+              color="#8997aa"
+              metalness={0.95}
+              roughness={0.2}
+            />
+          </mesh>
+        );
+      })}
+
+      {/* horizontal armored crown */}
+
+      <mesh
+        position={[0, 1.78, 0]}
+      >
+        <cylinderGeometry
+          args={[
+            0.88,
+            1.12,
+            0.26,
+            12,
+          ]}
+        />
+
+        <meshStandardMaterial
+          color="#303b4c"
+          metalness={0.9}
+          roughness={0.24}
+        />
+      </mesh>
+
+      {/* living crystal inside dome */}
+
+      <CrystalCore />
+
+      {/* ===============================================
+          FRONT COMMAND ENTRANCE
+          =============================================== */}
+
+      <RoundedBox
+        args={[
+          1.18,
+          0.65,
+          1.05,
+        ]}
+        radius={0.12}
+        smoothness={5}
+        position={[
+          0,
+          0.48,
+          2.22,
+        ]}
+        castShadow
+      >
+        <meshStandardMaterial
+          color="#202936"
+          metalness={0.82}
+          roughness={0.31}
+        />
+      </RoundedBox>
+
+      {/* glowing door */}
+
+      <RoundedBox
+        args={[
+          0.42,
+          0.42,
+          0.055,
+        ]}
+        radius={0.06}
+        smoothness={4}
+        position={[
+          0,
+          0.48,
+          2.765,
+        ]}
+      >
+        <meshStandardMaterial
+          color="#e6bbff"
+          emissive="#9e32ff"
+          emissiveIntensity={3.1}
+          roughness={0.08}
+        />
+      </RoundedBox>
+
+      {/* ===============================================
+          SIDE OPERATIONS MODULES
+          =============================================== */}
+
+      {[
+        [-2.45, 0.5, 0.58, 0.12],
+        [2.45, 0.5, 0.58, -0.12],
+        [-1.85, 0.48, -1.55, -0.18],
+        [1.85, 0.48, -1.55, 0.18],
+      ].map(
+        (
+          [
+            x,
+            y,
+            z,
+            rotationY,
+          ],
+          index,
+        ) => (
+          <group
+            key={index}
+            position={[
+              x,
+              y,
+              z,
+            ]}
+            rotation={[
+              0,
+              rotationY,
+              0,
+            ]}
+          >
+            <RoundedBox
+              args={[
+                1.55,
+                0.62,
+                1.18,
+              ]}
+              radius={0.12}
+              smoothness={4}
+              castShadow
+            >
+              <meshStandardMaterial
+                color="#283240"
+                metalness={0.8}
+                roughness={0.32}
+              />
+            </RoundedBox>
+
+            {/* purple window strip */}
+
+            <RoundedBox
+              args={[
+                0.83,
+                0.13,
+                0.05,
+              ]}
+              radius={0.035}
+              smoothness={3}
+              position={[
+                0,
+                0.03,
+                0.61,
+              ]}
+            >
+              <meshStandardMaterial
+                color="#d8a8ff"
+                emissive="#9635ff"
+                emissiveIntensity={2}
+                roughness={0.08}
+              />
+            </RoundedBox>
+          </group>
+        ),
+      )}
+
+      {/* ===============================================
+          FOUR EXTERNAL CRYSTAL STABILIZERS
+          =============================================== */}
+
+      {[
+        [-2.75, 0.72, 1.85],
+        [2.75, 0.72, 1.85],
+        [-2.55, 0.72, -1.95],
+        [2.55, 0.72, -1.95],
+      ].map(
+        (
+          [x, y, z],
+          index,
+        ) => (
+          <group
+            key={index}
+            position={[x, y, z]}
+          >
+            <mesh
+              position={[0, -0.4, 0]}
+              castShadow
+            >
+              <cylinderGeometry
+                args={[
+                  0.32,
+                  0.43,
+                  0.42,
+                  10,
+                ]}
+              />
+
+              <meshStandardMaterial
+                color="#252d39"
+                metalness={0.84}
+                roughness={0.3}
+              />
+            </mesh>
+
+            <mesh castShadow>
+              <octahedronGeometry
+                args={[0.38, 0]}
+              />
+
+              <meshPhysicalMaterial
+                color="#d49cff"
+                emissive="#9d30ff"
+                emissiveIntensity={2.7}
+                transmission={0.28}
+                thickness={0.25}
+                roughness={0.05}
+                transparent
+                opacity={0.9}
+              />
+            </mesh>
+
+            <pointLight
+              color="#a33dff"
+              intensity={1.6}
+              distance={2.2}
+              decay={2}
+            />
+          </group>
+        ),
+      )}
+
+      {/* ===============================================
+          LEVEL 1 COMMUNICATIONS MAST
+          =============================================== */}
+
+      <mesh
+        position={[
+          0,
+          2.42,
+          -0.18,
+        ]}
+        castShadow
+      >
+        <cylinderGeometry
+          args={[
+            0.11,
+            0.21,
+            1.02,
+            10,
+          ]}
+        />
+
+        <meshStandardMaterial
+          color="#a7b3c2"
+          metalness={0.94}
+          roughness={0.18}
         />
       </mesh>
 
       <group
         ref={radar}
-        position={[0, 2.18, -0.1]}
+        position={[
+          0,
+          2.79,
+          -0.18,
+        ]}
       >
+        {/* compact radar dish */}
+
         <mesh
           rotation={[
-            Math.PI / 2.55,
+            Math.PI / 2.65,
             0,
             0,
           ]}
-          castShadow
         >
           <cylinderGeometry
             args={[
-              0.67,
-              0.12,
-              0.12,
-              28,
+              0.58,
+              0.1,
+              0.1,
+              30,
             ]}
           />
 
           <meshStandardMaterial
-            color="#9faaba"
+            color="#aab7c8"
             metalness={0.9}
-            roughness={0.22}
+            roughness={0.2}
           />
         </mesh>
 
         <mesh
-          position={[0, 0.39, 0]}
+          position={[0, 0.38, 0]}
         >
-          <sphereGeometry
-            args={[0.09, 16, 16]}
+          <octahedronGeometry
+            args={[0.1, 0]}
           />
 
           <meshStandardMaterial
             ref={beaconMaterial}
-            color="#f0cbff"
-            emissive="#b34cff"
+            color="#f0d4ff"
+            emissive="#bb4cff"
             emissiveIntensity={4}
-            roughness={0.08}
+            roughness={0.05}
           />
         </mesh>
       </group>
 
-      {/* =================================================
-          SMALL EXTERIOR OPERATION LIGHTS
-          ================================================= */}
+      {/* ===============================================
+          WARM OPERATION LIGHTS
+          =============================================== */}
 
       {[
-        [-2.55, 0.32, 1.15],
-        [-1.55, 0.3, 1.63],
-        [1.55, 0.3, 1.63],
-        [2.55, 0.32, 1.15],
+        [-2.9, 0.3, 1.2],
+        [-1.65, 0.29, 2.48],
+        [1.65, 0.29, 2.48],
+        [2.9, 0.3, 1.2],
+        [-2.2, 0.29, -2.2],
+        [2.2, 0.29, -2.2],
       ].map(
-        ([x, y, z], index) => (
+        (
+          [x, y, z],
+          index,
+        ) => (
           <mesh
             key={index}
             position={[x, y, z]}
           >
             <sphereGeometry
-              args={[0.065, 12, 12]}
+              args={[
+                0.055,
+                12,
+                12,
+              ]}
             />
 
             <meshStandardMaterial
-              color="#ffe1b6"
-              emissive="#ff9f52"
-              emissiveIntensity={2.4}
+              color="#ffd8a6"
+              emissive={warm}
+              emissiveIntensity={2.8}
             />
           </mesh>
         ),
       )}
 
-      {/* Subtle local purple light */}
+      {/* crystal light spills into building */}
 
       <pointLight
-        position={[0, 1.3, 0.7]}
-        intensity={5.5}
-        distance={5}
+        position={[0, 1.45, 0]}
+        color="#ae3cff"
+        intensity={8}
+        distance={6.2}
         decay={2}
-        color="#a23dff"
+      />
+
+      <pointLight
+        position={[0, 0.8, 2]}
+        color="#d18bff"
+        intensity={3}
+        distance={3.8}
+        decay={2}
       />
     </group>
+  );
+}
+
+function CommandHubModel({
+  level,
+}: Props) {
+  /*
+   * Level 1 is the canonical BOBU architecture.
+   * Future hardware layers attach here:
+   *
+   * L2 = Power Array
+   * L3 = Advanced Comms
+   * L4 = AI Operations Core
+   * L5 = Deep Space Array
+   *
+   * Do not fake higher-level production state here.
+   * building_level remains server authoritative.
+   */
+  return (
+    <>
+      <CommandHubLevelOne />
+
+      {level >= 2 && (
+        <group
+          visible={false}
+          name="future-level-2-power-array"
+        />
+      )}
+
+      {level >= 3 && (
+        <group
+          visible={false}
+          name="future-level-3-comms"
+        />
+      )}
+
+      {level >= 4 && (
+        <group
+          visible={false}
+          name="future-level-4-ai-core"
+        />
+      )}
+
+      {level >= 5 && (
+        <group
+          visible={false}
+          name="future-level-5-deep-space-array"
+        />
+      )}
+    </>
   );
 }
 
@@ -455,11 +759,11 @@ export function MarsCommandHub3D({
         dpr={[1, 1.75]}
         camera={{
           position: [
-            6.2,
-            6.6,
-            7.6,
+            7.4,
+            7.8,
+            8.5,
           ],
-          zoom: 78,
+          zoom: 70,
           near: 0.1,
           far: 100,
         }}
@@ -477,7 +781,7 @@ export function MarsCommandHub3D({
             THREE.ACESFilmicToneMapping;
 
           gl.toneMappingExposure =
-            1.18;
+            1.12;
 
           gl.setClearColor(
             0x000000,
@@ -486,35 +790,39 @@ export function MarsCommandHub3D({
         }}
       >
         <ambientLight
-          intensity={0.7}
-          color="#8f9db5"
+          intensity={0.46}
+          color="#8896ae"
         />
 
         <hemisphereLight
-          intensity={1.05}
-          color="#d6e4ff"
-          groundColor="#512315"
+          intensity={0.82}
+          color="#cbd8ee"
+          groundColor="#5e2818"
         />
+
+        {/* warm Mars sunlight */}
 
         <directionalLight
           castShadow
-          position={[5, 8, 7]}
-          intensity={3.4}
-          color="#ffe1c2"
+          position={[6, 9, 7]}
+          intensity={3.6}
+          color="#ffd4a6"
           shadow-mapSize-width={1024}
           shadow-mapSize-height={1024}
           shadow-camera-near={0.1}
           shadow-camera-far={30}
-          shadow-camera-left={-7}
-          shadow-camera-right={7}
-          shadow-camera-top={7}
-          shadow-camera-bottom={-7}
+          shadow-camera-left={-8}
+          shadow-camera-right={8}
+          shadow-camera-top={8}
+          shadow-camera-bottom={-8}
         />
 
+        {/* cool BOBU rim light */}
+
         <directionalLight
-          position={[-5, 3, -4]}
-          intensity={1.25}
-          color="#7440ff"
+          position={[-5, 4, -4]}
+          intensity={1.1}
+          color="#7d48ff"
         />
 
         <CommandHubModel
@@ -523,12 +831,12 @@ export function MarsCommandHub3D({
 
         <ContactShadows
           position={[0, 0, 0]}
-          opacity={0.62}
-          scale={9}
-          blur={2.1}
-          far={6}
+          opacity={0.7}
+          scale={10}
+          blur={2.2}
+          far={7}
           resolution={512}
-          color="#120b09"
+          color="#150b08"
         />
       </Canvas>
     </div>

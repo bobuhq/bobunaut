@@ -2623,3 +2623,92 @@
     inset: -20px -38px -14px;
   }
 }
+
+
+/* =========================================================
+   BOBU MARS — COMMAND HUB CRYSTAL ARCHITECTURE V2
+   Level 1 canonical structure.
+   ========================================================= */
+
+.mars-territory--workspace
+.mars-base-building-command_hub {
+  width: 470px !important;
+}
+
+.mars-territory--workspace
+.mars-base-building-command_hub
+.mars-base-building-visual {
+  width: 470px !important;
+  height: 310px !important;
+}
+
+.mars-command-hub-3d {
+  inset:
+    -42px
+    -82px
+    -30px
+    -82px;
+}
+
+/*
+ * The 3D structure now provides its own physical
+ * foundation and contact shadow.
+ * Keep the CSS footprint very subtle.
+ */
+.mars-territory--workspace
+.mars-base-building-command_hub
+.mars-base-building-pad {
+  width: 335px;
+  height: 112px;
+  bottom: 8px;
+
+  opacity: 0.5;
+
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(156, 67, 229, 0.10),
+      rgba(39, 27, 34, 0.14) 45%,
+      transparent 74%
+    );
+
+  box-shadow:
+    0 16px 35px
+    rgba(0, 0, 0, 0.28);
+}
+
+/* HUD stays outside the 3D structure. */
+
+.mars-territory--workspace
+.mars-base-building-command_hub
+.mars-base-building-level {
+  top: -1px;
+}
+
+.mars-territory--workspace
+.mars-base-building-command_hub
+.mars-base-building-label {
+  bottom: -11px;
+}
+
+@media (max-width: 760px) {
+  .mars-territory--workspace
+  .mars-base-building-command_hub {
+    width: 280px !important;
+  }
+
+  .mars-territory--workspace
+  .mars-base-building-command_hub
+  .mars-base-building-visual {
+    width: 340px !important;
+    height: 235px !important;
+    margin-left: -30px;
+  }
+
+  .mars-command-hub-3d {
+    inset:
+      -30px
+      -50px
+      -20px;
+  }
+}
