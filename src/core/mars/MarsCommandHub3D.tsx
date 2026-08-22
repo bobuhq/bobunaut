@@ -322,14 +322,14 @@ function CommandHubLevelOne() {
         />
 
         <meshStandardMaterial
-          color="#d8c6e8"
-          emissive="#9f47dc"
-          emissiveIntensity={1.35}
+          color="#eadcff"
+          emissive="#a855f7"
+          emissiveIntensity={0.75}
           transparent
-          opacity={0.22}
+          opacity={0.075}
           wireframe
           depthWrite={false}
-          roughness={0.12}
+          roughness={0.18}
         />
       </mesh>
 
@@ -736,7 +736,7 @@ function CommandHubLevelOne() {
   );
 }
 
-function CommandHubModel({
+export function MarsCommandHubModel({
   level,
 }: Props) {
   /*
@@ -866,7 +866,7 @@ export function MarsCommandHub3D({
           color="#7d48ff"
         />
 
-        <CommandHubModel
+        <MarsCommandHubModel
           level={level}
         />
 

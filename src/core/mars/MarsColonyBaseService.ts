@@ -1,5 +1,11 @@
 import { supabase } from "../../lib/supabase";
 
+export type MarsColonyRotation =
+  | 0
+  | 90
+  | 180
+  | 270;
+
 export type MarsColonyBaseBuilding = {
   colony_id: string;
   colony_name: string;
@@ -15,6 +21,23 @@ export type MarsColonyBaseBuilding = {
 
   max_level: number;
   constructed_at: string | null;
+
+  grid_x: number | null;
+  grid_z: number | null;
+  rotation_y: MarsColonyRotation;
+
+  footprint_width: number;
+  footprint_depth: number;
+};
+
+export type MarsColonyBuildingPlacement = {
+  building_key: string;
+  grid_x: number;
+  grid_z: number;
+  rotation_y: MarsColonyRotation;
+  footprint_width: number;
+  footprint_depth: number;
+  updated_at: string;
 };
 
 export type MarsColonyBuildingConstruction = {
@@ -150,6 +173,33 @@ Promise<MarsColonyBaseBuilding[]> {
   return (data as MarsColonyBaseBuilding[] | null) ?? [];
 }
 
+export async function moveMyMarsColonyBuilding(
+  buildingKey: string,
+  gridX: number,
+  gridZ: number,
+  rotationY: MarsColonyRotation = 0,
+): Promise<MarsColonyBuildingPlacement> {
+  const { data, error } = await supabase.rpc(
+    "move_my_mars_colony_building",
+    {
+      p_building_key: buildingKey,
+      p_grid_x: gridX,
+      p_grid_z: gridZ,
+      p_rotation_y: rotationY,
+    },
+  );
+
+  if (error) {
+    throw error;
+  }
+
+  return firstRpcRow<MarsColonyBuildingPlacement>(
+    data,
+    "Mars colony building placement was not returned.",
+  );
+}
+
+
 export async function getMyMarsColonyConstructionCosts():
 Promise<MarsColonyBuildingConstructionCost[]> {
   const { data, error } = await supabase.rpc(
@@ -262,4 +312,3 @@ Promise<MarsColonyResourceClaim> {
     "Mars Colony resource claim returned no result.",
   );
 }
-

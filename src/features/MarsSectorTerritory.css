@@ -2712,3 +2712,78 @@
       -20px;
   }
 }
+
+/* =========================================================
+   BOBU MARS — COLONY WORLD 3D WORKSPACE BRIDGE V1
+   Replaces legacy CSS building layer with the real
+   single-canvas Mars colony world.
+   ========================================================= */
+
+.mars-territory--workspace
+.mars-colony-workspace__base--3d {
+  position: absolute;
+  z-index: 8;
+
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+
+  pointer-events: auto;
+  transform: none !important;
+}
+
+.mars-territory--workspace
+.mars-colony-workspace__base--3d
+.mars-colony-world-3d {
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+}
+
+/*
+ * The Three.js world owns the terrain now.
+ * Hide the old CSS/NASA background layer beneath it.
+ */
+.mars-territory--workspace:has(
+  .mars-colony-workspace__base--3d
+)
+.mars-territory__planet {
+  opacity: 0;
+}
+
+/*
+ * Old decorative craters/horizon are no longer needed.
+ * Terrain comes from the shared 3D world.
+ */
+.mars-territory--workspace:has(
+  .mars-colony-workspace__base--3d
+)
+.mars-colony-workspace__crater,
+.mars-territory--workspace:has(
+  .mars-colony-workspace__base--3d
+)
+.mars-colony-workspace__ridge,
+.mars-territory--workspace:has(
+  .mars-colony-workspace__base--3d
+)
+.mars-colony-workspace__horizon {
+  display: none !important;
+}
+
+/*
+ * Keep HUD and title above the interactive Canvas.
+ */
+.mars-territory--workspace
+.mars-territory-hud,
+.mars-territory--workspace
+.mars-colony-workspace__title {
+  z-index: 40;
+}
+
+@media (max-width: 760px) {
+  .mars-territory--workspace
+  .mars-colony-workspace__base--3d {
+    inset: 0;
+  }
+}
