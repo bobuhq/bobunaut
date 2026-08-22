@@ -699,11 +699,13 @@ function CommandHub({
           <Html
             position={[
               0,
-              0,
+              3.45,
               0,
             ]}
             center
-            transform={false}
+            transform
+            sprite
+            distanceFactor={10}
             style={{
               pointerEvents: "auto",
             }}
