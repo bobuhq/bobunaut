@@ -192,10 +192,22 @@ function CommandHub({
     setDragging,
   ] = useState(false);
 
+  /*
+   * Command Hub is the primary colony structure.
+   *
+   * Keep it selected when the colony world first opens so
+   * its MOVE control is immediately available without
+   * requiring an initial pointer interaction.
+   *
+   * This changes selection UI only. Placement persistence,
+   * committedPlacement and camera behavior remain untouched.
+   */
   const [
     selected,
     setSelected,
-  ] = useState(false);
+  ] = useState(
+    canManageColony,
+  );
 
   const [
     editing,
