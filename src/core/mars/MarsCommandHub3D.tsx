@@ -41,21 +41,21 @@ function CrystalCore() {
         Math.sin(t * 2.15) * 0.055;
 
       crystal.current.scale.setScalar(
-        pulse,
+        pulse * 1.08,
       );
     }
 
     if (innerMaterial.current) {
       innerMaterial.current.emissiveIntensity =
-        4.6 +
-        Math.sin(t * 2.5) * 1.6 +
-        Math.sin(t * 0.65) * 0.55;
+        6.4 +
+        Math.sin(t * 2.5) * 2.1 +
+        Math.sin(t * 0.65) * 0.7;
     }
 
     if (outerMaterial.current) {
       outerMaterial.current.emissiveIntensity =
-        1.2 +
-        Math.sin(t * 2.1) * 0.45;
+        2.1 +
+        Math.sin(t * 2.1) * 0.72;
     }
   });
 
@@ -72,17 +72,18 @@ function CrystalCore() {
 
         <meshPhysicalMaterial
           ref={outerMaterial}
-          color="#e0adff"
-          emissive="#9e31ff"
-          emissiveIntensity={2.3}
-          transmission={0.08}
-          thickness={0.25}
-          roughness={0.04}
-          metalness={0.02}
+          color="#d9a6ff"
+          emissive="#a52fff"
+          emissiveIntensity={2.8}
+          transmission={0.14}
+          thickness={0.18}
+          roughness={0.035}
+          metalness={0}
           transparent
-          opacity={0.92}
+          opacity={0.84}
           clearcoat={1}
-          clearcoatRoughness={0.02}
+          clearcoatRoughness={0.015}
+          ior={1.5}
           flatShading
           side={THREE.DoubleSide}
         />
@@ -274,9 +275,9 @@ function CommandHubLevelOne() {
       >
         <sphereGeometry
           args={[
-            2.05,
-            18,
-            10,
+            1.72,
+            20,
+            12,
             0,
             Math.PI * 2,
             0,
@@ -285,19 +286,19 @@ function CommandHubLevelOne() {
         />
 
         <meshPhysicalMaterial
-          color="#d7a0ff"
-          transmission={0.12}
-          thickness={0.32}
-          roughness={0.08}
-          metalness={0.02}
+          color="#bca2d2"
+          transmission={0.2}
+          thickness={0.24}
+          roughness={0.12}
+          metalness={0.04}
           transparent
-          opacity={0.48}
+          opacity={0.34}
           depthWrite={false}
           clearcoat={1}
-          clearcoatRoughness={0.02}
-          ior={1.46}
-          emissive="#7d20c9"
-          emissiveIntensity={1.45}
+          clearcoatRoughness={0.025}
+          ior={1.48}
+          emissive="#4d146d"
+          emissiveIntensity={0.58}
           flatShading
           side={THREE.DoubleSide}
         />
@@ -310,9 +311,9 @@ function CommandHubLevelOne() {
       >
         <sphereGeometry
           args={[
-            2.065,
-            18,
-            10,
+            1.735,
+            20,
+            12,
             0,
             Math.PI * 2,
             0,
@@ -321,14 +322,14 @@ function CommandHubLevelOne() {
         />
 
         <meshStandardMaterial
-          color="#efc8ff"
-          emissive="#a63fff"
-          emissiveIntensity={2.15}
+          color="#d8c6e8"
+          emissive="#9f47dc"
+          emissiveIntensity={1.35}
           transparent
-          opacity={0.34}
+          opacity={0.22}
           wireframe
           depthWrite={false}
-          roughness={0.08}
+          roughness={0.12}
         />
       </mesh>
 
@@ -346,9 +347,9 @@ function CommandHubLevelOne() {
           <mesh
             key={index}
             position={[
-              Math.sin(angle) * 1.42,
-              1.42,
-              Math.cos(angle) * 1.42,
+              Math.sin(angle) * 1.19,
+              1.28,
+              Math.cos(angle) * 1.19,
             ]}
             rotation={[
               0,
@@ -361,7 +362,7 @@ function CommandHubLevelOne() {
               args={[
                 0.035,
                 0.055,
-                2.4,
+                1.98,
                 8,
               ]}
             />
@@ -709,18 +710,18 @@ function CommandHubLevelOne() {
       {/* crystal light spills into building */}
 
       <pointLight
-        position={[0, 1.45, 0]}
-        color="#c250ff"
-        intensity={13}
-        distance={6.8}
+        position={[0, 1.38, 0]}
+        color="#bd46ff"
+        intensity={15}
+        distance={5.6}
         decay={2}
       />
 
       <pointLight
-        position={[0, 1.95, 0]}
-        color="#f0c4ff"
-        intensity={4.5}
-        distance={3.8}
+        position={[0, 1.78, 0]}
+        color="#f2cfff"
+        intensity={5.8}
+        distance={3.2}
         decay={2}
       />
 
