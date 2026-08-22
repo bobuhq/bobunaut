@@ -723,69 +723,76 @@ function CommandHub({
             building.building_level
           }
         />
-      </group>
 
-
-      {selected && (
-        <Html
-          position={[
-            world.x,
-            3.25,
-            world.z,
-          ]}
-          center
-          transform={false}
-          style={{
-            pointerEvents: "auto",
-          }}
-        >
-          <div
-            className="mars-placement-controls"
-            onPointerDown={(event) =>
-              event.stopPropagation()
-            }
+        {/*
+         * Placement controls are anchored directly to the
+         * Command Hub transform.
+         *
+         * Using a local position prevents the Html overlay
+         * from drifting away from the building as camera zoom
+         * changes.
+         */}
+        {selected && (
+          <Html
+            position={[
+              0,
+              2.9,
+              0,
+            ]}
+            center
+            transform={false}
+            style={{
+              pointerEvents: "auto",
+            }}
           >
-            {!editing ? (
-              <button
-                type="button"
-                className="mars-placement-controls__move"
-                onClick={beginMove}
-              >
-                MOVE
-              </button>
-            ) : (
-              <>
+            <div
+              className="mars-placement-controls"
+              onPointerDown={(event) =>
+                event.stopPropagation()
+              }
+            >
+              {!editing ? (
                 <button
                   type="button"
-                  onClick={rotateBuilding}
-                  disabled={saving}
+                  className="mars-placement-controls__move"
+                  onClick={beginMove}
                 >
-                  ROTATE
+                  MOVE
                 </button>
+              ) : (
+                <>
+                  <button
+                    type="button"
+                    onClick={rotateBuilding}
+                    disabled={saving}
+                  >
+                    ROTATE
+                  </button>
 
-                <button
-                  type="button"
-                  onClick={cancelPlacement}
-                  disabled={saving}
-                >
-                  CANCEL
-                </button>
+                  <button
+                    type="button"
+                    onClick={cancelPlacement}
+                    disabled={saving}
+                  >
+                    CANCEL
+                  </button>
 
-                <button
-                  type="button"
-                  className="mars-placement-controls__save"
-                  onClick={confirmPlacement}
-                  disabled={saving}
-                >
-                  {saving
-                    ? "SAVING..."
-                    : "SAVE"}
-                </button>
-              </>
-            )}
-          </div>
-        </Html>
-      )}
+                  <button
+                    type="button"
+                    className="mars-placement-controls__save"
+                    onClick={confirmPlacement}
+                    disabled={saving}
+                  >
+                    {saving
+                      ? "SAVING..."
+                      : "SAVE"}
+                  </button>
+                </>
+              )}
+            </div>
+          </Html>
+        )}
+      </group>
 
 
       {saveError && (
