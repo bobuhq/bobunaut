@@ -39,6 +39,7 @@ export type MarsColonyBaseBuilding = {
 };
 
 export type MarsColonyBuildingPlacement = {
+  building_id: string;
   building_key: string;
   grid_x: number;
   grid_z: number;
@@ -182,7 +183,7 @@ Promise<MarsColonyBaseBuilding[]> {
 }
 
 export async function moveMyMarsColonyBuilding(
-  buildingKey: string,
+  buildingId: string,
   gridX: number,
   gridZ: number,
   rotationY: MarsColonyRotation = 0,
@@ -190,7 +191,7 @@ export async function moveMyMarsColonyBuilding(
   const { data, error } = await supabase.rpc(
     "move_my_mars_colony_building",
     {
-      p_building_key: buildingKey,
+      p_building_id: buildingId,
       p_grid_x: gridX,
       p_grid_z: gridZ,
       p_rotation_y: rotationY,
