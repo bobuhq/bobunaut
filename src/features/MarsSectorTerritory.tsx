@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { MarsSector } from "../core/mars/MarsSectorService";
 import { MarsColonyWorld3D } from "../core/mars/colonyworld/MarsColonyWorld3D";
 import type {
@@ -6,6 +7,8 @@ import type {
   MarsColonyBuildingUpgrade,
   MarsColonyResourceProduction,
 } from "../core/mars/MarsColonyBaseService";
+
+import MarsMarket from "./MarsMarket";
 
 import "./MarsSectorTerritory.css";
 
@@ -70,6 +73,9 @@ export default function MarsSectorTerritory({
   const colonyName =
     colonyBase[0]?.colony_name ?? "COLONY";
 
+  const [marketOpen, setMarketOpen] =
+    useState(false);
+
   return (
     <section className="mars-territory mars-territory--workspace">
       <div className="mars-territory__topbar">
@@ -92,14 +98,27 @@ export default function MarsSectorTerritory({
           </strong>
         </div>
 
-        <div className="mars-territory__capacity">
-          <span>STRUCTURES</span>
+        <div className="mars-territory__topbar-actions">
+          {isMyColonySector && (
+            <button
+              type="button"
+              className="mars-territory__market"
+              onClick={() => setMarketOpen(true)}
+            >
+              <span aria-hidden="true">◈</span>
+              <span>MARKET</span>
+            </button>
+          )}
 
-          <strong>
-            {structures.constructed}
-            {" / "}
-            {structures.total}
-          </strong>
+          <div className="mars-territory__capacity">
+            <span>STRUCTURES</span>
+
+            <strong>
+              {structures.constructed}
+              {" / "}
+              {structures.total}
+            </strong>
+          </div>
         </div>
       </div>
 
@@ -200,6 +219,11 @@ export default function MarsSectorTerritory({
           />
         </div>
       </div>
+
+      <MarsMarket
+        open={marketOpen}
+        onClose={() => setMarketOpen(false)}
+      />
     </section>
   );
 }
