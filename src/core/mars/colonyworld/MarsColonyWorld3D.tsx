@@ -46,6 +46,7 @@ import MarsPlacementGrid from "./components/MarsPlacementGrid";
 import MarsCommandHubBuilding from "./components/MarsCommandHubBuilding";
 import MarsInventoryBuildingPlacement from "./components/MarsInventoryBuildingPlacement";
 import MarsPersistentColonyBuilding from "./components/MarsPersistentColonyBuilding";
+import MarsColonyInfrastructure from "./components/MarsColonyInfrastructure";
 import MarsPlacementPreview from "./components/MarsPlacementPreview";
 
 import "./MarsColonyWorld3D.css";
@@ -195,6 +196,12 @@ function ColonyScene({
         ]}
         intensity={0.9}
         color="#884cff"
+      />
+
+      <MarsColonyInfrastructure
+        buildings={
+          physicalBuildings
+        }
       />
 
       {commandHub && (
