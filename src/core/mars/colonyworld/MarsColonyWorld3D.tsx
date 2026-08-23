@@ -1,6 +1,7 @@
 import {
   Canvas,
   type ThreeEvent,
+  useThree,
 } from "@react-three/fiber";
 
 import {
@@ -48,6 +49,7 @@ import MarsInventoryBuildingPlacement from "./components/MarsInventoryBuildingPl
 import MarsPersistentColonyBuilding from "./components/MarsPersistentColonyBuilding";
 import MarsColonyInfrastructure from "./components/MarsColonyInfrastructure";
 import MarsColonyDensityLayer from "./components/MarsColonyDensityLayer";
+import MarsCinematicColonyLayer from "./components/MarsCinematicColonyLayer";
 import MarsPlacementPreview from "./components/MarsPlacementPreview";
 
 import "./MarsColonyWorld3D.css";
@@ -76,6 +78,81 @@ type MarsPhysicalBuildings =
   ReturnType<
     typeof createVerifiedMarsBuildingInstances
   >;
+
+
+function MarsCinematicCamera({
+  buildings,
+}: {
+  buildings: MarsBuildingInstance[];
+}) {
+  const {
+    camera,
+  } = useThree();
+
+  const commandHub =
+    buildings.find(
+      (building) =>
+        building.buildingKey ===
+        "command_hub",
+    );
+
+  useEffect(() => {
+    if (!commandHub) {
+      return;
+    }
+
+    const rotated =
+      commandHub.rotationY === 90 ||
+      commandHub.rotationY === 270;
+
+    const width =
+      rotated
+        ? commandHub.footprintDepth
+        : commandHub.footprintWidth;
+
+    const depth =
+      rotated
+        ? commandHub.footprintWidth
+        : commandHub.footprintDepth;
+
+    const world =
+      marsGridToWorld(
+        commandHub.gridX,
+        commandHub.gridZ,
+        width,
+        depth,
+      );
+
+    /*
+     * Main cinematic colony framing.
+     *
+     * Target:
+     * - 3/4 perspective
+     * - city center below horizon
+     * - enough foreground for dense colony
+     * - enough background for future mountains / rocket
+     */
+    camera.position.set(
+      world.x + 15.5,
+      13.5,
+      world.z + 20.5,
+    );
+
+    camera.lookAt(
+      world.x,
+      0.6,
+      world.z - 1.2,
+    );
+
+    camera.updateProjectionMatrix();
+  }, [
+    camera,
+    commandHub,
+  ]);
+
+  return null;
+}
+
 
 function ColonyScene({
   buildings,
@@ -220,6 +297,20 @@ function ColonyScene({
 
   return (
     <>
+      <MarsCinematicCamera
+        buildings={
+          infrastructureBuildings
+        }
+      />
+
+      <fog
+        attach="fog"
+        args={[
+          "#2a110c",
+          24,
+          68,
+        ]}
+      />
       {/*
        * Neutral Mars interaction surface.
        *
@@ -254,36 +345,72 @@ function ColonyScene({
         />
       </mesh>
 
+      {/*
+       * BOBU Mars Cinematic Lighting.
+       *
+       * Warm Martian key light + cool technological rim.
+       * Ambient kept deliberately low so buildings gain depth.
+       */}
       <ambientLight
-        intensity={0.68}
-        color="#aab3c6"
+        intensity={0.34}
+        color="#6b3d32"
       />
 
       <hemisphereLight
-        intensity={0.84}
-        color="#dbe8ff"
-        groundColor="#63301d"
+        intensity={0.72}
+        color="#d88958"
+        groundColor="#160908"
       />
 
       <directionalLight
         castShadow
         position={[
+          -18,
+          24,
           12,
-          20,
-          10,
         ]}
         intensity={3.6}
-        color="#ffd0a0"
+        color="#ffad68"
+        shadow-mapSize-width={2048}
+        shadow-mapSize-height={2048}
+        shadow-camera-near={1}
+        shadow-camera-far={70}
+        shadow-camera-left={-28}
+        shadow-camera-right={28}
+        shadow-camera-top={28}
+        shadow-camera-bottom={-28}
       />
 
       <directionalLight
         position={[
-          -10,
-          9,
-          -8,
+          18,
+          10,
+          -15,
         ]}
-        intensity={0.9}
-        color="#884cff"
+        intensity={1.55}
+        color="#597cff"
+      />
+
+      <pointLight
+        position={[
+          0,
+          8,
+          -10,
+        ]}
+        intensity={4.5}
+        distance={32}
+        color="#ff784c"
+      />
+
+      <pointLight
+        position={[
+          -8,
+          6,
+          8,
+        ]}
+        intensity={3.2}
+        distance={26}
+        color="#4e75ff"
       />
 
       <MarsColonyInfrastructure
@@ -293,6 +420,12 @@ function ColonyScene({
       />
 
       <MarsColonyDensityLayer
+        buildings={
+          infrastructureBuildings
+        }
+      />
+
+      <MarsCinematicColonyLayer
         buildings={
           infrastructureBuildings
         }
@@ -462,18 +595,17 @@ export function MarsColonyWorld3D({
       aria-label="Mars Colony 3D World"
     >
       <Canvas
-        orthographic
         shadows
         dpr={[1, 1.75]}
         camera={{
           position: [
-            -15,
-            14,
-            16,
+            15.5,
+            13.5,
+            20.5,
           ],
-          zoom: 48,
+          fov: 42,
           near: 0.1,
-          far: 140,
+          far: 180,
         }}
         gl={{
           alpha: true,
@@ -485,12 +617,6 @@ export function MarsColonyWorld3D({
           camera,
           gl,
         }) => {
-          camera.lookAt(
-            0,
-            0,
-            0,
-          );
-
           gl.outputColorSpace =
             THREE.SRGBColorSpace;
 
@@ -498,7 +624,7 @@ export function MarsColonyWorld3D({
             THREE.ACESFilmicToneMapping;
 
           gl.toneMappingExposure =
-            1.08;
+            1.18;
 
           gl.setClearColor(
             0x000000,
