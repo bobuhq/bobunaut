@@ -51,12 +51,22 @@ function VisualAsset({
   const scene =
     gltf.scene.clone(true);
 
+  /*
+   * Cinematic city props deliberately do not participate in
+   * dynamic shadow-map rendering.
+   *
+   * The primary gameplay structures keep real shadows.
+   * Decorative city mass is lit by the global Mars lighting.
+   * This prevents dozens of repeated GLTF meshes from
+   * exhausting the WebGL shadow/render budget.
+   */
   scene.traverse((object) => {
     if (
       object instanceof THREE.Mesh
     ) {
-      object.castShadow = true;
-      object.receiveShadow = true;
+      object.castShadow = false;
+      object.receiveShadow = false;
+      object.frustumCulled = true;
     }
   });
 
@@ -143,30 +153,6 @@ function CityBuilding({
         scale={scale}
       />
 
-      <pointLight
-        position={[
-          x,
-          tall
-            ? 1.7
-            : 0.8,
-          z,
-        ]}
-        color={
-          index % 4 === 0
-            ? "#5ca8ff"
-            : "#ff9c52"
-        }
-        intensity={
-          tall
-            ? 1.2
-            : 0.45
-        }
-        distance={
-          tall
-            ? 4
-            : 2
-        }
-      />
     </group>
   );
 }
@@ -252,15 +238,15 @@ function CentralDistrict({
   const rings = [
     {
       radius: 4.2,
-      count: 12,
+      count: 8,
     },
     {
       radius: 6.3,
-      count: 18,
+      count: 12,
     },
     {
       radius: 8.7,
-      count: 24,
+      count: 16,
     },
   ];
 

@@ -77,12 +77,19 @@ function DensityAsset({
   const scene =
     gltf.scene.clone(true);
 
+  /*
+   * Density props are secondary colony geometry.
+   *
+   * Real structures own dynamic shadows. Auxiliary visual
+   * mass uses global lighting only so it remains cheap.
+   */
   scene.traverse((object) => {
     if (
       object instanceof THREE.Mesh
     ) {
-      object.castShadow = true;
-      object.receiveShadow = true;
+      object.castShadow = false;
+      object.receiveShadow = false;
+      object.frustumCulled = true;
     }
   });
 

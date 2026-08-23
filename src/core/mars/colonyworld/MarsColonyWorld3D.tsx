@@ -371,8 +371,8 @@ function ColonyScene({
         ]}
         intensity={3.6}
         color="#ffad68"
-        shadow-mapSize-width={2048}
-        shadow-mapSize-height={2048}
+        shadow-mapSize-width={1024}
+        shadow-mapSize-height={1024}
         shadow-camera-near={1}
         shadow-camera-far={70}
         shadow-camera-left={-28}
@@ -596,7 +596,14 @@ export function MarsColonyWorld3D({
     >
       <Canvas
         shadows
-        dpr={[1, 1.75]}
+        /*
+         * Mars GPU budget.
+         *
+         * 1.75 DPR was too expensive once the cinematic city
+         * layer was added and could cause Firefox WebGL context
+         * loss on Retina displays.
+         */
+        dpr={[1, 1.25]}
         camera={{
           position: [
             15.5,
