@@ -41,9 +41,53 @@ const resolveVendorChunk = (
     return "vendor-state";
   }
 
+  /*
+   * Mars / Three runtime is deliberately split.
+   *
+   * Order matters:
+   * postprocessing must be detected before the generic
+   * @react-three rule.
+   */
+
   if (
-    moduleId.includes("/three/") ||
-    moduleId.includes("/@react-three/") ||
+    moduleId.includes("/@react-three/postprocessing/") ||
+    moduleId.includes("/postprocessing/")
+  ) {
+    return "vendor-postprocessing";
+  }
+
+  /*
+   * Three example/addon modules can be large and are not part
+   * of the minimal renderer core.
+   */
+  if (
+    moduleId.includes("/three/examples/jsm/") ||
+    moduleId.includes("/three/addons/")
+  ) {
+    return "vendor-three-extras";
+  }
+
+  /*
+   * React Three Fiber + Drei.
+   */
+  if (
+    moduleId.includes("/@react-three/fiber/") ||
+    moduleId.includes("/@react-three/drei/")
+  ) {
+    return "vendor-react-three";
+  }
+
+  /*
+   * Three.js core.
+   */
+  if (moduleId.includes("/three/")) {
+    return "vendor-three-core";
+  }
+
+  /*
+   * Supporting Three ecosystem libraries.
+   */
+  if (
     moduleId.includes("/three-stdlib/") ||
     moduleId.includes("/camera-controls/") ||
     moduleId.includes("/maath/") ||
@@ -52,7 +96,7 @@ const resolveVendorChunk = (
     moduleId.includes("/troika-three-") ||
     moduleId.includes("/stats-gl/")
   ) {
-    return "vendor-three";
+    return "vendor-three-support";
   }
 
   /*
