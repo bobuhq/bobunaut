@@ -2,8 +2,6 @@ import {
   useGLTF,
 } from "@react-three/drei";
 
-import { useMemo } from "react";
-
 import * as THREE from "three";
 
 import type {
@@ -50,10 +48,8 @@ function VisualAsset({
       `${BASE}/${path}`,
     );
 
-  const scene = useMemo(
-    () => gltf.scene.clone(true),
-    [gltf.scene],
-  );
+  const scene =
+    gltf.scene.clone(true);
 
   /*
    * Cinematic city props deliberately do not participate in

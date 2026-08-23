@@ -797,7 +797,7 @@ export function MarsCommandHub3D({
       <Canvas
         orthographic
         shadows
-        dpr={[1, 1.25]}
+        dpr={[1, 1.75]}
         camera={{
           position: [
             7.4,
