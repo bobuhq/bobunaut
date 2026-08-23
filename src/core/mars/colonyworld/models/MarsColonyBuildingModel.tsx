@@ -1,5 +1,51 @@
 import * as THREE from "three";
 
+import {
+  useGLTF,
+} from "@react-three/drei";
+
+import {
+  Suspense,
+} from "react";
+
+import {
+  getMarsBuildingAsset,
+} from "../assets";
+
+import MarsKayKitBuilding from "./MarsKayKitBuilding";
+
+
+type LoadedMarsBuildingProps = {
+  modelPath: string;
+  scale: number;
+  positionY: number;
+  rotationY: number;
+};
+
+function LoadedMarsBuilding({
+  modelPath,
+  scale,
+  positionY,
+  rotationY,
+}: LoadedMarsBuildingProps) {
+  const gltf = useGLTF(modelPath);
+
+  return (
+    <primitive
+      object={gltf.scene.clone(true)}
+      scale={scale}
+      position={[0, positionY, 0]}
+      rotation={[
+        0,
+        THREE.MathUtils.degToRad(
+          rotationY,
+        ),
+        0,
+      ]}
+    />
+  );
+}
+
 type Props = {
   buildingKey: string;
   selected?: boolean;
@@ -217,36 +263,117 @@ export default function MarsColonyBuildingModel({
   selected = false,
   preview = false,
 }: Props) {
-  const key = buildingKey.toLowerCase();
+  const asset =
+    getMarsBuildingAsset(
+      buildingKey,
+    );
 
-  const opacity = preview ? 0.72 : 1;
+  const key =
+    buildingKey.toLowerCase();
 
+  const usesKayKitComplex =
+    key.includes("energy") ||
+    key.includes("water") ||
+    key.includes("science");
+
+  if (usesKayKitComplex) {
+    return (
+      <MarsKayKitBuilding
+        buildingKey={
+          buildingKey
+        }
+        preview={preview}
+      />
+    );
+  }
+
+  if (
+    asset.available &&
+    asset.modelPath
+  ) {
+    return (
+      <Suspense fallback={null}>
+        <group
+          scale={
+            preview
+              ? 0.96
+              : 1
+          }
+        >
+          <LoadedMarsBuilding
+            modelPath={
+              asset.modelPath
+            }
+            scale={
+              asset.scale
+            }
+            positionY={
+              asset.positionY
+            }
+            rotationY={
+              asset.rotationY
+            }
+          />
+        </group>
+      </Suspense>
+    );
+  }
+
+  /*
+   * Temporary fallback.
+   *
+   * Final production visuals must come from registered GLB
+   * assets. This keeps placement usable until each asset
+   * is installed.
+   */
   return (
     <group
-      scale={preview ? 0.96 : 1}
-      userData={{
-        buildingKey,
-        opacity,
-      }}
+      scale={
+        preview
+          ? 0.96
+          : 1
+      }
     >
       {key.includes("energy") && (
-        <EnergyBuilding selected={selected} />
+        <EnergyBuilding
+          selected={selected}
+        />
       )}
 
       {key.includes("water") && (
-        <WaterBuilding selected={selected} />
+        <WaterBuilding
+          selected={selected}
+        />
       )}
 
       {key.includes("science") && (
-        <ScienceBuilding selected={selected} />
+        <ScienceBuilding
+          selected={selected}
+        />
       )}
 
       {!key.includes("energy") &&
         !key.includes("water") &&
         !key.includes("science") && (
           <group>
-            <mesh castShadow receiveShadow position={[0, 0.32, 0]}>
-              <cylinderGeometry args={[0.72, 0.82, 0.64, 8]} />
+            <mesh
+              castShadow
+              receiveShadow
+              position={[
+                0,
+                0.32,
+                0,
+              ]}
+            >
+              <cylinderGeometry
+                args={[
+                  0.72,
+                  0.82,
+                  0.64,
+                  8,
+                ]}
+              />
+
               <meshStandardMaterial
                 color="#60536c"
                 metalness={0.62}
@@ -254,8 +381,21 @@ export default function MarsColonyBuildingModel({
               />
             </mesh>
 
-            <mesh position={[0, 0.82, 0]}>
-              <sphereGeometry args={[0.18, 16, 16]} />
+            <mesh
+              position={[
+                0,
+                0.82,
+                0,
+              ]}
+            >
+              <sphereGeometry
+                args={[
+                  0.18,
+                  16,
+                  16,
+                ]}
+              />
+
               <meshStandardMaterial
                 color="#d28cff"
                 emissive="#7022a4"
