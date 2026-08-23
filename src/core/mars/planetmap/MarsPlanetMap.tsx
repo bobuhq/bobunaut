@@ -596,7 +596,7 @@ export function MarsPlanetMap({
           near: 0.1,
           far: 120,
         }}
-        dpr={[1, 1.75]}
+        dpr={[1, 1.25]}
         gl={{
           antialias: true,
           alpha: false,

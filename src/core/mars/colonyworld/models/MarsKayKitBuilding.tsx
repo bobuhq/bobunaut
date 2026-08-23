@@ -2,6 +2,8 @@ import {
   useGLTF,
 } from "@react-three/drei";
 
+import { useMemo } from "react";
+
 import * as THREE from "three";
 
 type Piece = {
@@ -34,8 +36,10 @@ function AssetPiece({
       `${BASE}/${path}`,
     );
 
-  const scene =
-    gltf.scene.clone(true);
+  const scene = useMemo(
+    () => gltf.scene.clone(true),
+    [gltf.scene],
+  );
 
   scene.traverse((object) => {
     if (
@@ -90,11 +94,6 @@ function ReactorCrystal({
         />
       </mesh>
 
-      <pointLight
-        intensity={1.8}
-        distance={2.2}
-        color="#bd5cff"
-      />
     </group>
   );
 }
@@ -193,10 +192,16 @@ function BobuCrystalReactor() {
         rotationZ={-0.12}
       />
 
+      {/*
+       * One shared reactor light replaces the individual
+       * crystal lights. Emissive materials preserve the
+       * crystal glow without multiplying dynamic lights.
+       */}
       <pointLight
-        position={[0, 1.45, 0]}
-        intensity={5}
-        distance={6}
+        position={[0, 1.35, 0]}
+        intensity={3.6}
+        distance={5}
+        decay={2}
         color="#b84dff"
       />
     </group>

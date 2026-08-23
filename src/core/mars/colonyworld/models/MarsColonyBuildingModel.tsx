@@ -6,6 +6,7 @@ import {
 
 import {
   Suspense,
+  useMemo,
 } from "react";
 
 import {
@@ -30,9 +31,14 @@ function LoadedMarsBuilding({
 }: LoadedMarsBuildingProps) {
   const gltf = useGLTF(modelPath);
 
+  const scene = useMemo(
+    () => gltf.scene.clone(true),
+    [gltf.scene],
+  );
+
   return (
     <primitive
-      object={gltf.scene.clone(true)}
+      object={scene}
       scale={scale}
       position={[0, positionY, 0]}
       rotation={[

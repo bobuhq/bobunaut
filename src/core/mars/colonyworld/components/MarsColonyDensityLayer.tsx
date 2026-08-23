@@ -2,6 +2,8 @@ import {
   useGLTF,
 } from "@react-three/drei";
 
+import { useMemo } from "react";
+
 import * as THREE from "three";
 
 import type {
@@ -74,8 +76,10 @@ function DensityAsset({
       `${BASE}/${path}`,
     );
 
-  const scene =
-    gltf.scene.clone(true);
+  const scene = useMemo(
+    () => gltf.scene.clone(true),
+    [gltf.scene],
+  );
 
   /*
    * Density props are secondary colony geometry.
@@ -238,12 +242,6 @@ function CrystalShard({
         />
       </mesh>
 
-      <pointLight
-        position={[0, 0.65, 0]}
-        intensity={1.9}
-        distance={2.8}
-        color="#b84cff"
-      />
     </group>
   );
 }
@@ -299,6 +297,19 @@ function EnergyDistrict() {
         position={[1.55, 0, -1.35]}
         scale={1.05}
         rotationY={-18}
+      />
+
+      {/*
+       * Shared district illumination.
+       * Crystal emissive materials remain visual;
+       * one real light serves the entire Energy district.
+       */}
+      <pointLight
+        position={[0, 1.2, -0.8]}
+        intensity={2.5}
+        distance={5.5}
+        decay={2}
+        color="#ad4cff"
       />
 
       <CrystalShard

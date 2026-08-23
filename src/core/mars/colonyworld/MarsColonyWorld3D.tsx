@@ -51,6 +51,12 @@ import MarsColonyDensityLayer from "./components/MarsColonyDensityLayer";
 import MarsCinematicColonyLayer from "./components/MarsCinematicColonyLayer";
 import MarsPlacementPreview from "./components/MarsPlacementPreview";
 
+import {
+  MarsCinematicEnvironment,
+  MarsCinematicLighting,
+  MarsCinematicPostProcessing,
+} from "./environment";
+
 import "./MarsColonyWorld3D.css";
 
 
@@ -345,72 +351,24 @@ function ColonyScene({
       </mesh>
 
       {/*
-       * BOBU Mars Cinematic Lighting.
+       * BOBU Mars Cinematic Environment V1.
        *
-       * Warm Martian key light + cool technological rim.
-       * Ambient kept deliberately low so buildings gain depth.
+       * One authoritative environment and lighting system.
+       * Do not stack legacy world lights above this layer.
        */}
-      <ambientLight
-        intensity={0.34}
-        color="#6b3d32"
+      <color
+        attach="background"
+        args={["#120705"]}
       />
 
-      <hemisphereLight
-        intensity={0.72}
-        color="#d88958"
-        groundColor="#160908"
+      <fogExp2
+        attach="fog"
+        args={["#2c0e08", 0.015]}
       />
 
-      <directionalLight
-        castShadow
-        position={[
-          -18,
-          24,
-          12,
-        ]}
-        intensity={3.6}
-        color="#ffad68"
-        shadow-mapSize-width={1024}
-        shadow-mapSize-height={1024}
-        shadow-camera-near={1}
-        shadow-camera-far={70}
-        shadow-camera-left={-28}
-        shadow-camera-right={28}
-        shadow-camera-top={28}
-        shadow-camera-bottom={-28}
-      />
+      <MarsCinematicEnvironment />
 
-      <directionalLight
-        position={[
-          18,
-          10,
-          -15,
-        ]}
-        intensity={1.55}
-        color="#597cff"
-      />
-
-      <pointLight
-        position={[
-          0,
-          8,
-          -10,
-        ]}
-        intensity={4.5}
-        distance={32}
-        color="#ff784c"
-      />
-
-      <pointLight
-        position={[
-          -8,
-          6,
-          8,
-        ]}
-        intensity={3.2}
-        distance={26}
-        color="#4e75ff"
-      />
+      <MarsCinematicLighting />
 
       <MarsColonyInfrastructure
         buildings={
@@ -570,6 +528,8 @@ function ColonyScene({
        * directional shadow map. Decorative colony geometry
        * remains non-shadow-casting.
        */}
+      <MarsCinematicPostProcessing />
+
     </>
   );
 }
@@ -599,14 +559,21 @@ export function MarsColonyWorld3D({
          */
         dpr={[1, 1.25]}
         camera={{
+          /*
+           * Cinematic horizon camera.
+           *
+           * Lower elevation and wider FOV make the colony read
+           * as a real settlement on Mars instead of a board
+           * viewed from above.
+           */
           position: [
-            15.5,
-            13.5,
-            20.5,
+            -18,
+            9,
+            28,
           ],
-          fov: 42,
+          fov: 58,
           near: 0.1,
-          far: 180,
+          far: 300,
         }}
         gl={{
           alpha: true,
@@ -625,7 +592,7 @@ export function MarsColonyWorld3D({
             THREE.ACESFilmicToneMapping;
 
           gl.toneMappingExposure =
-            1.18;
+            1.35;
 
           gl.setClearColor(
             0x000000,
