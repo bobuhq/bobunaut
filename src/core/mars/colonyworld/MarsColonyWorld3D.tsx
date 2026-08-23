@@ -131,16 +131,25 @@ function MarsCinematicCamera({
      * - enough foreground for dense colony
      * - enough background for future mountains / rocket
      */
+    /*
+     * Cinematic Camera V2.
+     *
+     * Lower viewing height while preserving the complete
+     * interactive colony footprint.
+     * Camera target is lifted slightly above the ground so
+     * structures gain perspective depth instead of reading
+     * like a flat strategy map.
+     */
     camera.position.set(
-      world.x + 15.5,
-      13.5,
-      world.z + 20.5,
+      world.x + 14.5,
+      10.0,
+      world.z + 23.0,
     );
 
     camera.lookAt(
       world.x,
-      0.6,
-      world.z - 1.2,
+      1.15,
+      world.z - 1.8,
     );
 
     camera.updateProjectionMatrix();
