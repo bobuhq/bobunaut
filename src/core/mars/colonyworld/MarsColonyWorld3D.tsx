@@ -141,15 +141,15 @@ function MarsCinematicCamera({
      * like a flat strategy map.
      */
     camera.position.set(
-      world.x + 14.5,
-      10.0,
-      world.z + 23.0,
+      world.x + 13.5,
+      9.5,
+      world.z + 24.5,
     );
 
     camera.lookAt(
       world.x,
-      1.15,
-      world.z - 1.8,
+      0.4,
+      world.z - 1.2,
     );
 
     camera.updateProjectionMatrix();
