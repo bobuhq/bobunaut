@@ -170,55 +170,147 @@ function HubDistrict() {
 }
 
 
+function CrystalShard({
+  position,
+  scale = 1,
+  rotationY = 0,
+}: {
+  position: [
+    number,
+    number,
+    number,
+  ];
+  scale?: number;
+  rotationY?: number;
+}) {
+  return (
+    <group
+      position={position}
+      rotation={[
+        0,
+        THREE.MathUtils.degToRad(
+          rotationY,
+        ),
+        0,
+      ]}
+      scale={scale}
+    >
+      <mesh
+        castShadow
+        position={[0, 0.42, 0]}
+      >
+        <octahedronGeometry
+          args={[0.34, 0]}
+        />
+
+        <meshStandardMaterial
+          color="#c66cff"
+          emissive="#7516d1"
+          emissiveIntensity={2.7}
+          metalness={0.28}
+          roughness={0.18}
+        />
+      </mesh>
+
+      <mesh
+        position={[0, 0.12, 0]}
+      >
+        <cylinderGeometry
+          args={[
+            0.28,
+            0.42,
+            0.18,
+            8,
+          ]}
+        />
+
+        <meshStandardMaterial
+          color="#211926"
+          metalness={0.72}
+          roughness={0.3}
+        />
+      </mesh>
+
+      <pointLight
+        position={[0, 0.65, 0]}
+        intensity={1.9}
+        distance={2.8}
+        color="#b84cff"
+      />
+    </group>
+  );
+}
+
+
 function EnergyDistrict() {
-  const props: PropDefinition[] = [
-    {
-      path: "solarpanel.gltf",
-      position: [-2.5, 0, -1.8],
-      rotationY: 18,
-      scale: 0.82,
-    },
-
-    {
-      path: "solarpanel.gltf",
-      position: [0, 0, -2.4],
-      rotationY: 4,
-      scale: 0.82,
-    },
-
-    {
-      path: "solarpanel.gltf",
-      position: [2.5, 0, -1.8],
-      rotationY: -18,
-      scale: 0.82,
-    },
-
+  const supportProps:
+  PropDefinition[] = [
     {
       path: "structure_low.gltf",
-      position: [2.7, 0, 1.8],
+      position: [1.85, 0, 1.25],
       rotationY: 90,
-      scale: 0.66,
+      scale: 0.54,
     },
 
     {
       path: "containers_A.gltf",
-      position: [-2.5, 0, 1.7],
+      position: [-1.8, 0, 1.2],
       rotationY: 90,
-      scale: 0.58,
+      scale: 0.48,
+    },
+
+    {
+      path: "lights.gltf",
+      position: [0, 0, 1.85],
+      scale: 0.52,
     },
   ];
 
   return (
-    <>
-      {props.map(
+    <group>
+      {supportProps.map(
         (prop, index) => (
           <DensityAsset
-            key={`energy-density:${index}`}
+            key={`energy-support:${index}`}
             {...prop}
           />
         ),
       )}
-    </>
+
+      <CrystalShard
+        position={[-1.55, 0, -1.35]}
+        scale={1.05}
+        rotationY={18}
+      />
+
+      <CrystalShard
+        position={[0, 0, -1.7]}
+        scale={1.28}
+      />
+
+      <CrystalShard
+        position={[1.55, 0, -1.35]}
+        scale={1.05}
+        rotationY={-18}
+      />
+
+      <CrystalShard
+        position={[-0.9, 0, -0.55]}
+        scale={0.72}
+      />
+
+      <CrystalShard
+        position={[0.9, 0, -0.55]}
+        scale={0.72}
+      />
+
+      <pointLight
+        position={[0, 1.0, -1.0]}
+        intensity={3.8}
+        distance={6}
+        color="#a93cff"
+      />
+    </group>
   );
 }
 
@@ -388,6 +480,11 @@ function BuildingDistrict({
     building.buildingKey
       .toLowerCase();
 
+  const districtScale =
+    key === "command_hub"
+      ? 0.78
+      : 0.84;
+
   return (
     <group
       position={[
@@ -402,6 +499,7 @@ function BuildingDistrict({
         ),
         0,
       ]}
+      scale={districtScale}
     >
       {key === "command_hub" && (
         <HubDistrict />

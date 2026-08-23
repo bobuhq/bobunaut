@@ -63,36 +63,156 @@ function AssetPiece({
   );
 }
 
+function ReactorCrystal({
+  position,
+  scale = 1,
+  rotationZ = 0,
+}: {
+  position: [number, number, number];
+  scale?: number;
+  rotationZ?: number;
+}) {
+  return (
+    <group
+      position={position}
+      scale={scale}
+      rotation={[0, 0, rotationZ]}
+    >
+      <mesh castShadow>
+        <octahedronGeometry args={[0.28, 0]} />
+
+        <meshStandardMaterial
+          color="#d47cff"
+          emissive="#831fe4"
+          emissiveIntensity={3.2}
+          metalness={0.28}
+          roughness={0.16}
+        />
+      </mesh>
+
+      <pointLight
+        intensity={1.8}
+        distance={2.2}
+        color="#bd5cff"
+      />
+    </group>
+  );
+}
+
+
+function BobuCrystalReactor() {
+  return (
+    <group>
+      <mesh
+        position={[0, 0.72, 0]}
+        rotation={[Math.PI / 2, 0, 0]}
+      >
+        <torusGeometry
+          args={[0.72, 0.075, 12, 48]}
+        />
+
+        <meshStandardMaterial
+          color="#a840ff"
+          emissive="#6817b8"
+          emissiveIntensity={2.25}
+          metalness={0.76}
+          roughness={0.18}
+        />
+      </mesh>
+
+      <mesh
+        position={[0, 0.72, 0]}
+        rotation={[Math.PI / 2, 0, 0]}
+      >
+        <torusGeometry
+          args={[0.48, 0.035, 10, 40]}
+        />
+
+        <meshStandardMaterial
+          color="#edb4ff"
+          emissive="#ad43ff"
+          emissiveIntensity={3}
+          metalness={0.48}
+          roughness={0.12}
+        />
+      </mesh>
+
+      <mesh
+        castShadow
+        position={[0, 0.57, 0]}
+      >
+        <cylinderGeometry
+          args={[0.42, 0.54, 0.3, 12]}
+        />
+
+        <meshStandardMaterial
+          color="#17121d"
+          metalness={0.86}
+          roughness={0.2}
+        />
+      </mesh>
+
+      <group
+        position={[0, 1.2, 0]}
+        scale={[0.82, 1.65, 0.82]}
+      >
+        <mesh castShadow>
+          <octahedronGeometry args={[0.42, 0]} />
+
+          <meshStandardMaterial
+            color="#db83ff"
+            emissive="#821be0"
+            emissiveIntensity={3.8}
+            metalness={0.24}
+            roughness={0.12}
+          />
+        </mesh>
+      </group>
+
+      <ReactorCrystal
+        position={[-0.65, 0.92, 0]}
+        scale={0.62}
+        rotationZ={0.18}
+      />
+
+      <ReactorCrystal
+        position={[0.65, 0.92, 0]}
+        scale={0.62}
+        rotationZ={-0.18}
+      />
+
+      <ReactorCrystal
+        position={[0, 0.92, -0.65]}
+        scale={0.62}
+        rotationZ={0.12}
+      />
+
+      <ReactorCrystal
+        position={[0, 0.92, 0.65]}
+        scale={0.62}
+        rotationZ={-0.12}
+      />
+
+      <pointLight
+        position={[0, 1.45, 0]}
+        intensity={5}
+        distance={6}
+        color="#b84dff"
+      />
+    </group>
+  );
+}
+
+
 function EnergyComplex() {
   const pieces: Piece[] = [
     {
       path: "basemodule_A.gltf",
     },
-    {
-      path:
-        "roofmodule_solarpanels.gltf",
-      position: [0, 0.02, 0],
-    },
 
     {
-      path: "solarpanel.gltf",
-      position: [-1.7, 0, -1.0],
-      rotationY: 15,
-    },
-    {
-      path: "solarpanel.gltf",
-      position: [-1.7, 0, 0.7],
-      rotationY: 15,
-    },
-    {
-      path: "solarpanel.gltf",
-      position: [1.7, 0, -1.0],
-      rotationY: -15,
-    },
-    {
-      path: "solarpanel.gltf",
-      position: [1.7, 0, 0.7],
-      rotationY: -15,
+      path: "roofmodule_base.gltf",
+      position: [0, 0.02, 0],
     },
   ];
 
@@ -107,15 +227,11 @@ function EnergyComplex() {
         ),
       )}
 
-      <pointLight
-        position={[0, 1.6, 0]}
-        intensity={1.8}
-        distance={5}
-        color="#ff9c46"
-      />
+      <BobuCrystalReactor />
     </group>
   );
 }
+
 
 function WaterComplex() {
   const pieces: Piece[] = [
