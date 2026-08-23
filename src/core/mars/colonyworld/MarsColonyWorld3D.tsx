@@ -631,6 +631,7 @@ export function MarsColonyWorld3D({
             0x000000,
             0,
           );
+
         }}
       >
         <Suspense fallback={null}>
