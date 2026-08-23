@@ -56,6 +56,8 @@ export default function MarsCommandHubBuilding({
   selected,
   onSelect,
   onDeselect,
+  onLivePlacementChange,
+  onLivePlacementClear,
 }: {
   building: MarsColonyBaseBuilding;
   physicalBuildings: MarsBuildingInstance[];
@@ -63,6 +65,10 @@ export default function MarsCommandHubBuilding({
   selected: boolean;
   onSelect: () => void;
   onDeselect: () => void;
+  onLivePlacementChange: (
+    placement: Placement,
+  ) => void;
+  onLivePlacementClear: () => void;
 }) {
   const initialPlacement =
     useMemo<Placement>(
@@ -144,6 +150,21 @@ export default function MarsCommandHubBuilding({
     );
   }, [
     initialPlacement,
+  ]);
+
+
+  useEffect(() => {
+    if (!editing) {
+      return;
+    }
+
+    onLivePlacementChange(
+      placement,
+    );
+  }, [
+    editing,
+    placement,
+    onLivePlacementChange,
   ]);
 
 
@@ -415,6 +436,8 @@ export default function MarsCommandHubBuilding({
       committedPlacement,
     );
 
+    onLivePlacementClear();
+
     document.body.style.cursor =
       "";
   }
@@ -437,6 +460,8 @@ export default function MarsCommandHubBuilding({
 
     setDragging(false);
     setEditing(false);
+
+    onLivePlacementClear();
 
     /*
      * SAVE completed successfully.

@@ -206,6 +206,51 @@ function ScienceComplex() {
   );
 }
 
+function HabitatComplex() {
+  const pieces: Piece[] = [
+    {
+      path: "basemodule_D.gltf",
+    },
+
+    {
+      path: "roofmodule_base.gltf",
+      position: [0, 0.02, 0],
+    },
+
+    {
+      path: "lights.gltf",
+      position: [-1.15, 0, 0.65],
+    },
+
+    {
+      path: "lights.gltf",
+      position: [1.15, 0, 0.65],
+      rotationY: 180,
+    },
+  ];
+
+  return (
+    <group>
+      {pieces.map(
+        (piece, index) => (
+          <AssetPiece
+            key={`${piece.path}:${index}`}
+            {...piece}
+          />
+        ),
+      )}
+
+      <pointLight
+        position={[0, 1.3, 0]}
+        intensity={1.25}
+        distance={4}
+        color="#d6b0ff"
+      />
+    </group>
+  );
+}
+
+
 export default function MarsKayKitBuilding({
   buildingKey,
   preview = false,
@@ -231,6 +276,10 @@ export default function MarsKayKitBuilding({
 
       {key.includes("science") && (
         <ScienceComplex />
+      )}
+
+      {key.includes("habitat") && (
+        <HabitatComplex />
       )}
     </group>
   );

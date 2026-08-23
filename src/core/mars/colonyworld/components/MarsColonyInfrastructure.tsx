@@ -99,15 +99,15 @@ function InfrastructureSegment({
         <boxGeometry
           args={[
             length,
-            0.055,
-            0.46,
+            0.035,
+            0.24,
           ]}
         />
 
         <meshStandardMaterial
-          color="#2e2929"
-          roughness={0.86}
-          metalness={0.16}
+          color="#201d1e"
+          roughness={0.9}
+          metalness={0.22}
         />
       </mesh>
 
@@ -125,16 +125,16 @@ function InfrastructureSegment({
       >
         <boxGeometry
           args={[
-            length * 0.96,
-            0.022,
-            0.055,
+            length * 0.94,
+            0.012,
+            0.025,
           ]}
         />
 
         <meshStandardMaterial
           color="#8c4cff"
           emissive="#5520aa"
-          emissiveIntensity={1.4}
+          emissiveIntensity={0.72}
           roughness={0.42}
           metalness={0.25}
         />
@@ -198,11 +198,11 @@ function BuildingPlatform({
 
   const radius =
     Math.max(
-      1.15,
+      0.82,
       Math.max(
         width,
         depth,
-      ) * 0.88,
+      ) * 0.62,
     );
 
   return (
@@ -223,14 +223,14 @@ function BuildingPlatform({
         <circleGeometry
           args={[
             radius,
-            32,
+            40,
           ]}
         />
 
         <meshStandardMaterial
-          color="#332a29"
-          roughness={0.9}
-          metalness={0.12}
+          color="#272224"
+          roughness={0.93}
+          metalness={0.18}
         />
       </mesh>
 
@@ -248,18 +248,18 @@ function BuildingPlatform({
       >
         <ringGeometry
           args={[
-            radius * 0.82,
             radius * 0.9,
-            32,
+            radius * 0.94,
+            40,
           ]}
         />
 
         <meshStandardMaterial
           color="#8c4cff"
           emissive="#42106f"
-          emissiveIntensity={1.5}
+          emissiveIntensity={0.75}
           transparent
-          opacity={0.82}
+          opacity={0.48}
           side={THREE.DoubleSide}
         />
       </mesh>

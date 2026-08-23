@@ -103,6 +103,28 @@ function ColonyScene({
    * All placement systems read the exact same building
    * instances and occupancy source.
    */
+  /*
+   * Live Placement Overlay V1.
+   *
+   * Server snapshot remains authoritative.
+   * These overrides exist only while a physical building is
+   * being interactively moved before SAVE/CANCEL completes.
+   */
+  const [
+    livePlacementOverrides,
+    setLivePlacementOverrides,
+  ] = useState<
+    Record<
+      string,
+      {
+        gridX: number;
+        gridZ: number;
+        rotationY:
+          MarsColonyRotation;
+      }
+    >
+  >({});
+
   const physicalBuildings =
     useMemo(
       () =>
@@ -111,6 +133,71 @@ function ColonyScene({
         ),
       [buildings],
     );
+
+  const infrastructureBuildings =
+    useMemo(
+      () =>
+        physicalBuildings.map(
+          (building) => {
+            const override =
+              livePlacementOverrides[
+                building.buildingId
+              ];
+
+            if (!override) {
+              return building;
+            }
+
+            return {
+              ...building,
+              gridX: override.gridX,
+              gridZ: override.gridZ,
+              rotationY:
+                override.rotationY,
+            };
+          },
+        ),
+      [
+        physicalBuildings,
+        livePlacementOverrides,
+      ],
+    );
+
+  function updateLivePlacement(
+    buildingId: string,
+    placement: {
+      gridX: number;
+      gridZ: number;
+      rotationY: MarsColonyRotation;
+    },
+  ) {
+    setLivePlacementOverrides(
+      (current) => ({
+        ...current,
+        [buildingId]: placement,
+      }),
+    );
+  }
+
+  function clearLivePlacement(
+    buildingId: string,
+  ) {
+    setLivePlacementOverrides(
+      (current) => {
+        if (!(buildingId in current)) {
+          return current;
+        }
+
+        const next = {
+          ...current,
+        };
+
+        delete next[buildingId];
+
+        return next;
+      },
+    );
+  }
 
   const commandHub =
     buildings.find(
@@ -200,7 +287,7 @@ function ColonyScene({
 
       <MarsColonyInfrastructure
         buildings={
-          physicalBuildings
+          infrastructureBuildings
         }
       />
 
@@ -227,6 +314,27 @@ function ColonyScene({
           onDeselect={() =>
             setSelectedBuildingId(null)
           }
+          onLivePlacementChange={
+            (placement) => {
+              if (
+                commandHub.building_id
+              ) {
+                updateLivePlacement(
+                  commandHub.building_id,
+                  placement,
+                );
+              }
+            }
+          }
+          onLivePlacementClear={() => {
+            if (
+              commandHub.building_id
+            ) {
+              clearLivePlacement(
+                commandHub.building_id,
+              );
+            }
+          }}
         />
       )}
 
@@ -264,6 +372,27 @@ function ColonyScene({
             onDeselect={() =>
               setSelectedBuildingId(null)
             }
+            onLivePlacementChange={
+              (placement) => {
+                if (
+                  building.building_id
+                ) {
+                  updateLivePlacement(
+                    building.building_id,
+                    placement,
+                  );
+                }
+              }
+            }
+            onLivePlacementClear={() => {
+              if (
+                building.building_id
+              ) {
+                clearLivePlacement(
+                  building.building_id,
+                );
+              }
+            }}
           />
         ))}
 

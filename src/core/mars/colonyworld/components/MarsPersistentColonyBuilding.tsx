@@ -57,6 +57,8 @@ export default function MarsPersistentColonyBuilding({
   selected,
   onSelect,
   onDeselect,
+  onLivePlacementChange,
+  onLivePlacementClear,
 }: {
   building: MarsColonyBaseBuilding;
   physicalBuildings: MarsPhysicalBuildings;
@@ -64,6 +66,10 @@ export default function MarsPersistentColonyBuilding({
   selected: boolean;
   onSelect: () => void;
   onDeselect: () => void;
+  onLivePlacementChange: (
+    placement: Placement,
+  ) => void;
+  onLivePlacementClear: () => void;
 }) {
   const initialPlacement =
     useMemo<Placement>(
@@ -123,6 +129,21 @@ export default function MarsPersistentColonyBuilding({
       initialPlacement,
     );
   }, [initialPlacement]);
+
+
+  useEffect(() => {
+    if (!editing) {
+      return;
+    }
+
+    onLivePlacementChange(
+      placement,
+    );
+  }, [
+    editing,
+    placement,
+    onLivePlacementChange,
+  ]);
 
 
   if (
@@ -325,6 +346,8 @@ export default function MarsPersistentColonyBuilding({
       committedPlacement,
     );
 
+    onLivePlacementClear();
+
     document.body.style.cursor =
       "";
   }
@@ -372,6 +395,8 @@ export default function MarsPersistentColonyBuilding({
 
       setDragging(false);
       setEditing(false);
+
+      onLivePlacementClear();
 
       document.body.style.cursor =
         "";

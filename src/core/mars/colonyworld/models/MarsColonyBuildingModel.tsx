@@ -274,7 +274,8 @@ export default function MarsColonyBuildingModel({
   const usesKayKitComplex =
     key.includes("energy") ||
     key.includes("water") ||
-    key.includes("science");
+    key.includes("science") ||
+    key.includes("habitat");
 
   if (usesKayKitComplex) {
     return (
