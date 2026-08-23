@@ -140,16 +140,23 @@ function MarsCinematicCamera({
      * structures gain perspective depth instead of reading
      * like a flat strategy map.
      */
+    /*
+     * Cinematic Camera V4.
+     *
+     * Closer framing with a slightly narrower field of view.
+     * Keeps the full interactive colony visible while making
+     * the settlement occupy more of the screen.
+     */
     camera.position.set(
-      world.x + 13.5,
-      9.5,
-      world.z + 24.5,
+      world.x + 12.0,
+      8.8,
+      world.z + 21.0,
     );
 
     camera.lookAt(
       world.x,
-      0.4,
-      world.z - 1.2,
+      0.65,
+      world.z - 1.5,
     );
 
     camera.updateProjectionMatrix();
@@ -618,7 +625,7 @@ export function MarsColonyWorld3D({
             9.5,
             24.5,
           ],
-          fov: 50,
+          fov: 46,
           near: 0.1,
           far: 220,
         }}
