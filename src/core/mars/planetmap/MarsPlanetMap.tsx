@@ -23,7 +23,6 @@ import type {
 import {
   DoubleSide,
   MathUtils,
-  Quaternion,
   SRGBColorSpace,
   Vector3,
 } from "three";
@@ -55,12 +54,8 @@ type SectorMarkerProps = {
   onSelect: () => void;
 };
 
-/*
- * Mars Planet Map V2.
- * Smaller globe + surface sector network.
- */
-const PLANET_RADIUS = 2.24;
-const MARKER_RADIUS = 2.285;
+const PLANET_RADIUS = 2.62;
+const MARKER_RADIUS = 2.68;
 
 function mapCoordinatesToAngles(
   mapX: number,
@@ -109,370 +104,6 @@ function mapPositionToSphere(
   );
 }
 
-function ActiveSectorColony() {
-  return (
-    <group
-      position={[0, 0, 0.052]}
-      scale={0.9}
-    >
-      <mesh>
-        <circleGeometry
-          args={[0.105, 16]}
-        />
-
-        <meshBasicMaterial
-          color="#22102f"
-          transparent
-          opacity={0.9}
-          depthWrite={false}
-          toneMapped={false}
-        />
-      </mesh>
-
-      <mesh
-        position={[
-          -0.052,
-          -0.018,
-          0.018,
-        ]}
-      >
-        <boxGeometry
-          args={[
-            0.038,
-            0.072,
-            0.025,
-          ]}
-        />
-
-        <meshBasicMaterial
-          color="#62efff"
-          toneMapped={false}
-        />
-      </mesh>
-
-      <mesh
-        position={[
-          0,
-          0.008,
-          0.02,
-        ]}
-      >
-        <boxGeometry
-          args={[
-            0.046,
-            0.125,
-            0.026,
-          ]}
-        />
-
-        <meshBasicMaterial
-          color="#c86cff"
-          toneMapped={false}
-        />
-      </mesh>
-
-      <mesh
-        position={[
-          0.054,
-          -0.022,
-          0.018,
-        ]}
-      >
-        <boxGeometry
-          args={[
-            0.035,
-            0.064,
-            0.024,
-          ]}
-        />
-
-        <meshBasicMaterial
-          color="#ffab64"
-          toneMapped={false}
-        />
-      </mesh>
-
-      <mesh
-        position={[
-          0,
-          0.092,
-          0.024,
-        ]}
-        scale={[
-          0.035,
-          0.055,
-          0.035,
-        ]}
-      >
-        <octahedronGeometry
-          args={[1, 0]}
-        />
-
-        <meshBasicMaterial
-          color="#a96cff"
-          toneMapped={false}
-        />
-      </mesh>
-    </group>
-  );
-}
-
-
-function SectorLockGlyph() {
-  return (
-    <group
-      position={[0, 0, 0.052]}
-      scale={0.72}
-    >
-      <mesh
-        position={[
-          0,
-          -0.018,
-          0,
-        ]}
-      >
-        <boxGeometry
-          args={[
-            0.085,
-            0.067,
-            0.02,
-          ]}
-        />
-
-        <meshBasicMaterial
-          color="#ff9955"
-          transparent
-          opacity={0.82}
-          toneMapped={false}
-        />
-      </mesh>
-
-      <mesh
-        position={[
-          0,
-          0.04,
-          0,
-        ]}
-        rotation={[
-          0,
-          0,
-          Math.PI,
-        ]}
-      >
-        <torusGeometry
-          args={[
-            0.032,
-            0.009,
-            6,
-            12,
-            Math.PI,
-          ]}
-        />
-
-        <meshBasicMaterial
-          color="#ffb06a"
-          transparent
-          opacity={0.88}
-          toneMapped={false}
-        />
-      </mesh>
-    </group>
-  );
-}
-
-
-function TerritoryHex({
-  position = [0, 0, 0],
-  color,
-  active = false,
-}: {
-  position?: [
-    number,
-    number,
-    number,
-  ];
-  color: string;
-  active?: boolean;
-}) {
-  return (
-    <group position={position}>
-      {active && (
-        <mesh
-          position={[0, 0, -0.002]}
-          renderOrder={4}
-        >
-          <circleGeometry
-            args={[
-              0.205,
-              6,
-            ]}
-          />
-
-          <meshBasicMaterial
-            color={color}
-            transparent
-            opacity={0.115}
-            depthWrite={false}
-            toneMapped={false}
-          />
-        </mesh>
-      )}
-
-      <mesh renderOrder={5}>
-        <ringGeometry
-          args={[
-            active
-              ? 0.184
-              : 0.168,
-            active
-              ? 0.213
-              : 0.194,
-            6,
-          ]}
-        />
-
-        <meshBasicMaterial
-          color={color}
-          transparent
-          opacity={
-            active
-              ? 0.96
-              : 0.5
-          }
-          side={DoubleSide}
-          depthWrite={false}
-          toneMapped={false}
-        />
-      </mesh>
-    </group>
-  );
-}
-
-
-function ActiveTerritoryCluster() {
-  return (
-    <group
-      name="ares-active-territory"
-    >
-      {/*
-       * Reference-style single active Mars territory.
-       * One large illuminated region, not seven cells.
-       */}
-
-      <mesh
-        position={[
-          0,
-          0,
-          -0.006,
-        ]}
-        renderOrder={4}
-      >
-        <circleGeometry
-          args={[
-            0.42,
-            6,
-          ]}
-        />
-
-        <meshBasicMaterial
-          color="#65f3ff"
-          transparent
-          opacity={0.11}
-          depthWrite={false}
-          toneMapped={false}
-        />
-      </mesh>
-
-      {/*
-       * Soft secondary glow under the active territory.
-       */}
-      <mesh
-        position={[
-          0,
-          0,
-          -0.01,
-        ]}
-        scale={1.12}
-        renderOrder={3}
-      >
-        <circleGeometry
-          args={[
-            0.42,
-            6,
-          ]}
-        />
-
-        <meshBasicMaterial
-          color="#8b4dff"
-          transparent
-          opacity={0.045}
-          depthWrite={false}
-          toneMapped={false}
-        />
-      </mesh>
-
-      {/*
-       * Strong outer territory border.
-       */}
-      <mesh renderOrder={6}>
-        <ringGeometry
-          args={[
-            0.395,
-            0.435,
-            6,
-          ]}
-        />
-
-        <meshBasicMaterial
-          color="#65f3ff"
-          transparent
-          opacity={1}
-          side={DoubleSide}
-          depthWrite={false}
-          toneMapped={false}
-        />
-      </mesh>
-
-      {/*
-       * Inner purple identity line.
-       */}
-      <mesh
-        position={[
-          0,
-          0,
-          0.002,
-        ]}
-        renderOrder={7}
-      >
-        <ringGeometry
-          args={[
-            0.355,
-            0.368,
-            6,
-          ]}
-        />
-
-        <meshBasicMaterial
-          color="#a969ff"
-          transparent
-          opacity={0.72}
-          side={DoubleSide}
-          depthWrite={false}
-          toneMapped={false}
-        />
-      </mesh>
-
-      {/*
-       * Bobu Genesis mini colony at the center.
-       */}
-      <group scale={1.35}>
-        <ActiveSectorColony />
-      </group>
-    </group>
-  );
-}
-
-
 function SectorMarker({
   sector,
   current,
@@ -498,47 +129,15 @@ function SectorMarker({
     ],
   );
 
-  const orientation = useMemo(
-    () =>
-      new Quaternion()
-        .setFromUnitVectors(
-          new Vector3(
-            0,
-            0,
-            1,
-          ),
-          position
-            .clone()
-            .normalize(),
-        ),
-    [position],
-  );
-
-  const available =
-    sector.sector_status ===
-    "active";
-
   const color = current
     ? "#63f5ff"
     : selected
       ? "#c795ff"
-      : available
-        ? "#9cff78"
-        : "#d97843";
+      : "#ffb06a";
 
   return (
-    <group
-      position={position}
-      quaternion={orientation}
-    >
-      {/*
-       * Invisible interaction surface.
-       *
-       * The visible territory geometry remains clean while
-       * still providing a generous click target.
-       */}
+    <group position={position}>
       <mesh
-        position={[0, 0, 0.018]}
         onClick={(event) => {
           event.stopPropagation();
           onSelect();
@@ -550,120 +149,51 @@ function SectorMarker({
             "pointer";
         }}
         onPointerOut={() => {
-          document.body.style.cursor =
-            "";
+          document.body.style.cursor = "";
         }}
       >
-        <circleGeometry
+        <sphereGeometry
           args={[
-            current
-              ? 0.34
-              : 0.245,
+            current || selected
+              ? 0.075
+              : 0.058,
+            24,
             24,
           ]}
         />
 
         <meshBasicMaterial
-          transparent
-          opacity={0.001}
-          depthWrite={false}
+          color={color}
+          toneMapped={false}
         />
       </mesh>
 
-      {current ? (
-        <ActiveTerritoryCluster />
-      ) : (
-        <group
-          scale={
-            selected
-              ? 1.18
-              : 1
+      <mesh>
+        <ringGeometry
+          args={[
+            0.085,
+            current || selected
+              ? 0.145
+              : 0.115,
+            32,
+          ]}
+        />
+
+        <meshBasicMaterial
+          color={color}
+          transparent
+          opacity={
+            current || selected
+              ? 0.78
+              : 0.38
           }
-        >
-          {/*
-           * Large real Mars territory region.
-           */}
-          {selected && (
-            <mesh
-              position={[0, 0, -0.002]}
-              renderOrder={4}
-            >
-              <circleGeometry
-                args={[
-                  0.205,
-                  6,
-                ]}
-              />
+          side={DoubleSide}
+          depthWrite={false}
+          toneMapped={false}
+        />
+      </mesh>
 
-              <meshBasicMaterial
-                color={color}
-                transparent
-                opacity={0.09}
-                depthWrite={false}
-                toneMapped={false}
-              />
-            </mesh>
-          )}
 
-          <TerritoryHex
-            color={color}
-            active={selected}
-          />
-
-          {!available &&
-            !selected && (
-              <SectorLockGlyph />
-            )}
-
-          {available &&
-            !selected && (
-              <group
-                position={[
-                  0,
-                  0,
-                  0.045,
-                ]}
-              >
-                <mesh>
-                  <circleGeometry
-                    args={[
-                      0.052,
-                      16,
-                    ]}
-                  />
-
-                  <meshBasicMaterial
-                    color="#9cff78"
-                    transparent
-                    opacity={0.9}
-                    depthWrite={false}
-                    toneMapped={false}
-                  />
-                </mesh>
-
-                <mesh
-                  position={[
-                    0,
-                    0.006,
-                    0.01,
-                  ]}
-                >
-                  <octahedronGeometry
-                    args={[
-                      0.029,
-                      0,
-                    ]}
-                  />
-
-                  <meshBasicMaterial
-                    color="#e6ffd8"
-                    toneMapped={false}
-                  />
-                </mesh>
-              </group>
-            )}
-        </group>
-      )}
     </group>
   );
 }
