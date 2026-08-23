@@ -599,14 +599,19 @@ export function MarsColonyWorld3D({
          */
         dpr={[1, 1.25]}
         camera={{
+          /*
+           * Cinematic camera V1.
+           * Lower angle, wider field of view.
+           * No terrain, lighting or post-processing changes.
+           */
           position: [
-            15.5,
             13.5,
-            20.5,
+            9.5,
+            24.5,
           ],
-          fov: 42,
+          fov: 50,
           near: 0.1,
-          far: 180,
+          far: 220,
         }}
         gl={{
           alpha: true,
