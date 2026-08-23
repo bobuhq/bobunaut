@@ -5,7 +5,6 @@ import {
 } from "@react-three/fiber";
 
 import {
-  ContactShadows,
   Html,
 } from "@react-three/drei";
 
@@ -563,19 +562,14 @@ function ColonyScene({
           />
         )}
 
-      <ContactShadows
-        position={[
-          0,
-          0.04,
-          0,
-        ]}
-        opacity={0.52}
-        scale={36}
-        blur={2.2}
-        far={16}
-        resolution={1024}
-        color="#170b08"
-      />
+      {/*
+       * Mars Render Stability V2
+       *
+       * ContactShadows intentionally removed.
+       * Primary structures continue to use the global
+       * directional shadow map. Decorative colony geometry
+       * remains non-shadow-casting.
+       */}
     </>
   );
 }
