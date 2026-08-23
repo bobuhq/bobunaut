@@ -2227,3 +2227,15 @@
   transform: translateY(-1px);
   border-color: rgba(255, 190, 130, 0.72);
 }
+
+
+/* MARS PLANET MAP V2 COMPACT LABEL */
+
+.mars-planet-map__sector-label {
+  transform: scale(0.76);
+  transform-origin: center center;
+}
+
+.mars-planet-map__sector-label strong {
+  letter-spacing: 0.14em;
+}

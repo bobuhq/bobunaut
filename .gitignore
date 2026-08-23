@@ -17,3 +17,5 @@ backups/
 
 # Local environment overrides
 .env.local
+
+.env.local.backup

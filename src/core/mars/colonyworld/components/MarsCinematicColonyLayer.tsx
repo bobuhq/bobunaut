@@ -113,6 +113,169 @@ function getWorld(
 }
 
 
+function CrystalGlassShell({
+  x,
+  z,
+  scale,
+  tall,
+}: {
+  x: number;
+  z: number;
+  scale: number;
+  tall: boolean;
+}) {
+  const shellHeight =
+    tall
+      ? 2.9 * scale
+      : 1.65 * scale;
+
+  const shellRadius =
+    tall
+      ? 0.72 * scale
+      : 0.9 * scale;
+
+  return (
+    <group>
+      {/*
+       * Outer crystal-glass shell.
+       * Transparent, non-shadow-casting and intentionally cheap.
+       */}
+      <mesh
+        position={[
+          x,
+          shellHeight * 0.5,
+          z,
+        ]}
+        scale={[
+          shellRadius,
+          shellHeight,
+          shellRadius,
+        ]}
+        castShadow={false}
+        receiveShadow={false}
+      >
+        <cylinderGeometry
+          args={[
+            0.82,
+            0.98,
+            1,
+            tall ? 8 : 10,
+            1,
+            true,
+          ]}
+        />
+
+        <meshPhysicalMaterial
+          color={
+            tall
+              ? "#8a7dff"
+              : "#b26cff"
+          }
+          transparent
+          opacity={0.16}
+          transmission={0.42}
+          roughness={0.18}
+          metalness={0.06}
+          thickness={0.35}
+          emissive={
+            tall
+              ? "#332a8f"
+              : "#4b1f78"
+          }
+          emissiveIntensity={0.5}
+          depthWrite={false}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+
+      {/*
+       * Internal illuminated core.
+       */}
+      <mesh
+        position={[
+          x,
+          tall
+            ? 1.25 * scale
+            : 0.68 * scale,
+          z,
+        ]}
+      >
+        <cylinderGeometry
+          args={[
+            0.18 * scale,
+            0.24 * scale,
+            tall
+              ? 1.9 * scale
+              : 0.9 * scale,
+            8,
+          ]}
+        />
+
+        <meshStandardMaterial
+          color="#ffd8b3"
+          emissive="#ff8a3d"
+          emissiveIntensity={
+            tall ? 2.2 : 1.5
+          }
+          toneMapped={false}
+          roughness={0.22}
+          metalness={0.15}
+        />
+      </mesh>
+
+      {/*
+       * Vertical neon window strips.
+       */}
+      <mesh
+        position={[
+          x + shellRadius * 0.72,
+          shellHeight * 0.52,
+          z,
+        ]}
+      >
+        <boxGeometry
+          args={[
+            0.035,
+            shellHeight * 0.72,
+            0.08,
+          ]}
+        />
+
+        <meshBasicMaterial
+          color="#8ec7ff"
+          transparent
+          opacity={0.8}
+          toneMapped={false}
+        />
+      </mesh>
+
+      <mesh
+        position={[
+          x - shellRadius * 0.72,
+          shellHeight * 0.52,
+          z,
+        ]}
+      >
+        <boxGeometry
+          args={[
+            0.035,
+            shellHeight * 0.72,
+            0.08,
+          ]}
+        />
+
+        <meshBasicMaterial
+          color="#c47aff"
+          transparent
+          opacity={0.78}
+          toneMapped={false}
+        />
+      </mesh>
+    </group>
+  );
+}
+
+
 function CityBuilding({
   x,
   z,
@@ -153,6 +316,94 @@ function CityBuilding({
         scale={scale}
       />
 
+      <CrystalGlassShell
+        x={x}
+        z={z}
+        scale={scale}
+        tall={tall}
+      />
+    </group>
+  );
+}
+
+
+function SkylineTower({
+  position,
+  rotationY,
+  scale,
+  beaconColor,
+}: {
+  position: [number, number, number];
+  rotationY: number;
+  scale: number;
+  beaconColor: string;
+}) {
+  return (
+    <group>
+      <VisualAsset
+        path="structure_tall.gltf"
+        position={position}
+        rotationY={rotationY}
+        scale={scale}
+      />
+
+      {/*
+       * Lightweight emissive beacon.
+       * No pointLight: glow stays cheap.
+       */}
+      <mesh
+        position={[
+          position[0],
+          3.0 * scale,
+          position[2],
+        ]}
+      >
+        <sphereGeometry
+          args={[0.11 * scale, 12, 12]}
+        />
+
+        <meshStandardMaterial
+          color={beaconColor}
+          emissive={beaconColor}
+          emissiveIntensity={2.8}
+          toneMapped={false}
+          roughness={0.2}
+          metalness={0.25}
+        />
+      </mesh>
+    </group>
+  );
+}
+
+
+function CentralSkyline() {
+  return (
+    <group>
+      {/*
+       * Rear-half skyline.
+       * Towers are intentionally placed behind the Command Hub
+       * so they create depth without hiding the interactive hub.
+       */}
+      <SkylineTower
+        position={[-4.9, 0, -5.8]}
+        rotationY={-12}
+        scale={1.45}
+        beaconColor="#7f8dff"
+      />
+
+      <SkylineTower
+        position={[0.2, 0, -7.0]}
+        rotationY={7}
+        scale={1.85}
+        beaconColor="#c064ff"
+      />
+
+      <SkylineTower
+        position={[5.1, 0, -5.5]}
+        rotationY={18}
+        scale={1.55}
+        beaconColor="#64b8ff"
+      />
     </group>
   );
 }
@@ -289,6 +540,8 @@ function CentralDistrict({
       <RingRoad radius={3.2} />
       <RingRoad radius={5.3} />
       <RingRoad radius={7.6} />
+
+      <CentralSkyline />
 
       <RingLight radius={3.2} />
       <RingLight radius={5.3} />

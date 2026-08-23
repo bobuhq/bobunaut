@@ -634,9 +634,15 @@ export default function MarsCommandHubBuilding({
           0,
         ]}
         scale={
+          /*
+           * City Skyline V1.
+           *
+           * Visual scale only.
+           * Placement footprint / grid authority remains unchanged.
+           */
           dragging
-            ? 1.16
-            : 1.1
+            ? 1.72
+            : 1.65
         }
         onPointerDown={
           handlePointerDown
