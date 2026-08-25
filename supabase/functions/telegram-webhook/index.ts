@@ -31,10 +31,20 @@ async function sha256(value: string): Promise<string> {
     .join("");
 }
 
+type TelegramInlineKeyboard = {
+  inline_keyboard: Array<
+    Array<{
+      text: string;
+      url: string;
+    }>
+  >;
+};
+
 async function sendTelegramMessage(
   botToken: string,
   chatId: number,
   text: string,
+  replyMarkup?: TelegramInlineKeyboard,
 ): Promise<void> {
   const response = await fetch(
     `https://api.telegram.org/bot${botToken}/sendMessage`,
@@ -46,6 +56,9 @@ async function sendTelegramMessage(
       body: JSON.stringify({
         chat_id: chatId,
         text,
+        ...(replyMarkup
+          ? { reply_markup: replyMarkup }
+          : {}),
       }),
     },
   );
@@ -260,13 +273,22 @@ export default {
         "",
         "Your Telegram account has been linked successfully.",
         "",
-        "Join BOBU Official:",
-        "https://t.me/+I0Q01kVMYw41YjA0",
+        "Join BOBU Official using the button below.",
         "",
         "After joining, return to the BOBU app to complete your Telegram verification and Genesis Checkpoint.",
         "",
         "See you in the Universe. 🌌",
       ].join("\n"),
+      {
+        inline_keyboard: [
+          [
+            {
+              text: "Join BOBU Official",
+              url: "https://t.me/+I0Q01kVMYw41YjA0",
+            },
+          ],
+        ],
+      },
     );
 
     return Response.json({ ok: true });
