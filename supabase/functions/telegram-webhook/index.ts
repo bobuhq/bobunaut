@@ -13,10 +13,19 @@ type TelegramChat = {
   type?: "private" | "group" | "supergroup" | "channel";
 };
 
+type TelegramPhotoSize = {
+  file_id: string;
+  file_unique_id?: string;
+  width?: number;
+  height?: number;
+  file_size?: number;
+};
+
 type TelegramMessage = {
   message_id?: number;
   text?: string;
   caption?: string;
+  photo?: TelegramPhotoSize[];
   from?: TelegramUser;
   chat?: TelegramChat;
 };
@@ -173,6 +182,340 @@ function containsHighConfidenceSpam(
     .some((pattern) => pattern.test(text));
 }
 
+type TelegramFileResult = {
+  ok?: boolean;
+  result?: {
+    file_path?: string;
+  };
+};
+
+type ImageModerationDecision = {
+  unsafe: boolean;
+  confidence: number;
+  reason: string;
+};
+
+function extractOpenAIOutputText(
+  data: Record<string, unknown>,
+): string {
+  const output = data.output;
+
+  if (!Array.isArray(output)) {
+    return "";
+  }
+
+  for (const item of output) {
+    if (!item || typeof item !== "object") {
+      continue;
+    }
+
+    const content =
+      (item as Record<string, unknown>).content;
+
+    if (!Array.isArray(content)) {
+      continue;
+    }
+
+    for (const part of content) {
+      if (!part || typeof part !== "object") {
+        continue;
+      }
+
+      const value =
+        part as Record<string, unknown>;
+
+      if (
+        value.type === "output_text" &&
+        typeof value.text === "string"
+      ) {
+        return value.text;
+      }
+    }
+  }
+
+  return "";
+}
+
+async function getTelegramFileUrl(
+  botToken: string,
+  fileId: string,
+): Promise<string | null> {
+  try {
+    const response = await fetch(
+      `https://api.telegram.org/bot${botToken}/getFile`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          file_id: fileId,
+        }),
+      },
+    );
+
+    if (!response.ok) {
+      console.error(
+        "Telegram getFile failed:",
+        await response.text(),
+      );
+      return null;
+    }
+
+    const data =
+      await response.json() as TelegramFileResult;
+
+    const filePath = data.result?.file_path;
+
+    if (!filePath) {
+      return null;
+    }
+
+    return `https://api.telegram.org/file/bot${botToken}/${filePath}`;
+  } catch (error) {
+    console.error(
+      "Telegram getFile request failed:",
+      error,
+    );
+    return null;
+  }
+}
+
+async function moderateTelegramImage(
+  botToken: string,
+  openAIKey: string,
+  openAIModel: string,
+  photo: TelegramPhotoSize[],
+): Promise<ImageModerationDecision> {
+  const safe: ImageModerationDecision = {
+    unsafe: false,
+    confidence: 0,
+    reason: "not_classified",
+  };
+
+  if (!photo.length) {
+    return safe;
+  }
+
+  /*
+   * Telegram sends multiple sizes for the same photo.
+   * The final entry is normally the largest version.
+   */
+  const largestPhoto = photo[photo.length - 1];
+
+  if (!largestPhoto?.file_id) {
+    return safe;
+  }
+
+  const fileUrl = await getTelegramFileUrl(
+    botToken,
+    largestPhoto.file_id,
+  );
+
+  if (!fileUrl) {
+    return safe;
+  }
+
+  let imageDataUrl: string;
+
+  try {
+    const imageResponse = await fetch(fileUrl);
+
+    if (!imageResponse.ok) {
+      console.error(
+        "Telegram image download failed:",
+        imageResponse.status,
+      );
+      return safe;
+    }
+
+    const contentType =
+      imageResponse.headers.get("content-type") ??
+      "image/jpeg";
+
+    if (!contentType.startsWith("image/")) {
+      console.error(
+        "Telegram media is not an image:",
+        contentType,
+      );
+      return safe;
+    }
+
+    const imageBytes =
+      new Uint8Array(
+        await imageResponse.arrayBuffer(),
+      );
+
+    /*
+     * Keep moderation bounded. Telegram photos are
+     * compressed, but reject unexpectedly large files.
+     */
+    if (
+      imageBytes.byteLength === 0 ||
+      imageBytes.byteLength > 8 * 1024 * 1024
+    ) {
+      console.error(
+        "Telegram image size rejected:",
+        imageBytes.byteLength,
+      );
+      return safe;
+    }
+
+    let binary = "";
+
+    for (
+      let offset = 0;
+      offset < imageBytes.length;
+      offset += 0x8000
+    ) {
+      binary += String.fromCharCode(
+        ...imageBytes.subarray(
+          offset,
+          offset + 0x8000,
+        ),
+      );
+    }
+
+    imageDataUrl =
+      `data:${contentType};base64,${btoa(binary)}`;
+  } catch (error) {
+    console.error(
+      "Telegram image download failed:",
+      error,
+    );
+    return safe;
+  }
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(
+    () => controller.abort(),
+    15_000,
+  );
+
+  try {
+    const response = await fetch(
+      "https://api.openai.com/v1/responses",
+      {
+        method: "POST",
+        signal: controller.signal,
+        headers: {
+          Authorization: `Bearer ${openAIKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: openAIModel,
+          reasoning: {
+            effort: "low",
+          },
+          instructions: [
+            "You are a strict Telegram community image moderation classifier.",
+            "Determine whether the image is clearly pornographic or explicit adult sexual spam.",
+            "Do not flag ordinary people, swimwear, fitness, art, memes, medical material, or ambiguous images.",
+            "Only classify unsafe when explicit sexual content is visually clear.",
+            "Return ONLY compact JSON with this exact shape:",
+            '{"unsafe":boolean,"confidence":number,"reason":"short_reason"}',
+            "confidence must be between 0 and 1.",
+          ].join(" "),
+          input: [
+            {
+              role: "user",
+              content: [
+                {
+                  type: "input_text",
+                  text:
+                    "Classify this Telegram group image for explicit pornographic/adult sexual spam.",
+                },
+                {
+                  type: "input_image",
+                  image_url: imageDataUrl,
+                },
+              ],
+            },
+          ],
+          max_output_tokens: 120,
+        }),
+      },
+    );
+
+    if (!response.ok) {
+      console.error(
+        "Telegram image moderation OpenAI request failed:",
+        response.status,
+        await response.text(),
+      );
+      return safe;
+    }
+
+    const data =
+      await response.json() as Record<string, unknown>;
+
+    const outputText =
+      extractOpenAIOutputText(data).trim();
+
+    if (!outputText) {
+      return safe;
+    }
+
+    const cleaned = outputText
+      .replace(/^```json\s*/i, "")
+      .replace(/^```\s*/i, "")
+      .replace(/\s*```$/i, "")
+      .trim();
+
+    let parsed: unknown;
+
+    try {
+      parsed = JSON.parse(cleaned);
+    } catch {
+      console.error(
+        "Telegram image moderation returned invalid JSON.",
+      );
+      return safe;
+    }
+
+    if (!parsed || typeof parsed !== "object") {
+      return safe;
+    }
+
+    const result =
+      parsed as Record<string, unknown>;
+
+    const unsafe = result.unsafe === true;
+    const confidence =
+      typeof result.confidence === "number"
+        ? Math.max(
+            0,
+            Math.min(1, result.confidence),
+          )
+        : 0;
+
+    const reason =
+      typeof result.reason === "string"
+        ? result.reason.slice(0, 120)
+        : "unknown";
+
+    return {
+      unsafe,
+      confidence,
+      reason,
+    };
+  } catch (error) {
+    console.error(
+      "Telegram image moderation failed:",
+      error,
+    );
+
+    /*
+     * Fail safe:
+     * AI/network failure must never automatically
+     * punish a legitimate community member.
+     */
+    return safe;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
 async function removeHumanSpam(
   botToken: string,
   chatId: number,
@@ -272,6 +615,11 @@ export default {
     );
     const protectedChatId =
       Deno.env.get("TELEGRAM_CHAT_ID");
+    const openAIKey =
+      Deno.env.get("OPENAI_API_KEY");
+    const openAIModel =
+      Deno.env.get("OPENAI_MODEL") ??
+      "gpt-5.6";
 
     if (
       !botToken ||
@@ -418,6 +766,75 @@ export default {
         }
 
         return Response.json({ ok: true });
+      }
+
+
+      if (
+        !isAdmin &&
+        openAIKey &&
+        Array.isArray(message.photo) &&
+        message.photo.length > 0
+      ) {
+        const decision =
+          await moderateTelegramImage(
+            botToken,
+            openAIKey,
+            openAIModel,
+            message.photo,
+          );
+
+        console.log(
+          "BOBU Telegram Guard image moderation:",
+          {
+            chat_id: String(chatId),
+            telegram_user_id:
+              String(telegramUser.id),
+            message_id: message.message_id,
+            unsafe: decision.unsafe,
+            confidence: decision.confidence,
+            reason: decision.reason,
+          },
+        );
+
+        /*
+         * Intentionally conservative.
+         * Ban only on a very high-confidence result.
+         */
+        if (
+          decision.unsafe &&
+          decision.confidence >= 0.95
+        ) {
+          try {
+            await removeHumanSpam(
+              botToken,
+              chatId,
+              message.message_id,
+              telegramUser.id,
+            );
+
+            console.warn(
+              "BOBU Telegram Guard removed AI-confirmed explicit image:",
+              {
+                chat_id: String(chatId),
+                telegram_user_id:
+                  String(telegramUser.id),
+                username:
+                  telegramUser.username ?? null,
+                message_id: message.message_id,
+                confidence:
+                  decision.confidence,
+                reason: decision.reason,
+              },
+            );
+          } catch (error) {
+            console.error(
+              "BOBU Telegram Guard image removal failed:",
+              error,
+            );
+          }
+
+          return Response.json({ ok: true });
+        }
       }
     }
 
