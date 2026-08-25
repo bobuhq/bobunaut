@@ -72,6 +72,133 @@ async function telegramApiCall(
   }
 }
 
+type TelegramChatMemberResult = {
+  ok?: boolean;
+  result?: {
+    status?: string;
+  };
+};
+
+async function isTelegramAdmin(
+  botToken: string,
+  chatId: number,
+  userId: number,
+): Promise<boolean> {
+  try {
+    const response = await fetch(
+      `https://api.telegram.org/bot${botToken}/getChatMember`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          chat_id: chatId,
+          user_id: userId,
+        }),
+      },
+    );
+
+    if (!response.ok) {
+      console.error(
+        "Telegram getChatMember failed:",
+        await response.text(),
+      );
+      return false;
+    }
+
+    const data =
+      await response.json() as TelegramChatMemberResult;
+
+    return (
+      data.result?.status === "creator" ||
+      data.result?.status === "administrator"
+    );
+  } catch (error) {
+    console.error(
+      "Telegram admin check failed:",
+      error,
+    );
+
+    /*
+     * Fail closed for moderation:
+     * if admin status cannot be established, do not
+     * automatically punish the account.
+     */
+    return true;
+  }
+}
+
+function normalizeModerationText(
+  value: string,
+): string {
+  return value
+    .normalize("NFKC")
+    .toLowerCase()
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function containsHighConfidenceSpam(
+  value: string,
+): boolean {
+  if (!value) {
+    return false;
+  }
+
+  const text = normalizeModerationText(value);
+
+  /*
+   * High-confidence adult/spam combinations only.
+   * Avoid broad single-word rules that could punish
+   * legitimate community discussion.
+   */
+  const adultSignals = [
+    /\bonlyfans\b/i,
+    /\bfree\s+nudes?\b/i,
+    /\b(?:nude|nudes|porn|xxx)\s+(?:video|videos|photo|photos|pics?|content|channel|group|link)\b/i,
+    /\b(?:watch|join|click|open)\b.{0,35}\b(?:porn|xxx|nudes?)\b/i,
+    /\b(?:porn|xxx|nudes?)\b.{0,35}\b(?:t\.me|telegram|http:\/\/|https:\/\/)/i,
+  ];
+
+  const scamSignals = [
+    /\b(?:guaranteed|instant)\s+(?:crypto\s+)?profit\b/i,
+    /\b(?:double|triple)\s+your\s+(?:crypto|btc|eth|money)\b/i,
+    /\b(?:send|deposit)\s+(?:btc|eth|usdt|crypto).{0,35}\b(?:receive|get|return)\b/i,
+    /\b(?:wallet|airdrop)\s+(?:validation|verification).{0,35}\b(?:seed|phrase|private\s+key)\b/i,
+    /\b(?:seed\s+phrase|private\s+key)\b.{0,35}\b(?:send|enter|verify|connect)\b/i,
+  ];
+
+  return [...adultSignals, ...scamSignals]
+    .some((pattern) => pattern.test(text));
+}
+
+async function removeHumanSpam(
+  botToken: string,
+  chatId: number,
+  messageId: number,
+  userId: number,
+): Promise<void> {
+  await telegramApiCall(
+    botToken,
+    "deleteMessage",
+    {
+      chat_id: chatId,
+      message_id: messageId,
+    },
+  );
+
+  await telegramApiCall(
+    botToken,
+    "banChatMember",
+    {
+      chat_id: chatId,
+      user_id: userId,
+      revoke_messages: true,
+    },
+  );
+}
+
 async function removeBotSpam(
   botToken: string,
   chatId: number,
@@ -213,31 +340,85 @@ export default {
 
     if (
       isProtectedGroup &&
-      telegramUser.is_bot === true &&
       message.message_id !== undefined
     ) {
-      try {
-        await removeBotSpam(
-          botToken,
-          chatId,
-          message.message_id,
-          telegramUser.id,
-        );
+      const isAdmin = await isTelegramAdmin(
+        botToken,
+        chatId,
+        telegramUser.id,
+      );
 
-        console.warn("BOBU Telegram Guard removed bot message:", {
-          chat_id: String(chatId),
-          telegram_user_id: String(telegramUser.id),
-          username: telegramUser.username ?? null,
-          message_id: message.message_id,
-        });
-      } catch (error) {
-        console.error(
-          "BOBU Telegram Guard moderation failed:",
-          error,
-        );
+      if (!isAdmin && telegramUser.is_bot === true) {
+        try {
+          await removeBotSpam(
+            botToken,
+            chatId,
+            message.message_id,
+            telegramUser.id,
+          );
+
+          console.warn(
+            "BOBU Telegram Guard removed bot message:",
+            {
+              chat_id: String(chatId),
+              telegram_user_id:
+                String(telegramUser.id),
+              username:
+                telegramUser.username ?? null,
+              message_id: message.message_id,
+              reason: "telegram_bot_account",
+            },
+          );
+        } catch (error) {
+          console.error(
+            "BOBU Telegram Guard bot moderation failed:",
+            error,
+          );
+        }
+
+        return Response.json({ ok: true });
       }
 
-      return Response.json({ ok: true });
+      const moderationText = [
+        message.text ?? "",
+        message.caption ?? "",
+      ]
+        .filter(Boolean)
+        .join("\n");
+
+      if (
+        !isAdmin &&
+        containsHighConfidenceSpam(moderationText)
+      ) {
+        try {
+          await removeHumanSpam(
+            botToken,
+            chatId,
+            message.message_id,
+            telegramUser.id,
+          );
+
+          console.warn(
+            "BOBU Telegram Guard removed high-confidence spam:",
+            {
+              chat_id: String(chatId),
+              telegram_user_id:
+                String(telegramUser.id),
+              username:
+                telegramUser.username ?? null,
+              message_id: message.message_id,
+              reason: "high_confidence_spam",
+            },
+          );
+        } catch (error) {
+          console.error(
+            "BOBU Telegram Guard spam moderation failed:",
+            error,
+          );
+        }
+
+        return Response.json({ ok: true });
+      }
     }
 
     if (!text?.startsWith("/start")) {
