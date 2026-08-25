@@ -546,22 +546,22 @@ function CommandHubLevelOne() {
             position={[x, y, z]}
           >
             <mesh
-              position={[0, -0.4, 0]}
+              position={[0, -0.31, 0]}
               castShadow
             >
               <cylinderGeometry
                 args={[
-                  0.32,
-                  0.43,
-                  0.42,
+                  0.25,
+                  0.34,
+                  0.24,
                   10,
                 ]}
               />
 
               <meshStandardMaterial
-                color="#513932"
-                metalness={0.84}
-                roughness={0.3}
+                color="#8a5138"
+                metalness={0.58}
+                roughness={0.5}
               />
             </mesh>
 
