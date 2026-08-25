@@ -175,49 +175,49 @@ function CommandHubLevelOne() {
           =============================================== */}
 
       <mesh
-        position={[0, 0.08, 0]}
+        position={[0, 0.025, 0]}
         receiveShadow
       >
         <cylinderGeometry
           args={[
-            3.42,
-            3.7,
-            0.24,
+            3.18,
+            3.38,
+            0.07,
             12,
           ]}
         />
 
         <meshStandardMaterial
-          color="#121820"
-          metalness={0.8}
-          roughness={0.56}
+          color="#5b3528"
+          metalness={0.48}
+          roughness={0.72}
         />
       </mesh>
 
       <mesh
-        position={[0, 0.225, 0]}
+        position={[0, 0.072, 0]}
         receiveShadow
       >
         <cylinderGeometry
           args={[
-            3.05,
-            3.3,
-            0.08,
+            2.86,
+            3.08,
+            0.035,
             12,
           ]}
         />
 
         <meshStandardMaterial
-          color="#303947"
-          metalness={0.88}
-          roughness={0.31}
+          color="#754536"
+          metalness={0.56}
+          roughness={0.58}
         />
       </mesh>
 
       {/* BOBU purple foundation circuit */}
 
       <mesh
-        position={[0, 0.275, 0]}
+        position={[0, 0.098, 0]}
         rotation={[
           -Math.PI / 2,
           0,
@@ -247,23 +247,23 @@ function CommandHubLevelOne() {
       {/* armored lower ring */}
 
       <mesh
-        position={[0, 0.57, 0]}
+        position={[0, 0.27, 0]}
         castShadow
         receiveShadow
       >
         <cylinderGeometry
           args={[
-            2.18,
-            2.45,
-            0.62,
+            2.08,
+            2.32,
+            0.18,
             12,
           ]}
         />
 
         <meshStandardMaterial
-          color="#252e3b"
-          metalness={0.86}
-          roughness={0.28}
+          color="#684034"
+          metalness={0.62}
+          roughness={0.48}
         />
       </mesh>
 
@@ -391,7 +391,7 @@ function CommandHubLevelOne() {
         />
 
         <meshStandardMaterial
-          color="#303b4c"
+          color="#5a4a43"
           metalness={0.9}
           roughness={0.24}
         />
@@ -421,7 +421,7 @@ function CommandHubLevelOne() {
         castShadow
       >
         <meshStandardMaterial
-          color="#202936"
+          color="#4a3430"
           metalness={0.82}
           roughness={0.31}
         />
@@ -456,10 +456,10 @@ function CommandHubLevelOne() {
           =============================================== */}
 
       {[
-        [-2.45, 0.5, 0.58, 0.12],
-        [2.45, 0.5, 0.58, -0.12],
-        [-1.85, 0.48, -1.55, -0.18],
-        [1.85, 0.48, -1.55, 0.18],
+        [-2.05, 0.42, 0.5, 0.12],
+        [2.05, 0.42, 0.5, -0.12],
+        [-1.55, 0.4, -1.28, -0.18],
+        [1.55, 0.4, -1.28, 0.18],
       ].map(
         (
           [
@@ -485,16 +485,16 @@ function CommandHubLevelOne() {
           >
             <RoundedBox
               args={[
-                1.55,
-                0.62,
-                1.18,
+                1.15,
+                0.42,
+                0.86,
               ]}
-              radius={0.12}
+              radius={0.11}
               smoothness={4}
               castShadow
             >
               <meshStandardMaterial
-                color="#283240"
+                color="#49322e"
                 metalness={0.8}
                 roughness={0.32}
               />
@@ -504,16 +504,16 @@ function CommandHubLevelOne() {
 
             <RoundedBox
               args={[
-                0.83,
-                0.13,
-                0.05,
+                0.62,
+                0.1,
+                0.04,
               ]}
-              radius={0.035}
+              radius={0.03}
               smoothness={3}
               position={[
                 0,
-                0.03,
-                0.61,
+                0.02,
+                0.445,
               ]}
             >
               <meshStandardMaterial
@@ -559,7 +559,7 @@ function CommandHubLevelOne() {
               />
 
               <meshStandardMaterial
-                color="#252d39"
+                color="#513932"
                 metalness={0.84}
                 roughness={0.3}
               />
