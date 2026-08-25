@@ -416,32 +416,6 @@ export default function MarsColonyInfrastructure({
         ),
       )}
 
-      {colonyBuildings.map(
-        (building) => {
-          const target =
-            getBuildingWorld(
-              building,
-            );
-
-          return (
-            <group
-              key={
-                `route:${building.buildingId}`
-              }
-            >
-              <ColonyRoad
-                from={hubWorld}
-                to={target}
-              />
-
-              <RouteLights
-                from={hubWorld}
-                to={target}
-              />
-            </group>
-          );
-        },
-      )}
     </group>
   );
 }
