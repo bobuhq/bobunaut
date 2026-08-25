@@ -5,14 +5,18 @@ type TelegramUser = {
   id: number;
   first_name?: string;
   username?: string;
+  is_bot?: boolean;
 };
 
 type TelegramChat = {
   id: number;
+  type?: "private" | "group" | "supergroup" | "channel";
 };
 
 type TelegramMessage = {
+  message_id?: number;
   text?: string;
+  caption?: string;
   from?: TelegramUser;
   chat?: TelegramChat;
 };
@@ -39,6 +43,60 @@ type TelegramInlineKeyboard = {
     }>
   >;
 };
+
+async function telegramApiCall(
+  botToken: string,
+  method: string,
+  payload: Record<string, unknown>,
+): Promise<void> {
+  const response = await fetch(
+    `https://api.telegram.org/bot${botToken}/${method}`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    },
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error(
+      `Telegram ${method} failed:`,
+      errorText,
+    );
+    throw new Error(
+      `Telegram moderation action ${method} failed.`,
+    );
+  }
+}
+
+async function removeBotSpam(
+  botToken: string,
+  chatId: number,
+  messageId: number,
+  userId: number,
+): Promise<void> {
+  await telegramApiCall(
+    botToken,
+    "deleteMessage",
+    {
+      chat_id: chatId,
+      message_id: messageId,
+    },
+  );
+
+  await telegramApiCall(
+    botToken,
+    "banChatMember",
+    {
+      chat_id: chatId,
+      user_id: userId,
+      revoke_messages: true,
+    },
+  );
+}
 
 async function sendTelegramMessage(
   botToken: string,
@@ -85,6 +143,8 @@ export default {
     const webhookSecret = Deno.env.get(
       "TELEGRAM_WEBHOOK_SECRET",
     );
+    const protectedChatId =
+      Deno.env.get("TELEGRAM_CHAT_ID");
 
     if (
       !botToken ||
@@ -142,6 +202,43 @@ export default {
       username: telegramUser.username ?? null,
       command: text ?? null,
     });
+
+    const isProtectedGroup =
+      protectedChatId !== undefined &&
+      String(chatId) === protectedChatId &&
+      (
+        message.chat?.type === "group" ||
+        message.chat?.type === "supergroup"
+      );
+
+    if (
+      isProtectedGroup &&
+      telegramUser.is_bot === true &&
+      message.message_id !== undefined
+    ) {
+      try {
+        await removeBotSpam(
+          botToken,
+          chatId,
+          message.message_id,
+          telegramUser.id,
+        );
+
+        console.warn("BOBU Telegram Guard removed bot message:", {
+          chat_id: String(chatId),
+          telegram_user_id: String(telegramUser.id),
+          username: telegramUser.username ?? null,
+          message_id: message.message_id,
+        });
+      } catch (error) {
+        console.error(
+          "BOBU Telegram Guard moderation failed:",
+          error,
+        );
+      }
+
+      return Response.json({ ok: true });
+    }
 
     if (!text?.startsWith("/start")) {
       return Response.json({ ok: true });
