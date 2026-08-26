@@ -113,7 +113,13 @@ async function isTelegramAdmin(
         "Telegram getChatMember failed:",
         await response.text(),
       );
-      return false;
+
+      /*
+       * Safety rule:
+       * if Telegram cannot confirm membership status,
+       * never auto-moderate the sender.
+       */
+      return true;
     }
 
     const data =
