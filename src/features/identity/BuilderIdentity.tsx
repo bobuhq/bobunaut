@@ -90,10 +90,16 @@ export default function BuilderIdentity() {
         window.location.search,
       );
 
+      const hasPendingXWorkflow =
+        window.sessionStorage.getItem(
+          "bobu:x-verification:pending",
+        ) === "true";
+
       const hasXCallback =
         searchParams.has("code") ||
         searchParams.get("error_code") ===
-          "identity_already_exists";
+          "identity_already_exists" ||
+        hasPendingXWorkflow;
 
       if (hasXCallback) {
         await xVerification.verifyAndReward();

@@ -123,10 +123,69 @@ export default {
       );
     }
 
-    const xIdentity = user.identities?.find(
-      (identity) =>
-        identity.provider.toLowerCase() === "x",
+    /*
+     * X identity propagation can lag briefly after an OAuth
+     * callback. Do not trust the first client-session snapshot.
+     *
+     * Read the authoritative Auth user with service role and
+     * retry for a short bounded window. This makes web and
+     * native verification deterministic instead of timing-sensitive.
+     */
+    const adminClient = createClient(
+      supabaseUrl,
+      serviceRoleKey,
+      {
+        auth: {
+          persistSession: false,
+          autoRefreshToken: false,
+        },
+      },
     );
+
+    let authoritativeUser = user;
+    let xIdentity =
+      authoritativeUser.identities?.find(
+        (identity) =>
+          identity.provider.toLowerCase() === "x",
+      );
+
+    for (
+      let attempt = 0;
+      !xIdentity && attempt < 6;
+      attempt += 1
+    ) {
+      if (attempt > 0) {
+        await new Promise((resolve) =>
+          setTimeout(resolve, 500),
+        );
+      }
+
+      const {
+        data: adminUserData,
+        error: adminUserError,
+      } = await adminClient.auth.admin.getUserById(
+        user.id,
+      );
+
+      if (adminUserError) {
+        console.error(
+          "Authoritative X identity lookup failed:",
+          adminUserError.message,
+        );
+        break;
+      }
+
+      if (adminUserData.user) {
+        authoritativeUser =
+          adminUserData.user;
+
+        xIdentity =
+          authoritativeUser.identities?.find(
+            (identity) =>
+              identity.provider.toLowerCase() === "x",
+          );
+      }
+    }
 
     if (!xIdentity) {
       return jsonResponse(
@@ -134,7 +193,9 @@ export default {
           verified: false,
           linked: false,
           rewarded: false,
-          error: "Connect your X account first.",
+          status: "x_identity_pending",
+          error:
+            "X connection is still being finalized. Please retry.",
         },
         409,
       );
@@ -174,17 +235,6 @@ export default {
       typeof usernameCandidate === "string"
         ? usernameCandidate
         : null;
-
-    const adminClient = createClient(
-      supabaseUrl,
-      serviceRoleKey,
-      {
-        auth: {
-          persistSession: false,
-          autoRefreshToken: false,
-        },
-      },
-    );
 
     const {
       data: claimResult,
