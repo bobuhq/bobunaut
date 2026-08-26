@@ -702,7 +702,23 @@ export default {
         telegramUser.id,
       );
 
-      if (!isAdmin && telegramUser.is_bot === true) {
+      if (isAdmin) {
+        console.log(
+          "BOBU Telegram Guard admin bypass:",
+          {
+            chat_id: String(chatId),
+            telegram_user_id:
+              String(telegramUser.id),
+            username:
+              telegramUser.username ?? null,
+            message_id: message.message_id,
+          },
+        );
+
+        return Response.json({ ok: true });
+      }
+
+      if (telegramUser.is_bot === true) {
         try {
           await removeBotSpam(
             botToken,
