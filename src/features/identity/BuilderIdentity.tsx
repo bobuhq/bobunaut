@@ -102,6 +102,85 @@ export default function BuilderIdentity() {
         hasPendingXWorkflow;
 
       if (hasXCallback) {
+        const authorizationCode =
+          searchParams.get("code");
+
+        /*
+         * X uses the PKCE authorization-code flow.
+         *
+         * The OAuth callback is not complete until the code
+         * has been exchanged. Only after this step can the
+         * linked X identity reliably appear in Supabase Auth.
+         */
+        if (authorizationCode) {
+          const { error: exchangeError } =
+            await supabase.auth.exchangeCodeForSession(
+              authorizationCode,
+            );
+
+          if (exchangeError) {
+            /*
+             * Supabase may already have consumed the code
+             * during client initialization. In that case,
+             * accept the callback only if X is actually
+             * present on the authenticated user.
+             */
+            const {
+              data: identityData,
+              error: identitiesError,
+            } =
+              await supabase.auth.getUserIdentities();
+
+            const hasLinkedX =
+              !identitiesError &&
+              identityData?.identities?.some(
+                (identity) =>
+                  identity.provider.toLowerCase() === "x",
+              );
+
+            if (!hasLinkedX) {
+              throw exchangeError;
+            }
+          }
+        }
+
+        /*
+         * Wait briefly for the linked identity to become
+         * observable before calling the authoritative
+         * server-side reward engine.
+         */
+        for (let attempt = 0; attempt < 6; attempt += 1) {
+          const {
+            data: identityData,
+            error: identitiesError,
+          } =
+            await supabase.auth.getUserIdentities();
+
+          if (identitiesError) {
+            throw identitiesError;
+          }
+
+          const hasLinkedX =
+            identityData.identities.some(
+              (identity) =>
+                identity.provider.toLowerCase() === "x",
+            );
+
+          if (hasLinkedX) {
+            break;
+          }
+
+          if (attempt === 5) {
+            throw new Error(
+              "X identity linking did not complete.",
+            );
+          }
+
+          await new Promise((resolve) =>
+            window.setTimeout(resolve, 500),
+          );
+        }
+
         await xVerification.verifyAndReward();
 
         window.history.replaceState(
