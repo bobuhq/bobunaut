@@ -20,6 +20,10 @@ import {
   type AresGenesisTerrainData,
 } from "../engine/AresGenesisTerrainData";
 
+import {
+  completeMyAresDailyDiscovery,
+} from "../services/MarsDiscoveryService";
+
 type MarsDiscoveryPointProps = {
   targetRef: React.RefObject<THREE.Group | null>;
   position?: [
@@ -30,6 +34,7 @@ type MarsDiscoveryPointProps = {
 
 const DISCOVERY_RADIUS = 5.5;
 const SCAN_DURATION_SECONDS = 2.4;
+const DISCOVERY_KEY = "ares-signal-01";
 
 export function MarsDiscoveryPoint({
   targetRef,
@@ -81,6 +86,24 @@ export function MarsDiscoveryPoint({
     isScanned,
     setIsScanned,
   ] = useState(false);
+
+  const [
+    isSubmitting,
+    setIsSubmitting,
+  ] = useState(false);
+
+  const [
+    rewardGp,
+    setRewardGp,
+  ] = useState<number | null>(null);
+
+  const [
+    discoveryError,
+    setDiscoveryError,
+  ] = useState<string | null>(null);
+
+  const submissionStartedRef =
+    useRef(false);
 
   useEffect(() => {
     let active = true;
@@ -313,11 +336,43 @@ export function MarsDiscoveryPoint({
     }
 
     if (
-      scanProgressRef.current >= 1
+      scanProgressRef.current >= 1 &&
+      !submissionStartedRef.current
     ) {
       scanHeldRef.current = false;
-      setIsScanned(true);
+      submissionStartedRef.current = true;
       setScanProgress(100);
+      setIsSubmitting(true);
+      setDiscoveryError(null);
+
+      void completeMyAresDailyDiscovery(
+        DISCOVERY_KEY,
+      )
+        .then((completion) => {
+          setRewardGp(
+            completion.completed_now
+              ? completion.reward_gp
+              : 0,
+          );
+          setIsScanned(true);
+        })
+        .catch((error: unknown) => {
+          console.error(
+            "Failed to complete Mars discovery",
+            error,
+          );
+
+          scanProgressRef.current = 0;
+          lastDisplayedProgressRef.current = 0;
+          setScanProgress(0);
+          submissionStartedRef.current = false;
+          setDiscoveryError(
+            "DISCOVERY SYNC FAILED · TRY AGAIN",
+          );
+        })
+        .finally(() => {
+          setIsSubmitting(false);
+        });
     }
   });
 
@@ -702,9 +757,15 @@ export function MarsDiscoveryPoint({
                   700,
               }}
             >
-              {isScanned
-                ? "SCAN COMPLETE"
-                : "HOLD E TO SCAN"}
+              {isSubmitting
+                ? "SYNCING DISCOVERY..."
+                : isScanned
+                  ? rewardGp && rewardGp > 0
+                    ? `DISCOVERY COMPLETE · +${rewardGp} GP`
+                    : "DISCOVERY ALREADY RECORDED TODAY"
+                  : discoveryError
+                    ? discoveryError
+                    : "HOLD E TO SCAN"}
             </div>
 
             {!isScanned && (
