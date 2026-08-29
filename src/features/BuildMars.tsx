@@ -916,40 +916,33 @@ export function BuildMars() {
           sector.sector_id === sectorId,
       ) ?? null;
 
-    const isAresSector =
+    const sectorCode =
       enteringSector?.sector_code
-        .toLowerCase() === "ares" ||
+        ?.trim()
+        .toLowerCase() ?? "";
+
+    const isAresSector =
+      sectorCode === "ares" ||
       enteringSector?.sector_name
+        ?.trim()
         .toLowerCase()
         .includes("ares") === true;
 
-    setSectorDiveActive(true);
-
-    if (isAresSector) {
-      window.setTimeout(() => {
-        navigate(
-          "/mars/explore",
-        );
-      }, 5550);
-
+    if (!isAresSector) {
+      setSectorActionError(
+        `${enteringSector?.sector_name ?? "This sector"} exploration is not available yet. Ares is the active exploration region.`,
+      );
       return;
     }
 
-    window.setTimeout(() => {
-      setEnteredSectorId(
-        sectorId,
-      );
+    setSectorActionError(null);
+    setSectorDiveActive(true);
 
-      setTerritorySectorId(
-        myColony?.active_sector_id === sectorId
-          ? sectorId
-          : null,
+    window.setTimeout(() => {
+      navigate(
+        "/mars/explore?sector=ares",
       );
     }, 5550);
-
-    window.setTimeout(() => {
-      setSectorDiveActive(false);
-    }, 6500);
   };
 
   const selectedSector = useMemo(
