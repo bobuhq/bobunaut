@@ -5,6 +5,7 @@ import {
 
 import {
   useFrame,
+  useThree,
 } from "@react-three/fiber";
 
 import * as THREE from "three";
@@ -72,6 +73,10 @@ export function BobuCharacterController({
     characterRef ??
     internalGroupRef;
 
+  const {
+    camera,
+  } = useThree();
+
   const inputRef =
     useRef<MarsMovementInput>(
       createEmptyMarsMovementInput(),
@@ -81,6 +86,15 @@ export function BobuCharacterController({
     useRef(0);
 
   const movementDirectionRef =
+    useRef(new THREE.Vector3());
+
+  const cameraForwardRef =
+    useRef(new THREE.Vector3());
+
+  const cameraRightRef =
+    useRef(new THREE.Vector3());
+
+  const cameraRelativeDirectionRef =
     useRef(new THREE.Vector3());
 
   const terrainDataRef =
@@ -230,9 +244,55 @@ export function BobuCharacterController({
         input,
       );
 
-    movementDirectionRef.current.copy(
-      direction,
-    );
+    if (direction.lengthSq() > 0) {
+      camera.getWorldDirection(
+        cameraForwardRef.current,
+      );
+
+      cameraForwardRef.current.y = 0;
+
+      if (
+        cameraForwardRef.current.lengthSq() >
+        0
+      ) {
+        cameraForwardRef.current.normalize();
+      }
+
+      cameraRightRef.current
+        .crossVectors(
+          cameraForwardRef.current,
+          camera.up,
+        )
+        .normalize();
+
+      cameraRelativeDirectionRef.current
+        .set(0, 0, 0)
+        .addScaledVector(
+          cameraForwardRef.current,
+          -direction.z,
+        )
+        .addScaledVector(
+          cameraRightRef.current,
+          direction.x,
+        );
+
+      if (
+        cameraRelativeDirectionRef.current.lengthSq() >
+        0
+      ) {
+        cameraRelativeDirectionRef.current.normalize();
+      }
+
+      movementDirectionRef.current.copy(
+        cameraRelativeDirectionRef.current,
+      );
+    } else {
+      movementDirectionRef.current.set(
+        0,
+        0,
+        0,
+      );
+    }
 
     if (
       movementDirectionRef.current.lengthSq() >
@@ -333,16 +393,24 @@ export function BobuCharacterController({
         jumpOffsetRef.current;
     }
 
+    camera.getWorldDirection(
+      cameraForwardRef.current,
+    );
+
+    cameraForwardRef.current.y = 0;
+
     if (
-      movementDirectionRef.current.lengthSq() ===
+      cameraForwardRef.current.lengthSq() ===
       0
     ) {
       return;
     }
 
+    cameraForwardRef.current.normalize();
+
     const targetAngle =
       getMarsFacingAngle(
-        movementDirectionRef.current,
+        cameraForwardRef.current,
         facingAngleRef.current,
       );
 
@@ -352,7 +420,7 @@ export function BobuCharacterController({
         targetAngle,
         Math.min(
           1,
-          delta * 10,
+          delta * 12,
         ),
       );
 

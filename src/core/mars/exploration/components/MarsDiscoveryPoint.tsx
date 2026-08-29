@@ -43,6 +43,11 @@ export function MarsDiscoveryPoint({
       null,
     );
 
+  const beaconRef =
+    useRef<THREE.Group | null>(
+      null,
+    );
+
   const terrainDataRef =
     useRef<AresGenesisTerrainData | null>(
       null,
@@ -202,6 +207,36 @@ export function MarsDiscoveryPoint({
       );
     } else {
       marker.scale.setScalar(1);
+    }
+
+    const beacon =
+      beaconRef.current;
+
+    if (
+      beacon &&
+      !isNear &&
+      !isScanned
+    ) {
+      const time =
+        state.clock.elapsedTime;
+
+      const beaconPulse =
+        1 +
+        Math.sin(
+          time * 2.1,
+        ) *
+          0.08;
+
+      beacon.scale.setScalar(
+        beaconPulse,
+      );
+
+      beacon.position.y =
+        2.35 +
+        Math.sin(
+          time * 1.35,
+        ) *
+          0.09;
     }
 
     if (!target) {
@@ -496,6 +531,107 @@ export function MarsDiscoveryPoint({
           </>
         )}
       </group>
+
+      {!isNear && !isScanned && (
+        <group
+          ref={beaconRef}
+          position={[0, 2.35, 0]}
+        >
+          <mesh>
+            <ringGeometry
+              args={[
+                0.25,
+                0.34,
+                48,
+              ]}
+            />
+            <meshBasicMaterial
+              color="#8b66ff"
+              transparent
+              opacity={0.86}
+              side={THREE.DoubleSide}
+              depthWrite={false}
+            />
+          </mesh>
+
+          <mesh
+            position={[
+              0,
+              -0.42,
+              0,
+            ]}
+          >
+            <cylinderGeometry
+              args={[
+                0.016,
+                0.045,
+                0.95,
+                12,
+              ]}
+            />
+            <meshBasicMaterial
+              color="#8b66ff"
+              transparent
+              opacity={0.44}
+              depthWrite={false}
+            />
+          </mesh>
+
+          <pointLight
+            color="#8b66ff"
+            intensity={0.7}
+            distance={5.5}
+            decay={2}
+          />
+
+          <Html
+            position={[
+              0,
+              0.42,
+              0,
+            ]}
+            center
+            distanceFactor={10}
+            style={{
+              pointerEvents:
+                "none",
+              userSelect:
+                "none",
+            }}
+          >
+            <div
+              style={{
+                padding:
+                  "6px 11px",
+                border:
+                  "1px solid rgba(139,102,255,0.52)",
+                borderRadius:
+                  "999px",
+                background:
+                  "rgba(5,7,18,0.78)",
+                boxShadow:
+                  "0 0 24px rgba(122,92,255,0.24)",
+                backdropFilter:
+                  "blur(6px)",
+                color:
+                  "#b7a9ff",
+                fontFamily:
+                  "Inter, system-ui, sans-serif",
+                fontSize:
+                  "10px",
+                fontWeight:
+                  700,
+                letterSpacing:
+                  "0.16em",
+                whiteSpace:
+                  "nowrap",
+              }}
+            >
+              SIGNAL DETECTED
+            </div>
+          </Html>
+        </group>
+      )}
 
       {isNear && (
         <Html
