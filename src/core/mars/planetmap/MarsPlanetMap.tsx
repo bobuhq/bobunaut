@@ -129,14 +129,55 @@ function SectorMarker({
     ],
   );
 
-  const color = current
+  const isAres =
+    sector.sector_code
+      ?.trim()
+      .toLowerCase() === "ares" ||
+    sector.sector_name
+      ?.trim()
+      .toLowerCase()
+      .includes("ares") === true;
+
+  const color = isAres
     ? "#63f5ff"
-    : selected
-      ? "#c795ff"
-      : "#ffb06a";
+    : current
+      ? "#63f5ff"
+      : selected
+        ? "#c795ff"
+        : "#ffb06a";
+
+  const aresPulseRef =
+    useRef<Mesh | null>(null);
+
+  useFrame((state) => {
+    if (
+      !isAres ||
+      !aresPulseRef.current
+    ) {
+      return;
+    }
+
+    const time =
+      state.clock.elapsedTime;
+
+    const pulse =
+      1 +
+      Math.sin(time * 3.2) *
+        0.22;
+
+    aresPulseRef.current.scale.setScalar(
+      pulse,
+    );
+
+    aresPulseRef.current.rotation.z =
+      time * 0.18;
+  });
 
   return (
-    <group position={position}>
+    <group
+      position={position}
+      name={isAres ? "ares-exploration-marker" : undefined}
+    >
       <mesh
         onClick={(event) => {
           event.stopPropagation();
@@ -154,9 +195,11 @@ function SectorMarker({
       >
         <sphereGeometry
           args={[
-            current || selected
-              ? 0.075
-              : 0.058,
+            isAres
+              ? 0.09
+              : current || selected
+                ? 0.075
+                : 0.058,
             24,
             24,
           ]}
@@ -171,10 +214,12 @@ function SectorMarker({
       <mesh>
         <ringGeometry
           args={[
-            0.085,
-            current || selected
-              ? 0.145
-              : 0.115,
+            isAres ? 0.105 : 0.085,
+            isAres
+              ? 0.18
+              : current || selected
+                ? 0.145
+                : 0.115,
             32,
           ]}
         />
@@ -183,15 +228,42 @@ function SectorMarker({
           color={color}
           transparent
           opacity={
-            current || selected
-              ? 0.78
-              : 0.38
+            isAres
+              ? 0.92
+              : current || selected
+                ? 0.78
+                : 0.38
           }
           side={DoubleSide}
           depthWrite={false}
           toneMapped={false}
         />
       </mesh>
+
+      {isAres && (
+        <>
+          <mesh ref={aresPulseRef}>
+            <ringGeometry
+              args={[0.19, 0.235, 40]}
+            />
+            <meshBasicMaterial
+              color="#63f5ff"
+              transparent
+              opacity={0.42}
+              side={DoubleSide}
+              depthWrite={false}
+              toneMapped={false}
+            />
+          </mesh>
+
+          <pointLight
+            color="#63f5ff"
+            intensity={1.6}
+            distance={1.25}
+            decay={2}
+          />
+        </>
+      )}
 
 
     </group>
@@ -524,6 +596,15 @@ export function MarsPlanetMap({
     selectedSector?.sector_id ===
     currentSectorId;
 
+  const selectedSectorIsAres =
+    selectedSector?.sector_code
+      ?.trim()
+      .toLowerCase() === "ares" ||
+    selectedSector?.sector_name
+      ?.trim()
+      .toLowerCase()
+      .includes("ares") === true;
+
   return (
     <section
       className={[
@@ -649,17 +730,53 @@ export function MarsPlanetMap({
             </div>
           </div>
 
+          <div
+            className={[
+              "mars-planet-map__exploration-state",
+              selectedSectorIsAres
+                ? "is-active"
+                : "is-locked",
+            ].join(" ")}
+          >
+            <span
+              className="mars-planet-map__exploration-dot"
+              aria-hidden="true"
+            />
+            <strong>
+              {selectedSectorIsAres
+                ? "ACTIVE EXPLORATION"
+                : "EXPLORATION LOCKED"}
+            </strong>
+          </div>
+
           <button
             type="button"
-            className="mars-planet-map__enter"
-            onClick={() =>
+            className={[
+              "mars-planet-map__enter",
+              selectedSectorIsAres
+                ? "is-ares"
+                : "is-locked",
+            ].join(" ")}
+            disabled={!selectedSectorIsAres}
+            aria-disabled={!selectedSectorIsAres}
+            onClick={() => {
+              if (!selectedSectorIsAres) {
+                return;
+              }
+
               onEnterSector(
                 selectedSector.sector_id,
-              )
-            }
+              );
+            }}
           >
-            ENTER SECTOR
-            <span>→</span>
+            {selectedSectorIsAres
+              ? "ENTER ARES"
+              : "EXPLORATION LOCKED"}
+            <span>
+              {selectedSectorIsAres
+                ? "→"
+                : "×"}
+            </span>
           </button>
         </aside>
       )}

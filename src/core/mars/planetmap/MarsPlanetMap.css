@@ -2227,3 +2227,107 @@
   transform: translateY(-1px);
   border-color: rgba(255, 190, 130, 0.72);
 }
+
+
+.mars-planet-map__exploration-state {
+  display: flex;
+  min-height: 30px;
+  margin-top: 12px;
+  align-items: center;
+  gap: 8px;
+  padding: 0 10px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.mars-planet-map__exploration-state strong {
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+}
+
+.mars-planet-map__exploration-dot {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+}
+
+.mars-planet-map__exploration-state.is-active {
+  border-color: rgba(99, 245, 255, 0.22);
+  background: rgba(99, 245, 255, 0.045);
+  color: #63f5ff;
+}
+
+.mars-planet-map__exploration-state.is-active
+  .mars-planet-map__exploration-dot {
+  background: #63f5ff;
+  box-shadow:
+    0 0 7px rgba(99, 245, 255, 0.9),
+    0 0 16px rgba(99, 245, 255, 0.48);
+  animation: marsAresStatusPulse 1.35s ease-in-out infinite;
+}
+
+.mars-planet-map__exploration-state.is-locked {
+  color: rgba(255, 255, 255, 0.38);
+}
+
+.mars-planet-map__exploration-state.is-locked
+  .mars-planet-map__exploration-dot {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.mars-planet-map__enter.is-ares {
+  border-color: rgba(99, 245, 255, 0.5);
+  background:
+    linear-gradient(
+      135deg,
+      rgba(22, 112, 126, 0.52),
+      rgba(77, 53, 146, 0.42)
+    );
+  box-shadow:
+    0 0 22px rgba(99, 245, 255, 0.1);
+}
+
+.mars-planet-map__enter.is-ares:hover {
+  border-color: rgba(99, 245, 255, 0.82);
+  background:
+    linear-gradient(
+      135deg,
+      rgba(25, 139, 155, 0.62),
+      rgba(92, 63, 171, 0.52)
+    );
+  box-shadow:
+    0 0 30px rgba(99, 245, 255, 0.16);
+}
+
+.mars-planet-map__enter.is-locked,
+.mars-planet-map__enter:disabled {
+  border-color: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.035);
+  color: rgba(255, 255, 255, 0.28);
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+.mars-planet-map__enter.is-locked:hover,
+.mars-planet-map__enter:disabled:hover {
+  border-color: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.035);
+  transform: none;
+}
+
+@keyframes marsAresStatusPulse {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(0.86);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.28);
+  }
+}
