@@ -43,6 +43,12 @@ const BuildMars = lazy(() =>
   })),
 );
 
+const MarsExploreWorld = lazy(() =>
+  import("../core/mars/exploration/MarsExploreWorld").then((module) => ({
+    default: module.MarsExploreWorld,
+  })),
+);
+
 
 const BuilderPassport = lazy(() =>
   import(
@@ -201,6 +207,10 @@ export function App() {
           <Route path="/missions" element={<Missions />} />
           <Route path="/galaxy" element={<Galaxy />} />
           <Route path="/mars" element={<BuildMars />} />
+          <Route
+            path="/mars/explore"
+            element={<MarsExploreWorld />}
+          />
           <Route
             path="/leaderboard"
             element={<Leaderboard />}

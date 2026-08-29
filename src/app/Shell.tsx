@@ -17,12 +17,21 @@ export function Shell() {
     location.pathname === "/mars" ||
     location.pathname.startsWith("/mars/");
 
+  const isMarsExplore =
+    location.pathname === "/mars/explore";
+
   return (
     <div className="app">
-      <Stars />
-      <Nav />
+      {!isMarsExplore && <Stars />}
+      {!isMarsExplore && <Nav />}
 
-      <main>
+      <main
+        className={
+          isMarsExplore
+            ? "mars-explore-main"
+            : undefined
+        }
+      >
         <Outlet />
       </main>
 

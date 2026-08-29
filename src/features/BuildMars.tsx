@@ -5,6 +5,7 @@ import {
   useMemo,
   useState,
 } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { useLanguage } from "../core/language";
 import {
@@ -88,6 +89,7 @@ const MarsPlanetMap = lazy(() =>
 
 export function BuildMars() {
   const { t } = useLanguage();
+  const navigate = useNavigate();
 
   const [marsAccess, setMarsAccess] =
     useState<MarsAccess | null>(null);
@@ -908,13 +910,31 @@ export function BuildMars() {
       return;
     }
 
+    const enteringSector =
+      sectors.find(
+        (sector) =>
+          sector.sector_id === sectorId,
+      ) ?? null;
+
+    const isAresSector =
+      enteringSector?.sector_code
+        .toLowerCase() === "ares" ||
+      enteringSector?.sector_name
+        .toLowerCase()
+        .includes("ares") === true;
+
     setSectorDiveActive(true);
 
-    /*
-     * Orbital dive:
-     * keep the 3D planet visible while the
-     * transition closes around the viewport.
-     */
+    if (isAresSector) {
+      window.setTimeout(() => {
+        navigate(
+          "/mars/explore",
+        );
+      }, 5550);
+
+      return;
+    }
+
     window.setTimeout(() => {
       setEnteredSectorId(
         sectorId,
@@ -2803,6 +2823,20 @@ export function BuildMars() {
                       type="button"
                       className="mars-map-sector-jump"
                       onClick={() => {
+                        const isAresSector =
+                          selectedSector.sector_code
+                            .toLowerCase() === "ares" ||
+                          selectedSector.sector_name
+                            .toLowerCase()
+                            .includes("ares");
+
+                        if (isAresSector) {
+                          navigate(
+                            "/mars/explore",
+                          );
+                          return;
+                        }
+
                         setTerritorySectorId(
                           selectedSector.sector_id,
                         );
