@@ -640,6 +640,22 @@ export default function MarsCinematicColonyLayer({
     return null;
   }
 
+  /*
+   * Colony progression rule:
+   *
+   * Command Hub Level 1 is the initial settlement stage.
+   * It must not visually appear as an already-developed city.
+   *
+   * The existing cinematic district remains intact and becomes
+   * available from Command Hub Level 2 onward.
+   *
+   * commandHub.level comes from the authoritative Colony Base
+   * server snapshot through MarsBuildingAdapter.
+   */
+  if (commandHub.level < 2) {
+    return null;
+  }
+
   const world =
     getWorld(
       commandHub,

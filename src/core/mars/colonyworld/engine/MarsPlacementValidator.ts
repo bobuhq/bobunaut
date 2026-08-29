@@ -18,9 +18,18 @@ import {
   checkMarsPlacementCollision,
 } from "./MarsCollisionEngine";
 
+export type MarsPlacementBounds = {
+  min: number;
+  max: number;
+};
+
 export function validateMarsPlacement(
   draft: MarsPlacementDraft,
   buildings: MarsBuildingInstance[],
+  bounds: MarsPlacementBounds = {
+    min: MARS_GRID_MIN,
+    max: MARS_GRID_MAX,
+  },
 ): MarsPlacementValidationResult {
   const codes:
     MarsPlacementValidationCode[] =
@@ -53,10 +62,10 @@ export function validateMarsPlacement(
     1;
 
   if (
-    draft.gridX < MARS_GRID_MIN ||
-    draft.gridZ < MARS_GRID_MIN ||
-    maxX > MARS_GRID_MAX ||
-    maxZ > MARS_GRID_MAX
+    draft.gridX < bounds.min ||
+    draft.gridZ < bounds.min ||
+    maxX > bounds.max ||
+    maxZ > bounds.max
   ) {
     codes.push(
       "OUT_OF_BOUNDS",

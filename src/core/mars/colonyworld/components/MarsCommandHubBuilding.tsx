@@ -53,6 +53,8 @@ export default function MarsCommandHubBuilding({
   building,
   physicalBuildings,
   canManageColony,
+  mapMin,
+  mapMax,
   selected,
   onSelect,
   onDeselect,
@@ -62,6 +64,8 @@ export default function MarsCommandHubBuilding({
   building: MarsColonyBaseBuilding;
   physicalBuildings: MarsBuildingInstance[];
   canManageColony: boolean;
+  mapMin: number;
+  mapMax: number;
   selected: boolean;
   onSelect: () => void;
   onDeselect: () => void;
@@ -228,6 +232,10 @@ export default function MarsCommandHubBuilding({
       },
 
       physicalBuildings,
+      {
+        min: mapMin,
+        max: mapMax,
+      },
     );
 
 
@@ -523,7 +531,10 @@ export default function MarsCommandHubBuilding({
 
 
       {editing && (
-        <MarsPlacementGrid />
+        <MarsPlacementGrid
+            mapMin={mapMin}
+            mapMax={mapMax}
+          />
       )}
 
 

@@ -58,6 +58,9 @@ type Props = {
   buildings: MarsColonyBaseBuilding[];
   canManageColony?: boolean;
 
+  mapMin: number;
+  mapMax: number;
+
   inventoryPlacementItem?: MarsInventoryItem | null;
 
   onCancelInventoryPlacement?: () => void;
@@ -172,6 +175,8 @@ function MarsCinematicCamera({
 function ColonyScene({
   buildings,
   canManageColony,
+  mapMin,
+  mapMax,
   inventoryPlacementItem,
   onCancelInventoryPlacement,
   onInventoryPlacementSaved,
@@ -189,6 +194,22 @@ function ColonyScene({
     selectedBuildingId,
     setSelectedBuildingId,
   ] = useState<string | null>(null);
+
+  /*
+   * Inventory placement is an exclusive scene interaction mode.
+   *
+   * While a new inventory building is being placed, existing
+   * physical buildings must not expose MOVE/ROTATE controls or
+   * compete for pointer interaction with the placement preview.
+   */
+  const inventoryPlacementActive =
+    Boolean(inventoryPlacementItem);
+
+  useEffect(() => {
+    if (inventoryPlacementActive) {
+      setSelectedBuildingId(null);
+    }
+  }, [inventoryPlacementActive]);
 
   /*
    * One verified V3 physical snapshot for the whole scene.
@@ -453,8 +474,11 @@ function ColonyScene({
             physicalBuildings
           }
           canManageColony={
-            canManageColony
+            canManageColony &&
+            !inventoryPlacementActive
           }
+          mapMin={mapMin}
+          mapMax={mapMax}
           selected={
             selectedBuildingId ===
             commandHub.building_id
@@ -511,8 +535,11 @@ function ColonyScene({
               physicalBuildings
             }
             canManageColony={
-              canManageColony
+              canManageColony &&
+              !inventoryPlacementActive
             }
+            mapMin={mapMin}
+            mapMax={mapMax}
             selected={
               selectedBuildingId ===
               building.building_id
@@ -569,6 +596,8 @@ function ColonyScene({
             canManageColony={
               canManageColony
             }
+            mapMin={mapMin}
+            mapMax={mapMax}
             onCancel={
               onCancelInventoryPlacement
             }
@@ -594,6 +623,8 @@ function ColonyScene({
 export function MarsColonyWorld3D({
   buildings,
   canManageColony = false,
+  mapMin,
+  mapMax,
   inventoryPlacementItem = null,
   onCancelInventoryPlacement,
   onInventoryPlacementSaved,
@@ -661,6 +692,8 @@ export function MarsColonyWorld3D({
             canManageColony={
               canManageColony
             }
+            mapMin={mapMin}
+            mapMax={mapMax}
             inventoryPlacementItem={
               inventoryPlacementItem
             }

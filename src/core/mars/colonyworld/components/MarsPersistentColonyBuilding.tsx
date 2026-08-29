@@ -54,6 +54,8 @@ export default function MarsPersistentColonyBuilding({
   building,
   physicalBuildings,
   canManageColony,
+  mapMin,
+  mapMax,
   selected,
   onSelect,
   onDeselect,
@@ -63,6 +65,8 @@ export default function MarsPersistentColonyBuilding({
   building: MarsColonyBaseBuilding;
   physicalBuildings: MarsPhysicalBuildings;
   canManageColony: boolean;
+  mapMin: number;
+  mapMax: number;
   selected: boolean;
   onSelect: () => void;
   onDeselect: () => void;
@@ -220,6 +224,10 @@ export default function MarsPersistentColonyBuilding({
       },
 
       physicalBuildings,
+      {
+        min: mapMin,
+        max: mapMax,
+      },
     );
 
 
@@ -417,7 +425,10 @@ export default function MarsPersistentColonyBuilding({
     <>
       {editing && (
         <>
-          <MarsPlacementGrid />
+          <MarsPlacementGrid
+            mapMin={mapMin}
+            mapMax={mapMax}
+          />
 
           <MarsPlacementPreview
             worldX={world.x}

@@ -1,4 +1,7 @@
-import { useState } from "react";
+import {
+  useEffect,
+  useState,
+} from "react";
 import type { MarsSector } from "../core/mars/MarsSectorService";
 import { MarsColonyWorld3D } from "../core/mars/colonyworld/MarsColonyWorld3D";
 import type {
@@ -12,6 +15,11 @@ import MarsMarket from "./MarsMarket";
 import type {
   MarsInventoryItem,
 } from "../core/mars/MarsMarketService";
+
+import {
+  getMarsCommandHubProgressionForColony,
+  type MarsCommandHubProgression,
+} from "../core/mars/MarsCommandHubProgressionService";
 
 import "./MarsSectorTerritory.css";
 
@@ -77,6 +85,49 @@ export default function MarsSectorTerritory({
 }: Props) {
   const colonyName =
     colonyBase[0]?.colony_name ?? "COLONY";
+
+  const colonyId =
+    colonyBase[0]?.colony_id ?? null;
+
+  const [
+    commandHubProgression,
+    setCommandHubProgression,
+  ] = useState<MarsCommandHubProgression | null>(
+    null,
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+
+    setCommandHubProgression(null);
+
+    if (!colonyId) {
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    void getMarsCommandHubProgressionForColony(
+      colonyId,
+    )
+      .then((progression) => {
+        if (!cancelled) {
+          setCommandHubProgression(
+            progression,
+          );
+        }
+      })
+      .catch((error: unknown) => {
+        console.error(
+          "Unable to load Mars Command Hub progression.",
+          error,
+        );
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [colonyId]);
 
   const [marketOpen, setMarketOpen] =
     useState(false);
@@ -245,10 +296,13 @@ export default function MarsSectorTerritory({
         </div>
 
         <div className="mars-colony-workspace__base mars-colony-workspace__base--3d">
-          <MarsColonyWorld3D
-            buildings={colonyBase}
-            canManageColony={canManageColony}
-            inventoryPlacementItem={
+          {commandHubProgression && (
+            <MarsColonyWorld3D
+              buildings={colonyBase}
+              canManageColony={canManageColony}
+              mapMin={commandHubProgression.map_min}
+              mapMax={commandHubProgression.map_max}
+              inventoryPlacementItem={
               placingInventoryItem
             }
             onCancelInventoryPlacement={() =>
@@ -266,8 +320,9 @@ export default function MarsSectorTerritory({
               await onInventoryPlacementSaved();
 
               setPlacingInventoryItem(null);
-            }}
-          />
+              }}
+            />
+          )}
         </div>
       </div>
 

@@ -29,8 +29,6 @@ import type {
 import {
   marsGridToWorld,
   marsWorldToGrid,
-  MARS_GRID_MAX,
-  MARS_GRID_MIN,
   MARS_GRID_UNIT,
   validateMarsPlacement,
 } from "../engine";
@@ -56,6 +54,8 @@ export default function MarsInventoryBuildingPlacement({
   definition,
   physicalBuildings,
   canManageColony,
+  mapMin,
+  mapMax,
   onCancel,
   onSaved,
 }: {
@@ -63,6 +63,8 @@ export default function MarsInventoryBuildingPlacement({
   definition: MarsColonyBaseBuilding;
   physicalBuildings: MarsPhysicalBuildings;
   canManageColony: boolean;
+  mapMin: number;
+  mapMax: number;
   onCancel?: () => void;
   onSaved?: () => void | Promise<void>;
 }) {
@@ -96,15 +98,15 @@ export default function MarsInventoryBuildingPlacement({
     }> = [];
 
     for (
-      let gridZ = MARS_GRID_MIN;
+      let gridZ = mapMin;
       gridZ <=
-      MARS_GRID_MAX - targetDepth + 1;
+      mapMax - targetDepth + 1;
       gridZ += 1
     ) {
       for (
-        let gridX = MARS_GRID_MIN;
+        let gridX = mapMin;
         gridX <=
-        MARS_GRID_MAX - targetWidth + 1;
+        mapMax - targetWidth + 1;
         gridX += 1
       ) {
         candidates.push({
@@ -151,17 +153,21 @@ export default function MarsInventoryBuildingPlacement({
             },
 
             physicalBuildings,
+            {
+              min: mapMin,
+              max: mapMax,
+            },
           ).valid,
       );
 
     return {
       gridX:
         available?.gridX ??
-        MARS_GRID_MIN,
+        mapMin,
 
       gridZ:
         available?.gridZ ??
-        MARS_GRID_MIN,
+        mapMin,
 
       rotationY: 0,
     };
@@ -243,6 +249,10 @@ export default function MarsInventoryBuildingPlacement({
           definition.footprint_depth,
       },
       physicalBuildings,
+      {
+        min: mapMin,
+        max: mapMax,
+      },
     );
 
   function handlePointerDown(
@@ -277,10 +287,29 @@ export default function MarsInventoryBuildingPlacement({
 
     event.stopPropagation();
 
+    const groundPoint =
+      new THREE.Vector3();
+
+    const groundPlane =
+      new THREE.Plane(
+        new THREE.Vector3(0, 1, 0),
+        0,
+      );
+
+    const intersection =
+      event.ray.intersectPlane(
+        groundPlane,
+        groundPoint,
+      );
+
+    if (!intersection) {
+      return;
+    }
+
     const next =
       marsWorldToGrid(
-        event.point.x,
-        event.point.z,
+        groundPoint.x,
+        groundPoint.z,
         width,
         depth,
       );
@@ -410,6 +439,9 @@ export default function MarsInventoryBuildingPlacement({
           0.012,
           0,
         ]}
+        onPointerDown={
+          handlePointerDown
+        }
         onPointerMove={
           handlePointerMove
         }
@@ -432,7 +464,10 @@ export default function MarsInventoryBuildingPlacement({
         />
       </mesh>
 
-      <MarsPlacementGrid />
+      <MarsPlacementGrid
+            mapMin={mapMin}
+            mapMax={mapMax}
+          />
 
       {/*
        * Authoritative footprint preview.
@@ -463,12 +498,6 @@ export default function MarsInventoryBuildingPlacement({
           ),
           0,
         ]}
-        onPointerDown={
-          handlePointerDown
-        }
-        onPointerUp={
-          handlePointerUp
-        }
       >
         <MarsColonyBuildingModel
           buildingKey={
