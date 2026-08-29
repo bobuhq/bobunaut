@@ -79,6 +79,65 @@ export function AresRemoteBuilder({
     });
   }, [scene]);
 
+  const activeAnimationRef =
+    useRef<
+      "Idle" | "Walk" | "Run"
+    >("Idle");
+
+  const previousNetworkPosition =
+    useRef(
+      new THREE.Vector3(
+        builder.transform.x,
+        builder.transform.y,
+        builder.transform.z,
+      ),
+    );
+
+  const previousNetworkUpdateAt =
+    useRef(builder.updatedAt);
+
+  const playAnimation = (
+    animation:
+      | "Idle"
+      | "Walk"
+      | "Run",
+  ) => {
+    if (
+      activeAnimationRef.current ===
+      animation
+    ) {
+      return;
+    }
+
+    const previous =
+      actions[
+        activeAnimationRef.current
+      ];
+
+    const next =
+      actions[animation];
+
+    if (!next) {
+      return;
+    }
+
+    previous?.fadeOut(0.16);
+
+    next
+      .reset()
+      .fadeIn(0.16)
+      .play();
+
+    if (animation === "Run") {
+      next.timeScale = 1.18;
+    } else {
+      next.timeScale = 1;
+    }
+
+    activeAnimationRef.current =
+      animation;
+  };
+
   useEffect(() => {
     const idle =
       actions.Idle;
@@ -92,11 +151,74 @@ export function AresRemoteBuilder({
       .fadeIn(0.16)
       .play();
 
+    activeAnimationRef.current =
+      "Idle";
+
     return () => {
-      idle.fadeOut(0.16);
-      idle.stop();
+      actions.Idle?.stop();
+      actions.Walk?.stop();
+      actions.Run?.stop();
     };
   }, [actions]);
+
+  useEffect(() => {
+    const nextPosition =
+      new THREE.Vector3(
+        builder.transform.x,
+        builder.transform.y,
+        builder.transform.z,
+      );
+
+    const previousPosition =
+      previousNetworkPosition.current;
+
+    const elapsedMs =
+      Math.max(
+        1,
+        builder.updatedAt -
+          previousNetworkUpdateAt.current,
+      );
+
+    const horizontalDistance =
+      Math.hypot(
+        nextPosition.x -
+          previousPosition.x,
+        nextPosition.z -
+          previousPosition.z,
+      );
+
+    const speed =
+      horizontalDistance /
+      (elapsedMs / 1000);
+
+    let nextAnimation:
+      | "Idle"
+      | "Walk"
+      | "Run" = "Idle";
+
+    if (speed > 4.5) {
+      nextAnimation = "Run";
+    } else if (speed > 0.12) {
+      nextAnimation = "Walk";
+    }
+
+    playAnimation(
+      nextAnimation,
+    );
+
+    previousNetworkPosition.current.copy(
+      nextPosition,
+    );
+
+    previousNetworkUpdateAt.current =
+      builder.updatedAt;
+  }, [
+    builder.transform.x,
+    builder.transform.y,
+    builder.transform.z,
+    builder.updatedAt,
+    actions,
+  ]);
 
   useEffect(() => {
     targetPosition.current.set(
