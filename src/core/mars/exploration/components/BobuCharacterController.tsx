@@ -25,6 +25,21 @@ import {
   type MarsMovementInput,
 } from "../engine/MarsCharacterMovement";
 
+export type MarsCollisionObstacle =
+  | {
+      kind?: "circle";
+      x: number;
+      z: number;
+      radius: number;
+    }
+  | {
+      kind: "box";
+      x: number;
+      z: number;
+      halfWidth: number;
+      halfDepth: number;
+    };
+
 type BobuCharacterControllerProps = {
   children?: React.ReactNode;
   startPosition?: [
@@ -34,11 +49,7 @@ type BobuCharacterControllerProps = {
   ];
   boundary?: number;
   characterRef?: React.RefObject<THREE.Group | null>;
-  collisionObstacles?: Array<{
-    x: number;
-    z: number;
-    radius: number;
-  }>;
+  collisionObstacles?: MarsCollisionObstacle[];
 };
 
 const KEY_TO_INPUT: Record<
@@ -329,6 +340,62 @@ export function BobuCharacterController({
       const blocked =
         collisionObstacles.some(
           (obstacle) => {
+            if (
+              obstacle.kind ===
+              "box"
+            ) {
+              const minX =
+                obstacle.x -
+                obstacle.halfWidth;
+
+              const maxX =
+                obstacle.x +
+                obstacle.halfWidth;
+
+              const minZ =
+                obstacle.z -
+                obstacle.halfDepth;
+
+              const maxZ =
+                obstacle.z +
+                obstacle.halfDepth;
+
+              const closestX =
+                THREE.MathUtils.clamp(
+                  nextX,
+                  minX,
+                  maxX,
+                );
+
+              const closestZ =
+                THREE.MathUtils.clamp(
+                  nextZ,
+                  minZ,
+                  maxZ,
+                );
+
+              const dx =
+                nextX -
+                closestX;
+
+              const dz =
+                nextZ -
+                closestZ;
+
+              return (
+                dx * dx +
+                  dz * dz <
+                BOBU_COLLISION_RADIUS *
+                  BOBU_COLLISION_RADIUS
+              );
+            }
+
+            if (
+              !("radius" in obstacle)
+            ) {
+              return false;
+            }
+
             const dx =
               nextX -
               obstacle.x;

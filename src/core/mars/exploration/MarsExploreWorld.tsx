@@ -1,5 +1,6 @@
 import {
   Suspense,
+  useEffect,
   useRef,
   useState,
 } from "react";
@@ -51,6 +52,23 @@ import {
   AresMultiplayerPresence,
 } from "./multiplayer/AresMultiplayerPresence";
 
+import {
+  AresCommandHub,
+} from "./commandhub/AresCommandHub";
+
+import {
+  ARES_COMMAND_HUB_COLLISION_OBSTACLES,
+} from "./commandhub/AresCommandHubCollision";
+
+import {
+  AresHiddenMissionBeacon,
+} from "./missions/AresHiddenMissionBeacon";
+
+import {
+  getMyAresHiddenMission,
+  type AresHiddenMission,
+} from "./missions/AresHiddenMissionService";
+
 interface MarsExploreSceneProps {
   builderId: string;
   displayName:
@@ -71,6 +89,47 @@ function MarsExploreScene({
     useRef<THREE.Group | null>(
       null,
     );
+
+  const [
+    hiddenMission,
+    setHiddenMission,
+  ] =
+    useState<AresHiddenMission | null>(
+      null,
+    );
+
+  useEffect(() => {
+    let active = true;
+
+    getMyAresHiddenMission()
+      .then(
+        (
+          mission,
+        ) => {
+          if (
+            active
+          ) {
+            setHiddenMission(
+              mission,
+            );
+          }
+        },
+      )
+      .catch(
+        (
+          error,
+        ) => {
+          console.error(
+            "Failed to restore Ares hidden mission",
+            error,
+          );
+        },
+      );
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   return (
     <>
@@ -109,6 +168,16 @@ function MarsExploreScene({
 
       <MarsExplorationTerrain />
       <MarsSurfaceRocks />
+      <AresCommandHub
+        targetRef={bobuRef}
+        onMission={setHiddenMission}
+      />
+
+      {hiddenMission && (
+        <AresHiddenMissionBeacon
+          mission={hiddenMission}
+        />
+      )}
 
       <MarsDiscoveryPoint
         targetRef={bobuRef}
@@ -127,6 +196,7 @@ function MarsExploreScene({
         ]}
         collisionObstacles={[
           ...MARS_SURFACE_ROCK_COLLISION_OBSTACLES,
+          ...ARES_COMMAND_HUB_COLLISION_OBSTACLES,
           {
             x: 18,
             z: -28,
