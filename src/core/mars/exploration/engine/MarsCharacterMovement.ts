@@ -14,8 +14,8 @@ export type MarsMovementConfig = {
 };
 
 export const DEFAULT_MARS_MOVEMENT_CONFIG: MarsMovementConfig = {
-  walkSpeed: 3.7,
-  runSpeed: 6.4,
+  walkSpeed: 6.0,
+  runSpeed: 10.0,
 };
 
 export function createEmptyMarsMovementInput(): MarsMovementInput {

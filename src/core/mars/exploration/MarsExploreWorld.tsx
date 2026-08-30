@@ -82,6 +82,7 @@ import {
 
 import {
   AresExplorationLandmarks,
+  type AresLandmarkNavigation,
 } from "./landmarks/AresExplorationLandmarks";
 
 
@@ -100,6 +101,12 @@ interface MarsExploreSceneProps {
       navigation:
         AresGuidanceNavigation | null,
     ) => void;
+
+  onLandmarkNavigationChange:
+    (
+      navigation:
+        AresLandmarkNavigation | null,
+    ) => void;
 }
 
 function MarsExploreScene({
@@ -107,6 +114,7 @@ function MarsExploreScene({
   displayName,
   onOnlineCountChange,
   onHiddenMissionNavigationChange,
+  onLandmarkNavigationChange,
 }: MarsExploreSceneProps) {
   const bobuRef =
     useRef<THREE.Group | null>(
@@ -200,6 +208,9 @@ function MarsExploreScene({
       <AresGroundDust />
       <AresExplorationLandmarks
         targetRef={bobuRef}
+        onNavigation={
+          onLandmarkNavigationChange
+        }
       />
       <AresGuidanceSystem
         targetRef={bobuRef}
@@ -308,6 +319,14 @@ export function MarsExploreWorld() {
     );
 
   const [
+    landmarkNavigation,
+    setLandmarkNavigation,
+  ] =
+    useState<AresLandmarkNavigation | null>(
+      null,
+    );
+
+  const [
     onboardingVisible,
     setOnboardingVisible,
   ] = useState(true);
@@ -329,6 +348,25 @@ export function MarsExploreWorld() {
       },
       [],
     );
+
+  const handleLandmarkNavigationChange =
+    useCallback(
+      (
+        navigation:
+          AresLandmarkNavigation | null,
+      ) => {
+        setLandmarkNavigation(
+          navigation,
+        );
+      },
+      [],
+    );
+
+  const showLandmarkNavigation =
+    hiddenMissionNavigation?.kind ===
+      "explore" &&
+    landmarkNavigation !==
+      null;
 
   useEffect(() => {
     function handleKeyDown(
@@ -717,16 +755,20 @@ export function MarsExploreWorld() {
                     : "#63f5ff",
               }}
             >
-              {hiddenMissionNavigation.kind ===
-              "mission"
-                ? "HIDDEN ARES SIGNAL"
+              {showLandmarkNavigation
+                ? landmarkNavigation!.identified
+                  ? "TERRAIN LANDMARK"
+                  : "TERRAIN SIGNAL"
                 : hiddenMissionNavigation.kind ===
-                    "terminal"
-                  ? "MISSION TERMINAL"
+                    "mission"
+                  ? "HIDDEN ARES SIGNAL"
                   : hiddenMissionNavigation.kind ===
-                      "explore"
-                    ? "ARES EXPLORATION"
-                    : "PRIMARY OBJECTIVE"}
+                      "terminal"
+                    ? "MISSION TERMINAL"
+                    : hiddenMissionNavigation.kind ===
+                        "explore"
+                      ? "ARES EXPLORATION"
+                      : "PRIMARY OBJECTIVE"}
             </div>
 
             <div
@@ -743,26 +785,33 @@ export function MarsExploreWorld() {
                   fontSize: "15px",
                 }}
               >
-                {hiddenMissionNavigation.kind ===
-                "mission"
-                  ? hiddenMissionNavigation.near
-                    ? "SCAN SIGNAL"
-                    : "FOLLOW SIGNAL"
+                {showLandmarkNavigation
+                  ? landmarkNavigation!.surveyNear
+                    ? "SURVEY TERRAIN"
+                    : landmarkNavigation!.identified
+                      ? landmarkNavigation!.landmarkTitle
+                      : "FOLLOW TERRAIN SIGNAL"
                   : hiddenMissionNavigation.kind ===
-                      "terminal"
+                      "mission"
                     ? hiddenMissionNavigation.near
-                      ? "ACCESS TERMINAL"
-                      : "FIND MISSION TERMINAL"
+                      ? "SCAN SIGNAL"
+                      : "FOLLOW SIGNAL"
                     : hiddenMissionNavigation.kind ===
-                        "explore"
-                      ? "EXPLORE ARES"
-                      : hiddenMissionNavigation.near
-                        ? "ENTER COMMAND HUB"
-                        : "REACH COMMAND HUB"}
+                        "terminal"
+                      ? hiddenMissionNavigation.near
+                        ? "ACCESS TERMINAL"
+                        : "FIND MISSION TERMINAL"
+                      : hiddenMissionNavigation.kind ===
+                          "explore"
+                        ? "EXPLORE ARES"
+                        : hiddenMissionNavigation.near
+                          ? "ENTER COMMAND HUB"
+                          : "REACH COMMAND HUB"}
               </strong>
 
-              {hiddenMissionNavigation.kind !==
-                "explore" && (
+              {(showLandmarkNavigation ||
+                hiddenMissionNavigation.kind !==
+                  "explore") && (
                 <span
                   style={{
                     fontSize: "11px",
@@ -772,7 +821,9 @@ export function MarsExploreWorld() {
                   }}
                 >
                   {Math.round(
-                    hiddenMissionNavigation.distance,
+                    showLandmarkNavigation
+                      ? landmarkNavigation!.distance
+                      : hiddenMissionNavigation.distance,
                   )} M
                 </span>
               )}
@@ -789,10 +840,21 @@ export function MarsExploreWorld() {
                   "rgba(255,255,255,.5)",
               }}
             >
-              {hiddenMissionNavigation.kind ===
-                "explore"
-                ? "SEARCH FOR SIGNALS AND ANOMALIES"
+              {showLandmarkNavigation
+                ? landmarkNavigation!.surveyNear
+                  ? "HOLD E TO SURVEY"
+                  : Math.abs(
+                        landmarkNavigation!.relativeAngle,
+                      ) < 14
+                    ? "AHEAD"
+                    : landmarkNavigation!.relativeAngle >
+                        0
+                      ? "TURN RIGHT"
+                      : "TURN LEFT"
                 : hiddenMissionNavigation.kind ===
+                    "explore"
+                  ? "SEARCH FOR SIGNALS AND ANOMALIES"
+                  : hiddenMissionNavigation.kind ===
                     "mission" &&
                   hiddenMissionNavigation.near
                   ? "HOLD E TO SCAN"
@@ -847,6 +909,9 @@ export function MarsExploreWorld() {
               }
               onHiddenMissionNavigationChange={
                 handleHiddenMissionNavigationChange
+              }
+              onLandmarkNavigationChange={
+                handleLandmarkNavigationChange
               }
             />
           )}
