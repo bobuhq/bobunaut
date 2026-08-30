@@ -45,6 +45,14 @@ type MarsPlanetMapProps = {
   ) => void;
   diving: boolean;
   ariaLabel: string;
+  aresAccess: {
+    telegram_verified: boolean;
+    x_verified: boolean;
+    mining_days: number;
+    required_mining_days: number;
+    unlocked: boolean;
+  } | null;
+  aresAccessLoading: boolean;
 };
 
 type SectorMarkerProps = {
@@ -278,7 +286,11 @@ function MarsPlanet({
   diving,
 }: Omit<
   MarsPlanetMapProps,
-  "ariaLabel" | "onEnterSector" | "diving"
+  | "ariaLabel"
+  | "onEnterSector"
+  | "diving"
+  | "aresAccess"
+  | "aresAccessLoading"
 > & {
   diving: boolean;
 }) {
@@ -504,7 +516,10 @@ function MarsPlanet({
 function MarsScene(
   props: Omit<
     MarsPlanetMapProps,
-    "ariaLabel" | "onEnterSector"
+    | "ariaLabel"
+    | "onEnterSector"
+    | "aresAccess"
+    | "aresAccessLoading"
   >,
 ) {
   return (
@@ -577,6 +592,8 @@ export function MarsPlanetMap({
   onEnterSector,
   diving,
   ariaLabel,
+  aresAccess,
+  aresAccessLoading,
 }: MarsPlanetMapProps) {
   const selectedSector =
     useMemo(
@@ -730,54 +747,148 @@ export function MarsPlanetMap({
             </div>
           </div>
 
-          <div
-            className={[
-              "mars-planet-map__exploration-state",
-              selectedSectorIsAres
-                ? "is-active"
-                : "is-locked",
-            ].join(" ")}
-          >
-            <span
-              className="mars-planet-map__exploration-dot"
-              aria-hidden="true"
-            />
-            <strong>
-              {selectedSectorIsAres
-                ? "ACTIVE EXPLORATION"
-                : "EXPLORATION LOCKED"}
-            </strong>
-          </div>
+          {selectedSectorIsAres ? (
+            <div className="mars-planet-map__access-protocol">
+              <div className="mars-planet-map__access-header">
+                <div
+                  className={[
+                    "mars-planet-map__access-hex",
+                    aresAccess?.unlocked
+                      ? "is-unlocked"
+                      : "is-locked",
+                  ].join(" ")}
+                  aria-hidden="true"
+                >
+                  <span>
+                    {aresAccess?.unlocked ? "✓" : "⌁"}
+                  </span>
+                </div>
 
-          <button
-            type="button"
-            className={[
-              "mars-planet-map__enter",
-              selectedSectorIsAres
-                ? "is-ares"
-                : "is-locked",
-            ].join(" ")}
-            disabled={!selectedSectorIsAres}
-            aria-disabled={!selectedSectorIsAres}
-            onClick={() => {
-              if (!selectedSectorIsAres) {
-                return;
-              }
+                <div>
+                  <span className="mars-planet-map__access-kicker">
+                    ARES ACCESS PROTOCOL
+                  </span>
+                  <strong>
+                    {aresAccessLoading
+                      ? "VERIFYING ACCESS"
+                      : aresAccess?.unlocked
+                        ? "ACCESS AUTHORIZED"
+                        : "SECURITY LOCK ACTIVE"}
+                  </strong>
+                </div>
+              </div>
 
-              onEnterSector(
-                selectedSector.sector_id,
-              );
-            }}
-          >
-            {selectedSectorIsAres
-              ? "ENTER ARES"
-              : "EXPLORATION LOCKED"}
-            <span>
-              {selectedSectorIsAres
-                ? "→"
-                : "×"}
-            </span>
-          </button>
+              <div className="mars-planet-map__access-requirements">
+                <div
+                  className={
+                    aresAccess?.telegram_verified
+                      ? "is-complete"
+                      : "is-pending"
+                  }
+                >
+                  <span>TELEGRAM VERIFICATION</span>
+                  <strong>
+                    {aresAccess?.telegram_verified
+                      ? "VERIFIED ✓"
+                      : "LOCKED"}
+                  </strong>
+                </div>
+
+                <div
+                  className={
+                    aresAccess?.x_verified
+                      ? "is-complete"
+                      : "is-pending"
+                  }
+                >
+                  <span>X VERIFICATION</span>
+                  <strong>
+                    {aresAccess?.x_verified
+                      ? "VERIFIED ✓"
+                      : "LOCKED"}
+                  </strong>
+                </div>
+
+                <div
+                  className={
+                    aresAccess &&
+                    aresAccess.mining_days >=
+                      aresAccess.required_mining_days
+                      ? "is-complete"
+                      : "is-pending"
+                  }
+                >
+                  <span>MINING DAYS</span>
+                  <strong>
+                    {aresAccessLoading
+                      ? "SYNCING"
+                      : `${aresAccess?.mining_days ?? 0} / ${
+                          aresAccess?.required_mining_days ?? 7
+                        }`}
+                  </strong>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                className={[
+                  "mars-planet-map__enter",
+                  aresAccess?.unlocked
+                    ? "is-ares"
+                    : "is-locked",
+                ].join(" ")}
+                disabled={
+                  aresAccessLoading ||
+                  !aresAccess?.unlocked
+                }
+                aria-disabled={
+                  aresAccessLoading ||
+                  !aresAccess?.unlocked
+                }
+                onClick={() => {
+                  if (
+                    aresAccessLoading ||
+                    !aresAccess?.unlocked
+                  ) {
+                    return;
+                  }
+
+                  onEnterSector(
+                    selectedSector.sector_id,
+                  );
+                }}
+              >
+                {aresAccessLoading
+                  ? "VERIFYING ACCESS"
+                  : aresAccess?.unlocked
+                    ? "ENTER ARES"
+                    : "ARES LOCKED"}
+                <span>
+                  {aresAccess?.unlocked ? "→" : "×"}
+                </span>
+              </button>
+            </div>
+          ) : (
+            <>
+              <div className="mars-planet-map__exploration-state is-locked">
+                <span
+                  className="mars-planet-map__exploration-dot"
+                  aria-hidden="true"
+                />
+                <strong>EXPLORATION LOCKED</strong>
+              </div>
+
+              <button
+                type="button"
+                className="mars-planet-map__enter is-locked"
+                disabled
+                aria-disabled="true"
+              >
+                EXPLORATION LOCKED
+                <span>×</span>
+              </button>
+            </>
+          )}
         </aside>
       )}
 

@@ -2331,3 +2331,162 @@
     transform: scale(1.28);
   }
 }
+
+
+.mars-planet-map__access-protocol {
+  margin-top: 16px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(99, 245, 255, 0.12);
+}
+
+.mars-planet-map__access-header {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.mars-planet-map__access-header > div:last-child {
+  min-width: 0;
+}
+
+.mars-planet-map__access-header strong {
+  display: block;
+  margin-top: 4px;
+  color: rgba(255, 255, 255, 0.94);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
+.mars-planet-map__access-kicker {
+  display: block;
+  color: #63f5ff;
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: 0.17em;
+}
+
+.mars-planet-map__access-hex {
+  position: relative;
+  display: grid;
+  flex: 0 0 48px;
+  width: 48px;
+  height: 54px;
+  place-items: center;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(99, 245, 255, 0.2),
+      rgba(89, 59, 153, 0.2)
+    );
+  clip-path:
+    polygon(
+      25% 6.7%,
+      75% 6.7%,
+      100% 50%,
+      75% 93.3%,
+      25% 93.3%,
+      0 50%
+    );
+}
+
+.mars-planet-map__access-hex::before {
+  position: absolute;
+  inset: 3px;
+  background: rgba(4, 7, 12, 0.94);
+  clip-path: inherit;
+  content: "";
+}
+
+.mars-planet-map__access-hex span {
+  position: relative;
+  z-index: 1;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 19px;
+  font-weight: 900;
+}
+
+.mars-planet-map__access-hex.is-locked {
+  filter:
+    drop-shadow(
+      0 0 9px rgba(255, 104, 82, 0.22)
+    );
+}
+
+.mars-planet-map__access-hex.is-locked span {
+  color: #ff765f;
+}
+
+.mars-planet-map__access-hex.is-unlocked {
+  filter:
+    drop-shadow(
+      0 0 12px rgba(99, 245, 255, 0.36)
+    );
+}
+
+.mars-planet-map__access-hex.is-unlocked span {
+  color: #63f5ff;
+}
+
+.mars-planet-map__access-requirements {
+  display: grid;
+  gap: 6px;
+  margin-top: 14px;
+}
+
+.mars-planet-map__access-requirements > div {
+  display: flex;
+  min-height: 32px;
+  padding: 0 10px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.065);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.mars-planet-map__access-requirements span {
+  color: rgba(255, 255, 255, 0.48);
+  font-size: 7px;
+  font-weight: 900;
+  letter-spacing: 0.09em;
+}
+
+.mars-planet-map__access-requirements strong {
+  color: rgba(255, 118, 95, 0.86);
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.mars-planet-map__access-requirements
+  .is-complete {
+  border-color: rgba(99, 245, 255, 0.18);
+  background: rgba(99, 245, 255, 0.035);
+}
+
+.mars-planet-map__access-requirements
+  .is-complete strong {
+  color: #63f5ff;
+}
+
+.mars-planet-map__enter.is-locked:disabled {
+  border-color: rgba(255, 118, 95, 0.18);
+  background:
+    linear-gradient(
+      135deg,
+      rgba(85, 28, 24, 0.2),
+      rgba(32, 23, 45, 0.28)
+    );
+  color: rgba(255, 255, 255, 0.42);
+  cursor: not-allowed;
+  transform: none;
+}
+
+@media (max-width: 680px) {
+  .mars-planet-map__access-requirements > div {
+    min-height: 30px;
+  }
+}

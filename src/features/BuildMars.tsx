@@ -88,6 +88,7 @@ const MarsPlanetMap = lazy(() =>
 );
 
 export function BuildMars() {
+
   const { t } = useLanguage();
   const navigate = useNavigate();
 
@@ -295,11 +296,6 @@ export function BuildMars() {
   }, []);
 
   useEffect(() => {
-    if (!marsAccess?.unlocked) {
-      setLoading(false);
-      return;
-    }
-
     let cancelled = false;
 
     const load = async () => {
@@ -336,7 +332,7 @@ export function BuildMars() {
     return () => {
       cancelled = true;
     };
-  }, [marsAccess?.unlocked]);
+  }, []);
 
   useEffect(() => {
     if (!marsAccess?.unlocked) {
@@ -514,13 +510,8 @@ export function BuildMars() {
   };
 
   useEffect(() => {
-    if (!marsAccess?.unlocked) {
-      setSectorsLoading(false);
-      return;
-    }
-
     void loadSectors();
-  }, [marsAccess?.unlocked]);
+  }, []);
 
   const handleAssignSector = async (
     sectorId: string,
@@ -935,6 +926,13 @@ export function BuildMars() {
       return;
     }
 
+    if (!marsAccess?.unlocked) {
+      setSectorActionError(
+        "ARES access requirements are not complete.",
+      );
+      return;
+    }
+
     setSectorActionError(null);
     setSectorDiveActive(true);
 
@@ -1201,90 +1199,6 @@ export function BuildMars() {
       100,
     );
   }, [overview]);
-
-  if (accessLoading) {
-    return (
-      <main className="mars-page">
-        <div className="mars-state">
-          Checking Mars access...
-        </div>
-      </main>
-    );
-  }
-
-  if (accessError || !marsAccess) {
-    return (
-      <main className="mars-page">
-        <div className="mars-state mars-state-error">
-          {accessError ?? t("mars.error.accessUnavailableShort")}
-        </div>
-      </main>
-    );
-  }
-
-  if (!marsAccess.unlocked) {
-    const accessProgress =
-      marsAccess.required_gp > 0
-        ? Math.min(
-            (marsAccess.current_gp /
-              marsAccess.required_gp) *
-              100,
-            100,
-          )
-        : 0;
-
-    return (
-      <main className="mars-page">
-        <section className="mars-hero mars-access-hero">
-          <div className="mars-kicker">
-            {t("mars.kicker")}
-          </div>
-
-          <h1>{t("mars.title")}</h1>
-
-          <p>{t("mars.access.description")}</p>
-        </section>
-
-        <section className="mars-access-panel">
-          <span className="mars-section-label">
-            MARS ACCESS
-          </span>
-
-          <h2>{t("mars.access.locked")}</h2>
-
-          <div className="mars-access-balance">
-            <strong>
-              {marsAccess.current_gp.toLocaleString()}
-            </strong>
-
-            <span>/</span>
-
-            <strong>
-              {marsAccess.required_gp.toLocaleString()}
-            </strong>
-
-            <span>GP</span>
-          </div>
-
-          <div className="mars-progress">
-            <div
-              className="mars-progress-fill"
-              style={{ width: `${accessProgress}%` }}
-            />
-          </div>
-
-          <p className="mars-access-remaining">
-            {marsAccess.remaining_gp.toLocaleString()} GP
-            remaining
-          </p>
-
-          <p className="mars-access-copy">
-            {t("mars.access.unlockDescription")}
-          </p>
-        </section>
-      </main>
-    );
-  }
 
   if (loading) {
     return (
@@ -2582,6 +2496,10 @@ export function BuildMars() {
                     }
                     diving={sectorDiveActive}
                     ariaLabel={t("mars.map.ariaLabel")}
+                    aresAccess={marsAccess}
+                    aresAccessLoading={
+                      accessLoading
+                    }
                   />
                 </Suspense>
               </div>

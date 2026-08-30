@@ -47,6 +47,11 @@ import {
 } from "../../builder/services/BuilderWalletService";
 
 import {
+  getMyMarsAccess,
+  type MarsAccess,
+} from "../MarsAccessService";
+
+import {
   AresMultiplayerPresence,
 } from "./multiplayer/AresMultiplayerPresence";
 
@@ -311,6 +316,81 @@ export function MarsExploreWorld() {
     useBuilderStore();
 
   const [
+    aresAccess,
+    setAresAccess,
+  ] =
+    useState<MarsAccess | null>(
+      null,
+    );
+
+  const [
+    aresAccessLoading,
+    setAresAccessLoading,
+  ] =
+    useState(true);
+
+  const [
+    aresAccessError,
+    setAresAccessError,
+  ] =
+    useState<string | null>(
+      null,
+    );
+
+  useEffect(() => {
+    let active = true;
+
+    const verifyAresAccess =
+      async () => {
+        try {
+          setAresAccessLoading(
+            true,
+          );
+
+          setAresAccessError(
+            null,
+          );
+
+          const access =
+            await getMyMarsAccess();
+
+          if (active) {
+            setAresAccess(
+              access,
+            );
+          }
+        } catch (error) {
+          console.error(
+            "ARES route access verification failed:",
+            error,
+          );
+
+          if (active) {
+            setAresAccess(
+              null,
+            );
+
+            setAresAccessError(
+              "Unable to verify Ares access.",
+            );
+          }
+        } finally {
+          if (active) {
+            setAresAccessLoading(
+              false,
+            );
+          }
+        }
+      };
+
+    void verifyAresAccess();
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const [
     onlineCount,
     setOnlineCount,
   ] =
@@ -505,6 +585,294 @@ export function MarsExploreWorld() {
     (builder?.id
       ? `Builder ${builder.id.slice(0, 6)}`
       : null);
+
+  if (aresAccessLoading) {
+    return (
+      <div
+        style={{
+          display: "grid",
+          width: "100%",
+          height: "100vh",
+          placeItems: "center",
+          background:
+            "radial-gradient(circle at 50% 35%, #221019 0%, #080811 48%, #030409 100%)",
+          color: "#ffffff",
+          fontFamily:
+            "Inter, system-ui, sans-serif",
+        }}
+      >
+        <div
+          style={{
+            textAlign: "center",
+          }}
+        >
+          <div
+            style={{
+              color: "#63f5ff",
+              fontSize: "10px",
+              fontWeight: 900,
+              letterSpacing: ".2em",
+            }}
+          >
+            ARES ACCESS PROTOCOL
+          </div>
+
+          <div
+            style={{
+              marginTop: "12px",
+              fontSize: "20px",
+              fontWeight: 900,
+              letterSpacing: ".06em",
+            }}
+          >
+            VERIFYING ACCESS
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (
+    aresAccessError ||
+    !aresAccess?.unlocked
+  ) {
+    return (
+      <div
+        style={{
+          display: "grid",
+          width: "100%",
+          height: "100vh",
+          placeItems: "center",
+          padding: "24px",
+          background:
+            "radial-gradient(circle at 50% 35%, #281015 0%, #080811 50%, #030409 100%)",
+          color: "#ffffff",
+          fontFamily:
+            "Inter, system-ui, sans-serif",
+        }}
+      >
+        <div
+          style={{
+            width:
+              "min(440px, 100%)",
+            padding:
+              "28px 26px",
+            border:
+              "1px solid rgba(255,118,95,.24)",
+            borderRadius:
+              "18px",
+            background:
+              "rgba(5,7,18,.82)",
+            boxShadow:
+              "0 24px 80px rgba(0,0,0,.4)",
+            textAlign:
+              "center",
+            backdropFilter:
+              "blur(16px)",
+          }}
+        >
+          <div
+            style={{
+              display: "grid",
+              width: "62px",
+              height: "68px",
+              margin: "0 auto",
+              placeItems: "center",
+              background:
+                "linear-gradient(145deg, rgba(255,118,95,.28), rgba(126,76,255,.2))",
+              clipPath:
+                "polygon(25% 6.7%,75% 6.7%,100% 50%,75% 93.3%,25% 93.3%,0 50%)",
+              color: "#ff765f",
+              fontSize: "25px",
+              fontWeight: 900,
+            }}
+          >
+            ×
+          </div>
+
+          <div
+            style={{
+              marginTop: "18px",
+              color: "#ff765f",
+              fontSize: "9px",
+              fontWeight: 900,
+              letterSpacing: ".2em",
+            }}
+          >
+            ARES ACCESS PROTOCOL
+          </div>
+
+          <h1
+            style={{
+              margin:
+                "8px 0 0",
+              fontSize: "24px",
+              fontWeight: 900,
+            }}
+          >
+            ARES ACCESS LOCKED
+          </h1>
+
+          <p
+            style={{
+              margin:
+                "12px auto 0",
+              maxWidth:
+                "330px",
+              color:
+                "rgba(255,255,255,.62)",
+              fontSize:
+                "12px",
+              lineHeight:
+                1.65,
+            }}
+          >
+            Complete Telegram Verification,
+            X Verification and 7 completed
+            Mining Days to enter Ares.
+          </p>
+
+          {!aresAccessError &&
+            aresAccess && (
+              <div
+                style={{
+                  display:
+                    "grid",
+                  gap: "7px",
+                  marginTop:
+                    "20px",
+                  textAlign:
+                    "left",
+                }}
+              >
+                {[
+                  [
+                    "TELEGRAM VERIFICATION",
+                    aresAccess.telegram_verified
+                      ? "VERIFIED"
+                      : "LOCKED",
+                  ],
+                  [
+                    "X VERIFICATION",
+                    aresAccess.x_verified
+                      ? "VERIFIED"
+                      : "LOCKED",
+                  ],
+                  [
+                    "MINING DAYS",
+                    `${aresAccess.mining_days} / ${aresAccess.required_mining_days}`,
+                  ],
+                ].map(
+                  ([label, value]) => (
+                    <div
+                      key={label}
+                      style={{
+                        display:
+                          "flex",
+                        justifyContent:
+                          "space-between",
+                        gap:
+                          "12px",
+                        padding:
+                          "9px 11px",
+                        border:
+                          "1px solid rgba(255,255,255,.07)",
+                        borderRadius:
+                          "8px",
+                        background:
+                          "rgba(255,255,255,.025)",
+                      }}
+                    >
+                      <span
+                        style={{
+                          color:
+                            "rgba(255,255,255,.48)",
+                          fontSize:
+                            "8px",
+                          fontWeight:
+                            900,
+                          letterSpacing:
+                            ".08em",
+                        }}
+                      >
+                        {label}
+                      </span>
+
+                      <strong
+                        style={{
+                          color:
+                            value ===
+                            "VERIFIED"
+                              ? "#63f5ff"
+                              : "#ff765f",
+                          fontSize:
+                            "8px",
+                          letterSpacing:
+                            ".06em",
+                        }}
+                      >
+                        {value}
+                      </strong>
+                    </div>
+                  ),
+                )}
+              </div>
+            )}
+
+          {aresAccessError && (
+            <p
+              style={{
+                marginTop:
+                  "16px",
+                color:
+                  "#ff765f",
+                fontSize:
+                  "11px",
+              }}
+            >
+              {aresAccessError}
+            </p>
+          )}
+
+          <a
+            href="/mars"
+            style={{
+              display:
+                "inline-flex",
+              minHeight:
+                "42px",
+              marginTop:
+                "22px",
+              padding:
+                "0 20px",
+              alignItems:
+                "center",
+              justifyContent:
+                "center",
+              border:
+                "1px solid rgba(99,245,255,.3)",
+              borderRadius:
+                "9px",
+              background:
+                "rgba(99,245,255,.07)",
+              color:
+                "#63f5ff",
+              fontSize:
+                "9px",
+              fontWeight:
+                900,
+              letterSpacing:
+                ".12em",
+              textDecoration:
+                "none",
+            }}
+          >
+            RETURN TO MARS
+          </a>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div

@@ -2,17 +2,18 @@ import { supabase } from "../../lib/supabase";
 
 export type MarsAccess = {
   builder_id: string;
-  current_gp: number;
-  required_gp: number;
-  remaining_gp: number;
+  telegram_verified: boolean;
+  x_verified: boolean;
+  mining_days: number;
+  required_mining_days: number;
   unlocked: boolean;
   unlocked_at: string | null;
-  unlock_gp: number | null;
+  unlock_method: string;
 };
 
 export async function getMyMarsAccess(): Promise<MarsAccess> {
   const { data, error } = await supabase.rpc(
-    "get_my_mars_access",
+    "get_my_ares_access_protocol",
   );
 
   if (error) {
@@ -24,7 +25,7 @@ export async function getMyMarsAccess(): Promise<MarsAccess> {
 
   if (!access) {
     throw new Error(
-      "BUILD MARS access state returned no result.",
+      "ARES Access Protocol returned no result.",
     );
   }
 
