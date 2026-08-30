@@ -200,6 +200,7 @@ function MarsExploreScene({
       <AresCommandHub
         targetRef={bobuRef}
         onMission={setHiddenMission}
+        mission={hiddenMission}
       />
 
       {hiddenMission &&

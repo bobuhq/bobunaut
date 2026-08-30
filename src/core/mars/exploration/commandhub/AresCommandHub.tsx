@@ -30,6 +30,9 @@ import {
 import {
   AresMissionTerminal,
 } from "../missions/AresMissionTerminal";
+import {
+  AresResearchTerminal,
+} from "../research/AresResearchTerminal";
 
 import type {
   AresHiddenMission,
@@ -44,6 +47,9 @@ type Props = {
       mission:
         AresHiddenMission,
     ) => void;
+
+  mission:
+    AresHiddenMission | null;
 };
 
 type MarsModuleProps = {
@@ -303,6 +309,7 @@ function BobuEnergyCore() {
 function CommandInterior({
   targetRef,
   onMission,
+  mission,
 }: Props) {
   return (
     <group>
@@ -452,6 +459,19 @@ function CommandInterior({
             3.7,
         }}
         onMission={onMission}
+      />
+
+      <AresResearchTerminal
+        targetRef={targetRef}
+        mission={mission}
+        worldPosition={{
+          x:
+            ARES_COMMAND_HUB_POSITION.x -
+            2.65,
+          z:
+            ARES_COMMAND_HUB_POSITION.z +
+            1.55,
+        }}
       />
 
       <pointLight
@@ -1214,6 +1234,7 @@ function ExteriorFacility() {
 export function AresCommandHub({
   targetRef,
   onMission,
+  mission,
 }: Props) {
   const [
     terrainHeight,
@@ -1577,6 +1598,7 @@ export function AresCommandHub({
       <CommandInterior
         targetRef={targetRef}
         onMission={onMission}
+        mission={mission}
       />
 
       <Html
