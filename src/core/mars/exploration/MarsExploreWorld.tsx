@@ -10,10 +10,6 @@ import {
   Canvas,
 } from "@react-three/fiber";
 
-import {
-  Stars,
-} from "@react-three/drei";
-
 import * as THREE from "three";
 
 import {
@@ -75,6 +71,10 @@ import {
 import {
   marsAudio,
 } from "./audio/MarsAudioEngine";
+
+import {
+  AresSky,
+} from "./environment/AresSky";
 
 
 interface MarsExploreSceneProps {
@@ -268,15 +268,7 @@ function MarsExploreScene({
         }
       />
 
-      <Stars
-        radius={80}
-        depth={30}
-        count={900}
-        factor={2.2}
-        saturation={0.15}
-        fade
-        speed={0.08}
-      />
+      <AresSky />
     </>
   );
 }
