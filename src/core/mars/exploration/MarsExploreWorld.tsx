@@ -80,6 +80,10 @@ import {
   AresGroundDust,
 } from "./environment/AresGroundDust";
 
+import {
+  AresExplorationLandmarks,
+} from "./landmarks/AresExplorationLandmarks";
+
 
 interface MarsExploreSceneProps {
   builderId: string;
@@ -194,6 +198,9 @@ function MarsExploreScene({
       <MarsExplorationTerrain />
       <MarsSurfaceRocks />
       <AresGroundDust />
+      <AresExplorationLandmarks
+        targetRef={bobuRef}
+      />
       <AresGuidanceSystem
         targetRef={bobuRef}
         mission={hiddenMission}
