@@ -40,6 +40,9 @@ type MarsPixelOverlayProps = {
   gridVersion: number;
   allocations: MarsPixelPublicAllocation[];
   visible: boolean;
+  aresMapX?: number | null;
+  aresMapY?: number | null;
+  onAresEnter?: () => void;
   onPixelSelect?: (
     coordinate: MarsPixelCoordinate,
     allocation: MarsPixelPublicAllocation | null,
@@ -89,6 +92,9 @@ export function MarsPixelOverlay({
   gridVersion,
   allocations,
   visible,
+  aresMapX = null,
+  aresMapY = null,
+  onAresEnter,
   onPixelSelect,
 }: MarsPixelOverlayProps) {
   const texture = useMemo(() => {
@@ -183,6 +189,46 @@ export function MarsPixelOverlay({
     [texture],
   );
 
+  const aresMajorCell =
+    useMemo(() => {
+      if (
+        aresMapX === null ||
+        aresMapY === null
+      ) {
+        return null;
+      }
+
+      const clampedX =
+        Math.min(
+          0.999999,
+          Math.max(0, aresMapX / 100),
+        );
+
+      const clampedY =
+        Math.min(
+          0.999999,
+          Math.max(0, aresMapY / 100),
+        );
+
+      return {
+        x: Math.min(
+          19,
+          Math.floor(clampedX * 20),
+        ),
+        y: Math.min(
+          19,
+          Math.floor(
+            (1 - clampedY) * 20,
+          ),
+        ),
+      };
+    }, [
+      aresMapX,
+      aresMapY,
+      gridHeight,
+      gridWidth,
+    ]);
+
   const materialRef =
     useRef<ShaderMaterial | null>(null);
 
@@ -233,6 +279,32 @@ export function MarsPixelOverlay({
             gridHeight,
           );
 
+        if (
+          aresMajorCell &&
+          onAresEnter
+        ) {
+          const majorCellX =
+            Math.floor(
+              (coordinate.x / gridWidth) * 20,
+            );
+
+          const majorCellY =
+            Math.floor(
+              (
+                1 -
+                coordinate.y / gridHeight
+              ) * 20,
+            );
+
+          if (
+            majorCellX === aresMajorCell.x &&
+            majorCellY === aresMajorCell.y
+          ) {
+            onAresEnter();
+            return;
+          }
+        }
+
         const allocation =
           allocations.find((candidate) =>
             containsCoordinate(
@@ -241,7 +313,7 @@ export function MarsPixelOverlay({
             ),
           ) ?? null;
 
-        onPixelSelect(
+        onPixelSelect?.(
           coordinate,
           allocation,
         );
@@ -270,6 +342,14 @@ export function MarsPixelOverlay({
           cameraDistance: {
             value: 6.45,
           },
+          aresMajorCell: {
+            value: aresMajorCell
+              ? [
+                  aresMajorCell.x,
+                  aresMajorCell.y,
+                ]
+              : [-1, -1],
+          },
         }}
         vertexShader={`
           varying vec2 vUv;
@@ -287,6 +367,7 @@ export function MarsPixelOverlay({
           uniform sampler2D allocationTexture;
           uniform vec2 gridSize;
           uniform float cameraDistance;
+          uniform vec2 aresMajorCell;
 
           varying vec2 vUv;
 
@@ -380,6 +461,20 @@ export function MarsPixelOverlay({
                 )
               );
 
+            vec2 currentMajorCell =
+              floor(
+                canonicalUv * 20.0
+              );
+
+            float isAresCell =
+              step(
+                length(
+                  currentMajorCell -
+                  aresMajorCell
+                ),
+                0.01
+              );
+
             vec3 gridColor =
               vec3(
                 0.38,
@@ -394,10 +489,27 @@ export function MarsPixelOverlay({
                 allocation.a
               );
 
+            vec3 aresColor =
+              vec3(
+                0.05,
+                0.72,
+                1.0
+              );
+
+            finalColor =
+              mix(
+                finalColor,
+                aresColor,
+                isAresCell
+              );
+
             float finalAlpha =
               max(
-                gridAlpha,
-                allocation.a
+                max(
+                  gridAlpha,
+                  allocation.a
+                ),
+                isAresCell * 0.58
               );
 
             if (

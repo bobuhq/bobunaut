@@ -143,18 +143,6 @@ function SectorMarker({
     return null;
   }
 
-  const position = useMemo(
-    () =>
-      mapPositionToSphere(
-        sector.map_x as number,
-        sector.map_y as number,
-      ),
-    [
-      sector.map_x,
-      sector.map_y,
-    ],
-  );
-
   const isAres =
     sector.sector_code
       ?.trim()
@@ -163,6 +151,49 @@ function SectorMarker({
       ?.trim()
       .toLowerCase()
       .includes("ares") === true;
+
+  const position = useMemo(
+    () => {
+      const mapX =
+        sector.map_x as number;
+
+      const mapY =
+        sector.map_y as number;
+
+      if (!isAres) {
+        return mapPositionToSphere(
+          mapX,
+          mapY,
+        );
+      }
+
+      const cellSize = 100 / 20;
+
+      const snappedMapX =
+        Math.floor(
+          mapX / cellSize,
+        ) *
+          cellSize +
+        cellSize / 2;
+
+      const snappedMapY =
+        Math.floor(
+          mapY / cellSize,
+        ) *
+          cellSize +
+        cellSize / 2;
+
+      return mapPositionToSphere(
+        snappedMapX,
+        snappedMapY,
+      );
+    },
+    [
+      isAres,
+      sector.map_x,
+      sector.map_y,
+    ],
+  );
 
   const color = isAres
     ? "#63f5ff"
@@ -301,19 +332,16 @@ function MarsPlanet({
   currentSectorId,
   selectedSectorId,
   onSelectSector,
+  onEnterSector,
   diving,
   pixelNetworkStatus,
   pixelAllocations,
 }: Omit<
   MarsPlanetMapProps,
   | "ariaLabel"
-  | "onEnterSector"
-  | "diving"
   | "aresAccess"
   | "aresAccessLoading"
-> & {
-  diving: boolean;
-}) {
+>) {
   const groupRef =
     useRef<Group | null>(null);
 
@@ -339,6 +367,28 @@ function MarsPlanet({
         sectors,
         selectedSectorId,
       ],
+    );
+
+  const aresSector =
+    useMemo(
+      () =>
+        sectors.find((sector) => {
+          const code =
+            sector.sector_code
+              ?.trim()
+              .toLowerCase();
+
+          const name =
+            sector.sector_name
+              ?.trim()
+              .toLowerCase();
+
+          return (
+            code === "ares" ||
+            name?.includes("ares") === true
+          );
+        }) ?? null,
+      [sectors],
     );
 
   const focusAngles =
@@ -501,6 +551,25 @@ function MarsPlanet({
             pixelAllocations ?? []
           }
           visible={!diving}
+          aresMapX={
+            aresSector?.map_x ?? null
+          }
+          aresMapY={
+            aresSector?.map_y ?? null
+          }
+          onAresEnter={() => {
+            if (!aresSector) {
+              return;
+            }
+
+            onSelectSector(
+              aresSector.sector_id,
+            );
+
+            onEnterSector(
+              aresSector.sector_id,
+            );
+          }}
         />
       )}
 
@@ -554,11 +623,15 @@ function MarsPlanet({
                 sector.sector_id ===
                 selectedSectorId
               }
-              onSelect={() =>
+              onSelect={() => {
                 onSelectSector(
                   sector.sector_id,
-                )
-              }
+                );
+
+                onEnterSector(
+                  sector.sector_id,
+                );
+              }}
             />
           ))}
     </group>
@@ -569,7 +642,6 @@ function MarsScene(
   props: Omit<
     MarsPlanetMapProps,
     | "ariaLabel"
-    | "onEnterSector"
     | "aresAccess"
     | "aresAccessLoading"
   >,
@@ -828,6 +900,9 @@ export function MarsPlanetMap({
           }
           onSelectSector={
             onSelectSector
+          }
+          onEnterSector={
+            onEnterSector
           }
           diving={diving}
           pixelNetworkStatus={
