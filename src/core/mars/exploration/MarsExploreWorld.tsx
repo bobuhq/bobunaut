@@ -1,5 +1,6 @@
 import {
   Suspense,
+  useCallback,
   useEffect,
   useRef,
   useState,
@@ -69,6 +70,15 @@ import {
   type AresHiddenMission,
 } from "./missions/AresHiddenMissionService";
 
+type AresHiddenMissionNavigation = {
+  distance:
+    number;
+  bearing:
+    number;
+  near:
+    boolean;
+};
+
 interface MarsExploreSceneProps {
   builderId: string;
   displayName:
@@ -78,12 +88,19 @@ interface MarsExploreSceneProps {
   onOnlineCountChange: (
     count: number,
   ) => void;
+
+  onHiddenMissionNavigationChange:
+    (
+      navigation:
+        AresHiddenMissionNavigation | null,
+    ) => void;
 }
 
 function MarsExploreScene({
   builderId,
   displayName,
   onOnlineCountChange,
+  onHiddenMissionNavigationChange,
 }: MarsExploreSceneProps) {
   const bobuRef =
     useRef<THREE.Group | null>(
@@ -173,9 +190,33 @@ function MarsExploreScene({
         onMission={setHiddenMission}
       />
 
-      {hiddenMission && (
+      {hiddenMission &&
+        hiddenMission.status ===
+          "accepted" && (
         <AresHiddenMissionBeacon
           mission={hiddenMission}
+          targetRef={bobuRef}
+          onNavigation={
+            onHiddenMissionNavigationChange
+          }
+          onCompleted={() => {
+            onHiddenMissionNavigationChange(
+              null,
+            );
+
+            setHiddenMission(
+              (
+                current,
+              ) =>
+                current
+                  ? {
+                      ...current,
+                      status:
+                        "claimed",
+                    }
+                  : current,
+            );
+          }}
         />
       )}
 
@@ -247,6 +288,27 @@ export function MarsExploreWorld() {
   ] =
     useState(1);
 
+  const [
+    hiddenMissionNavigation,
+    setHiddenMissionNavigation,
+  ] =
+    useState<AresHiddenMissionNavigation | null>(
+      null,
+    );
+
+  const handleHiddenMissionNavigationChange =
+    useCallback(
+      (
+        navigation:
+          AresHiddenMissionNavigation | null,
+      ) => {
+        setHiddenMissionNavigation(
+          navigation,
+        );
+      },
+      [],
+    );
+
   const builderId =
     session?.user.id ?? "";
 
@@ -308,6 +370,122 @@ export function MarsExploreWorld() {
         ARES ONLINE {onlineCount}
       </div>
 
+      {hiddenMissionNavigation &&
+        !hiddenMissionNavigation.near && (
+        <div
+          data-ares-hidden-mission-hud="active"
+          style={{
+            position:
+              "fixed",
+            left:
+              "24px",
+            bottom:
+              "28px",
+            zIndex:
+              2147483647,
+            minWidth:
+              "210px",
+            padding:
+              "12px 16px",
+            border:
+              "1px solid rgba(188,120,255,.52)",
+            borderRadius:
+              "14px",
+            background:
+              "rgba(5,4,12,.88)",
+            boxShadow:
+              "0 0 30px rgba(146,72,220,.2)",
+            backdropFilter:
+              "blur(10px)",
+            color:
+              "#ffffff",
+            fontFamily:
+              "Inter, system-ui, sans-serif",
+            pointerEvents:
+              "none",
+          }}
+        >
+          <div
+            style={{
+              fontSize:
+                "9px",
+              fontWeight:
+                900,
+              letterSpacing:
+                ".18em",
+              color:
+                "#c99cf3",
+            }}
+          >
+            HIDDEN ARES SIGNAL
+          </div>
+
+          <div
+            style={{
+              display:
+                "flex",
+              alignItems:
+                "baseline",
+              gap:
+                "9px",
+              marginTop:
+                "6px",
+            }}
+          >
+            <span
+              style={{
+                fontSize:
+                  "24px",
+                fontWeight:
+                  900,
+              }}
+            >
+              {Math.round(
+                hiddenMissionNavigation.distance,
+              )} M
+            </span>
+
+            <span
+              style={{
+                fontSize:
+                  "11px",
+                fontWeight:
+                  800,
+                color:
+                  "#d8c8e7",
+              }}
+            >
+              BEARING{" "}
+              {Math.round(
+                (
+                  hiddenMissionNavigation.bearing +
+                  360
+                ) %
+                  360,
+              )}
+              °
+            </span>
+          </div>
+
+          <div
+            style={{
+              marginTop:
+                "7px",
+              fontSize:
+                "9px",
+              fontWeight:
+                800,
+              letterSpacing:
+                ".1em",
+              color:
+                "rgba(255,255,255,.68)",
+            }}
+          >
+            FOLLOW THE PURPLE SIGNAL
+          </div>
+        </div>
+      )}
+
       <Canvas
         shadows
         camera={{
@@ -339,6 +517,9 @@ export function MarsExploreWorld() {
               }
               onOnlineCountChange={
                 setOnlineCount
+              }
+              onHiddenMissionNavigationChange={
+                handleHiddenMissionNavigationChange
               }
             />
           )}

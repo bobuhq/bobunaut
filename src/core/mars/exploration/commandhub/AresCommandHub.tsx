@@ -1371,6 +1371,209 @@ export function AresCommandHub({
 
       <ExteriorFacility />
 
+      <group
+        position={[
+          0,
+          0,
+          6.18,
+        ]}
+      >
+        <mesh
+          position={[
+            -1.65,
+            1.55,
+            0,
+          ]}
+        >
+          <boxGeometry
+            args={[
+              0.12,
+              3.1,
+              0.12,
+            ]}
+          />
+          <meshStandardMaterial
+            color="#c777ff"
+            emissive="#8d36d1"
+            emissiveIntensity={3.2}
+            toneMapped={false}
+          />
+        </mesh>
+
+        <mesh
+          position={[
+            1.65,
+            1.55,
+            0,
+          ]}
+        >
+          <boxGeometry
+            args={[
+              0.12,
+              3.1,
+              0.12,
+            ]}
+          />
+          <meshStandardMaterial
+            color="#c777ff"
+            emissive="#8d36d1"
+            emissiveIntensity={3.2}
+            toneMapped={false}
+          />
+        </mesh>
+
+        <mesh
+          position={[
+            0,
+            3.05,
+            0,
+          ]}
+        >
+          <boxGeometry
+            args={[
+              3.42,
+              0.13,
+              0.13,
+            ]}
+          />
+          <meshStandardMaterial
+            color="#d39aff"
+            emissive="#943bd7"
+            emissiveIntensity={3.4}
+            toneMapped={false}
+          />
+        </mesh>
+
+        <pointLight
+          position={[
+            0,
+            2.1,
+            0.55,
+          ]}
+          color="#a64de5"
+          intensity={5}
+          distance={8}
+          decay={2}
+        />
+
+        <Html
+          center
+          position={[
+            0,
+            3.55,
+            0.05,
+          ]}
+          distanceFactor={7}
+          style={{
+            pointerEvents:
+              "none",
+            whiteSpace:
+              "nowrap",
+            padding:
+              "7px 13px",
+            border:
+              "1px solid rgba(91,255,145,.88)",
+            borderRadius:
+              "8px",
+            background:
+              "rgba(5,22,12,.94)",
+            boxShadow:
+              "0 0 18px rgba(70,255,125,.62)",
+            color:
+              "#8dffad",
+            fontFamily:
+              "Inter, system-ui, sans-serif",
+            fontSize:
+              "9px",
+            fontWeight:
+              900,
+            letterSpacing:
+              "0.2em",
+          }}
+        >
+          COMMAND ENTRY
+        </Html>
+
+        {[
+          -1.05,
+          0,
+          1.05,
+        ].map(
+          (
+            x,
+          ) => (
+            <mesh
+              key={
+                x
+              }
+              position={[
+                x,
+                0.025,
+                1.25,
+              ]}
+              rotation={[
+                -Math.PI /
+                  2,
+                0,
+                0,
+              ]}
+            >
+              <planeGeometry
+                args={[
+                  0.16,
+                  2.2,
+                ]}
+              />
+              <meshBasicMaterial
+                color="#54ff88"
+                transparent
+                opacity={0.82}
+                toneMapped={false}
+                side={
+                  THREE.DoubleSide
+                }
+              />
+            </mesh>
+          ),
+        )}
+
+        <Html
+          center
+          position={[
+            0,
+            0.12,
+            2.35,
+          ]}
+          rotation={[
+            -Math.PI /
+              2,
+            0,
+            0,
+          ]}
+          distanceFactor={5}
+          style={{
+            pointerEvents:
+              "none",
+            whiteSpace:
+              "nowrap",
+            color:
+              "#d9a6ff",
+            fontFamily:
+              "Inter, system-ui, sans-serif",
+            fontSize:
+              "8px",
+            fontWeight:
+              900,
+            letterSpacing:
+              "0.18em",
+            textShadow:
+              "0 0 10px #8d36d1",
+          }}
+        >
+          ▲ ENTER
+        </Html>
+      </group>
+
       <CommandInterior
         targetRef={targetRef}
         onMission={onMission}

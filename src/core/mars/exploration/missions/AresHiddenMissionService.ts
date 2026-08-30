@@ -134,3 +134,130 @@ Promise<AresHiddenMission> {
     row as MissionRow,
   );
 }
+
+export type AresHiddenMissionScan = {
+  missionKey: string;
+  cycleKey: string;
+  scanStartedAt: string;
+  earliestCompleteAt: string;
+};
+
+export type AresHiddenMissionCompletion = {
+  completedNow: boolean;
+  missionKey: string;
+  cycleKey: string;
+  rewardGp: number;
+  totalGp: number;
+  ledgerId:
+    | string
+    | null;
+  status:
+    | "accepted"
+    | "completed"
+    | "claimed";
+  completedAt:
+    | string
+    | null;
+};
+
+export async function startMyAresHiddenMissionScan(
+  missionKey: string,
+): Promise<AresHiddenMissionScan> {
+  const {
+    data,
+    error,
+  } =
+    await supabase.rpc(
+      "start_my_ares_hidden_mission_scan",
+      {
+        p_mission_key:
+          missionKey,
+      },
+    );
+
+  if (error) {
+    throw error;
+  }
+
+  const row =
+    Array.isArray(
+      data,
+    )
+      ? data[0]
+      : null;
+
+  if (!row) {
+    throw new Error(
+      "Mission scan start returned no data.",
+    );
+  }
+
+  return {
+    missionKey:
+      row.mission_key,
+    cycleKey:
+      row.cycle_key,
+    scanStartedAt:
+      row.scan_started_at,
+    earliestCompleteAt:
+      row.earliest_complete_at,
+  };
+}
+
+export async function completeMyAresHiddenMission(
+  missionKey: string,
+): Promise<AresHiddenMissionCompletion> {
+  const {
+    data,
+    error,
+  } =
+    await supabase.rpc(
+      "complete_my_ares_hidden_mission",
+      {
+        p_mission_key:
+          missionKey,
+      },
+    );
+
+  if (error) {
+    throw error;
+  }
+
+  const row =
+    Array.isArray(
+      data,
+    )
+      ? data[0]
+      : null;
+
+  if (!row) {
+    throw new Error(
+      "Mission completion returned no data.",
+    );
+  }
+
+  return {
+    completedNow:
+      Boolean(
+        row.completed_now,
+      ),
+    missionKey:
+      row.mission_key,
+    cycleKey:
+      row.cycle_key,
+    rewardGp:
+      Number(
+        row.reward_gp,
+      ),
+    totalGp:
+      Number(
+        row.total_gp,
+      ),
+    ledgerId:
+      row.ledger_id,
+    status:
+      row.status,
+    completedAt:
+      row.completed_at,
+  };
+}

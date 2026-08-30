@@ -337,49 +337,40 @@ export function BobuCharacterController({
       const BOBU_COLLISION_RADIUS =
         0.48;
 
-      const blocked =
+      const isBlockedAt = (
+        candidateX: number,
+        candidateZ: number,
+      ): boolean =>
         collisionObstacles.some(
           (obstacle) => {
             if (
               obstacle.kind ===
               "box"
             ) {
-              const minX =
-                obstacle.x -
-                obstacle.halfWidth;
-
-              const maxX =
-                obstacle.x +
-                obstacle.halfWidth;
-
-              const minZ =
-                obstacle.z -
-                obstacle.halfDepth;
-
-              const maxZ =
-                obstacle.z +
-                obstacle.halfDepth;
-
               const closestX =
                 THREE.MathUtils.clamp(
-                  nextX,
-                  minX,
-                  maxX,
+                  candidateX,
+                  obstacle.x -
+                    obstacle.halfWidth,
+                  obstacle.x +
+                    obstacle.halfWidth,
                 );
 
               const closestZ =
                 THREE.MathUtils.clamp(
-                  nextZ,
-                  minZ,
-                  maxZ,
+                  candidateZ,
+                  obstacle.z -
+                    obstacle.halfDepth,
+                  obstacle.z +
+                    obstacle.halfDepth,
                 );
 
               const dx =
-                nextX -
+                candidateX -
                 closestX;
 
               const dz =
-                nextZ -
+                candidateZ -
                 closestZ;
 
               return (
@@ -397,11 +388,11 @@ export function BobuCharacterController({
             }
 
             const dx =
-              nextX -
+              candidateX -
               obstacle.x;
 
             const dz =
-              nextZ -
+              candidateZ -
               obstacle.z;
 
             const minimumDistance =
@@ -417,25 +408,142 @@ export function BobuCharacterController({
           },
         );
 
-      if (!blocked) {
-        group.position.x =
-          nextX;
+      const movementX =
+        nextX -
+        group.position.x;
 
-        group.position.z =
-          nextZ;
+      const movementZ =
+        nextZ -
+        group.position.z;
+
+      const movementDistance =
+        Math.sqrt(
+          movementX *
+            movementX +
+          movementZ *
+            movementZ,
+        );
+
+      const maxCollisionStep =
+        0.18;
+
+      const collisionSteps =
+        Math.max(
+          1,
+          Math.ceil(
+            movementDistance /
+              maxCollisionStep,
+          ),
+        );
+
+      let safeX =
+        group.position.x;
+
+      let safeZ =
+        group.position.z;
+
+      let blocked =
+        false;
+
+      for (
+        let step = 1;
+        step <= collisionSteps;
+        step += 1
+      ) {
+        const ratio =
+          step /
+          collisionSteps;
+
+        const candidateX =
+          group.position.x +
+          movementX *
+            ratio;
+
+        const candidateZ =
+          group.position.z +
+          movementZ *
+            ratio;
+
+        if (
+          isBlockedAt(
+            candidateX,
+            candidateZ,
+          )
+        ) {
+          blocked =
+            true;
+
+          break;
+        }
+
+        safeX =
+          candidateX;
+
+        safeZ =
+          candidateZ;
       }
+
+      group.position.x =
+        safeX;
+
+      group.position.z =
+        safeZ;
     }
 
     const terrain =
       terrainDataRef.current;
 
     if (terrain) {
-      const groundHeight =
+      const FOOT_SAMPLE_RADIUS =
+        0.34;
+
+      const centerGround =
         sampleAresGenesisGameplaySurfaceMeters(
           terrain,
           group.position.x,
           group.position.z,
         );
+
+      const frontGround =
+        sampleAresGenesisGameplaySurfaceMeters(
+          terrain,
+          group.position.x,
+          group.position.z +
+            FOOT_SAMPLE_RADIUS,
+        );
+
+      const backGround =
+        sampleAresGenesisGameplaySurfaceMeters(
+          terrain,
+          group.position.x,
+          group.position.z -
+            FOOT_SAMPLE_RADIUS,
+        );
+
+      const leftGround =
+        sampleAresGenesisGameplaySurfaceMeters(
+          terrain,
+          group.position.x -
+            FOOT_SAMPLE_RADIUS,
+          group.position.z,
+        );
+
+      const rightGround =
+        sampleAresGenesisGameplaySurfaceMeters(
+          terrain,
+          group.position.x +
+            FOOT_SAMPLE_RADIUS,
+          group.position.z,
+        );
+
+      const groundHeight =
+        Math.max(
+          centerGround,
+          frontGround,
+          backGround,
+          leftGround,
+          rightGround,
+        ) + 0.09;
 
       if (!groundedRef.current) {
         verticalVelocityRef.current -=
