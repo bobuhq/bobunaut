@@ -1,6 +1,7 @@
 import {
   useEffect,
   useMemo,
+  useRef,
 } from "react";
 import {
   ClampToEdgeWrapping,
@@ -10,7 +11,11 @@ import {
   RGBAFormat,
   SRGBColorSpace,
   UnsignedByteType,
+  ShaderMaterial,
 } from "three";
+import {
+  useFrame,
+} from "@react-three/fiber";
 import type {
   ThreeEvent,
 } from "@react-three/fiber";
@@ -18,15 +23,21 @@ import type {
   MarsPixelPublicAllocation,
 } from "../MarsPixelNetworkService";
 
-type MarsPixelCoordinate = {
-  x: number;
-  y: number;
-};
+import {
+  marsPixelXToTextureXv1,
+  marsPixelYToTextureYv1,
+  marsUvToPixelCoordinateV1,
+} from "./MarsPixelGridMapper";
+
+import type {
+  MarsPixelCoordinate,
+} from "./MarsPixelGridMapper";
 
 type MarsPixelOverlayProps = {
   radius: number;
   gridWidth: number;
   gridHeight: number;
+  gridVersion: number;
   allocations: MarsPixelPublicAllocation[];
   visible: boolean;
   onPixelSelect?: (
@@ -75,6 +86,7 @@ export function MarsPixelOverlay({
   radius,
   gridWidth,
   gridHeight,
+  gridVersion,
   allocations,
   visible,
   onPixelSelect,
@@ -114,11 +126,23 @@ export function MarsPixelOverlay({
           x < xEnd;
           x += 1
         ) {
+          const textureX =
+            marsPixelXToTextureXv1(
+              x,
+              gridWidth,
+            );
+
           const textureY =
-            gridHeight - 1 - y;
+            marsPixelYToTextureYv1(
+              y,
+              gridHeight,
+            );
 
           const offset =
-            (textureY * gridWidth + x) * 4;
+            (
+              textureY * gridWidth +
+              textureX
+            ) * 4;
 
           data[offset] = red;
           data[offset + 1] = green;
@@ -159,7 +183,28 @@ export function MarsPixelOverlay({
     [texture],
   );
 
-  if (!visible) {
+  const materialRef =
+    useRef<ShaderMaterial | null>(null);
+
+  useFrame(({ camera }) => {
+    const material =
+      materialRef.current;
+
+    if (!material) {
+      return;
+    }
+
+    const distance =
+      camera.position.length();
+
+    material.uniforms.cameraDistance.value =
+      distance;
+  });
+
+  if (
+    !visible ||
+    gridVersion !== 1
+  ) {
     return null;
   }
 
@@ -180,28 +225,13 @@ export function MarsPixelOverlay({
 
         event.stopPropagation();
 
-        const x = Math.min(
-          gridWidth - 1,
-          Math.max(
-            0,
-            Math.floor(uv.x * gridWidth),
-          ),
-        );
-
-        const y = Math.min(
-          gridHeight - 1,
-          Math.max(
-            0,
-            Math.floor(
-              (1 - uv.y) * gridHeight,
-            ),
-          ),
-        );
-
-        const coordinate = {
-          x,
-          y,
-        };
+        const coordinate =
+          marsUvToPixelCoordinateV1(
+            uv.x,
+            uv.y,
+            gridWidth,
+            gridHeight,
+          );
 
         const allocation =
           allocations.find((candidate) =>
@@ -225,10 +255,165 @@ export function MarsPixelOverlay({
         ]}
       />
 
-      <meshBasicMaterial
-        map={texture}
+      <shaderMaterial
+        ref={materialRef}
+        uniforms={{
+          allocationTexture: {
+            value: texture,
+          },
+          gridSize: {
+            value: [
+              gridWidth,
+              gridHeight,
+            ],
+          },
+          cameraDistance: {
+            value: 6.45,
+          },
+        }}
+        vertexShader={`
+          varying vec2 vUv;
+
+          void main() {
+            vUv = uv;
+
+            gl_Position =
+              projectionMatrix *
+              modelViewMatrix *
+              vec4(position, 1.0);
+          }
+        `}
+        fragmentShader={`
+          uniform sampler2D allocationTexture;
+          uniform vec2 gridSize;
+          uniform float cameraDistance;
+
+          varying vec2 vUv;
+
+          float gridLayer(
+            vec2 uv,
+            vec2 divisions,
+            float lineWidth
+          ) {
+            vec2 cell =
+              fract(
+                uv * divisions
+              );
+
+            vec2 edgeDistance =
+              min(
+                cell,
+                1.0 - cell
+              );
+
+            return (
+              1.0 -
+              smoothstep(
+                lineWidth,
+                lineWidth * 1.8,
+                min(
+                  edgeDistance.x,
+                  edgeDistance.y
+                )
+              )
+            );
+          }
+
+          void main() {
+            vec4 allocation =
+              texture2D(
+                allocationTexture,
+                vUv
+              );
+
+            vec2 canonicalUv =
+              vec2(
+                fract(vUv.x + 0.25),
+                vUv.y
+              );
+
+            float nearFactor =
+              1.0 -
+              smoothstep(
+                3.7,
+                5.1,
+                cameraDistance
+              );
+
+            float mediumFactor =
+              1.0 -
+              smoothstep(
+                4.8,
+                6.6,
+                cameraDistance
+              );
+
+            float majorGrid =
+              gridLayer(
+                canonicalUv,
+                vec2(20.0),
+                0.010
+              );
+
+            float mediumGrid =
+              gridLayer(
+                canonicalUv,
+                vec2(100.0),
+                0.010
+              ) *
+              mediumFactor;
+
+            float pixelGrid =
+              gridLayer(
+                canonicalUv,
+                gridSize,
+                0.055
+              ) *
+              nearFactor;
+
+            float gridAlpha =
+              max(
+                majorGrid * 0.12,
+                max(
+                  mediumGrid * 0.09,
+                  pixelGrid * 0.07
+                )
+              );
+
+            vec3 gridColor =
+              vec3(
+                0.38,
+                0.84,
+                1.0
+              );
+
+            vec3 finalColor =
+              mix(
+                gridColor,
+                allocation.rgb,
+                allocation.a
+              );
+
+            float finalAlpha =
+              max(
+                gridAlpha,
+                allocation.a
+              );
+
+            if (
+              finalAlpha <= 0.001
+            ) {
+              discard;
+            }
+
+            gl_FragColor =
+              vec4(
+                finalColor,
+                finalAlpha
+              );
+          }
+        `}
         transparent
-        opacity={1}
         depthWrite={false}
         toneMapped={false}
       />

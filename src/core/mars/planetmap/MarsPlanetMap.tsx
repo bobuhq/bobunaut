@@ -494,6 +494,9 @@ function MarsPlanet({
           gridHeight={
             pixelNetworkStatus.grid_height
           }
+          gridVersion={
+            pixelNetworkStatus.grid_version
+          }
           allocations={
             pixelAllocations ?? []
           }
@@ -522,29 +525,42 @@ function MarsPlanet({
       </mesh>
 
       {!diving &&
-        sectors.map(
-        (sector) => (
-          <SectorMarker
-            key={
-              sector.sector_id
-            }
-            sector={sector}
-            current={
-              sector.sector_id ===
-              currentSectorId
-            }
-            selected={
-              sector.sector_id ===
-              selectedSectorId
-            }
-            onSelect={() =>
-              onSelectSector(
-                sector.sector_id,
-              )
-            }
-          />
-        ),
-      )}
+        sectors
+          .filter((sector) => {
+            const code =
+              sector.sector_code
+                ?.trim()
+                .toLowerCase();
+
+            const name =
+              sector.sector_name
+                ?.trim()
+                .toLowerCase();
+
+            return (
+              code === "ares" ||
+              name?.includes("ares") === true
+            );
+          })
+          .map((sector) => (
+            <SectorMarker
+              key={sector.sector_id}
+              sector={sector}
+              current={
+                sector.sector_id ===
+                currentSectorId
+              }
+              selected={
+                sector.sector_id ===
+                selectedSectorId
+              }
+              onSelect={() =>
+                onSelectSector(
+                  sector.sector_id,
+                )
+              }
+            />
+          ))}
     </group>
   );
 }
