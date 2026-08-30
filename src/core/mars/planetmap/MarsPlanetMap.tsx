@@ -11,8 +11,10 @@ import {
 } from "@react-three/drei";
 
 import {
+  useEffect,
   useMemo,
   useRef,
+  useState,
 } from "react";
 
 import type {
@@ -30,6 +32,20 @@ import {
 import type {
   MarsSector,
 } from "../MarsSectorService";
+
+import {
+  getMarsPixelNetworkStatus,
+  getMarsPixelPublicAllocations,
+} from "../MarsPixelNetworkService";
+
+import type {
+  MarsPixelNetworkStatus,
+  MarsPixelPublicAllocation,
+} from "../MarsPixelNetworkService";
+
+import {
+  MarsPixelOverlay,
+} from "./MarsPixelOverlay";
 
 import "./MarsPlanetMap.css";
 
@@ -53,6 +69,8 @@ type MarsPlanetMapProps = {
     unlocked: boolean;
   } | null;
   aresAccessLoading: boolean;
+  pixelNetworkStatus?: MarsPixelNetworkStatus | null;
+  pixelAllocations?: MarsPixelPublicAllocation[];
 };
 
 type SectorMarkerProps = {
@@ -284,6 +302,8 @@ function MarsPlanet({
   selectedSectorId,
   onSelectSector,
   diving,
+  pixelNetworkStatus,
+  pixelAllocations,
 }: Omit<
   MarsPlanetMapProps,
   | "ariaLabel"
@@ -465,6 +485,22 @@ function MarsPlanet({
         />
       </mesh>
 
+      {pixelNetworkStatus && (
+        <MarsPixelOverlay
+          radius={PLANET_RADIUS}
+          gridWidth={
+            pixelNetworkStatus.grid_width
+          }
+          gridHeight={
+            pixelNetworkStatus.grid_height
+          }
+          allocations={
+            pixelAllocations ?? []
+          }
+          visible={!diving}
+        />
+      )}
+
       <mesh
         ref={atmosphereRef}
       >
@@ -595,6 +631,80 @@ export function MarsPlanetMap({
   aresAccess,
   aresAccessLoading,
 }: MarsPlanetMapProps) {
+  const [
+    pixelNetworkStatus,
+    setPixelNetworkStatus,
+  ] =
+    useState<MarsPixelNetworkStatus | null>(
+      null,
+    );
+
+  const [
+    pixelAllocations,
+    setPixelAllocations,
+  ] = useState<
+    MarsPixelPublicAllocation[]
+  >([]);
+
+  const [
+    pixelNetworkError,
+    setPixelNetworkError,
+  ] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+
+    const loadPixelNetwork =
+      async () => {
+        try {
+          const status =
+            await getMarsPixelNetworkStatus();
+
+          let allocations:
+            MarsPixelPublicAllocation[] =
+              [];
+
+          if (
+            status.commercial_status ===
+              "preview" ||
+            status.commercial_status ===
+              "active"
+          ) {
+            allocations =
+              await getMarsPixelPublicAllocations();
+          }
+
+          if (!active) {
+            return;
+          }
+
+          setPixelNetworkStatus(
+            status,
+          );
+
+          setPixelAllocations(
+            allocations,
+          );
+
+          setPixelNetworkError(false);
+        } catch {
+          if (!active) {
+            return;
+          }
+
+          setPixelNetworkStatus(null);
+          setPixelAllocations([]);
+          setPixelNetworkError(true);
+        }
+      };
+
+    void loadPixelNetwork();
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
   const selectedSector =
     useMemo(
       () =>
@@ -645,6 +755,33 @@ export function MarsPlanetMap({
         </strong>
       </div>
 
+      <div
+        className="mars-planet-map__pixel-hud"
+        aria-live="polite"
+      >
+        <span>
+          MARS PIXEL NETWORK
+        </span>
+
+        <strong>
+          {pixelNetworkStatus
+            ? `${pixelNetworkStatus.total_pixels.toLocaleString(
+                "en-US",
+              )} MARS PIXELS`
+            : pixelNetworkError
+              ? "NETWORK UNAVAILABLE"
+              : "NETWORK SYNCING"}
+        </strong>
+
+        <small>
+          {pixelNetworkStatus
+            ? `COMMERCIAL NETWORK ${pixelNetworkStatus.commercial_status.toUpperCase()}`
+            : pixelNetworkError
+              ? "STATUS UNAVAILABLE"
+              : "READING PRODUCTION STATE"}
+        </small>
+      </div>
+
       <Canvas
         className="mars-planet-map__canvas"
         camera={{
@@ -677,6 +814,12 @@ export function MarsPlanetMap({
             onSelectSector
           }
           diving={diving}
+          pixelNetworkStatus={
+            pixelNetworkStatus
+          }
+          pixelAllocations={
+            pixelAllocations
+          }
         />
       </Canvas>
 
