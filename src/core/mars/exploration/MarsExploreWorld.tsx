@@ -37,9 +37,6 @@ import {
   MarsFollowCamera,
 } from "./components/MarsFollowCamera";
 
-import {
-  MarsDiscoveryPoint,
-} from "./components/MarsDiscoveryPoint";
 
 import {
   useAuthSession,
@@ -235,13 +232,7 @@ function MarsExploreScene({
         />
       )}
 
-      <MarsDiscoveryPoint
-        targetRef={bobuRef}
-        position={[
-          18,
-          -28,
-        ]}
-      />
+
 
       <BobuCharacterController
         characterRef={bobuRef}
