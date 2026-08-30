@@ -50,6 +50,10 @@ type Props = {
 
   mission:
     AresHiddenMission | null;
+
+  onArchiveOpenChange?: (
+    open: boolean,
+  ) => void;
 };
 
 type MarsModuleProps = {
@@ -310,6 +314,7 @@ function CommandInterior({
   targetRef,
   onMission,
   mission,
+  onArchiveOpenChange,
 }: Props) {
   return (
     <group>
@@ -464,6 +469,9 @@ function CommandInterior({
       <AresResearchTerminal
         targetRef={targetRef}
         mission={mission}
+        onArchiveOpenChange={
+          onArchiveOpenChange
+        }
         worldPosition={{
           x:
             ARES_COMMAND_HUB_POSITION.x -
@@ -1235,6 +1243,7 @@ export function AresCommandHub({
   targetRef,
   onMission,
   mission,
+  onArchiveOpenChange,
 }: Props) {
   const [
     terrainHeight,
@@ -1599,6 +1608,9 @@ export function AresCommandHub({
         targetRef={targetRef}
         onMission={onMission}
         mission={mission}
+        onArchiveOpenChange={
+          onArchiveOpenChange
+        }
       />
 
       <Html

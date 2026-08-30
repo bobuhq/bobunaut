@@ -45,6 +45,10 @@ type Props = {
     x: number;
     z: number;
   };
+
+  onArchiveOpenChange?: (
+    open: boolean,
+  ) => void;
 };
 
 const ACCESS_DISTANCE = 3.1;
@@ -53,6 +57,7 @@ export function AresResearchTerminal({
   targetRef,
   mission,
   worldPosition,
+  onArchiveOpenChange,
 }: Props) {
   const screenRef =
     useRef<THREE.MeshStandardMaterial | null>(
@@ -106,6 +111,15 @@ export function AresResearchTerminal({
     setArchiveOpen,
   ] =
     useState(false);
+
+  useEffect(() => {
+    onArchiveOpenChange?.(
+      archiveOpen,
+    );
+  }, [
+    archiveOpen,
+    onArchiveOpenChange,
+  ]);
 
   const [
     archiveLoading,

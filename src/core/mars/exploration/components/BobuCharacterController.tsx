@@ -536,40 +536,14 @@ export function BobuCharacterController({
           group.position.z,
         );
 
-      const surroundingGround =
-        (
-          frontGround +
-          backGround +
-          leftGround +
-          rightGround
-        ) / 4;
-
-      const highestFootGround =
+      const groundHeight =
         Math.max(
+          centerGround,
           frontGround,
           backGround,
           leftGround,
           rightGround,
-        );
-
-      const averageGround =
-        THREE.MathUtils.lerp(
-          centerGround,
-          surroundingGround,
-          0.22,
-        );
-
-      const upwardCorrection =
-        THREE.MathUtils.clamp(
-          highestFootGround -
-            centerGround,
-          0,
-          0.045,
-        );
-
-      const groundHeight =
-        averageGround +
-        upwardCorrection;
+        ) + 0.09;
 
       if (!groundedRef.current) {
         verticalVelocityRef.current -=

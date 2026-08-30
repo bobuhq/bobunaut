@@ -117,6 +117,9 @@ interface MarsExploreSceneProps {
         AresLandmarkNavigation | null,
     ) => void;
   onLandmarkDiscovered: () => void;
+  onArchiveOpenChange: (
+    open: boolean,
+  ) => void;
 }
 
 function MarsExploreScene({
@@ -126,6 +129,7 @@ function MarsExploreScene({
   onHiddenMissionNavigationChange,
   onLandmarkNavigationChange,
   onLandmarkDiscovered,
+  onArchiveOpenChange,
 }: MarsExploreSceneProps) {
   const bobuRef =
     useRef<THREE.Group | null>(
@@ -235,6 +239,9 @@ function MarsExploreScene({
         targetRef={bobuRef}
         onMission={setHiddenMission}
         mission={hiddenMission}
+        onArchiveOpenChange={
+          onArchiveOpenChange
+        }
       />
 
       {hiddenMission &&
@@ -395,6 +402,11 @@ export function MarsExploreWorld() {
     setOnlineCount,
   ] =
     useState(1);
+
+  const [
+    archiveOpen,
+    setArchiveOpen,
+  ] = useState(false);
 
   const [
     hiddenMissionNavigation,
@@ -1083,8 +1095,11 @@ export function MarsExploreWorld() {
         </div>
       )}
 
-      {hiddenMissionNavigation && (
+      {hiddenMissionNavigation &&
+        !archiveOpen && (
         <div
+          data-ares-objective-navigator="active"
+          aria-label="Ares Objective Navigator"
           style={{
             position: "fixed",
             left: "50%",
@@ -1096,9 +1111,9 @@ export function MarsExploreWorld() {
             display: "flex",
             alignItems:
               "center",
-            gap: "13px",
+            gap: "14px",
             minWidth:
-              "320px",
+              "310px",
             padding:
               "11px 15px",
             border:
@@ -1123,8 +1138,8 @@ export function MarsExploreWorld() {
         >
           <div
             style={{
-              width: "43px",
-              height: "43px",
+              width: "42px",
+              height: "42px",
               display: "grid",
               placeItems:
                 "center",
@@ -1341,7 +1356,10 @@ export function MarsExploreWorld() {
                 handleLandmarkNavigationChange
               }
               onLandmarkDiscovered={refreshGp}
-            />
+            onArchiveOpenChange={
+          setArchiveOpen
+        }
+        />
           )}
         </Suspense>
       </Canvas>

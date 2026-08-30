@@ -249,21 +249,6 @@ export function AresGuidanceSystem({
 
         nearRadius =
           mission.targetRadius;
-      } else if (
-        mission?.status ===
-          "claimed" ||
-        mission?.status ===
-          "completed"
-      ) {
-        onNavigation({
-          kind: "explore",
-          distance: 0,
-          bearing: 0,
-          relativeAngle: 0,
-          near: false,
-        });
-
-        return;
       } else {
         const hubDx =
           player.position.x -
