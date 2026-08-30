@@ -70,14 +70,15 @@ import {
   type AresHiddenMission,
 } from "./missions/AresHiddenMissionService";
 
-type AresHiddenMissionNavigation = {
-  distance:
-    number;
-  bearing:
-    number;
-  near:
-    boolean;
-};
+import {
+  AresGuidanceSystem,
+  type AresGuidanceNavigation,
+} from "./guidance/AresGuidanceSystem";
+
+import {
+  marsAudio,
+} from "./audio/MarsAudioEngine";
+
 
 interface MarsExploreSceneProps {
   builderId: string;
@@ -92,7 +93,7 @@ interface MarsExploreSceneProps {
   onHiddenMissionNavigationChange:
     (
       navigation:
-        AresHiddenMissionNavigation | null,
+        AresGuidanceNavigation | null,
     ) => void;
 }
 
@@ -113,6 +114,12 @@ function MarsExploreScene({
   ] =
     useState<AresHiddenMission | null>(
       null,
+    );
+
+  const ignoreBeaconNavigation =
+    useCallback(
+      () => {},
+      [],
     );
 
   useEffect(() => {
@@ -185,6 +192,14 @@ function MarsExploreScene({
 
       <MarsExplorationTerrain />
       <MarsSurfaceRocks />
+      <AresGuidanceSystem
+        targetRef={bobuRef}
+        mission={hiddenMission}
+        onNavigation={
+          onHiddenMissionNavigationChange
+        }
+      />
+
       <AresCommandHub
         targetRef={bobuRef}
         onMission={setHiddenMission}
@@ -197,7 +212,7 @@ function MarsExploreScene({
           mission={hiddenMission}
           targetRef={bobuRef}
           onNavigation={
-            onHiddenMissionNavigationChange
+            ignoreBeaconNavigation
           }
           onCompleted={() => {
             onHiddenMissionNavigationChange(
@@ -292,15 +307,25 @@ export function MarsExploreWorld() {
     hiddenMissionNavigation,
     setHiddenMissionNavigation,
   ] =
-    useState<AresHiddenMissionNavigation | null>(
+    useState<AresGuidanceNavigation | null>(
       null,
     );
+
+  const [
+    onboardingVisible,
+    setOnboardingVisible,
+  ] = useState(true);
+
+  const [
+    soundEnabled,
+    setSoundEnabled,
+  ] = useState(true);
 
   const handleHiddenMissionNavigationChange =
     useCallback(
       (
         navigation:
-          AresHiddenMissionNavigation | null,
+          AresGuidanceNavigation | null,
       ) => {
         setHiddenMissionNavigation(
           navigation,
@@ -308,6 +333,99 @@ export function MarsExploreWorld() {
       },
       [],
     );
+
+  useEffect(() => {
+    function handleKeyDown(
+      event: KeyboardEvent,
+    ) {
+      void marsAudio.unlock();
+
+      if (
+        [
+          "KeyW",
+          "KeyA",
+          "KeyS",
+          "KeyD",
+          "ArrowUp",
+          "ArrowDown",
+          "ArrowLeft",
+          "ArrowRight",
+        ].includes(
+          event.code,
+        )
+      ) {
+        marsAudio.step(
+          event.shiftKey,
+        );
+      }
+
+      if (
+        event.code === "Space" &&
+        !event.repeat
+      ) {
+        marsAudio.jump();
+      }
+
+      if (
+        event.code === "KeyE" &&
+        !event.repeat
+      ) {
+        marsAudio.interact();
+      }
+
+      setOnboardingVisible(
+        false,
+      );
+    }
+
+    function handlePointerDown() {
+      void marsAudio.unlock();
+    }
+
+    window.addEventListener(
+      "keydown",
+      handleKeyDown,
+    );
+
+    window.addEventListener(
+      "pointerdown",
+      handlePointerDown,
+    );
+
+    return () => {
+      window.removeEventListener(
+        "keydown",
+        handleKeyDown,
+      );
+
+      window.removeEventListener(
+        "pointerdown",
+        handlePointerDown,
+      );
+    };
+  }, []);
+
+  const toggleSound =
+    useCallback(() => {
+      setSoundEnabled(
+        (
+          current,
+        ) => {
+          const next =
+            !current;
+
+          marsAudio.setEnabled(
+            next,
+          );
+
+          if (next) {
+            void marsAudio.unlock();
+          }
+
+          return next;
+        },
+      );
+    }, []);
 
   const builderId =
     session?.user.id ?? "";
@@ -370,35 +488,65 @@ export function MarsExploreWorld() {
         ARES ONLINE {onlineCount}
       </div>
 
-      {hiddenMissionNavigation &&
-        !hiddenMissionNavigation.near && (
+      <button
+        type="button"
+        onClick={toggleSound}
+        aria-label={
+          soundEnabled
+            ? "Mute Mars audio"
+            : "Enable Mars audio"
+        }
+        style={{
+          position: "fixed",
+          top: "18px",
+          right: "150px",
+          zIndex: 100,
+          width: "34px",
+          height: "34px",
+          border:
+            "1px solid rgba(255,255,255,.15)",
+          borderRadius: "50%",
+          background:
+            "rgba(5,7,18,.78)",
+          color:
+            soundEnabled
+              ? "#8dffad"
+              : "#8a8d96",
+          cursor: "pointer",
+          backdropFilter:
+            "blur(12px)",
+          fontSize: "15px",
+        }}
+      >
+        {soundEnabled
+          ? "♪"
+          : "×"}
+      </button>
+
+      {onboardingVisible && (
         <div
-          data-ares-hidden-mission-hud="active"
           style={{
-            position:
-              "fixed",
-            left:
-              "24px",
-            bottom:
-              "28px",
-            zIndex:
-              2147483647,
-            minWidth:
-              "210px",
+            position: "fixed",
+            top: "24px",
+            left: "50%",
+            transform:
+              "translateX(-50%)",
+            zIndex: 90,
+            width:
+              "min(520px, calc(100vw - 48px))",
             padding:
-              "12px 16px",
+              "14px 17px",
             border:
-              "1px solid rgba(188,120,255,.52)",
+              "1px solid rgba(99,245,255,.26)",
             borderRadius:
               "14px",
             background:
-              "rgba(5,4,12,.88)",
+              "rgba(5,10,20,.88)",
             boxShadow:
-              "0 0 30px rgba(146,72,220,.2)",
+              "0 14px 50px rgba(0,0,0,.3)",
             backdropFilter:
-              "blur(10px)",
-            color:
-              "#ffffff",
+              "blur(14px)",
+            color: "#fff",
             fontFamily:
               "Inter, system-ui, sans-serif",
             pointerEvents:
@@ -407,81 +555,264 @@ export function MarsExploreWorld() {
         >
           <div
             style={{
-              fontSize:
-                "9px",
-              fontWeight:
-                900,
+              fontSize: "9px",
+              fontWeight: 900,
               letterSpacing:
-                ".18em",
-              color:
-                "#c99cf3",
+                ".21em",
+              color: "#63f5ff",
             }}
           >
-            HIDDEN ARES SIGNAL
+            ARES EXPLORATION PROTOCOL
           </div>
 
           <div
             style={{
-              display:
-                "flex",
-              alignItems:
-                "baseline",
-              gap:
-                "9px",
-              marginTop:
-                "6px",
+              marginTop: "5px",
+              fontSize: "17px",
+              fontWeight: 900,
+            }}
+          >
+            FOLLOW THE OBJECTIVE MARKER
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: "7px",
+              marginTop: "11px",
+            }}
+          >
+            {[
+              "WASD MOVE",
+              "SHIFT RUN",
+              "SPACE JUMP",
+              "DRAG CAMERA",
+              "E INTERACT",
+            ].map(
+              (
+                item,
+              ) => (
+                <span
+                  key={item}
+                  style={{
+                    padding:
+                      "5px 8px",
+                    border:
+                      "1px solid rgba(255,255,255,.1)",
+                    borderRadius:
+                      "6px",
+                    background:
+                      "rgba(255,255,255,.045)",
+                    color:
+                      "rgba(255,255,255,.72)",
+                    fontSize:
+                      "8px",
+                    fontWeight:
+                      800,
+                    letterSpacing:
+                      ".08em",
+                  }}
+                >
+                  {item}
+                </span>
+              ),
+            )}
+          </div>
+        </div>
+      )}
+
+      {hiddenMissionNavigation && (
+        <div
+          style={{
+            position: "fixed",
+            left: "50%",
+            bottom: "26px",
+            transform:
+              "translateX(-50%)",
+            zIndex:
+              2147483647,
+            display: "flex",
+            alignItems:
+              "center",
+            gap: "13px",
+            minWidth:
+              "320px",
+            padding:
+              "11px 15px",
+            border:
+              hiddenMissionNavigation.kind ===
+              "mission"
+                ? "1px solid rgba(196,126,255,.58)"
+                : "1px solid rgba(99,245,255,.42)",
+            borderRadius:
+              "14px",
+            background:
+              "rgba(4,7,15,.9)",
+            boxShadow:
+              "0 12px 38px rgba(0,0,0,.25)",
+            backdropFilter:
+              "blur(14px)",
+            color: "#fff",
+            fontFamily:
+              "Inter, system-ui, sans-serif",
+            pointerEvents:
+              "none",
+          }}
+        >
+          <div
+            style={{
+              width: "43px",
+              height: "43px",
+              display: "grid",
+              placeItems:
+                "center",
+              flexShrink: 0,
+              borderRadius:
+                "50%",
+              border:
+                hiddenMissionNavigation.kind ===
+                "mission"
+                  ? "1px solid rgba(204,143,255,.45)"
+                  : "1px solid rgba(99,245,255,.45)",
+              background:
+                "rgba(255,255,255,.035)",
             }}
           >
             <span
               style={{
-                fontSize:
-                  "24px",
-                fontWeight:
-                  900,
-              }}
-            >
-              {Math.round(
-                hiddenMissionNavigation.distance,
-              )} M
-            </span>
-
-            <span
-              style={{
-                fontSize:
-                  "11px",
-                fontWeight:
-                  800,
+                display: "block",
                 color:
-                  "#d8c8e7",
+                  hiddenMissionNavigation.kind ===
+                  "mission"
+                    ? "#d8a8ff"
+                    : "#63f5ff",
+                fontSize: "21px",
+                lineHeight: 1,
+                textShadow:
+                  "0 0 15px currentColor",
+                transform:
+                  hiddenMissionNavigation.kind ===
+                  "explore"
+                    ? "none"
+                    : `rotate(${hiddenMissionNavigation.relativeAngle}deg)`,
+                transition:
+                  "transform .1s linear",
               }}
             >
-              BEARING{" "}
-              {Math.round(
-                (
-                  hiddenMissionNavigation.bearing +
-                  360
-                ) %
-                  360,
-              )}
-              °
+              {hiddenMissionNavigation.kind ===
+              "explore"
+                ? "◎"
+                : "▲"}
             </span>
           </div>
 
-          <div
-            style={{
-              marginTop:
-                "7px",
-              fontSize:
-                "9px",
-              fontWeight:
-                800,
-              letterSpacing:
-                ".1em",
-              color:
-                "rgba(255,255,255,.68)",
-            }}
-          >
-            FOLLOW THE PURPLE SIGNAL
+          <div>
+            <div
+              style={{
+                fontSize: "8px",
+                fontWeight: 900,
+                letterSpacing:
+                  ".2em",
+                color:
+                  hiddenMissionNavigation.kind ===
+                  "mission"
+                    ? "#d5a1ff"
+                    : "#63f5ff",
+              }}
+            >
+              {hiddenMissionNavigation.kind ===
+              "mission"
+                ? "HIDDEN ARES SIGNAL"
+                : hiddenMissionNavigation.kind ===
+                    "terminal"
+                  ? "MISSION TERMINAL"
+                  : hiddenMissionNavigation.kind ===
+                      "explore"
+                    ? "ARES EXPLORATION"
+                    : "PRIMARY OBJECTIVE"}
+            </div>
+
+            <div
+              style={{
+                display: "flex",
+                alignItems:
+                  "baseline",
+                gap: "9px",
+                marginTop: "3px",
+              }}
+            >
+              <strong
+                style={{
+                  fontSize: "15px",
+                }}
+              >
+                {hiddenMissionNavigation.kind ===
+                "mission"
+                  ? hiddenMissionNavigation.near
+                    ? "SCAN SIGNAL"
+                    : "FOLLOW SIGNAL"
+                  : hiddenMissionNavigation.kind ===
+                      "terminal"
+                    ? hiddenMissionNavigation.near
+                      ? "ACCESS TERMINAL"
+                      : "FIND MISSION TERMINAL"
+                    : hiddenMissionNavigation.kind ===
+                        "explore"
+                      ? "EXPLORE ARES"
+                      : hiddenMissionNavigation.near
+                        ? "ENTER COMMAND HUB"
+                        : "REACH COMMAND HUB"}
+              </strong>
+
+              {hiddenMissionNavigation.kind !==
+                "explore" && (
+                <span
+                  style={{
+                    fontSize: "11px",
+                    fontWeight: 900,
+                    color:
+                      "rgba(255,255,255,.7)",
+                  }}
+                >
+                  {Math.round(
+                    hiddenMissionNavigation.distance,
+                  )} M
+                </span>
+              )}
+            </div>
+
+            <div
+              style={{
+                marginTop: "3px",
+                fontSize: "8px",
+                fontWeight: 800,
+                letterSpacing:
+                  ".1em",
+                color:
+                  "rgba(255,255,255,.5)",
+              }}
+            >
+              {hiddenMissionNavigation.kind ===
+                "explore"
+                ? "SEARCH FOR SIGNALS AND ANOMALIES"
+                : hiddenMissionNavigation.kind ===
+                    "mission" &&
+                  hiddenMissionNavigation.near
+                  ? "HOLD E TO SCAN"
+                  : hiddenMissionNavigation.kind ===
+                      "terminal" &&
+                    hiddenMissionNavigation.near
+                    ? "PRESS E TO ACCESS"
+                    : Math.abs(
+                          hiddenMissionNavigation.relativeAngle,
+                        ) < 14
+                      ? "AHEAD"
+                      : hiddenMissionNavigation.relativeAngle >
+                          0
+                        ? "TURN RIGHT"
+                        : "TURN LEFT"}
+            </div>
           </div>
         </div>
       )}
