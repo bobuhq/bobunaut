@@ -76,6 +76,10 @@ import {
   AresSky,
 } from "./environment/AresSky";
 
+import {
+  AresGroundDust,
+} from "./environment/AresGroundDust";
+
 
 interface MarsExploreSceneProps {
   builderId: string;
@@ -189,6 +193,7 @@ function MarsExploreScene({
 
       <MarsExplorationTerrain />
       <MarsSurfaceRocks />
+      <AresGroundDust />
       <AresGuidanceSystem
         targetRef={bobuRef}
         mission={hiddenMission}
