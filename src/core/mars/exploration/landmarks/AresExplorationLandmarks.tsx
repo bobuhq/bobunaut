@@ -656,7 +656,7 @@ function LandmarkMarker({
                 }}
               >
                 {isDiscovered
-                  ? "LANDMARK DISCOVERED"
+                  ? "LANDMARK DISCOVERED · +100 GP"
                   : surveyProgress > 0
                     ? `SURVEYING ${surveyProgress}%`
                     : "HOLD E — SURVEY TERRAIN"}

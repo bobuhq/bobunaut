@@ -43,6 +43,10 @@ import {
 } from "../../../features/identity/hooks/useBuilderStore";
 
 import {
+  builderWalletService,
+} from "../../builder/services/BuilderWalletService";
+
+import {
   AresMultiplayerPresence,
 } from "./multiplayer/AresMultiplayerPresence";
 
@@ -107,6 +111,7 @@ interface MarsExploreSceneProps {
       navigation:
         AresLandmarkNavigation | null,
     ) => void;
+  onLandmarkDiscovered: () => void;
 }
 
 function MarsExploreScene({
@@ -115,6 +120,7 @@ function MarsExploreScene({
   onOnlineCountChange,
   onHiddenMissionNavigationChange,
   onLandmarkNavigationChange,
+  onLandmarkDiscovered,
 }: MarsExploreSceneProps) {
   const bobuRef =
     useRef<THREE.Group | null>(
@@ -461,6 +467,36 @@ export function MarsExploreWorld() {
       );
     }, []);
 
+  const [totalGp, setTotalGp] =
+    useState<number | null>(null);
+
+  const refreshGp =
+    useCallback(async () => {
+      if (!session?.user.id) {
+        setTotalGp(null);
+        return;
+      }
+
+      try {
+        const wallet =
+          await builderWalletService.load(
+            session.user.id,
+            1,
+          );
+
+        setTotalGp(wallet.totalGp);
+      } catch (error) {
+        console.error(
+          "Failed to refresh Ares GP balance",
+          error,
+        );
+      }
+    }, [session?.user.id]);
+
+  useEffect(() => {
+    void refreshGp();
+  }, [refreshGp]);
+
   const builderId =
     session?.user.id ?? "";
 
@@ -521,6 +557,29 @@ export function MarsExploreWorld() {
         />
         ARES ONLINE {onlineCount}
       </div>
+
+      {totalGp !== null && (
+        <div
+          style={{
+            position: "absolute",
+            top: "18px",
+            right: "164px",
+            zIndex: 20,
+            padding: "8px 12px",
+            border: "1px solid rgba(187,126,255,0.28)",
+            borderRadius: "999px",
+            background: "rgba(5,7,18,0.68)",
+            color: "#d9b7ff",
+            fontSize: "10px",
+            fontWeight: 900,
+            letterSpacing: "0.10em",
+            pointerEvents: "none",
+            backdropFilter: "blur(10px)",
+          }}
+        >
+          {totalGp.toLocaleString("en-US")} GP
+        </div>
+      )}
 
       <button
         type="button"
@@ -913,6 +972,7 @@ export function MarsExploreWorld() {
               onLandmarkNavigationChange={
                 handleLandmarkNavigationChange
               }
+              onLandmarkDiscovered={refreshGp}
             />
           )}
         </Suspense>
