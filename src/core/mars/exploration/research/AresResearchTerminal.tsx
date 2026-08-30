@@ -7,6 +7,7 @@ import {
 } from "@react-three/fiber";
 
 import {
+  useEffect,
   useRef,
   useState,
 } from "react";
@@ -20,6 +21,18 @@ import type {
 import {
   useAresResearchTerminal,
 } from "./useAresResearchTerminal";
+
+import {
+  getMyAresDiscoveryArchive,
+} from "./AresDiscoveryArchiveService";
+
+import type {
+  AresDiscoveryRecord,
+} from "./AresDiscoveryArchiveService";
+
+import {
+  AresDiscoveryRecordPanel,
+} from "./AresDiscoveryRecordPanel";
 
 type Props = {
   targetRef:
@@ -79,6 +92,132 @@ export function AresResearchTerminal({
   const researchAnalyzing =
     researchState ===
       "analyzing";
+
+  const [
+    archiveRecord,
+    setArchiveRecord,
+  ] =
+    useState<AresDiscoveryRecord | null>(
+      null,
+    );
+
+  const [
+    archiveOpen,
+    setArchiveOpen,
+  ] =
+    useState(false);
+
+  const [
+    archiveLoading,
+    setArchiveLoading,
+  ] =
+    useState(false);
+
+  const [
+    archiveError,
+    setArchiveError,
+  ] =
+    useState(false);
+
+  useEffect(() => {
+    if (
+      !isNear ||
+      !researchCompleted ||
+      !mission ||
+      archiveOpen
+    ) {
+      return;
+    }
+
+    const handleKeyDown = (
+      event: KeyboardEvent,
+    ) => {
+      if (
+        event.code !== "KeyE" ||
+        event.repeat
+      ) {
+        return;
+      }
+
+      event.preventDefault();
+
+      setArchiveLoading(
+        true,
+      );
+
+      setArchiveError(
+        false,
+      );
+
+      void getMyAresDiscoveryArchive()
+        .then(
+          (
+            records,
+          ) => {
+            const record =
+              records.find(
+                (
+                  item,
+                ) =>
+                  item.missionKey ===
+                  mission.missionKey,
+              );
+
+            if (!record) {
+              throw new Error(
+                "Discovery archive record not found",
+              );
+            }
+
+            setArchiveRecord(
+              record,
+            );
+
+            setArchiveOpen(
+              true,
+            );
+          },
+        )
+        .catch(
+          (
+            error,
+          ) => {
+            console.error(
+              "Failed to open Ares discovery record",
+              error,
+            );
+
+            setArchiveError(
+              true,
+            );
+          },
+        )
+        .finally(
+          () => {
+            setArchiveLoading(
+              false,
+            );
+          },
+        );
+    };
+
+    window.addEventListener(
+      "keydown",
+      handleKeyDown,
+    );
+
+    return () => {
+      window.removeEventListener(
+        "keydown",
+        handleKeyDown,
+      );
+    };
+  }, [
+    archiveOpen,
+    isNear,
+    mission,
+    researchCompleted,
+  ]);
 
   useFrame(({ clock }) => {
     const pulse =
@@ -527,7 +666,11 @@ export function AresResearchTerminal({
                   }}
                 >
                   {researchCompleted
-                    ? "ANALYSIS ARCHIVED"
+                    ? archiveLoading
+                      ? "OPENING DISCOVERY RECORD"
+                      : archiveError
+                        ? "E — RETRY DISCOVERY RECORD"
+                        : "E — VIEW DISCOVERY RECORD"
                     : researchAnalyzing
                       ? `ANALYZING · ${Math.round(
                           researchProgress * 100,
@@ -557,6 +700,21 @@ export function AresResearchTerminal({
           )}
         </Html>
       )}
+
+      {archiveOpen &&
+        archiveRecord && (
+          <AresDiscoveryRecordPanel
+            record={
+              archiveRecord
+            }
+            onClose={
+              () =>
+                setArchiveOpen(
+                  false,
+                )
+            }
+          />
+        )}
     </group>
   );
 }
