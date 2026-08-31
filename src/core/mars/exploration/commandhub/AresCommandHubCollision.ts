@@ -7,11 +7,11 @@ export const ARES_COMMAND_HUB_POSITION = {
   z: -68,
 } as const;
 
-export const ARES_COMMAND_HUB_WIDTH = 10.8;
-export const ARES_COMMAND_HUB_DEPTH = 12.6;
+export const ARES_COMMAND_HUB_WIDTH = 16;
+export const ARES_COMMAND_HUB_DEPTH = 18;
 
 const WALL_THICKNESS = 0.55;
-const DOOR_WIDTH = 2.8;
+const DOOR_WIDTH = 4;
 
 const halfWidth =
   ARES_COMMAND_HUB_WIDTH / 2;
@@ -98,71 +98,4 @@ MarsCollisionObstacle[] = [
       WALL_THICKNESS / 2,
   },
 
-  {
-    kind: "box",
-    x:
-      ARES_COMMAND_HUB_POSITION.x,
-    z:
-      ARES_COMMAND_HUB_POSITION.z -
-      3.7,
-    halfWidth: 1.45,
-    halfDepth: 0.7,
-  },
-
-  {
-    kind: "box",
-    x:
-      ARES_COMMAND_HUB_POSITION.x -
-      3.55,
-    z:
-      ARES_COMMAND_HUB_POSITION.z,
-    halfWidth: 1.45,
-    halfDepth: 2.35,
-  },
-
-  {
-    kind: "box",
-    x:
-      ARES_COMMAND_HUB_POSITION.x +
-      3.55,
-    z:
-      ARES_COMMAND_HUB_POSITION.z,
-    halfWidth: 1.45,
-    halfDepth: 2.35,
-  },
-
-  {
-    kind: "box",
-    x:
-      ARES_COMMAND_HUB_POSITION.x,
-    z:
-      ARES_COMMAND_HUB_POSITION.z -
-      4.35,
-    halfWidth: 1.9,
-    halfDepth: 1.35,
-  },
-
-  {
-    kind: "box",
-    x:
-      ARES_COMMAND_HUB_POSITION.x -
-      3.45,
-    z:
-      ARES_COMMAND_HUB_POSITION.z -
-      4,
-    halfWidth: 1.15,
-    halfDepth: 1.45,
-  },
-
-  {
-    kind: "box",
-    x:
-      ARES_COMMAND_HUB_POSITION.x +
-      3.25,
-    z:
-      ARES_COMMAND_HUB_POSITION.z -
-      3.8,
-    halfWidth: 1.25,
-    halfDepth: 1.35,
-  },
 ];
