@@ -27,9 +27,13 @@ export function AresDiscoveryRecordPanel({
         zIndex:
           10000,
         display:
-          "grid",
-        placeItems:
-          "center",
+          "flex",
+        alignItems:
+          "flex-start",
+        justifyContent:
+          "flex-end",
+        padding:
+          "92px 24px 24px",
         background:
           "rgba(2,7,10,.78)",
         backdropFilter:
@@ -46,11 +50,11 @@ export function AresDiscoveryRecordPanel({
       <div
         style={{
           width:
-            "min(560px, calc(100vw - 32px))",
+            "min(380px, calc(100vw - 32px))",
           maxHeight:
-            "min(680px, calc(100vh - 48px))",
+            "calc(100vh - 120px)",
           padding:
-            "20px",
+            "14px",
           boxSizing:
             "border-box",
           overflowY:
@@ -95,7 +99,7 @@ export function AresDiscoveryRecordPanel({
         <div
           style={{
             fontSize:
-              "25px",
+              "19px",
             fontWeight:
               900,
             lineHeight:
@@ -114,7 +118,7 @@ export function AresDiscoveryRecordPanel({
             fontSize:
               "12px",
             marginBottom:
-              "20px",
+              "12px",
           }}
         >
           {record.missionTitle}
@@ -127,9 +131,9 @@ export function AresDiscoveryRecordPanel({
             gridTemplateColumns:
               "1fr 1fr",
             gap:
-              "10px",
+              "7px",
             marginBottom:
-              "18px",
+              "11px",
           }}
         >
           <Info

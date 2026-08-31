@@ -325,8 +325,8 @@ export function AresMissionTerminal({
         <Html
           center
           position={[
-            0,
-            2.05,
+            1.9,
+            2.35,
             0.8,
           ]}
           distanceFactor={6}
@@ -334,9 +334,9 @@ export function AresMissionTerminal({
             pointerEvents:
               "none",
             width:
-              "260px",
+              "190px",
             padding:
-              "12px 14px",
+              "9px 10px",
             border:
               "1px solid rgba(177,108,235,.45)",
             borderRadius:

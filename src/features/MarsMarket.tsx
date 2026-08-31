@@ -17,6 +17,8 @@ import {
   Zap,
 } from "lucide-react";
 
+import "./MarsMarket.css";
+
 import {
   buyMyMarsMarketItem,
   getMyMarsInventory,

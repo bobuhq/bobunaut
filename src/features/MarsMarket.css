@@ -1,0 +1,481 @@
+.mars-market-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(3, 5, 12, 0.82);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  font-family: Inter, system-ui, sans-serif;
+}
+
+.mars-market-backdrop,
+.mars-market-backdrop * {
+  box-sizing: border-box;
+}
+
+.mars-market-panel {
+  width: min(1080px, 100%);
+  max-height: min(780px, calc(100vh - 48px));
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid rgba(177, 108, 235, 0.34);
+  border-radius: 20px;
+  background:
+    radial-gradient(
+      circle at 92% 0%,
+      rgba(126, 76, 255, 0.18),
+      transparent 34%
+    ),
+    linear-gradient(
+      145deg,
+      rgba(12, 12, 24, 0.99),
+      rgba(5, 7, 16, 0.99)
+    );
+  box-shadow:
+    0 30px 90px rgba(0, 0, 0, 0.65),
+    inset 0 1px rgba(255, 255, 255, 0.04);
+  color: #fff;
+}
+
+.mars-market-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 20px 22px 17px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.mars-market-eyebrow {
+  display: block;
+  margin-bottom: 5px;
+  color: #cda2ff;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.2em;
+}
+
+.mars-market-header h2 {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(22px, 3vw, 31px);
+  line-height: 1.1;
+}
+
+.mars-market-header p {
+  margin: 6px 0 0;
+  color: rgba(220, 227, 240, 0.64);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.mars-market-close {
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  cursor: pointer;
+}
+
+.mars-market-close:hover {
+  border-color: rgba(205, 162, 255, 0.55);
+  background: rgba(177, 108, 235, 0.12);
+}
+
+.mars-market-tabs {
+  display: flex;
+  gap: 8px;
+  padding: 12px 22px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.mars-market-tabs button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 13px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: transparent;
+  color: rgba(225, 231, 242, 0.62);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.mars-market-tabs button.is-active {
+  border-color: rgba(190, 126, 255, 0.3);
+  background: rgba(146, 84, 219, 0.12);
+  color: #d9b7ff;
+}
+
+.mars-market-tabs button > span {
+  min-width: 20px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  text-align: center;
+  font-size: 9px;
+}
+
+.mars-market-content {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 18px 22px 24px;
+}
+
+.mars-market-loading,
+.mars-market-error {
+  margin: 16px 22px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.mars-market-loading {
+  border: 1px solid rgba(99, 245, 255, 0.2);
+  background: rgba(99, 245, 255, 0.05);
+  color: #8cf6ff;
+}
+
+.mars-market-error {
+  border: 1px solid rgba(255, 118, 95, 0.3);
+  background: rgba(255, 118, 95, 0.06);
+  color: #ff8c79;
+}
+
+.mars-market-category + .mars-market-category {
+  margin-top: 24px;
+}
+
+.mars-market-category-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+  color: #f4f6fa;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.mars-market-category-title small {
+  color: rgba(218, 225, 238, 0.42);
+  font-size: 9px;
+}
+
+.mars-market-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(auto-fill, minmax(230px, 1fr));
+  gap: 12px;
+}
+
+.mars-market-card {
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.mars-market-card-visual {
+  min-height: 82px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px;
+  background:
+    radial-gradient(
+      circle at 20% 50%,
+      rgba(148, 84, 220, 0.18),
+      transparent 40%
+    ),
+    rgba(255, 255, 255, 0.015);
+}
+
+.mars-market-card-visual > span,
+.mars-inventory-card > div > span {
+  color: rgba(221, 226, 237, 0.45);
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.mars-market-item-icon {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 48px;
+  border: 1px solid rgba(190, 126, 255, 0.25);
+  border-radius: 13px;
+  background: rgba(151, 82, 220, 0.09);
+  color: #cf9cff;
+}
+
+.mars-market-card-body {
+  padding: 14px;
+}
+
+.mars-market-card-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.mars-market-card h3,
+.mars-inventory-card h3 {
+  margin: 0;
+  color: #f7f8fb;
+  font-size: 14px;
+}
+
+.mars-market-card p {
+  min-height: 34px;
+  margin: 7px 0 12px;
+  color: rgba(216, 222, 234, 0.6);
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.mars-market-owned {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #83e9af;
+  font-size: 8px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.mars-market-costs {
+  min-height: 28px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.mars-market-cost {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 7px;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.045);
+  color: rgba(229, 233, 242, 0.75);
+  font-size: 9px;
+}
+
+.mars-market-buy,
+.mars-inventory-place {
+  width: 100%;
+  min-height: 35px;
+  border: 1px solid rgba(190, 126, 255, 0.36);
+  border-radius: 9px;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(142, 79, 213, 0.25),
+      rgba(77, 44, 143, 0.14)
+    );
+  color: #e4c8ff;
+  font: inherit;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+}
+
+.mars-market-buy:hover,
+.mars-inventory-place:hover {
+  background:
+    linear-gradient(
+      135deg,
+      rgba(163, 94, 235, 0.34),
+      rgba(92, 51, 162, 0.2)
+    );
+}
+
+.mars-market-buy:disabled,
+.mars-inventory-place:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+}
+
+.mars-inventory-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
+}
+
+.mars-inventory-card {
+  display: grid;
+  grid-template-columns: 48px 1fr;
+  gap: 12px;
+  align-items: center;
+  padding: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.mars-inventory-card .mars-inventory-place {
+  grid-column: 1 / -1;
+}
+
+.mars-inventory-card small {
+  display: block;
+  margin-top: 5px;
+  color: rgba(220, 226, 238, 0.48);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+@media (max-width: 700px) {
+  .mars-market-backdrop {
+    padding: 10px;
+  }
+
+  .mars-market-panel {
+    max-height: calc(100vh - 20px);
+    border-radius: 15px;
+  }
+
+  .mars-market-header {
+    padding: 16px;
+  }
+
+  .mars-market-tabs {
+    padding: 10px 16px;
+  }
+
+  .mars-market-content {
+    padding: 15px 16px 20px;
+  }
+
+  .mars-market-grid,
+  .mars-inventory-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+.mars-market-backdrop {
+  align-items: stretch;
+  justify-content: flex-end;
+  padding: 0;
+  background: rgba(3, 5, 12, 0.46);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.mars-market-panel {
+  width: min(430px, calc(100vw - 24px));
+  height: 100vh;
+  max-height: 100vh;
+  border-top: 0;
+  border-right: 0;
+  border-bottom: 0;
+  border-radius: 18px 0 0 18px;
+  box-shadow:
+    -22px 0 70px rgba(0, 0, 0, 0.55),
+    inset 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.mars-market-header {
+  padding: 18px 18px 15px;
+}
+
+.mars-market-header h2 {
+  font-size: 25px;
+}
+
+.mars-market-tabs {
+  padding: 11px 18px;
+}
+
+.mars-market-content {
+  padding: 15px 18px 22px;
+}
+
+.mars-market-grid {
+  grid-template-columns: 1fr;
+}
+
+.mars-market-card {
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr);
+}
+
+.mars-market-card-visual {
+  min-height: 100%;
+  padding: 12px;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+  border-right: 1px solid rgba(255,255,255,.06);
+}
+
+.mars-market-card-body {
+  min-width: 0;
+  padding: 12px;
+}
+
+.mars-market-card p {
+  min-height: 0;
+  margin: 6px 0 10px;
+}
+
+.mars-market-costs {
+  min-height: 0;
+  margin-bottom: 9px;
+}
+
+.mars-inventory-grid {
+  grid-template-columns: 1fr;
+}
+
+.mars-inventory-card {
+  grid-template-columns: 44px minmax(0, 1fr);
+  padding: 12px;
+}
+
+.mars-market-item-icon {
+  width: 44px;
+  height: 44px;
+  flex-basis: 44px;
+}
+
+@media (max-width: 700px) {
+  .mars-market-backdrop {
+    padding: 0;
+  }
+
+  .mars-market-panel {
+    width: min(390px, 100vw);
+    height: 100vh;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+}

@@ -215,8 +215,8 @@ export function AresCommandHubUpgradeTerminal({
       {nearby && (
         <Html
           position={[
-            0,
-            1.85,
+            1.9,
+            2.25,
             0,
           ]}
           center
@@ -224,8 +224,8 @@ export function AresCommandHubUpgradeTerminal({
         >
           <div
             style={{
-              width: "260px",
-              padding: "14px",
+              width: "190px",
+              padding: "9px 10px",
               border:
                 "1px solid rgba(186,120,255,.75)",
               borderRadius: "12px",
@@ -263,7 +263,7 @@ export function AresCommandHubUpgradeTerminal({
                 <div
                   style={{
                     marginTop: "7px",
-                    fontSize: "20px",
+                    fontSize: "14px",
                     fontWeight: 800,
                   }}
                 >

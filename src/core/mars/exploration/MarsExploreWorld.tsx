@@ -94,6 +94,19 @@ import {
   type AresLandmarkNavigation,
 } from "./landmarks/AresExplorationLandmarks";
 
+import MarsMarket from "../../../features/MarsMarket";
+
+import {
+  getMyMarsColonyBase,
+  type MarsColonyBaseBuilding,
+} from "../MarsColonyBaseService";
+
+import {
+  type MarsInventoryItem,
+} from "../MarsMarketService";
+
+import AresColonyPlacement from "./colony/AresColonyPlacement";
+
 
 interface MarsExploreSceneProps {
   builderId: string;
@@ -124,6 +137,17 @@ interface MarsExploreSceneProps {
   onArchiveOpenChange: (
     open: boolean,
   ) => void;
+  placementItem:
+    | MarsInventoryItem
+    | null;
+  placementDefinition:
+    | MarsColonyBaseBuilding
+    | null;
+  placementColonyId:
+    | string
+    | null;
+  onPlacementCancel: () => void;
+  onPlacementSaved: () => void | Promise<void>;
 }
 
 function MarsExploreScene({
@@ -136,6 +160,11 @@ function MarsExploreScene({
   onMissionCompleted,
   onMissionStateChange,
   onArchiveOpenChange,
+  placementItem,
+  placementDefinition,
+  placementColonyId,
+  onPlacementCancel,
+  onPlacementSaved,
 }: MarsExploreSceneProps) {
   const bobuRef =
     useRef<THREE.Group | null>(
@@ -325,6 +354,24 @@ function MarsExploreScene({
         targetRef={bobuRef}
       />
 
+      {placementItem &&
+        placementDefinition &&
+        placementColonyId && (
+          <AresColonyPlacement
+            item={placementItem}
+            colonyId={placementColonyId}
+            definition={
+              placementDefinition
+            }
+            onCancel={
+              onPlacementCancel
+            }
+            onSaved={
+              onPlacementSaved
+            }
+          />
+        )}
+
       <AresMultiplayerPresence
         characterRef={bobuRef}
         builderId={builderId}
@@ -467,6 +514,43 @@ export function MarsExploreWorld() {
     setSoundEnabled,
   ] = useState(true);
 
+  const [
+    marketOpen,
+    setMarketOpen,
+  ] = useState(false);
+
+  const [
+    placementItem,
+    setPlacementItem,
+  ] =
+    useState<MarsInventoryItem | null>(
+      null,
+    );
+
+  const [
+    placementDefinition,
+    setPlacementDefinition,
+  ] =
+    useState<MarsColonyBaseBuilding | null>(
+      null,
+    );
+
+  const [
+    placementColonyId,
+    setPlacementColonyId,
+  ] =
+    useState<string | null>(
+      null,
+    );
+
+  const [
+    placementError,
+    setPlacementError,
+  ] =
+    useState<string | null>(
+      null,
+    );
+
   const handleHiddenMissionNavigationChange =
     useCallback(
       (
@@ -569,6 +653,119 @@ export function MarsExploreWorld() {
       );
     };
   }, []);
+
+  const cancelPlacement =
+    useCallback(() => {
+      setPlacementItem(null);
+      setPlacementDefinition(null);
+      setPlacementColonyId(null);
+      setPlacementError(null);
+    }, []);
+
+  const beginInventoryPlacement =
+    useCallback(
+      async (
+        item: MarsInventoryItem,
+      ) => {
+        if (
+          item.item_type !==
+            "building" ||
+          !item.building_key ||
+          item.quantity <= 0
+        ) {
+          setPlacementError(
+            "BUILDING IS NOT AVAILABLE FOR PLACEMENT",
+          );
+          return;
+        }
+
+        try {
+          setPlacementError(null);
+
+          const rows =
+            await getMyMarsColonyBase();
+
+          const definition =
+            rows.find(
+              (row) =>
+                row.building_key ===
+                item.building_key,
+            );
+
+          if (!definition) {
+            setPlacementError(
+              "BUILDING DEFINITION NOT AVAILABLE",
+            );
+            return;
+          }
+
+          const normalizedKey =
+            definition.building_key
+              .trim()
+              .toLowerCase();
+
+          const visualSupported =
+            normalizedKey.includes(
+              "energy",
+            ) ||
+            normalizedKey.includes(
+              "water",
+            ) ||
+            normalizedKey.includes(
+              "science",
+            ) ||
+            normalizedKey.includes(
+              "habitat",
+            );
+
+          if (!visualSupported) {
+            setPlacementError(
+              "FINAL BUILDING VISUAL NOT AVAILABLE",
+            );
+            return;
+          }
+
+          if (!definition.colony_id) {
+            setPlacementError(
+              "COLONY NOT AVAILABLE",
+            );
+            return;
+          }
+
+          setPlacementDefinition(
+            definition,
+          );
+
+          setPlacementColonyId(
+            definition.colony_id,
+          );
+
+          setPlacementItem(
+            item,
+          );
+
+          setMarketOpen(false);
+          setOnboardingVisible(false);
+        } catch (error) {
+          console.error(
+            "Failed to prepare Ares inventory placement",
+            error,
+          );
+
+          setPlacementError(
+            error instanceof Error
+              ? error.message
+              : "UNABLE TO PREPARE PLACEMENT",
+          );
+        }
+      },
+      [],
+    );
+
+  const handlePlacementSaved =
+    useCallback(async () => {
+      cancelPlacement();
+    }, [cancelPlacement]);
 
   const toggleSound =
     useCallback(() => {
@@ -1350,6 +1547,79 @@ export function MarsExploreWorld() {
         </div>
       )}
 
+      <button
+        type="button"
+        onClick={() => {
+          if (placementItem) {
+            cancelPlacement();
+          }
+
+          setPlacementError(null);
+          setMarketOpen(true);
+          setOnboardingVisible(false);
+        }}
+        aria-label="Open Mars Market"
+        style={{
+          position: "fixed",
+          top: "62px",
+          right: "18px",
+          zIndex: 100,
+          minHeight: "34px",
+          padding: "0 13px",
+          border:
+            "1px solid rgba(197,109,255,.34)",
+          borderRadius: "999px",
+          background:
+            "rgba(5,7,18,.78)",
+          color: "#d9b7ff",
+          cursor: "pointer",
+          backdropFilter:
+            "blur(12px)",
+          fontSize: "9px",
+          fontWeight: 900,
+          letterSpacing: ".1em",
+        }}
+      >
+        MARS MARKET
+      </button>
+
+      {placementError && (
+        <div
+          style={{
+            position: "fixed",
+            top: "104px",
+            right: "18px",
+            zIndex: 110,
+            maxWidth: "320px",
+            padding: "9px 12px",
+            border:
+              "1px solid rgba(255,118,95,.34)",
+            borderRadius: "10px",
+            background:
+              "rgba(5,7,18,.9)",
+            color: "#ff765f",
+            fontSize: "9px",
+            fontWeight: 900,
+            letterSpacing: ".08em",
+          }}
+        >
+          {placementError}
+        </div>
+      )}
+
+      <MarsMarket
+        open={marketOpen}
+        onClose={() => {
+          setMarketOpen(false);
+        }}
+        onPurchaseComplete={async () => {
+          await refreshGp();
+        }}
+        onPlaceInventoryBuilding={
+          beginInventoryPlacement
+        }
+      />
+
       <Canvas
         shadows
         camera={{
@@ -1393,10 +1663,25 @@ export function MarsExploreWorld() {
               onMissionStateChange={
                 setExplorationMission
               }
-            onArchiveOpenChange={
-          setArchiveOpen
-        }
-        />
+              onArchiveOpenChange={
+                setArchiveOpen
+              }
+              placementItem={
+                placementItem
+              }
+              placementDefinition={
+                placementDefinition
+              }
+              placementColonyId={
+                placementColonyId
+              }
+              onPlacementCancel={
+                cancelPlacement
+              }
+              onPlacementSaved={
+                handlePlacementSaved
+              }
+            />
           )}
         </Suspense>
       </Canvas>

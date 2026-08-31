@@ -577,8 +577,8 @@ export function AresResearchTerminal({
         <Html
           center
           position={[
-            0,
-            2.85,
+            1.9,
+            2.45,
             0.2,
           ]}
           distanceFactor={6}
@@ -586,9 +586,9 @@ export function AresResearchTerminal({
             pointerEvents:
               "none",
             width:
-              "290px",
+              "195px",
             padding:
-              "14px 16px",
+              "9px 10px",
             border:
               researchReady
                 ? "1px solid rgba(99,245,255,.5)"
@@ -629,7 +629,7 @@ export function AresResearchTerminal({
           <div
             style={{
               fontSize:
-                "15px",
+                "12px",
               fontWeight:
                 900,
               marginBottom:
