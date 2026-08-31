@@ -117,6 +117,7 @@ interface MarsExploreSceneProps {
         AresLandmarkNavigation | null,
     ) => void;
   onLandmarkDiscovered: () => void;
+  onMissionCompleted: () => void;
   onMissionStateChange: (
     mission: AresHiddenMission | null,
   ) => void;
@@ -132,6 +133,7 @@ function MarsExploreScene({
   onHiddenMissionNavigationChange,
   onLandmarkNavigationChange,
   onLandmarkDiscovered,
+  onMissionCompleted,
   onMissionStateChange,
   onArchiveOpenChange,
 }: MarsExploreSceneProps) {
@@ -291,6 +293,8 @@ function MarsExploreScene({
                 return nextMission;
               },
             );
+
+            onMissionCompleted();
           }}
         />
       )}
@@ -1385,6 +1389,7 @@ export function MarsExploreWorld() {
                 handleLandmarkNavigationChange
               }
               onLandmarkDiscovered={refreshGp}
+              onMissionCompleted={refreshGp}
               onMissionStateChange={
                 setExplorationMission
               }
