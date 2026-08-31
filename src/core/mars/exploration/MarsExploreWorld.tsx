@@ -106,6 +106,15 @@ import {
 } from "../MarsMarketService";
 
 import AresColonyPlacement from "./colony/AresColonyPlacement";
+import AresColonyBuildings from "./colony/AresColonyBuildings";
+
+import {
+  AresDiscoveryRecordPanel,
+} from "./research/AresDiscoveryRecordPanel";
+
+import type {
+  AresDiscoveryRecord,
+} from "./research/AresDiscoveryArchiveService";
 
 
 interface MarsExploreSceneProps {
@@ -137,6 +146,9 @@ interface MarsExploreSceneProps {
   onArchiveOpenChange: (
     open: boolean,
   ) => void;
+  onArchiveRecordChange: (
+    record: AresDiscoveryRecord | null,
+  ) => void;
   placementItem:
     | MarsInventoryItem
     | null;
@@ -148,6 +160,7 @@ interface MarsExploreSceneProps {
     | null;
   onPlacementCancel: () => void;
   onPlacementSaved: () => void | Promise<void>;
+  colonyBuildingsRefreshKey: number;
 }
 
 function MarsExploreScene({
@@ -160,11 +173,13 @@ function MarsExploreScene({
   onMissionCompleted,
   onMissionStateChange,
   onArchiveOpenChange,
+  onArchiveRecordChange,
   placementItem,
   placementDefinition,
   placementColonyId,
   onPlacementCancel,
   onPlacementSaved,
+  colonyBuildingsRefreshKey,
 }: MarsExploreSceneProps) {
   const bobuRef =
     useRef<THREE.Group | null>(
@@ -286,6 +301,9 @@ function MarsExploreScene({
         onArchiveOpenChange={
           onArchiveOpenChange
         }
+        onArchiveRecordChange={
+          onArchiveRecordChange
+        }
       />
 
       {hiddenMission &&
@@ -354,6 +372,12 @@ function MarsExploreScene({
         targetRef={bobuRef}
       />
 
+      <AresColonyBuildings
+        refreshKey={
+          colonyBuildingsRefreshKey
+        }
+      />
+
       {placementItem &&
         placementDefinition &&
         placementColonyId && (
@@ -363,6 +387,7 @@ function MarsExploreScene({
             definition={
               placementDefinition
             }
+            targetRef={bobuRef}
             onCancel={
               onPlacementCancel
             }
@@ -481,6 +506,14 @@ export function MarsExploreWorld() {
   ] = useState(false);
 
   const [
+    archiveRecord,
+    setArchiveRecord,
+  ] =
+    useState<AresDiscoveryRecord | null>(
+      null,
+    );
+
+  const [
     hiddenMissionNavigation,
     setHiddenMissionNavigation,
   ] =
@@ -550,6 +583,11 @@ export function MarsExploreWorld() {
     useState<string | null>(
       null,
     );
+
+  const [
+    colonyBuildingsRefreshKey,
+    setColonyBuildingsRefreshKey,
+  ] = useState(0);
 
   const handleHiddenMissionNavigationChange =
     useCallback(
@@ -764,6 +802,10 @@ export function MarsExploreWorld() {
 
   const handlePlacementSaved =
     useCallback(async () => {
+      setColonyBuildingsRefreshKey(
+        (current) => current + 1,
+      );
+
       cancelPlacement();
     }, [cancelPlacement]);
 
@@ -1620,6 +1662,17 @@ export function MarsExploreWorld() {
         }
       />
 
+      {archiveOpen &&
+        archiveRecord && (
+          <AresDiscoveryRecordPanel
+            record={archiveRecord}
+            onClose={() => {
+              setArchiveOpen(false);
+              setArchiveRecord(null);
+            }}
+          />
+        )}
+
       <Canvas
         shadows
         camera={{
@@ -1666,6 +1719,9 @@ export function MarsExploreWorld() {
               onArchiveOpenChange={
                 setArchiveOpen
               }
+              onArchiveRecordChange={
+                setArchiveRecord
+              }
               placementItem={
                 placementItem
               }
@@ -1680,6 +1736,9 @@ export function MarsExploreWorld() {
               }
               onPlacementSaved={
                 handlePlacementSaved
+              }
+              colonyBuildingsRefreshKey={
+                colonyBuildingsRefreshKey
               }
             />
           )}

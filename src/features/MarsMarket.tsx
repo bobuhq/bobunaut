@@ -403,9 +403,11 @@ export default function MarsMarket({
                             >
                               {buying
                                 ? "PURCHASING..."
-                                : buildingOwned
+                                : item.owned_quantity > 0
                                   ? "IN INVENTORY"
-                                  : "BUY"}
+                                  : item.already_constructed
+                                    ? "CONSTRUCTED"
+                                    : "BUY"}
                             </button>
                           </div>
                         </article>

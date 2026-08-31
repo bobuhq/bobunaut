@@ -42,6 +42,10 @@ import type {
   AresHiddenMission,
 } from "../missions/AresHiddenMissionService";
 
+import type {
+  AresDiscoveryRecord,
+} from "../research/AresDiscoveryArchiveService";
+
 type Props = {
   targetRef:
     React.RefObject<THREE.Group | null>;
@@ -57,6 +61,10 @@ type Props = {
 
   onArchiveOpenChange?: (
     open: boolean,
+  ) => void;
+
+  onArchiveRecordChange?: (
+    record: AresDiscoveryRecord | null,
   ) => void;
 };
 
@@ -303,6 +311,7 @@ function CommandInterior({
   onMission,
   mission,
   onArchiveOpenChange,
+  onArchiveRecordChange,
 }: Props) {
   return (
     <group>
@@ -463,6 +472,9 @@ function CommandInterior({
         mission={mission}
         onArchiveOpenChange={
           onArchiveOpenChange
+        }
+        onArchiveRecordChange={
+          onArchiveRecordChange
         }
         worldPosition={{
           x:
@@ -1789,6 +1801,7 @@ export function AresCommandHub({
   onMission,
   mission,
   onArchiveOpenChange,
+  onArchiveRecordChange,
 }: Props) {
   const [
     terrainHeight,
@@ -2155,6 +2168,9 @@ export function AresCommandHub({
         mission={mission}
         onArchiveOpenChange={
           onArchiveOpenChange
+        }
+        onArchiveRecordChange={
+          onArchiveRecordChange
         }
       />
 

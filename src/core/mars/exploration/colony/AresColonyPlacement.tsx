@@ -1,4 +1,5 @@
 import {
+  Suspense,
   useEffect,
   useMemo,
   useState,
@@ -7,6 +8,10 @@ import {
 import {
   Html,
 } from "@react-three/drei";
+
+import {
+  useFrame,
+} from "@react-three/fiber";
 
 import * as THREE from "three";
 
@@ -35,8 +40,6 @@ import {
   validateMarsPlacement,
 } from "../../colonyworld/engine";
 
-import MarsPlacementGrid from "../../colonyworld/components/MarsPlacementGrid";
-import MarsPlacementPreview from "../../colonyworld/components/MarsPlacementPreview";
 import MarsColonyBuildingModel from "../../colonyworld/models/MarsColonyBuildingModel";
 
 import {
@@ -53,6 +56,7 @@ type Props = {
   item: MarsInventoryItem;
   colonyId: string;
   definition: MarsColonyBaseBuilding;
+  targetRef: React.RefObject<THREE.Group | null>;
   onCancel: () => void;
   onSaved: () => void | Promise<void>;
 };
@@ -91,6 +95,7 @@ export default function AresColonyPlacement({
   item,
   colonyId,
   definition,
+  targetRef,
   onCancel,
   onSaved,
 }: Props) {
@@ -161,12 +166,31 @@ export default function AresColonyPlacement({
   useEffect(() => {
     let active = true;
 
-    Promise.all([
-      loadAresGenesisTerrainData(),
+    const terrainRequest =
+      loadAresGenesisTerrainData().then(
+        (value) => {
+          return value;
+        },
+      );
+
+    const progressionRequest =
       getMarsCommandHubProgressionForColony(
         colonyId,
-      ),
-      getMyMarsColonyBase(),
+      ).then((value) => {
+        return value;
+      });
+
+    const colonyRequest =
+      getMyMarsColonyBase().then(
+        (value) => {
+          return value;
+        },
+      );
+
+    Promise.all([
+      terrainRequest,
+      progressionRequest,
+      colonyRequest,
     ])
       .then(
         ([
@@ -394,6 +418,45 @@ export default function AresColonyPlacement({
         )
       : 0;
 
+  const [
+    builderDistanceFromPreview,
+    setBuilderDistanceFromPreview,
+  ] = useState(Number.POSITIVE_INFINITY);
+
+  useFrame(() => {
+    const target =
+      targetRef.current;
+
+    if (
+      !target ||
+      !placement
+    ) {
+      return;
+    }
+
+    const nextDistance =
+      Math.hypot(
+        target.position.x -
+          world.x,
+        target.position.z -
+          world.z,
+      );
+
+    setBuilderDistanceFromPreview(
+      (current) =>
+        !Number.isFinite(current) ||
+        Math.abs(
+          current -
+            nextDistance,
+        ) >= 0.2
+          ? nextDistance
+          : current,
+    );
+  });
+
+  const builderNearPlacement =
+    builderDistanceFromPreview <= 18;
+
   function move(
     dx: number,
     dz: number,
@@ -540,36 +603,184 @@ export default function AresColonyPlacement({
     return null;
   }
 
+  if (!builderNearPlacement) {
+    return (
+      <>
+        <group
+          position={[
+            world.x,
+            terrainY + 0.06,
+            world.z,
+          ]}
+        >
+          <mesh
+            rotation={[
+              -Math.PI / 2,
+              0,
+              0,
+            ]}
+          >
+            <ringGeometry
+              args={[
+                1.35,
+                1.75,
+                48,
+              ]}
+            />
+            <meshBasicMaterial
+              color="#63f5ff"
+              transparent
+              opacity={0.82}
+              depthWrite={false}
+              side={THREE.DoubleSide}
+            />
+          </mesh>
+
+          <mesh
+            position={[
+              0,
+              0.08,
+              0,
+            ]}
+            rotation={[
+              -Math.PI / 2,
+              0,
+              0,
+            ]}
+          >
+            <ringGeometry
+              args={[
+                0.42,
+                0.58,
+                32,
+              ]}
+            />
+            <meshBasicMaterial
+              color="#d28cff"
+              transparent
+              opacity={0.9}
+              depthWrite={false}
+              side={THREE.DoubleSide}
+            />
+          </mesh>
+        </group>
+
+        <Html
+          fullscreen
+          style={{
+            pointerEvents: "none",
+          }}
+        >
+          <div
+          style={{
+            position: "fixed",
+            left: "50%",
+            bottom: "24px",
+            transform: "translateX(-50%)",
+            zIndex: 220,
+            pointerEvents: "auto",
+            minWidth: "270px",
+            padding: "13px 15px",
+            border:
+              "1px solid rgba(99,245,255,.32)",
+            borderRadius: "12px",
+            background:
+              "rgba(5,7,18,.94)",
+            color: "#fff",
+            fontFamily:
+              "Inter, system-ui, sans-serif",
+            textAlign: "center",
+          }}
+        >
+          <div
+            style={{
+              color: "#63f5ff",
+              fontSize: "9px",
+              fontWeight: 900,
+              letterSpacing: ".16em",
+            }}
+          >
+            COLONY PLACEMENT
+          </div>
+
+          <strong
+            style={{
+              display: "block",
+              marginTop: "7px",
+              fontSize: "12px",
+            }}
+          >
+            MOVE TO BUILD AREA
+          </strong>
+
+          <div
+            style={{
+              marginTop: "6px",
+              color: "rgba(255,255,255,.62)",
+              fontSize: "10px",
+              fontWeight: 700,
+            }}
+          >
+            {Number.isFinite(
+              builderDistanceFromPreview,
+            )
+              ? `${Math.ceil(
+                  builderDistanceFromPreview,
+                )} M TO BUILD AREA`
+              : "LOCATING BUILD AREA"}
+          </div>
+
+          <button
+            type="button"
+            onClick={onCancel}
+            style={{
+              marginTop: "10px",
+              width: "100%",
+            }}
+          >
+            CANCEL
+          </button>
+          </div>
+        </Html>
+      </>
+    );
+  }
+
   return (
     <>
-      <group
+      <mesh
         position={[
-          ARES_COMMAND_HUB_POSITION.x,
+          world.x,
           terrainY + 0.035,
-          ARES_COMMAND_HUB_POSITION.z,
+          world.z,
+        ]}
+        rotation={[
+          -Math.PI / 2,
+          0,
+          0,
         ]}
       >
-        <MarsPlacementGrid
-          mapMin={
-            progression.map_min
-          }
-          mapMax={
-            progression.map_max
-          }
+        <planeGeometry
+          args={[
+            width * 1.35 * 0.96,
+            depth * 1.35 * 0.96,
+          ]}
         />
-      </group>
-
-      <MarsPlacementPreview
-        worldX={world.x}
-        worldZ={world.z}
-        footprintWidth={width}
-        footprintDepth={depth}
-        valid={
-          validation.valid
-        }
-        error={Boolean(error)}
-        mode="place"
-      />
+        <meshBasicMaterial
+          color={
+            validation.valid && !error
+              ? "#d28cff"
+              : "#ff334f"
+          }
+          transparent
+          opacity={
+            validation.valid && !error
+              ? 0.32
+              : 0.44
+          }
+          depthWrite={false}
+        />
+      </mesh>
 
       <group
         position={[
@@ -585,26 +796,32 @@ export default function AresColonyPlacement({
           0,
         ]}
       >
-        <MarsColonyBuildingModel
-          buildingKey={
-            definition.building_key
-          }
-          preview
-        />
+        <Suspense fallback={null}>
+          <MarsColonyBuildingModel
+            buildingKey={
+              definition.building_key
+            }
+            preview
+          />
+        </Suspense>
       </group>
 
       <Html
-        position={[
-          world.x,
-          terrainY + 3,
-          world.z,
-        ]}
-        center
-        transform={false}
+        fullscreen
         style={{
-          pointerEvents: "auto",
+          pointerEvents: "none",
         }}
       >
+        <div
+          style={{
+            position: "fixed",
+            left: "50%",
+            bottom: "24px",
+            transform: "translateX(-50%)",
+            zIndex: 220,
+            pointerEvents: "auto",
+          }}
+        >
         <div
           style={{
             minWidth: "250px",
@@ -744,6 +961,7 @@ export default function AresColonyPlacement({
               {error}
             </div>
           )}
+        </div>
         </div>
       </Html>
     </>

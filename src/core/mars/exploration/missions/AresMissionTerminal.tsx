@@ -323,36 +323,22 @@ export function AresMissionTerminal({
 
       {isNear && (
         <Html
-          center
-          position={[
-            1.9,
-            2.35,
-            0.8,
-          ]}
-          distanceFactor={6}
+          fullscreen
           style={{
-            pointerEvents:
-              "none",
-            width:
-              "190px",
-            padding:
-              "9px 10px",
-            border:
-              "1px solid rgba(177,108,235,.45)",
-            borderRadius:
-              "12px",
-            background:
-              "rgba(6,6,14,.9)",
-            boxShadow:
-              "0 0 30px rgba(112,46,170,.22)",
-            color:
-              "#fff",
-            fontFamily:
-              "Inter, system-ui, sans-serif",
-            textAlign:
-              "left",
+            pointerEvents: "none",
           }}
         >
+          <div
+            style={{
+              position: "fixed",
+              top: "88px",
+              right: "24px",
+              width: "210px",
+              maxWidth: "calc(100vw - 48px)",
+              zIndex: 240,
+              pointerEvents: "auto",
+            }}
+          >
           {!mission && !error && (
             <>
               <div
@@ -465,6 +451,7 @@ export function AresMissionTerminal({
               </div>
             </>
           )}
+        </div>
         </Html>
       )}
     </group>

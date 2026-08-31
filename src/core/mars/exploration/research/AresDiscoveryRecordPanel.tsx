@@ -1,5 +1,3 @@
-import { Html } from "@react-three/drei";
-
 import type {
   AresDiscoveryRecord,
 } from "./AresDiscoveryArchiveService";
@@ -17,7 +15,6 @@ export function AresDiscoveryRecordPanel({
   onClose,
 }: Props) {
   return (
-    <Html fullscreen>
       <div
       style={{
         position:
@@ -237,7 +234,6 @@ export function AresDiscoveryRecordPanel({
         </button>
       </div>
     </div>
-    </Html>
   );
 }
 

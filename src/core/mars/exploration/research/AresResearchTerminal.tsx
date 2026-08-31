@@ -30,10 +30,6 @@ import type {
   AresDiscoveryRecord,
 } from "./AresDiscoveryArchiveService";
 
-import {
-  AresDiscoveryRecordPanel,
-} from "./AresDiscoveryRecordPanel";
-
 type Props = {
   targetRef:
     React.RefObject<THREE.Group | null>;
@@ -49,6 +45,10 @@ type Props = {
   onArchiveOpenChange?: (
     open: boolean,
   ) => void;
+
+  onArchiveRecordChange?: (
+    record: AresDiscoveryRecord | null,
+  ) => void;
 };
 
 const ACCESS_DISTANCE = 3.1;
@@ -58,6 +58,7 @@ export function AresResearchTerminal({
   mission,
   worldPosition,
   onArchiveOpenChange,
+  onArchiveRecordChange,
 }: Props) {
   const screenRef =
     useRef<THREE.MeshStandardMaterial | null>(
@@ -187,6 +188,10 @@ export function AresResearchTerminal({
               record,
             );
 
+            onArchiveRecordChange?.(
+              record,
+            );
+
             setArchiveOpen(
               true,
             );
@@ -230,6 +235,7 @@ export function AresResearchTerminal({
     archiveOpen,
     isNear,
     mission,
+    onArchiveRecordChange,
     researchCompleted,
   ]);
 
@@ -575,38 +581,22 @@ export function AresResearchTerminal({
 
       {isNear && (
         <Html
-          center
-          position={[
-            1.9,
-            2.45,
-            0.2,
-          ]}
-          distanceFactor={6}
+          fullscreen
           style={{
-            pointerEvents:
-              "none",
-            width:
-              "195px",
-            padding:
-              "9px 10px",
-            border:
-              researchReady
-                ? "1px solid rgba(99,245,255,.5)"
-                : "1px solid rgba(126,159,164,.28)",
-            borderRadius:
-              "12px",
-            background:
-              "rgba(5,10,14,.94)",
-            color:
-              "#ffffff",
-            fontFamily:
-              "Inter, system-ui, sans-serif",
-            boxShadow:
-              researchReady
-                ? "0 0 28px rgba(43,218,235,.14)"
-                : "0 8px 26px rgba(0,0,0,.32)",
+            pointerEvents: "none",
           }}
         >
+          <div
+            style={{
+              position: "fixed",
+              top: "88px",
+              right: "24px",
+              width: "215px",
+              maxWidth: "calc(100vw - 48px)",
+              zIndex: 240,
+              pointerEvents: "auto",
+            }}
+          >
           <div
             style={{
               color:
@@ -712,23 +702,10 @@ export function AresResearchTerminal({
               Complete an Ares field mission to recover a research sample.
             </div>
           )}
+        </div>
         </Html>
       )}
 
-      {archiveOpen &&
-        archiveRecord && (
-          <AresDiscoveryRecordPanel
-            record={
-              archiveRecord
-            }
-            onClose={
-              () =>
-                setArchiveOpen(
-                  false,
-                )
-            }
-          />
-        )}
     </group>
   );
 }
