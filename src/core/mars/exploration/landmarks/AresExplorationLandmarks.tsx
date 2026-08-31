@@ -717,11 +717,13 @@ function LandmarkMarker({
 export function AresExplorationLandmarks({
   targetRef,
   onNavigation,
+  onLandmarkDiscovered,
 }: {
   targetRef: MutableRefObject<THREE.Group | null>;
   onNavigation?: (
     navigation: AresLandmarkNavigation | null,
   ) => void;
+  onLandmarkDiscovered?: () => void;
 }) {
   const [
     terrain,
@@ -984,9 +986,16 @@ export function AresExplorationLandmarks({
                 landmark.id
               ] ?? null
             }
-            onDiscoveryChanged={
-              handleDiscoveryChanged
-            }
+            onDiscoveryChanged={(nextDiscovery) => {
+              handleDiscoveryChanged(nextDiscovery);
+
+              if (
+                nextDiscovery.status ===
+                "discovered"
+              ) {
+                onLandmarkDiscovered?.();
+              }
+            }}
           />
         ),
       )}

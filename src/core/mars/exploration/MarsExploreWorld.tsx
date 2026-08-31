@@ -117,6 +117,9 @@ interface MarsExploreSceneProps {
         AresLandmarkNavigation | null,
     ) => void;
   onLandmarkDiscovered: () => void;
+  onMissionStateChange: (
+    mission: AresHiddenMission | null,
+  ) => void;
   onArchiveOpenChange: (
     open: boolean,
   ) => void;
@@ -129,6 +132,7 @@ function MarsExploreScene({
   onHiddenMissionNavigationChange,
   onLandmarkNavigationChange,
   onLandmarkDiscovered,
+  onMissionStateChange,
   onArchiveOpenChange,
 }: MarsExploreSceneProps) {
   const bobuRef =
@@ -162,6 +166,9 @@ function MarsExploreScene({
             active
           ) {
             setHiddenMission(
+              mission,
+            );
+            onMissionStateChange(
               mission,
             );
           }
@@ -226,6 +233,9 @@ function MarsExploreScene({
         onNavigation={
           onLandmarkNavigationChange
         }
+        onLandmarkDiscovered={
+          onLandmarkDiscovered
+        }
       />
       <AresGuidanceSystem
         targetRef={bobuRef}
@@ -237,7 +247,10 @@ function MarsExploreScene({
 
       <AresCommandHub
         targetRef={bobuRef}
-        onMission={setHiddenMission}
+        onMission={(mission) => {
+          setHiddenMission(mission);
+          onMissionStateChange(mission);
+        }}
         mission={hiddenMission}
         onArchiveOpenChange={
           onArchiveOpenChange
@@ -261,14 +274,22 @@ function MarsExploreScene({
             setHiddenMission(
               (
                 current,
-              ) =>
-                current
-                  ? {
-                      ...current,
-                      status:
-                        "claimed",
-                    }
-                  : current,
+              ) => {
+                const nextMission =
+                  current
+                    ? {
+                        ...current,
+                        status:
+                          "claimed" as const,
+                      }
+                    : current;
+
+                onMissionStateChange(
+                  nextMission,
+                );
+
+                return nextMission;
+              },
             );
           }}
         />
@@ -425,6 +446,14 @@ export function MarsExploreWorld() {
     );
 
   const [
+    explorationMission,
+    setExplorationMission,
+  ] =
+    useState<AresHiddenMission | null>(
+      null,
+    );
+
+  const [
     onboardingVisible,
     setOnboardingVisible,
   ] = useState(true);
@@ -461,8 +490,8 @@ export function MarsExploreWorld() {
     );
 
   const showLandmarkNavigation =
-    hiddenMissionNavigation?.kind ===
-      "explore" &&
+    explorationMission?.status ===
+      "claimed" &&
     landmarkNavigation !==
       null;
 
@@ -1356,6 +1385,9 @@ export function MarsExploreWorld() {
                 handleLandmarkNavigationChange
               }
               onLandmarkDiscovered={refreshGp}
+              onMissionStateChange={
+                setExplorationMission
+              }
             onArchiveOpenChange={
           setArchiveOpen
         }
