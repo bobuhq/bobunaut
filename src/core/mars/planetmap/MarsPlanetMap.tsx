@@ -34,11 +34,13 @@ import type {
 } from "../MarsSectorService";
 
 import {
+  getMarsPixelAtCoordinate,
   getMarsPixelNetworkStatus,
   getMarsPixelPublicAllocations,
 } from "../MarsPixelNetworkService";
 
 import type {
+  MarsPixelCoordinateDetail,
   MarsPixelNetworkStatus,
   MarsPixelPublicAllocation,
 } from "../MarsPixelNetworkService";
@@ -71,6 +73,18 @@ type MarsPlanetMapProps = {
   aresAccessLoading: boolean;
   pixelNetworkStatus?: MarsPixelNetworkStatus | null;
   pixelAllocations?: MarsPixelPublicAllocation[];
+};
+
+type MarsPlanetSceneProps = Omit<
+  MarsPlanetMapProps,
+  | "ariaLabel"
+  | "aresAccess"
+  | "aresAccessLoading"
+> & {
+  onPixelSelect: (coordinate: {
+    x: number;
+    y: number;
+  }) => void;
 };
 
 type SectorMarkerProps = {
@@ -336,12 +350,8 @@ function MarsPlanet({
   diving,
   pixelNetworkStatus,
   pixelAllocations,
-}: Omit<
-  MarsPlanetMapProps,
-  | "ariaLabel"
-  | "aresAccess"
-  | "aresAccessLoading"
->) {
+  onPixelSelect,
+}: MarsPlanetSceneProps) {
   const groupRef =
     useRef<Group | null>(null);
 
@@ -551,6 +561,7 @@ function MarsPlanet({
             pixelAllocations ?? []
           }
           visible={!diving}
+          onPixelSelect={onPixelSelect}
           aresMapX={
             aresSector?.map_x ?? null
           }
@@ -639,12 +650,7 @@ function MarsPlanet({
 }
 
 function MarsScene(
-  props: Omit<
-    MarsPlanetMapProps,
-    | "ariaLabel"
-    | "aresAccess"
-    | "aresAccessLoading"
-  >,
+  props: MarsPlanetSceneProps,
 ) {
   return (
     <>
@@ -738,6 +744,82 @@ export function MarsPlanetMap({
     pixelNetworkError,
     setPixelNetworkError,
   ] = useState(false);
+
+  const [
+    selectedPixel,
+    setSelectedPixel,
+  ] =
+    useState<MarsPixelCoordinateDetail | null>(
+      null,
+    );
+
+  const [
+    selectedPixelLoading,
+    setSelectedPixelLoading,
+  ] = useState(false);
+
+  const [
+    selectedPixelError,
+    setSelectedPixelError,
+  ] = useState<string | null>(null);
+
+  const pixelRequestRef = useRef(0);
+
+  const handlePixelSelect = async (
+    coordinate: {
+      x: number;
+      y: number;
+    },
+  ) => {
+    const requestId =
+      pixelRequestRef.current + 1;
+
+    pixelRequestRef.current = requestId;
+
+    setSelectedPixel(null);
+    setSelectedPixelError(null);
+    setSelectedPixelLoading(true);
+
+    try {
+      const detail =
+        await getMarsPixelAtCoordinate(
+          coordinate.x,
+          coordinate.y,
+        );
+
+      if (
+        pixelRequestRef.current !==
+        requestId
+      ) {
+        return;
+      }
+
+      setSelectedPixel(detail);
+    } catch (error) {
+      if (
+        pixelRequestRef.current !==
+        requestId
+      ) {
+        return;
+      }
+
+      console.error(
+        "Mars Pixel coordinate lookup failed.",
+        error,
+      );
+
+      setSelectedPixelError(
+        "PIXEL DATA UNAVAILABLE",
+      );
+    } finally {
+      if (
+        pixelRequestRef.current ===
+        requestId
+      ) {
+        setSelectedPixelLoading(false);
+      }
+    }
+  };
 
   useEffect(() => {
     let active = true;
@@ -870,6 +952,153 @@ export function MarsPlanetMap({
         </small>
       </div>
 
+      {!diving &&
+        (selectedPixelLoading ||
+          selectedPixel !== null ||
+          selectedPixelError !== null) && (
+          <aside
+            className="mars-pixel-detail"
+            aria-live="polite"
+          >
+            <div className="mars-pixel-detail__header">
+              <div>
+                <span className="mars-pixel-detail__eyebrow">
+                  MARS PIXEL NETWORK
+                </span>
+                <strong>
+                  PIXEL DETAIL
+                </strong>
+              </div>
+
+              <button
+                type="button"
+                className="mars-pixel-detail__close"
+                aria-label="Close pixel detail"
+                onClick={() => {
+                  pixelRequestRef.current += 1;
+                  setSelectedPixel(null);
+                  setSelectedPixelError(null);
+                  setSelectedPixelLoading(false);
+                }}
+              >
+                ×
+              </button>
+            </div>
+
+            {selectedPixelLoading && (
+              <div className="mars-pixel-detail__message">
+                READING PRODUCTION STATE
+              </div>
+            )}
+
+            {!selectedPixelLoading &&
+              selectedPixelError && (
+                <div className="mars-pixel-detail__message is-error">
+                  {selectedPixelError}
+                </div>
+              )}
+
+            {!selectedPixelLoading &&
+              selectedPixel && (
+                <>
+                  <div className="mars-pixel-detail__coordinate">
+                    PIXEL {selectedPixel.x} /{" "}
+                    {selectedPixel.y}
+                  </div>
+
+                  <div
+                    className={[
+                      "mars-pixel-detail__status",
+                      `is-${selectedPixel.pixel_status}`,
+                    ].join(" ")}
+                  >
+                    {selectedPixel.pixel_status.toUpperCase()}
+                  </div>
+
+                  {selectedPixel.pixel_status ===
+                    "available" && (
+                    <div className="mars-pixel-detail__commercial">
+                      {selectedPixel.purchasable
+                        ? "COMMERCIAL ACCESS ACTIVE"
+                        : "SALES LOCKED"}
+                    </div>
+                  )}
+
+                  {selectedPixel.pixel_status ===
+                    "reserved" && (
+                    <>
+                      <div className="mars-pixel-detail__commercial">
+                        NOT FOR SALE
+                      </div>
+
+                      {selectedPixel.reserved_zone_name && (
+                        <div className="mars-pixel-detail__meta">
+                          <span>
+                            RESERVED ZONE
+                          </span>
+                          <strong>
+                            {
+                              selectedPixel.reserved_zone_name
+                            }
+                          </strong>
+                        </div>
+                      )}
+
+                      {selectedPixel.reserved_zone_code && (
+                        <div className="mars-pixel-detail__meta">
+                          <span>
+                            ZONE CODE
+                          </span>
+                          <strong>
+                            {
+                              selectedPixel.reserved_zone_code
+                            }
+                          </strong>
+                        </div>
+                      )}
+                    </>
+                  )}
+
+                  {selectedPixel.pixel_status ===
+                    "owned" && (
+                    <>
+                      {selectedPixel.advertiser_name && (
+                        <div className="mars-pixel-detail__meta">
+                          <span>
+                            OWNER
+                          </span>
+                          <strong>
+                            {
+                              selectedPixel.advertiser_name
+                            }
+                          </strong>
+                        </div>
+                      )}
+
+                      {selectedPixel.creative_title && (
+                        <div className="mars-pixel-detail__meta">
+                          <span>
+                            CREATIVE
+                          </span>
+                          <strong>
+                            {
+                              selectedPixel.creative_title
+                            }
+                          </strong>
+                        </div>
+                      )}
+                    </>
+                  )}
+
+                  <div className="mars-pixel-detail__grid">
+                    GRID V
+                    {selectedPixel.grid_version}
+                  </div>
+                </>
+              )}
+          </aside>
+        )}
+
       <Canvas
         className="mars-planet-map__canvas"
         camera={{
@@ -891,6 +1120,7 @@ export function MarsPlanetMap({
         }}
       >
         <MarsScene
+          onPixelSelect={handlePixelSelect}
           sectors={sectors}
           currentSectorId={
             currentSectorId
