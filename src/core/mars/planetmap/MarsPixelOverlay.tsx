@@ -53,6 +53,14 @@ type MarsPixelOverlayProps = {
     coordinate: MarsPixelCoordinate,
     allocation: MarsPixelPublicAllocation | null,
   ) => void;
+  onPixelHover?: (
+    coordinate: {
+      x: number;
+      y: number;
+      blockX: number;
+      blockY: number;
+    } | null,
+  ) => void;
 };
 
 function allocationColor(
@@ -104,6 +112,7 @@ export function MarsPixelOverlay({
   onAresEnter,
   selectedPixel = null,
   onPixelSelect,
+  onPixelHover,
 }: MarsPixelOverlayProps) {
   const texture = useMemo(() => {
     const data = new Uint8Array(
@@ -479,12 +488,21 @@ export function MarsPixelOverlay({
           block.blockX,
           block.blockY,
         );
+
+        onPixelHover?.({
+          x: coordinate.x,
+          y: coordinate.y,
+          blockX: block.blockX,
+          blockY: block.blockY,
+        });
       }}
       onPointerOut={() => {
         materialRef.current?.uniforms.hoveredBlock.value.set(
           -1,
           -1,
         );
+
+        onPixelHover?.(null);
       }}
       onClick={(
         event: ThreeEvent<MouseEvent>,
@@ -707,7 +725,7 @@ export function MarsPixelOverlay({
               max(
                 majorGrid * 0.065,
                 max(
-                  blockGrid * 0.038,
+                  blockGrid * 0.11,
                   pixelGrid * 0.014
                 )
               );

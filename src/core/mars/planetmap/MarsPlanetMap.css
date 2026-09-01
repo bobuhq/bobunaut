@@ -2694,3 +2694,51 @@
     width: calc(100% - 24px);
   }
 }
+
+
+.mars-planet-map__coordinate-hud {
+  position: absolute;
+  left: 18px;
+  bottom: 18px;
+  z-index: 11;
+  display: grid;
+  min-width: 154px;
+  padding: 10px 12px;
+  gap: 3px;
+  border: 1px solid rgba(99, 245, 255, 0.2);
+  border-radius: 10px;
+  background: rgba(3, 8, 18, 0.72);
+  box-shadow:
+    0 12px 34px rgba(0, 0, 0, 0.28),
+    inset 0 0 22px rgba(99, 245, 255, 0.025);
+  backdrop-filter: blur(10px);
+  color: #f5fbff;
+  pointer-events: none;
+}
+
+.mars-planet-map__coordinate-hud span {
+  color: rgba(99, 245, 255, 0.66);
+  font-size: 7px;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+}
+
+.mars-planet-map__coordinate-hud strong {
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
+.mars-planet-map__coordinate-hud small {
+  color: rgba(255, 255, 255, 0.46);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+@media (max-width: 680px) {
+  .mars-planet-map__coordinate-hud {
+    left: 12px;
+    bottom: 12px;
+  }
+}

@@ -92,6 +92,14 @@ type MarsPlanetSceneProps = Omit<
     x: number;
     y: number;
   }) => void;
+  onPixelHover: (
+    coordinate: {
+      x: number;
+      y: number;
+      blockX: number;
+      blockY: number;
+    } | null,
+  ) => void;
 };
 
 type SectorMarkerProps = {
@@ -761,6 +769,16 @@ export function MarsPlanetMap({
   >([]);
 
   const [
+    hoveredPixelCoordinate,
+    setHoveredPixelCoordinate,
+  ] = useState<{
+    x: number;
+    y: number;
+    blockX: number;
+    blockY: number;
+  } | null>(null);
+
+  const [
     pixelNetworkError,
     setPixelNetworkError,
   ] = useState(false);
@@ -981,6 +999,25 @@ export function MarsPlanetMap({
       </div>
 
       {!diving &&
+        hoveredPixelCoordinate && (
+          <div
+            className="mars-planet-map__coordinate-hud"
+            aria-hidden="true"
+          >
+            <span>MARS GRID</span>
+            <strong>
+              X {hoveredPixelCoordinate.x}
+              {" · "}
+              Y {hoveredPixelCoordinate.y}
+            </strong>
+            <small>
+              BLOCK {hoveredPixelCoordinate.blockX} /{" "}
+              {hoveredPixelCoordinate.blockY}
+            </small>
+          </div>
+        )}
+
+      {!diving &&
         (selectedPixelLoading ||
           selectedPixel !== null ||
           selectedPixelError !== null) && (
@@ -1185,6 +1222,7 @@ export function MarsPlanetMap({
               : null
           }
           onPixelSelect={handlePixelSelect}
+          onPixelHover={setHoveredPixelCoordinate}
           sectors={sectors}
           currentSectorId={
             currentSectorId
