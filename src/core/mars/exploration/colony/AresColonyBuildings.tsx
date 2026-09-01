@@ -15,21 +15,17 @@ import {
   createVerifiedMarsBuildingInstances,
 } from "../../colonyworld/engine/MarsBuildingAdapter";
 
-import {
-  marsGridToWorld,
-} from "../../colonyworld/engine";
-
 import MarsColonyBuildingModel from "../../colonyworld/models/MarsColonyBuildingModel";
-
-import {
-  ARES_COMMAND_HUB_POSITION,
-} from "../commandhub/AresCommandHubCollision";
 
 import {
   loadAresGenesisTerrainData,
   sampleAresGenesisGameplaySurfaceMeters,
   type AresGenesisTerrainData,
 } from "../engine/AresGenesisTerrainData";
+
+import {
+  aresColonyGridToWorld,
+} from "./AresColonyCoordinateSystem";
 
 type Props = {
   refreshKey: number;
@@ -153,21 +149,16 @@ export default function AresColonyBuildings({
               ? building.footprintWidth
               : building.footprintDepth;
 
-          const local =
-            marsGridToWorld(
+          const world =
+            aresColonyGridToWorld(
               building.gridX,
               building.gridZ,
               width,
               depth,
             );
 
-          const worldX =
-            ARES_COMMAND_HUB_POSITION.x +
-            local.x;
-
-          const worldZ =
-            ARES_COMMAND_HUB_POSITION.z +
-            local.z;
+          const worldX = world.x;
+          const worldZ = world.z;
 
           const terrainY =
             sampleAresGenesisGameplaySurfaceMeters(

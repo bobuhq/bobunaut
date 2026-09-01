@@ -36,7 +36,6 @@ import {
 } from "../../colonyworld/engine/MarsBuildingAdapter";
 
 import {
-  marsGridToWorld,
   validateMarsPlacement,
 } from "../../colonyworld/engine";
 
@@ -45,6 +44,12 @@ import MarsColonyBuildingModel from "../../colonyworld/models/MarsColonyBuilding
 import {
   ARES_COMMAND_HUB_POSITION,
 } from "../commandhub/AresCommandHubCollision";
+
+import {
+  aresColonyFootprintMeters,
+  aresColonyGridToWorld,
+  aresWorldToColonyGridPoint,
+} from "./AresColonyCoordinateSystem";
 
 import {
   loadAresGenesisTerrainData,
@@ -73,22 +78,12 @@ function gridWorldPosition(
   footprintWidth: number,
   footprintDepth: number,
 ) {
-  const local =
-    marsGridToWorld(
-      gridX,
-      gridZ,
-      footprintWidth,
-      footprintDepth,
-    );
-
-  return {
-    x:
-      ARES_COMMAND_HUB_POSITION.x +
-      local.x,
-    z:
-      ARES_COMMAND_HUB_POSITION.z +
-      local.z,
-  };
+  return aresColonyGridToWorld(
+    gridX,
+    gridZ,
+    footprintWidth,
+    footprintDepth,
+  );
 }
 
 export default function AresColonyPlacement({
@@ -262,6 +257,17 @@ export default function AresColonyPlacement({
         1,
       );
 
+    const target =
+      targetRef.current;
+
+    const builderGrid =
+      target
+        ? aresWorldToColonyGridPoint(
+            target.position.x,
+            target.position.z,
+          )
+        : null;
+
     const candidates: Array<{
       gridX: number;
       gridZ: number;
@@ -284,12 +290,34 @@ export default function AresColonyPlacement({
           1;
         gridX += 1
       ) {
+        const candidateWorld =
+          aresColonyGridToWorld(
+            gridX,
+            gridZ,
+            footprintWidth,
+            footprintDepth,
+          );
+
+        const distance =
+          target
+            ? Math.hypot(
+                candidateWorld.x -
+                  target.position.x,
+                candidateWorld.z -
+                  target.position.z,
+              )
+            : builderGrid
+              ? Math.hypot(
+                  gridX - builderGrid.gridX,
+                  gridZ - builderGrid.gridZ,
+                )
+              : Math.abs(gridX) +
+                Math.abs(gridZ);
+
         candidates.push({
           gridX,
           gridZ,
-          distance:
-            Math.abs(gridX) +
-            Math.abs(gridZ),
+          distance,
         });
       }
     }
@@ -456,6 +484,12 @@ export default function AresColonyPlacement({
 
   const builderNearPlacement =
     builderDistanceFromPreview <= 18;
+
+  const footprintMeters =
+    aresColonyFootprintMeters(
+      width,
+      depth,
+    );
 
   function move(
     dx: number,
@@ -748,41 +782,112 @@ export default function AresColonyPlacement({
 
   return (
     <>
-      <mesh
+      <group
         position={[
           world.x,
-          terrainY + 0.035,
+          terrainY + 0.04,
           world.z,
         ]}
-        rotation={[
-          -Math.PI / 2,
-          0,
-          0,
-        ]}
       >
-        <planeGeometry
-          args={[
-            width * 1.35 * 0.96,
-            depth * 1.35 * 0.96,
-          ]}
-        />
-        <meshBasicMaterial
-          color={
-            validation.valid && !error
-              ? "#d28cff"
-              : "#ff334f"
-          }
-          transparent
-          opacity={
-            validation.valid && !error
-              ? 0.32
-              : 0.44
-          }
-          depthWrite={false}
-        />
-      </mesh>
+        {Array.from(
+          {
+            length:
+              Math.max(width, 1) *
+              Math.max(depth, 1),
+          },
+          (_, index) => {
+            const cellX =
+              index % Math.max(width, 1);
+
+            const cellZ =
+              Math.floor(
+                index / Math.max(width, 1),
+              );
+
+            const x =
+              (
+                cellX -
+                (Math.max(width, 1) - 1) / 2
+              ) *
+              (
+                footprintMeters.width /
+                Math.max(width, 1)
+              );
+
+            const z =
+              (
+                cellZ -
+                (Math.max(depth, 1) - 1) / 2
+              ) *
+              (
+                footprintMeters.depth /
+                Math.max(depth, 1)
+              );
+
+            const cellWidth =
+              footprintMeters.width /
+              Math.max(width, 1);
+
+            const cellDepth =
+              footprintMeters.depth /
+              Math.max(depth, 1);
+
+            return (
+              <mesh
+                key={`${cellX}:${cellZ}`}
+                position={[
+                  x,
+                  0,
+                  z,
+                ]}
+                rotation={[
+                  -Math.PI / 2,
+                  0,
+                  0,
+                ]}
+              >
+                <ringGeometry
+                  args={[
+                    Math.max(
+                      Math.min(
+                        cellWidth,
+                        cellDepth,
+                      ) * 0.42,
+                      0.1,
+                    ),
+                    Math.max(
+                      Math.min(
+                        cellWidth,
+                        cellDepth,
+                      ) * 0.47,
+                      0.12,
+                    ),
+                    4,
+                  ]}
+                />
+                <meshBasicMaterial
+                  color={
+                    validation.valid && !error
+                      ? "#d28cff"
+                      : "#ff334f"
+                  }
+                  transparent
+                  opacity={
+                    validation.valid && !error
+                      ? 0.42
+                      : 0.58
+                  }
+                  depthWrite={false}
+                  side={THREE.DoubleSide}
+                />
+              </mesh>
+            );
+          },
+        )}
+      </group>
 
       <group
+
         position={[
           world.x,
           terrainY + 0.05,
