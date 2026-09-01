@@ -13,9 +13,14 @@ import * as THREE from "three";
 import {
   ARES_GENESIS_SAFE_BOUNDARY_METERS,
   loadAresGenesisTerrainData,
-  sampleAresGenesisGameplaySurfaceMeters,
+  sampleAresGenesisRenderedSurfaceMeters,
   type AresGenesisTerrainData,
 } from "../engine/AresGenesisTerrainData";
+
+import {
+  isAresCommandHubStairPosition,
+  sampleAresCommandHubWalkableSurfaceMeters,
+} from "../commandhub/AresCommandHubWalkableSurface";
 
 import {
   createEmptyMarsMovementInput,
@@ -50,6 +55,7 @@ type BobuCharacterControllerProps = {
   boundary?: number;
   characterRef?: React.RefObject<THREE.Group | null>;
   collisionObstacles?: MarsCollisionObstacle[];
+  stairStateRef?: React.MutableRefObject<boolean>;
 };
 
 const KEY_TO_INPUT: Record<
@@ -76,6 +82,7 @@ export function BobuCharacterController({
     ARES_GENESIS_SAFE_BOUNDARY_METERS,
   characterRef,
   collisionObstacles = [],
+  stairStateRef,
 }: BobuCharacterControllerProps) {
   const internalGroupRef =
     useRef<THREE.Group | null>(null);
@@ -490,6 +497,14 @@ export function BobuCharacterController({
         safeZ;
     }
 
+    if (stairStateRef) {
+      stairStateRef.current =
+        isAresCommandHubStairPosition(
+          group.position.x,
+          group.position.z,
+        );
+    }
+
     const terrain =
       terrainDataRef.current;
 
@@ -498,14 +513,14 @@ export function BobuCharacterController({
         0.34;
 
       const centerGround =
-        sampleAresGenesisGameplaySurfaceMeters(
+        sampleAresGenesisRenderedSurfaceMeters(
           terrain,
           group.position.x,
           group.position.z,
         );
 
       const frontGround =
-        sampleAresGenesisGameplaySurfaceMeters(
+        sampleAresGenesisRenderedSurfaceMeters(
           terrain,
           group.position.x,
           group.position.z +
@@ -513,7 +528,7 @@ export function BobuCharacterController({
         );
 
       const backGround =
-        sampleAresGenesisGameplaySurfaceMeters(
+        sampleAresGenesisRenderedSurfaceMeters(
           terrain,
           group.position.x,
           group.position.z -
@@ -521,7 +536,7 @@ export function BobuCharacterController({
         );
 
       const leftGround =
-        sampleAresGenesisGameplaySurfaceMeters(
+        sampleAresGenesisRenderedSurfaceMeters(
           terrain,
           group.position.x -
             FOOT_SAMPLE_RADIUS,
@@ -529,20 +544,63 @@ export function BobuCharacterController({
         );
 
       const rightGround =
-        sampleAresGenesisGameplaySurfaceMeters(
+        sampleAresGenesisRenderedSurfaceMeters(
           terrain,
           group.position.x +
             FOOT_SAMPLE_RADIUS,
           group.position.z,
         );
 
-      const groundHeight =
+      const terrainGround =
         Math.max(
           centerGround,
           frontGround,
           backGround,
           leftGround,
           rightGround,
+        );
+
+      const hubGroundSamples = [
+        sampleAresCommandHubWalkableSurfaceMeters(
+          terrain,
+          group.position.x,
+          group.position.z,
+        ),
+        sampleAresCommandHubWalkableSurfaceMeters(
+          terrain,
+          group.position.x,
+          group.position.z +
+            FOOT_SAMPLE_RADIUS,
+        ),
+        sampleAresCommandHubWalkableSurfaceMeters(
+          terrain,
+          group.position.x,
+          group.position.z -
+            FOOT_SAMPLE_RADIUS,
+        ),
+        sampleAresCommandHubWalkableSurfaceMeters(
+          terrain,
+          group.position.x -
+            FOOT_SAMPLE_RADIUS,
+          group.position.z,
+        ),
+        sampleAresCommandHubWalkableSurfaceMeters(
+          terrain,
+          group.position.x +
+            FOOT_SAMPLE_RADIUS,
+          group.position.z,
+        ),
+      ].filter(
+        (
+          value,
+        ): value is number =>
+          value !== null,
+      );
+
+      const groundHeight =
+        Math.max(
+          terrainGround,
+          ...hubGroundSamples,
         ) + 0.09;
 
       if (!groundedRef.current) {

@@ -15,6 +15,7 @@ import {
   ARES_GENESIS_SURFACE_TEXTURE_URL,
   loadAresGenesisTerrainData,
   sampleAresGenesisGameplaySurfaceMeters,
+  ARES_GENESIS_RENDER_SEGMENTS,
   type AresGenesisTerrainData,
 } from "../engine/AresGenesisTerrainData";
 
@@ -402,8 +403,8 @@ export function MarsExplorationTerrain() {
         new THREE.PlaneGeometry(
           ARES_GENESIS_SIZE_METERS,
           ARES_GENESIS_SIZE_METERS,
-          1024,
-          1024,
+          ARES_GENESIS_RENDER_SEGMENTS,
+          ARES_GENESIS_RENDER_SEGMENTS,
         );
 
       next.rotateX(

@@ -323,20 +323,30 @@ export function AresMissionTerminal({
 
       {isNear && (
         <Html
-          fullscreen
-          style={{
-            pointerEvents: "none",
-          }}
+          center
+          position={[
+            0,
+            2.05,
+            0.8,
+          ]}
+          distanceFactor={6}
         >
           <div
             style={{
-              position: "fixed",
-              top: "88px",
-              right: "24px",
-              width: "210px",
-              maxWidth: "calc(100vw - 48px)",
-              zIndex: 240,
-              pointerEvents: "auto",
+              width: "260px",
+              padding: "12px 14px",
+              border:
+                "1px solid rgba(177,108,235,.45)",
+              borderRadius: "12px",
+              background:
+                "rgba(6,6,14,.9)",
+              boxShadow:
+                "0 0 30px rgba(112,46,170,.22)",
+              color: "#fff",
+              fontFamily:
+                "Inter, system-ui, sans-serif",
+              textAlign: "left",
+              pointerEvents: "none",
             }}
           >
           {!mission && !error && (

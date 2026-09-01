@@ -9,6 +9,10 @@ import {
   useGLTF,
 } from "@react-three/drei";
 
+import {
+  useFrame,
+} from "@react-three/fiber";
+
 import * as THREE from "three";
 
 const BOBU_EXPLORER_MODEL_URL =
@@ -31,7 +35,14 @@ const MOVEMENT_KEYS =
     "ArrowRight",
   ]);
 
-export function BobuCharacterVisual() {
+type BobuCharacterVisualProps = {
+  stairStateRef?:
+    React.MutableRefObject<boolean>;
+};
+
+export function BobuCharacterVisual({
+  stairStateRef,
+}: BobuCharacterVisualProps) {
   const gltf =
     useGLTF(
       BOBU_EXPLORER_MODEL_URL,
@@ -64,6 +75,27 @@ export function BobuCharacterVisual() {
   const activeAnimationRef =
     useRef<BobuAnimationName | null>(
       null,
+    );
+
+  const stairPhaseRef =
+    useRef(0);
+
+  const legLeft =
+    useMemo(
+      () =>
+        scene.getObjectByName(
+          "Leg_L",
+        ),
+      [scene],
+    );
+
+  const legRight =
+    useMemo(
+      () =>
+        scene.getObjectByName(
+          "Leg_R",
+        ),
+      [scene],
     );
 
   useEffect(() => {
@@ -260,6 +292,90 @@ export function BobuCharacterVisual() {
     actions,
     names,
   ]);
+
+  useFrame(
+    (
+      _state,
+      delta,
+    ) => {
+      const onStairs =
+        stairStateRef?.current === true;
+
+      const moving =
+        pressedMovementKeys.current
+          .size > 0;
+
+      if (
+        !legLeft ||
+        !legRight
+      ) {
+        return;
+      }
+
+      if (
+        onStairs &&
+        moving
+      ) {
+        stairPhaseRef.current +=
+          delta *
+          (
+            runningRef.current
+              ? 9
+              : 6.5
+          );
+
+        const phase =
+          stairPhaseRef.current;
+
+        const leftLift =
+          Math.max(
+            0,
+            Math.sin(
+              phase,
+            ),
+          );
+
+        const rightLift =
+          Math.max(
+            0,
+            Math.sin(
+              phase +
+                Math.PI,
+            ),
+          );
+
+        const leftTarget =
+          leftLift * 0.48;
+
+        const rightTarget =
+          rightLift * 0.48;
+
+        legLeft.rotation.x =
+          THREE.MathUtils.lerp(
+            legLeft.rotation.x,
+            leftTarget,
+            Math.min(
+              1,
+              delta * 14,
+            ),
+          );
+
+        legRight.rotation.x =
+          THREE.MathUtils.lerp(
+            legRight.rotation.x,
+            rightTarget,
+            Math.min(
+              1,
+              delta * 14,
+            ),
+          );
+
+        return;
+      }
+
+      stairPhaseRef.current = 0;
+    },
+  );
 
   return (
     <group

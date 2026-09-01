@@ -186,6 +186,9 @@ function MarsExploreScene({
       null,
     );
 
+  const bobuStairStateRef =
+    useRef(false);
+
   const [
     hiddenMission,
     setHiddenMission,
@@ -350,6 +353,9 @@ function MarsExploreScene({
 
       <BobuCharacterController
         characterRef={bobuRef}
+        stairStateRef={
+          bobuStairStateRef
+        }
         startPosition={[
           0,
           0,
@@ -365,7 +371,11 @@ function MarsExploreScene({
           },
         ]}
       >
-        <BobuCharacterVisual />
+        <BobuCharacterVisual
+          stairStateRef={
+            bobuStairStateRef
+          }
+        />
       </BobuCharacterController>
 
       <MarsFollowCamera

@@ -29,6 +29,13 @@ import {
 } from "./AresCommandHubCollision";
 
 import {
+  ARES_COMMAND_HUB_ENTRY_PLATFORM_LOCAL_Y,
+  ARES_COMMAND_HUB_STAIR_COUNT,
+  ARES_COMMAND_HUB_STAIR_DEPTH,
+  ARES_COMMAND_HUB_STAIR_WIDTH,
+} from "./AresCommandHubWalkableSurface";
+
+import {
   AresMissionTerminal,
 } from "../missions/AresMissionTerminal";
 import {
@@ -1616,6 +1623,78 @@ function CommandShipShell() {
   );
 }
 
+function CommandHubEntranceStairs() {
+  const stepDepth =
+    ARES_COMMAND_HUB_STAIR_DEPTH /
+    ARES_COMMAND_HUB_STAIR_COUNT;
+
+  return (
+    <group>
+      {Array.from({
+        length:
+          ARES_COMMAND_HUB_STAIR_COUNT,
+      }).map(
+        (
+          _,
+          index,
+        ) => {
+          const progress =
+            (
+              index + 1
+            ) /
+            ARES_COMMAND_HUB_STAIR_COUNT;
+
+          const height =
+            Math.max(
+              0.04,
+              ARES_COMMAND_HUB_ENTRY_PLATFORM_LOCAL_Y *
+                progress,
+            );
+
+          const z =
+            ARES_COMMAND_HUB_DEPTH /
+              2 +
+            ARES_COMMAND_HUB_STAIR_DEPTH -
+            stepDepth *
+              (
+                index +
+                0.5
+              );
+
+          return (
+            <mesh
+              key={index}
+              position={[
+                0,
+                height / 2,
+                z,
+              ]}
+              receiveShadow
+              castShadow
+            >
+              <boxGeometry
+                args={[
+                  ARES_COMMAND_HUB_STAIR_WIDTH,
+                  height,
+                  stepDepth +
+                    0.04,
+                ]}
+              />
+
+              <meshPhysicalMaterial
+                color="#c9cdd4"
+                metalness={0.86}
+                roughness={0.22}
+                clearcoat={0.82}
+              />
+            </mesh>
+          );
+        },
+      )}
+    </group>
+  );
+}
+
 function ExteriorFacility() {
   return (
     <group>
@@ -1958,6 +2037,8 @@ export function AresCommandHub({
       </mesh>
 
       <ExteriorFacility />
+
+      <CommandHubEntranceStairs />
 
       <group
         position={[

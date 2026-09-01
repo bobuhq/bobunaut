@@ -581,20 +581,33 @@ export function AresResearchTerminal({
 
       {isNear && (
         <Html
-          fullscreen
-          style={{
-            pointerEvents: "none",
-          }}
+          center
+          position={[
+            0,
+            2.85,
+            0.2,
+          ]}
+          distanceFactor={6}
         >
           <div
             style={{
-              position: "fixed",
-              top: "88px",
-              right: "24px",
-              width: "215px",
-              maxWidth: "calc(100vw - 48px)",
-              zIndex: 240,
-              pointerEvents: "auto",
+              width: "290px",
+              padding: "14px 16px",
+              border:
+                researchReady
+                  ? "1px solid rgba(99,245,255,.5)"
+                  : "1px solid rgba(126,159,164,.28)",
+              borderRadius: "12px",
+              background:
+                "rgba(5,10,14,.94)",
+              color: "#ffffff",
+              fontFamily:
+                "Inter, system-ui, sans-serif",
+              boxShadow:
+                researchReady
+                  ? "0 0 28px rgba(43,218,235,.14)"
+                  : "0 8px 26px rgba(0,0,0,.32)",
+              pointerEvents: "none",
             }}
           >
           <div

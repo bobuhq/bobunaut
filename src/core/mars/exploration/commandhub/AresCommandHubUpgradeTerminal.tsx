@@ -214,19 +214,28 @@ export function AresCommandHubUpgradeTerminal({
 
       {nearby && (
         <Html
-          fullscreen
-          style={{
-            pointerEvents: "none",
-          }}
+          center
+          position={[
+            0,
+            1.85,
+            0,
+          ]}
+          distanceFactor={7}
         >
           <div
             style={{
-              position: "fixed",
-              top: "88px",
-              right: "24px",
-              width: "210px",
-              maxWidth: "calc(100vw - 48px)",
-              zIndex: 240,
+              width: "260px",
+              padding: "14px",
+              border:
+                "1px solid rgba(186,120,255,.75)",
+              borderRadius: "12px",
+              background:
+                "rgba(12,10,20,.94)",
+              color: "#fff",
+              fontFamily:
+                "Inter, sans-serif",
+              boxShadow:
+                "0 0 30px rgba(128,54,190,.3)",
               pointerEvents: "auto",
             }}
           >

@@ -472,3 +472,109 @@ export function sampleAresGenesisGameplaySurfaceMeters(
     )
   );
 }
+
+
+export const ARES_GENESIS_RENDER_SEGMENTS = 1024;
+
+export function sampleAresGenesisRenderedSurfaceMeters(
+  terrain: AresGenesisTerrainData,
+  worldX: number,
+  worldZ: number,
+): number {
+  const segmentSize =
+    ARES_GENESIS_SIZE_METERS /
+    ARES_GENESIS_RENDER_SEGMENTS;
+
+  const halfSize =
+    ARES_GENESIS_SIZE_METERS / 2;
+
+  const gridX =
+    THREE.MathUtils.clamp(
+      (worldX + halfSize) /
+        segmentSize,
+      0,
+      ARES_GENESIS_RENDER_SEGMENTS,
+    );
+
+  const gridZ =
+    THREE.MathUtils.clamp(
+      (worldZ + halfSize) /
+        segmentSize,
+      0,
+      ARES_GENESIS_RENDER_SEGMENTS,
+    );
+
+  const column =
+    Math.min(
+      ARES_GENESIS_RENDER_SEGMENTS - 1,
+      Math.floor(gridX),
+    );
+
+  const row =
+    Math.min(
+      ARES_GENESIS_RENDER_SEGMENTS - 1,
+      Math.floor(gridZ),
+    );
+
+  const tx =
+    gridX - column;
+
+  const tz =
+    gridZ - row;
+
+  const x0 =
+    -halfSize +
+    column * segmentSize;
+
+  const x1 =
+    x0 + segmentSize;
+
+  const z0 =
+    -halfSize +
+    row * segmentSize;
+
+  const z1 =
+    z0 + segmentSize;
+
+  const h00 =
+    sampleAresGenesisGameplaySurfaceMeters(
+      terrain,
+      x0,
+      z0,
+    );
+
+  const h10 =
+    sampleAresGenesisGameplaySurfaceMeters(
+      terrain,
+      x1,
+      z0,
+    );
+
+  const h01 =
+    sampleAresGenesisGameplaySurfaceMeters(
+      terrain,
+      x0,
+      z1,
+    );
+
+  const h11 =
+    sampleAresGenesisGameplaySurfaceMeters(
+      terrain,
+      x1,
+      z1,
+    );
+
+  if (tx + tz <= 1) {
+    return (
+      h00 +
+      tx * (h10 - h00) +
+      tz * (h01 - h00)
+    );
+  }
+
+  return (
+    h11 +
+    (1 - tx) * (h01 - h11) +
+    (1 - tz) * (h10 - h11)
+  );
+}
