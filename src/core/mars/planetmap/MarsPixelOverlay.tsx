@@ -218,7 +218,7 @@ export function MarsPixelOverlay({
         y: Math.min(
           19,
           Math.floor(
-            (1 - clampedY) * 20,
+            clampedY * 20,
           ),
         ),
       };
@@ -290,10 +290,7 @@ export function MarsPixelOverlay({
 
           const majorCellY =
             Math.floor(
-              (
-                1 -
-                coordinate.y / gridHeight
-              ) * 20,
+              (coordinate.y / gridHeight) * 20,
             );
 
           if (
@@ -410,7 +407,7 @@ export function MarsPixelOverlay({
             vec2 canonicalUv =
               vec2(
                 fract(vUv.x + 0.25),
-                vUv.y
+                1.0 - vUv.y
               );
 
             float nearFactor =
