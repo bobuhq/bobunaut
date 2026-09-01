@@ -12,6 +12,7 @@ import {
   SRGBColorSpace,
   UnsignedByteType,
   ShaderMaterial,
+  Vector2,
 } from "three";
 import {
   useFrame,
@@ -21,9 +22,12 @@ import type {
 } from "@react-three/fiber";
 import type {
   MarsPixelPublicAllocation,
+  MarsPixelPublicReservedZone,
 } from "../MarsPixelNetworkService";
 
 import {
+  MARS_PIXEL_SALE_BLOCK_SIZE,
+  marsPixelToBlockCoordinateV1,
   marsPixelXToTextureXv1,
   marsPixelYToTextureYv1,
   marsUvToPixelCoordinateV1,
@@ -39,10 +43,12 @@ type MarsPixelOverlayProps = {
   gridHeight: number;
   gridVersion: number;
   allocations: MarsPixelPublicAllocation[];
+  reservedZones: MarsPixelPublicReservedZone[];
   visible: boolean;
   aresMapX?: number | null;
   aresMapY?: number | null;
   onAresEnter?: () => void;
+  selectedPixel?: MarsPixelCoordinate | null;
   onPixelSelect?: (
     coordinate: MarsPixelCoordinate,
     allocation: MarsPixelPublicAllocation | null,
@@ -91,10 +97,12 @@ export function MarsPixelOverlay({
   gridHeight,
   gridVersion,
   allocations,
+  reservedZones,
   visible,
   aresMapX = null,
   aresMapY = null,
   onAresEnter,
+  selectedPixel = null,
   onPixelSelect,
 }: MarsPixelOverlayProps) {
   const texture = useMemo(() => {
@@ -189,6 +197,165 @@ export function MarsPixelOverlay({
     [texture],
   );
 
+  const blockStatusTexture = useMemo(() => {
+    const blockWidth =
+      Math.ceil(
+        gridWidth /
+          MARS_PIXEL_SALE_BLOCK_SIZE,
+      );
+
+    const blockHeight =
+      Math.ceil(
+        gridHeight /
+          MARS_PIXEL_SALE_BLOCK_SIZE,
+      );
+
+    const data = new Uint8Array(
+      blockWidth * blockHeight * 4,
+    );
+
+    const paintRegion = (
+      xStart: number,
+      yStart: number,
+      width: number,
+      height: number,
+      status: number,
+    ) => {
+      if (
+        width <= 0 ||
+        height <= 0
+      ) {
+        return;
+      }
+
+      const xEnd =
+        Math.min(
+          gridWidth - 1,
+          xStart + width - 1,
+        );
+
+      const yEnd =
+        Math.min(
+          gridHeight - 1,
+          yStart + height - 1,
+        );
+
+      const blockXStart =
+        Math.max(
+          0,
+          Math.floor(
+            xStart /
+              MARS_PIXEL_SALE_BLOCK_SIZE,
+          ),
+        );
+
+      const blockYStart =
+        Math.max(
+          0,
+          Math.floor(
+            yStart /
+              MARS_PIXEL_SALE_BLOCK_SIZE,
+          ),
+        );
+
+      const blockXEnd =
+        Math.min(
+          blockWidth - 1,
+          Math.floor(
+            xEnd /
+              MARS_PIXEL_SALE_BLOCK_SIZE,
+          ),
+        );
+
+      const blockYEnd =
+        Math.min(
+          blockHeight - 1,
+          Math.floor(
+            yEnd /
+              MARS_PIXEL_SALE_BLOCK_SIZE,
+          ),
+        );
+
+      for (
+        let blockY = blockYStart;
+        blockY <= blockYEnd;
+        blockY += 1
+      ) {
+        for (
+          let blockX = blockXStart;
+          blockX <= blockXEnd;
+          blockX += 1
+        ) {
+          const textureY =
+            blockHeight -
+            1 -
+            blockY;
+
+          const offset =
+            (
+              textureY * blockWidth +
+              blockX
+            ) * 4;
+
+          data[offset] = status;
+          data[offset + 1] = 0;
+          data[offset + 2] = 0;
+          data[offset + 3] = 255;
+        }
+      }
+    };
+
+    for (const allocation of allocations) {
+      paintRegion(
+        allocation.x_start,
+        allocation.y_start,
+        allocation.width,
+        allocation.height,
+        2,
+      );
+    }
+
+    for (const zone of reservedZones) {
+      paintRegion(
+        zone.x_start,
+        zone.y_start,
+        zone.width,
+        zone.height,
+        1,
+      );
+    }
+
+    const nextTexture = new DataTexture(
+      data,
+      blockWidth,
+      blockHeight,
+      RGBAFormat,
+      UnsignedByteType,
+    );
+
+    nextTexture.wrapS = ClampToEdgeWrapping;
+    nextTexture.wrapT = ClampToEdgeWrapping;
+    nextTexture.magFilter = NearestFilter;
+    nextTexture.minFilter = NearestFilter;
+    nextTexture.generateMipmaps = false;
+    nextTexture.flipY = false;
+    nextTexture.needsUpdate = true;
+
+    return nextTexture;
+  }, [
+    allocations,
+    gridHeight,
+    gridWidth,
+    reservedZones,
+  ]);
+
+  useEffect(
+    () => () => {
+      blockStatusTexture.dispose();
+    },
+    [blockStatusTexture],
+  );
+
   const aresMajorCell =
     useMemo(() => {
       if (
@@ -232,6 +399,30 @@ export function MarsPixelOverlay({
   const materialRef =
     useRef<ShaderMaterial | null>(null);
 
+  const selectedBlock = useMemo(
+    () =>
+      selectedPixel
+        ? marsPixelToBlockCoordinateV1(
+            selectedPixel.x,
+            selectedPixel.y,
+          )
+        : null,
+    [selectedPixel],
+  );
+
+  useEffect(() => {
+    const material = materialRef.current;
+
+    if (!material) {
+      return;
+    }
+
+    material.uniforms.selectedBlock.value.set(
+      selectedBlock?.blockX ?? -1,
+      selectedBlock?.blockY ?? -1,
+    );
+  }, [selectedBlock]);
+
   useFrame(({ camera }) => {
     const material =
       materialRef.current;
@@ -245,6 +436,9 @@ export function MarsPixelOverlay({
 
     material.uniforms.cameraDistance.value =
       distance;
+
+    material.uniforms.time.value =
+      performance.now() * 0.001;
   });
 
   if (
@@ -256,6 +450,42 @@ export function MarsPixelOverlay({
 
   return (
     <mesh
+      onPointerMove={(
+        event: ThreeEvent<PointerEvent>,
+      ) => {
+        const uv = event.uv;
+
+        if (!uv) {
+          return;
+        }
+
+        event.stopPropagation();
+
+        const coordinate =
+          marsUvToPixelCoordinateV1(
+            uv.x,
+            uv.y,
+            gridWidth,
+            gridHeight,
+          );
+
+        const block =
+          marsPixelToBlockCoordinateV1(
+            coordinate.x,
+            coordinate.y,
+          );
+
+        materialRef.current?.uniforms.hoveredBlock.value.set(
+          block.blockX,
+          block.blockY,
+        );
+      }}
+      onPointerOut={() => {
+        materialRef.current?.uniforms.hoveredBlock.value.set(
+          -1,
+          -1,
+        );
+      }}
       onClick={(
         event: ThreeEvent<MouseEvent>,
       ) => {
@@ -330,6 +560,9 @@ export function MarsPixelOverlay({
           allocationTexture: {
             value: texture,
           },
+          blockStatusTexture: {
+            value: blockStatusTexture,
+          },
           gridSize: {
             value: [
               gridWidth,
@@ -339,6 +572,9 @@ export function MarsPixelOverlay({
           cameraDistance: {
             value: 6.45,
           },
+          time: {
+            value: 0,
+          },
           aresMajorCell: {
             value: aresMajorCell
               ? [
@@ -346,6 +582,19 @@ export function MarsPixelOverlay({
                   aresMajorCell.y,
                 ]
               : [-1, -1],
+          },
+
+          hoveredBlock: {
+            value: new Vector2(-1, -1),
+          },
+          selectedBlock: {
+            value: new Vector2(
+              selectedBlock?.blockX ?? -1,
+              selectedBlock?.blockY ?? -1,
+            ),
+          },
+          saleBlockSize: {
+            value: MARS_PIXEL_SALE_BLOCK_SIZE,
           },
         }}
         vertexShader={`
@@ -362,9 +611,14 @@ export function MarsPixelOverlay({
         `}
         fragmentShader={`
           uniform sampler2D allocationTexture;
+          uniform sampler2D blockStatusTexture;
           uniform vec2 gridSize;
           uniform float cameraDistance;
+          uniform float time;
           uniform vec2 aresMajorCell;
+          uniform vec2 hoveredBlock;
+          uniform vec2 selectedBlock;
+          uniform float saleBlockSize;
 
           varying vec2 vUv;
 
@@ -430,14 +684,14 @@ export function MarsPixelOverlay({
               gridLayer(
                 canonicalUv,
                 vec2(20.0),
-                0.010
+                0.009
               );
 
-            float mediumGrid =
+            float blockGrid =
               gridLayer(
                 canonicalUv,
-                vec2(100.0),
-                0.010
+                gridSize / saleBlockSize,
+                0.009
               ) *
               mediumFactor;
 
@@ -445,16 +699,16 @@ export function MarsPixelOverlay({
               gridLayer(
                 canonicalUv,
                 gridSize,
-                0.055
+                0.045
               ) *
               nearFactor;
 
             float gridAlpha =
               max(
-                majorGrid * 0.12,
+                majorGrid * 0.065,
                 max(
-                  mediumGrid * 0.09,
-                  pixelGrid * 0.07
+                  blockGrid * 0.038,
+                  pixelGrid * 0.014
                 )
               );
 
@@ -500,13 +754,237 @@ export function MarsPixelOverlay({
                 isAresCell
               );
 
+            vec2 pixelCoord =
+              floor(
+                canonicalUv * gridSize
+              );
+
+            vec2 currentBlock =
+              floor(
+                pixelCoord / saleBlockSize
+              );
+
+            vec2 blockLocal =
+              fract(
+                pixelCoord / saleBlockSize
+              );
+
+            float blockEdgeDistance =
+              min(
+                min(
+                  blockLocal.x,
+                  1.0 - blockLocal.x
+                ),
+                min(
+                  blockLocal.y,
+                  1.0 - blockLocal.y
+                )
+              );
+
+            float blockBorder =
+              1.0 -
+              smoothstep(
+                0.08,
+                0.16,
+                blockEdgeDistance
+              );
+
+            float isHovered =
+              step(
+                length(
+                  currentBlock -
+                  hoveredBlock
+                ),
+                0.01
+              ) *
+              step(
+                0.0,
+                hoveredBlock.x
+              );
+
+            float isSelected =
+              step(
+                length(
+                  currentBlock -
+                  selectedBlock
+                ),
+                0.01
+              ) *
+              step(
+                0.0,
+                selectedBlock.x
+              );
+
+            vec2 blockTextureSize =
+              gridSize / saleBlockSize;
+
+            vec2 blockStatusUv =
+              (
+                currentBlock +
+                vec2(0.5)
+              ) /
+              blockTextureSize;
+
+            blockStatusUv.y =
+              1.0 - blockStatusUv.y;
+
+            float blockStatus =
+              texture2D(
+                blockStatusTexture,
+                blockStatusUv
+              ).r * 255.0;
+
+            float isReserved =
+              1.0 -
+              step(
+                0.5,
+                abs(blockStatus - 1.0)
+              );
+
+            float isOwned =
+              1.0 -
+              step(
+                0.5,
+                abs(blockStatus - 2.0)
+              );
+
+            float isAvailable =
+              1.0 -
+              max(
+                isReserved,
+                isOwned
+              );
+
+            float availablePulse =
+              0.82 +
+              sin(time * 1.65) * 0.18;
+
+            float reservedPulse =
+              0.78 +
+              sin(time * 3.4) * 0.22;
+
+            float ownedPulse =
+              0.84 +
+              sin(time * 2.15) * 0.16;
+
+            vec3 availableFill =
+              vec3(
+                0.0,
+                0.96,
+                1.0
+              );
+
+            vec3 availableEdge =
+              vec3(
+                0.0,
+                1.0,
+                0.53
+              );
+
+            vec3 reservedFill =
+              vec3(
+                1.0,
+                0.06,
+                0.14
+              );
+
+            vec3 reservedEdge =
+              vec3(
+                1.0,
+                0.38,
+                0.0
+              );
+
+            vec3 ownedFill =
+              vec3(
+                0.54,
+                0.16,
+                0.89
+              );
+
+            vec3 ownedEdge =
+              vec3(
+                1.0,
+                0.72,
+                0.08
+              );
+
+            vec3 statusFill =
+              availableFill * isAvailable +
+              reservedFill * isReserved +
+              ownedFill * isOwned;
+
+            vec3 statusEdge =
+              availableEdge * isAvailable +
+              reservedEdge * isReserved +
+              ownedEdge * isOwned;
+
+            float statusPulse =
+              availablePulse * isAvailable +
+              reservedPulse * isReserved +
+              ownedPulse * isOwned;
+
+            vec3 hoverColor =
+              mix(
+                statusFill,
+                statusEdge,
+                blockBorder * 0.82
+              );
+
+            vec3 selectedColor =
+              mix(
+                statusFill,
+                statusEdge,
+                blockBorder * 0.94
+              );
+
+            finalColor =
+              mix(
+                finalColor,
+                hoverColor,
+                isHovered *
+                  statusPulse *
+                  (
+                    0.14 +
+                    blockBorder * 0.76
+                  )
+              );
+
+            finalColor =
+              mix(
+                finalColor,
+                selectedColor,
+                isSelected *
+                  (
+                    0.18 +
+                    blockBorder * 0.88
+                  )
+              );
+
+            float interactionAlpha =
+              max(
+                isHovered *
+                  (
+                    0.18 +
+                    blockBorder * 0.72
+                  ),
+                isSelected *
+                  (
+                    0.16 +
+                    blockBorder * 0.82
+                  )
+              );
+
             float finalAlpha =
               max(
                 max(
-                  gridAlpha,
-                  allocation.a
+                  max(
+                    gridAlpha,
+                    allocation.a
+                  ),
+                  isAresCell * 0.58
                 ),
-                isAresCell * 0.58
+                interactionAlpha
               );
 
             if (

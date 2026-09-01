@@ -27,6 +27,45 @@ export type MarsPixelPublicAllocation = {
   creative_image_url: string | null;
 };
 
+export type MarsPixelPublicReservedZone = {
+  zone_code: string;
+  zone_name: string;
+  reservation_type:
+    | "system"
+    | "exploration"
+    | "protected";
+  x_start: number;
+  y_start: number;
+  width: number;
+  height: number;
+  permanent: boolean;
+};
+
+export type MarsPixelBlockDetail = {
+  block_x: number;
+  block_y: number;
+  x_start: number;
+  y_start: number;
+  x_end: number;
+  y_end: number;
+  width: number;
+  height: number;
+  pixel_count: number;
+  grid_version: number;
+  block_status:
+    | "available"
+    | "reserved"
+    | "owned";
+  purchasable: boolean;
+  reserved_zone_code: string | null;
+  reserved_zone_name: string | null;
+  allocation_id: string | null;
+  advertiser_name: string | null;
+  creative_title: string | null;
+  creative_image_url: string | null;
+  destination_url: string | null;
+};
+
 export type MarsPixelCoordinateDetail = {
   x: number;
   y: number;
@@ -93,6 +132,64 @@ export async function getMarsPixelPublicAllocations(): Promise<
       }),
     ) ?? []
   );
+}
+
+export async function getMarsPixelPublicReservedZones(): Promise<
+  MarsPixelPublicReservedZone[]
+> {
+  const { data, error } = await supabase.rpc(
+    "get_mars_pixel_public_reserved_zones",
+  );
+
+  if (error) {
+    throw error;
+  }
+
+  return (
+    (data as MarsPixelPublicReservedZone[] | null)?.map(
+      (zone) => ({
+        ...zone,
+        x_start: Number(zone.x_start),
+        y_start: Number(zone.y_start),
+        width: Number(zone.width),
+        height: Number(zone.height),
+        permanent: zone.permanent === true,
+      }),
+    ) ?? []
+  );
+}
+
+export async function getMarsPixelBlockAtCoordinate(
+  x: number,
+  y: number,
+): Promise<MarsPixelBlockDetail> {
+  const {
+    data,
+    error,
+  } = await supabase.rpc(
+    "get_mars_pixel_block_at_coordinate",
+    {
+      p_x: x,
+      p_y: y,
+    },
+  );
+
+  if (error) {
+    throw error;
+  }
+
+  const row =
+    Array.isArray(data)
+      ? data[0]
+      : data;
+
+  if (!row) {
+    throw new Error(
+      "Mars Pixel block detail was not returned.",
+    );
+  }
+
+  return row as MarsPixelBlockDetail;
 }
 
 export async function getMarsPixelAtCoordinate(

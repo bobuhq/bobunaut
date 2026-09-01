@@ -34,15 +34,17 @@ import type {
 } from "../MarsSectorService";
 
 import {
-  getMarsPixelAtCoordinate,
+  getMarsPixelBlockAtCoordinate,
   getMarsPixelNetworkStatus,
   getMarsPixelPublicAllocations,
+  getMarsPixelPublicReservedZones,
 } from "../MarsPixelNetworkService";
 
 import type {
-  MarsPixelCoordinateDetail,
+  MarsPixelBlockDetail,
   MarsPixelNetworkStatus,
   MarsPixelPublicAllocation,
+  MarsPixelPublicReservedZone,
 } from "../MarsPixelNetworkService";
 
 import {
@@ -73,6 +75,7 @@ type MarsPlanetMapProps = {
   aresAccessLoading: boolean;
   pixelNetworkStatus?: MarsPixelNetworkStatus | null;
   pixelAllocations?: MarsPixelPublicAllocation[];
+  pixelReservedZones?: MarsPixelPublicReservedZone[];
 };
 
 type MarsPlanetSceneProps = Omit<
@@ -81,6 +84,10 @@ type MarsPlanetSceneProps = Omit<
   | "aresAccess"
   | "aresAccessLoading"
 > & {
+  selectedPixelCoordinate: {
+    x: number;
+    y: number;
+  } | null;
   onPixelSelect: (coordinate: {
     x: number;
     y: number;
@@ -350,6 +357,8 @@ function MarsPlanet({
   diving,
   pixelNetworkStatus,
   pixelAllocations,
+  pixelReservedZones,
+  selectedPixelCoordinate,
   onPixelSelect,
 }: MarsPlanetSceneProps) {
   const groupRef =
@@ -560,7 +569,11 @@ function MarsPlanet({
           allocations={
             pixelAllocations ?? []
           }
+          reservedZones={
+            pixelReservedZones ?? []
+          }
           visible={!diving}
+          selectedPixel={selectedPixelCoordinate}
           onPixelSelect={onPixelSelect}
           aresMapX={
             aresSector?.map_x ?? null
@@ -741,6 +754,13 @@ export function MarsPlanetMap({
   >([]);
 
   const [
+    pixelReservedZones,
+    setPixelReservedZones,
+  ] = useState<
+    MarsPixelPublicReservedZone[]
+  >([]);
+
+  const [
     pixelNetworkError,
     setPixelNetworkError,
   ] = useState(false);
@@ -749,7 +769,7 @@ export function MarsPlanetMap({
     selectedPixel,
     setSelectedPixel,
   ] =
-    useState<MarsPixelCoordinateDetail | null>(
+    useState<MarsPixelBlockDetail | null>(
       null,
     );
 
@@ -782,7 +802,7 @@ export function MarsPlanetMap({
 
     try {
       const detail =
-        await getMarsPixelAtCoordinate(
+        await getMarsPixelBlockAtCoordinate(
           coordinate.x,
           coordinate.y,
         );
@@ -804,12 +824,12 @@ export function MarsPlanetMap({
       }
 
       console.error(
-        "Mars Pixel coordinate lookup failed.",
+        "Mars Pixel block lookup failed.",
         error,
       );
 
       setSelectedPixelError(
-        "PIXEL DATA UNAVAILABLE",
+        "BLOCK DATA UNAVAILABLE",
       );
     } finally {
       if (
@@ -829,6 +849,9 @@ export function MarsPlanetMap({
         try {
           const status =
             await getMarsPixelNetworkStatus();
+
+          const reservedZones =
+            await getMarsPixelPublicReservedZones();
 
           let allocations:
             MarsPixelPublicAllocation[] =
@@ -856,6 +879,10 @@ export function MarsPlanetMap({
             allocations,
           );
 
+          setPixelReservedZones(
+            reservedZones,
+          );
+
           setPixelNetworkError(false);
         } catch {
           if (!active) {
@@ -864,6 +891,7 @@ export function MarsPlanetMap({
 
           setPixelNetworkStatus(null);
           setPixelAllocations([]);
+          setPixelReservedZones([]);
           setPixelNetworkError(true);
         }
       };
@@ -966,14 +994,14 @@ export function MarsPlanetMap({
                   MARS PIXEL NETWORK
                 </span>
                 <strong>
-                  PIXEL DETAIL
+                  BLOCK DETAIL
                 </strong>
               </div>
 
               <button
                 type="button"
                 className="mars-pixel-detail__close"
-                aria-label="Close pixel detail"
+                aria-label="Close block detail"
                 onClick={() => {
                   pixelRequestRef.current += 1;
                   setSelectedPixel(null);
@@ -1002,20 +1030,48 @@ export function MarsPlanetMap({
               selectedPixel && (
                 <>
                   <div className="mars-pixel-detail__coordinate">
-                    PIXEL {selectedPixel.x} /{" "}
-                    {selectedPixel.y}
+                    BLOCK {selectedPixel.block_x} /{" "}
+                    {selectedPixel.block_y}
+                  </div>
+
+                  <div className="mars-pixel-detail__meta">
+                    <span>X RANGE</span>
+                    <strong>
+                      {selectedPixel.x_start}–{selectedPixel.x_end}
+                    </strong>
+                  </div>
+
+                  <div className="mars-pixel-detail__meta">
+                    <span>Y RANGE</span>
+                    <strong>
+                      {selectedPixel.y_start}–{selectedPixel.y_end}
+                    </strong>
+                  </div>
+
+                  <div className="mars-pixel-detail__meta">
+                    <span>BLOCK SIZE</span>
+                    <strong>
+                      {selectedPixel.width} × {selectedPixel.height}
+                    </strong>
+                  </div>
+
+                  <div className="mars-pixel-detail__meta">
+                    <span>PIXELS</span>
+                    <strong>
+                      {selectedPixel.pixel_count}
+                    </strong>
                   </div>
 
                   <div
                     className={[
                       "mars-pixel-detail__status",
-                      `is-${selectedPixel.pixel_status}`,
+                      `is-${selectedPixel.block_status}`,
                     ].join(" ")}
                   >
-                    {selectedPixel.pixel_status.toUpperCase()}
+                    {selectedPixel.block_status.toUpperCase()}
                   </div>
 
-                  {selectedPixel.pixel_status ===
+                  {selectedPixel.block_status ===
                     "available" && (
                     <div className="mars-pixel-detail__commercial">
                       {selectedPixel.purchasable
@@ -1024,7 +1080,7 @@ export function MarsPlanetMap({
                     </div>
                   )}
 
-                  {selectedPixel.pixel_status ===
+                  {selectedPixel.block_status ===
                     "reserved" && (
                     <>
                       <div className="mars-pixel-detail__commercial">
@@ -1059,7 +1115,7 @@ export function MarsPlanetMap({
                     </>
                   )}
 
-                  {selectedPixel.pixel_status ===
+                  {selectedPixel.block_status ===
                     "owned" && (
                     <>
                       {selectedPixel.advertiser_name && (
@@ -1120,6 +1176,14 @@ export function MarsPlanetMap({
         }}
       >
         <MarsScene
+          selectedPixelCoordinate={
+            selectedPixel
+              ? {
+                  x: selectedPixel.x_start,
+                  y: selectedPixel.y_start,
+                }
+              : null
+          }
           onPixelSelect={handlePixelSelect}
           sectors={sectors}
           currentSectorId={
@@ -1140,6 +1204,9 @@ export function MarsPlanetMap({
           }
           pixelAllocations={
             pixelAllocations
+          }
+          pixelReservedZones={
+            pixelReservedZones
           }
         />
       </Canvas>

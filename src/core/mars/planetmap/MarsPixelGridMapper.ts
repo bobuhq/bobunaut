@@ -3,6 +3,55 @@ export type MarsPixelCoordinate = {
   y: number;
 };
 
+export const MARS_PIXEL_SALE_BLOCK_SIZE = 10;
+
+export type MarsPixelBlockCoordinate = {
+  blockX: number;
+  blockY: number;
+  xStart: number;
+  yStart: number;
+  xEnd: number;
+  yEnd: number;
+  width: number;
+  height: number;
+  pixelCount: number;
+};
+
+export function marsPixelToBlockCoordinateV1(
+  pixelX: number,
+  pixelY: number,
+): MarsPixelBlockCoordinate {
+  const blockX = Math.floor(
+    pixelX / MARS_PIXEL_SALE_BLOCK_SIZE,
+  );
+
+  const blockY = Math.floor(
+    pixelY / MARS_PIXEL_SALE_BLOCK_SIZE,
+  );
+
+  const xStart =
+    blockX * MARS_PIXEL_SALE_BLOCK_SIZE;
+
+  const yStart =
+    blockY * MARS_PIXEL_SALE_BLOCK_SIZE;
+
+  return {
+    blockX,
+    blockY,
+    xStart,
+    yStart,
+    xEnd:
+      xStart + MARS_PIXEL_SALE_BLOCK_SIZE - 1,
+    yEnd:
+      yStart + MARS_PIXEL_SALE_BLOCK_SIZE - 1,
+    width: MARS_PIXEL_SALE_BLOCK_SIZE,
+    height: MARS_PIXEL_SALE_BLOCK_SIZE,
+    pixelCount:
+      MARS_PIXEL_SALE_BLOCK_SIZE *
+      MARS_PIXEL_SALE_BLOCK_SIZE,
+  };
+}
+
 function clampGridCoordinate(
   value: number,
   size: number,
