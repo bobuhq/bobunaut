@@ -138,3 +138,119 @@ export function marsPixelYToTextureYv1(
     gridHeight,
   );
 }
+
+export type MarsPixelBlockSelection = {
+  anchorBlockX: number;
+  anchorBlockY: number;
+  targetBlockX: number;
+  targetBlockY: number;
+  blockXStart: number;
+  blockYStart: number;
+  blockXEnd: number;
+  blockYEnd: number;
+  xStart: number;
+  yStart: number;
+  xEnd: number;
+  yEnd: number;
+  width: number;
+  height: number;
+  blockColumns: number;
+  blockRows: number;
+  blockCount: number;
+  pixelCount: number;
+};
+
+export function createMarsPixelBlockSelectionV1(
+  anchorPixelX: number,
+  anchorPixelY: number,
+  targetPixelX: number,
+  targetPixelY: number,
+): MarsPixelBlockSelection {
+  const anchor =
+    marsPixelToBlockCoordinateV1(
+      anchorPixelX,
+      anchorPixelY,
+    );
+
+  const target =
+    marsPixelToBlockCoordinateV1(
+      targetPixelX,
+      targetPixelY,
+    );
+
+  const blockXStart = Math.min(
+    anchor.blockX,
+    target.blockX,
+  );
+
+  const blockYStart = Math.min(
+    anchor.blockY,
+    target.blockY,
+  );
+
+  const blockXEnd = Math.max(
+    anchor.blockX,
+    target.blockX,
+  );
+
+  const blockYEnd = Math.max(
+    anchor.blockY,
+    target.blockY,
+  );
+
+  const blockColumns =
+    blockXEnd - blockXStart + 1;
+
+  const blockRows =
+    blockYEnd - blockYStart + 1;
+
+  const blockCount =
+    blockColumns * blockRows;
+
+  const xStart =
+    blockXStart *
+    MARS_PIXEL_SALE_BLOCK_SIZE;
+
+  const yStart =
+    blockYStart *
+    MARS_PIXEL_SALE_BLOCK_SIZE;
+
+  const xEnd =
+    (blockXEnd + 1) *
+      MARS_PIXEL_SALE_BLOCK_SIZE -
+    1;
+
+  const yEnd =
+    (blockYEnd + 1) *
+      MARS_PIXEL_SALE_BLOCK_SIZE -
+    1;
+
+  const width =
+    blockColumns *
+    MARS_PIXEL_SALE_BLOCK_SIZE;
+
+  const height =
+    blockRows *
+    MARS_PIXEL_SALE_BLOCK_SIZE;
+
+  return {
+    anchorBlockX: anchor.blockX,
+    anchorBlockY: anchor.blockY,
+    targetBlockX: target.blockX,
+    targetBlockY: target.blockY,
+    blockXStart,
+    blockYStart,
+    blockXEnd,
+    blockYEnd,
+    xStart,
+    yStart,
+    xEnd,
+    yEnd,
+    width,
+    height,
+    blockColumns,
+    blockRows,
+    blockCount,
+    pixelCount: width * height,
+  };
+}

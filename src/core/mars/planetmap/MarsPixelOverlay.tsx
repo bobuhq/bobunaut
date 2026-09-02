@@ -49,6 +49,7 @@ type MarsPixelOverlayProps = {
   aresMapY?: number | null;
   onAresEnter?: () => void;
   selectedPixel?: MarsPixelCoordinate | null;
+  lockedSelectionPixel?: MarsPixelCoordinate | null;
   onPixelSelect?: (
     coordinate: MarsPixelCoordinate,
     allocation: MarsPixelPublicAllocation | null,
@@ -111,6 +112,7 @@ export function MarsPixelOverlay({
   aresMapY = null,
   onAresEnter,
   selectedPixel = null,
+  lockedSelectionPixel = null,
   onPixelSelect,
   onPixelHover,
 }: MarsPixelOverlayProps) {
@@ -419,6 +421,17 @@ export function MarsPixelOverlay({
     [selectedPixel],
   );
 
+  const lockedSelectionBlock = useMemo(
+    () =>
+      lockedSelectionPixel
+        ? marsPixelToBlockCoordinateV1(
+            lockedSelectionPixel.x,
+            lockedSelectionPixel.y,
+          )
+        : null,
+    [lockedSelectionPixel],
+  );
+
   useEffect(() => {
     const material = materialRef.current;
 
@@ -431,6 +444,19 @@ export function MarsPixelOverlay({
       selectedBlock?.blockY ?? -1,
     );
   }, [selectedBlock]);
+
+  useEffect(() => {
+    const material = materialRef.current;
+
+    if (!material) {
+      return;
+    }
+
+    material.uniforms.lockedSelectionBlock.value.set(
+      lockedSelectionBlock?.blockX ?? -1,
+      lockedSelectionBlock?.blockY ?? -1,
+    );
+  }, [lockedSelectionBlock]);
 
   useFrame(({ camera }) => {
     const material =
@@ -489,6 +515,11 @@ export function MarsPixelOverlay({
           block.blockY,
         );
 
+        materialRef.current?.uniforms.selectionHoverBlock.value.set(
+          block.blockX,
+          block.blockY,
+        );
+
         onPixelHover?.({
           x: coordinate.x,
           y: coordinate.y,
@@ -502,12 +533,20 @@ export function MarsPixelOverlay({
           -1,
         );
 
+        materialRef.current?.uniforms.selectionHoverBlock.value.set(
+          -1,
+          -1,
+        );
+
         onPixelHover?.(null);
       }}
-      onClick={(
-        event: ThreeEvent<MouseEvent>,
+      onPointerDown={(
+        event: ThreeEvent<PointerEvent>,
       ) => {
-        if (!onPixelSelect) {
+        if (
+          event.button !== 0 ||
+          !onPixelSelect
+        ) {
           return;
         }
 
@@ -611,6 +650,15 @@ export function MarsPixelOverlay({
               selectedBlock?.blockY ?? -1,
             ),
           },
+          selectionHoverBlock: {
+            value: new Vector2(-1, -1),
+          },
+          lockedSelectionBlock: {
+            value: new Vector2(
+              lockedSelectionBlock?.blockX ?? -1,
+              lockedSelectionBlock?.blockY ?? -1,
+            ),
+          },
           saleBlockSize: {
             value: MARS_PIXEL_SALE_BLOCK_SIZE,
           },
@@ -636,6 +684,8 @@ export function MarsPixelOverlay({
           uniform vec2 aresMajorCell;
           uniform vec2 hoveredBlock;
           uniform vec2 selectedBlock;
+          uniform vec2 selectionHoverBlock;
+          uniform vec2 lockedSelectionBlock;
           uniform float saleBlockSize;
 
           varying vec2 vUv;
@@ -833,6 +883,108 @@ export function MarsPixelOverlay({
                 selectedBlock.x
               );
 
+            float hasLockedSelection =
+              step(
+                0.0,
+                lockedSelectionBlock.x
+              ) *
+              step(
+                0.0,
+                lockedSelectionBlock.y
+              );
+
+            vec2 activeSelectionTarget =
+              mix(
+                selectionHoverBlock,
+                lockedSelectionBlock,
+                hasLockedSelection
+              );
+
+            float hasSelectionPreview =
+              step(
+                0.0,
+                selectedBlock.x
+              ) *
+              step(
+                0.0,
+                activeSelectionTarget.x
+              );
+
+            vec2 selectionMin =
+              min(
+                selectedBlock,
+                activeSelectionTarget
+              );
+
+            vec2 selectionMax =
+              max(
+                selectedBlock,
+                activeSelectionTarget
+              );
+
+            float insideSelectionX =
+              step(
+                selectionMin.x,
+                currentBlock.x
+              ) *
+              step(
+                currentBlock.x,
+                selectionMax.x
+              );
+
+            float insideSelectionY =
+              step(
+                selectionMin.y,
+                currentBlock.y
+              ) *
+              step(
+                currentBlock.y,
+                selectionMax.y
+              );
+
+            float isSelectionPreview =
+              hasSelectionPreview *
+              insideSelectionX *
+              insideSelectionY;
+
+            float selectionOuterBorder =
+              isSelectionPreview *
+              max(
+                max(
+                  step(
+                    abs(
+                      currentBlock.x -
+                      selectionMin.x
+                    ),
+                    0.01
+                  ),
+                  step(
+                    abs(
+                      currentBlock.x -
+                      selectionMax.x
+                    ),
+                    0.01
+                  )
+                ),
+                max(
+                  step(
+                    abs(
+                      currentBlock.y -
+                      selectionMin.y
+                    ),
+                    0.01
+                  ),
+                  step(
+                    abs(
+                      currentBlock.y -
+                      selectionMax.y
+                    ),
+                    0.01
+                  )
+                )
+              ) *
+              blockBorder;
+
             vec2 blockTextureSize =
               gridSize / saleBlockSize;
 
@@ -979,6 +1131,24 @@ export function MarsPixelOverlay({
                   )
               );
 
+            vec3 selectionPreviewColor =
+              vec3(
+                0.08,
+                0.92,
+                1.0
+              );
+
+            finalColor =
+              mix(
+                finalColor,
+                selectionPreviewColor,
+                isSelectionPreview *
+                  (
+                    0.055 +
+                    selectionOuterBorder * 0.82
+                  )
+              );
+
             float interactionAlpha =
               max(
                 isHovered *
@@ -986,11 +1156,18 @@ export function MarsPixelOverlay({
                     0.18 +
                     blockBorder * 0.72
                   ),
-                isSelected *
-                  (
-                    0.16 +
-                    blockBorder * 0.82
-                  )
+                max(
+                  isSelected *
+                    (
+                      0.16 +
+                      blockBorder * 0.82
+                    ),
+                  isSelectionPreview *
+                    (
+                      0.07 +
+                      selectionOuterBorder * 0.78
+                    )
+                )
               );
 
             float finalAlpha =
