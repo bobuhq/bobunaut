@@ -13,6 +13,7 @@ import {
   UnsignedByteType,
   ShaderMaterial,
   Vector2,
+  Vector4,
 } from "three";
 import {
   useFrame,
@@ -367,45 +368,15 @@ export function MarsPixelOverlay({
     [blockStatusTexture],
   );
 
-  const aresMajorCell =
-    useMemo(() => {
-      if (
-        aresMapX === null ||
-        aresMapY === null
-      ) {
-        return null;
-      }
-
-      const clampedX =
-        Math.min(
-          0.999999,
-          Math.max(0, aresMapX / 100),
-        );
-
-      const clampedY =
-        Math.min(
-          0.999999,
-          Math.max(0, aresMapY / 100),
-        );
-
-      return {
-        x: Math.min(
-          19,
-          Math.floor(clampedX * 20),
-        ),
-        y: Math.min(
-          19,
-          Math.floor(
-            clampedY * 20,
-          ),
-        ),
-      };
-    }, [
-      aresMapX,
-      aresMapY,
-      gridHeight,
-      gridWidth,
-    ]);
+  const aresPixelRegion = useMemo(
+    () => ({
+      xStart: 520,
+      yStart: 370,
+      xEnd: 529,
+      yEnd: 379,
+    }),
+    [],
+  );
 
   const materialRef =
     useRef<ShaderMaterial | null>(null);
@@ -567,26 +538,14 @@ export function MarsPixelOverlay({
           );
 
         if (
-          aresMajorCell &&
-          onAresSelect
+          onAresSelect &&
+          coordinate.x >= aresPixelRegion.xStart &&
+          coordinate.x <= aresPixelRegion.xEnd &&
+          coordinate.y >= aresPixelRegion.yStart &&
+          coordinate.y <= aresPixelRegion.yEnd
         ) {
-          const majorCellX =
-            Math.floor(
-              (coordinate.x / gridWidth) * 20,
-            );
-
-          const majorCellY =
-            Math.floor(
-              (coordinate.y / gridHeight) * 20,
-            );
-
-          if (
-            majorCellX === aresMajorCell.x &&
-            majorCellY === aresMajorCell.y
-          ) {
-            onAresSelect();
-            return;
-          }
+          onAresSelect();
+          return;
         }
 
         const allocation =
@@ -632,13 +591,13 @@ export function MarsPixelOverlay({
           time: {
             value: 0,
           },
-          aresMajorCell: {
-            value: aresMajorCell
-              ? [
-                  aresMajorCell.x,
-                  aresMajorCell.y,
-                ]
-              : [-1, -1],
+          aresPixelRegion: {
+            value: new Vector4(
+              aresPixelRegion.xStart,
+              aresPixelRegion.yStart,
+              aresPixelRegion.xEnd,
+              aresPixelRegion.yEnd,
+            ),
           },
 
           hoveredBlock: {
@@ -681,7 +640,7 @@ export function MarsPixelOverlay({
           uniform vec2 gridSize;
           uniform float cameraDistance;
           uniform float time;
-          uniform vec2 aresMajorCell;
+          uniform vec4 aresPixelRegion;
           uniform vec2 hoveredBlock;
           uniform vec2 selectedBlock;
           uniform vec2 selectionHoverBlock;
@@ -780,18 +739,27 @@ export function MarsPixelOverlay({
                 )
               );
 
-            vec2 currentMajorCell =
+            vec2 aresPixelCoord =
               floor(
-                canonicalUv * 20.0
+                canonicalUv * gridSize
               );
 
             float isAresCell =
               step(
-                length(
-                  currentMajorCell -
-                  aresMajorCell
-                ),
-                0.01
+                aresPixelRegion.x,
+                aresPixelCoord.x
+              ) *
+              step(
+                aresPixelCoord.x,
+                aresPixelRegion.z
+              ) *
+              step(
+                aresPixelRegion.y,
+                aresPixelCoord.y
+              ) *
+              step(
+                aresPixelCoord.y,
+                aresPixelRegion.w
               );
 
             vec3 gridColor =
@@ -1144,8 +1112,8 @@ export function MarsPixelOverlay({
                 selectionPreviewColor,
                 isSelectionPreview *
                   (
-                    0.055 +
-                    selectionOuterBorder * 0.82
+                    0.34 +
+                    selectionOuterBorder * 0.54
                   )
               );
 
@@ -1164,8 +1132,8 @@ export function MarsPixelOverlay({
                     ),
                   isSelectionPreview *
                     (
-                      0.07 +
-                      selectionOuterBorder * 0.78
+                      0.36 +
+                      selectionOuterBorder * 0.50
                     )
                 )
               );

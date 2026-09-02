@@ -3,7 +3,7 @@ export type MarsPixelCoordinate = {
   y: number;
 };
 
-export const MARS_PIXEL_SALE_BLOCK_SIZE = 10;
+export const MARS_PIXEL_SALE_BLOCK_SIZE = 1;
 
 export type MarsPixelBlockCoordinate = {
   blockX: number;

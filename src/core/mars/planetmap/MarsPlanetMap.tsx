@@ -39,6 +39,7 @@ import {
   getMarsPixelPublicAllocations,
   getMarsPixelPublicReservedZones,
   getMarsPixelSelectionDetail,
+  getMarsPixelSelectionValuation,
 } from "../MarsPixelNetworkService";
 
 import type {
@@ -47,6 +48,7 @@ import type {
   MarsPixelPublicAllocation,
   MarsPixelPublicReservedZone,
   MarsPixelSelectionDetail,
+  MarsPixelSelectionValuation,
 } from "../MarsPixelNetworkService";
 
 import {
@@ -828,6 +830,13 @@ export function MarsPlanetMap({
     setSelectedPixelSelectionError,
   ] = useState<string | null>(null);
 
+  const [
+    selectedPixelValuation,
+    setSelectedPixelValuation,
+  ] = useState<MarsPixelSelectionValuation | null>(
+    null,
+  );
+
   const pixelRequestRef = useRef(0);
 
   const pixelBlockSelection = useMemo(() => {
@@ -877,17 +886,26 @@ export function MarsPlanetMap({
 
       setLockedSelectionTarget(target);
       setSelectedPixelSelection(null);
+      setSelectedPixelValuation(null);
       setSelectedPixelSelectionError(null);
       setSelectedPixelSelectionLoading(true);
 
       try {
-        const detail =
-          await getMarsPixelSelectionDetail(
-            selectedPixel.x_start,
-            selectedPixel.y_start,
-            target.x,
-            target.y,
-          );
+        const [detail, valuation] =
+          await Promise.all([
+            getMarsPixelSelectionDetail(
+              selectedPixel.x_start,
+              selectedPixel.y_start,
+              target.x,
+              target.y,
+            ),
+            getMarsPixelSelectionValuation(
+              selectedPixel.x_start,
+              selectedPixel.y_start,
+              target.x,
+              target.y,
+            ),
+          ]);
 
         if (
           pixelRequestRef.current !==
@@ -897,6 +915,7 @@ export function MarsPlanetMap({
         }
 
         setSelectedPixelSelection(detail);
+        setSelectedPixelValuation(valuation);
       } catch (error) {
         if (
           pixelRequestRef.current !==
@@ -934,6 +953,7 @@ export function MarsPlanetMap({
 
     setLockedSelectionTarget(null);
     setSelectedPixelSelection(null);
+    setSelectedPixelValuation(null);
     setSelectedPixelSelectionError(null);
     setSelectedPixelSelectionLoading(false);
     setSelectedPixel(null);
@@ -941,11 +961,19 @@ export function MarsPlanetMap({
     setSelectedPixelLoading(true);
 
     try {
-      const detail =
-        await getMarsPixelBlockAtCoordinate(
-          coordinate.x,
-          coordinate.y,
-        );
+      const [detail, valuation] =
+        await Promise.all([
+          getMarsPixelBlockAtCoordinate(
+            coordinate.x,
+            coordinate.y,
+          ),
+          getMarsPixelSelectionValuation(
+            coordinate.x,
+            coordinate.y,
+            coordinate.x,
+            coordinate.y,
+          ),
+        ]);
 
       if (
         pixelRequestRef.current !==
@@ -955,6 +983,7 @@ export function MarsPlanetMap({
       }
 
       setSelectedPixel(detail);
+      setSelectedPixelValuation(valuation);
     } catch (error) {
       if (
         pixelRequestRef.current !==
@@ -1133,8 +1162,7 @@ export function MarsPlanetMap({
               Y {hoveredPixelCoordinate.y}
             </strong>
             <small>
-              BLOCK {hoveredPixelCoordinate.blockX} /{" "}
-              {hoveredPixelCoordinate.blockY}
+              PIXEL X {hoveredPixelCoordinate.x} / Y {hoveredPixelCoordinate.y}
             </small>
           </div>
         )}
@@ -1153,19 +1181,20 @@ export function MarsPlanetMap({
                   MARS PIXEL NETWORK
                 </span>
                 <strong>
-                  BLOCK DETAIL
+                  PIXEL SELECTION
                 </strong>
               </div>
 
               <button
                 type="button"
                 className="mars-pixel-detail__close"
-                aria-label="Close block detail"
+                aria-label="Close pixel selection"
                 onClick={() => {
                   pixelRequestRef.current += 1;
                   setLockedSelectionTarget(null);
                   setHoveredPixelCoordinate(null);
                   setSelectedPixelSelection(null);
+                  setSelectedPixelValuation(null);
                   setSelectedPixelSelectionError(null);
                   setSelectedPixelSelectionLoading(false);
                   setSelectedPixel(null);
@@ -1215,9 +1244,9 @@ export function MarsPlanetMap({
 
                   {pixelBlockSelection && (
                     <div className="mars-pixel-detail__meta">
-                      <span>BLOCKS</span>
+                      <span>PIXELS</span>
                       <strong>
-                        {pixelBlockSelection.blockCount}
+                        {pixelBlockSelection.pixelCount}
                       </strong>
                     </div>
                   )}
@@ -1250,11 +1279,32 @@ export function MarsPlanetMap({
                   </div>
 
                   <div className="mars-pixel-detail__meta">
-                    <span>PIXELS</span>
+                    <span>REFERENCE VALUE</span>
                     <strong>
-                      {pixelBlockSelection
-                        ? pixelBlockSelection.pixelCount
-                        : selectedPixel.pixel_count}
+                      {selectedPixelValuation
+                        ? new Intl.NumberFormat(
+                            "en-US",
+                            {
+                              style: "currency",
+                              currency:
+                                selectedPixelValuation.reference_currency_code,
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            },
+                          ).format(
+                            selectedPixelValuation.total_reference_value_minor /
+                              100,
+                          )
+                        : "—"}
+                    </strong>
+                  </div>
+
+                  <div className="mars-pixel-detail__meta">
+                    <span>MINIMUM PURCHASE</span>
+                    <strong>
+                      {selectedPixelValuation
+                        ? `${selectedPixelValuation.minimum_purchase_pixels} PIXELS`
+                        : "—"}
                     </strong>
                   </div>
 

@@ -305,6 +305,87 @@ export async function getMarsPixelSelectionDetail(
   };
 }
 
+export type MarsPixelSelectionValuation = {
+  pixel_count: number;
+  standard_pixel_count: number;
+  polar_pixel_count: number;
+  reference_currency_code: string;
+  standard_price_per_pixel_minor: number;
+  polar_price_per_pixel_minor: number;
+  total_reference_value_minor: number;
+  minimum_purchase_pixels: number;
+};
+
+export async function getMarsPixelSelectionValuation(
+  anchorX: number,
+  anchorY: number,
+  targetX: number,
+  targetY: number,
+): Promise<MarsPixelSelectionValuation> {
+  const coordinates = [
+    anchorX,
+    anchorY,
+    targetX,
+    targetY,
+  ];
+
+  if (
+    coordinates.some(
+      (value) => !Number.isInteger(value),
+    )
+  ) {
+    throw new Error(
+      "Mars Pixel valuation must use integer grid values.",
+    );
+  }
+
+  const { data, error } = await supabase.rpc(
+    "get_mars_pixel_selection_valuation_v1",
+    {
+      p_anchor_x: anchorX,
+      p_anchor_y: anchorY,
+      p_target_x: targetX,
+      p_target_y: targetY,
+    },
+  );
+
+  if (error) {
+    throw error;
+  }
+
+  const row =
+    Array.isArray(data)
+      ? data[0]
+      : data;
+
+  if (!row) {
+    throw new Error(
+      "Mars Pixel selection valuation was not returned.",
+    );
+  }
+
+  const valuation =
+    row as MarsPixelSelectionValuation;
+
+  return {
+    ...valuation,
+    pixel_count:
+      Number(valuation.pixel_count),
+    standard_pixel_count:
+      Number(valuation.standard_pixel_count),
+    polar_pixel_count:
+      Number(valuation.polar_pixel_count),
+    standard_price_per_pixel_minor:
+      Number(valuation.standard_price_per_pixel_minor),
+    polar_price_per_pixel_minor:
+      Number(valuation.polar_price_per_pixel_minor),
+    total_reference_value_minor:
+      Number(valuation.total_reference_value_minor),
+    minimum_purchase_pixels:
+      Number(valuation.minimum_purchase_pixels),
+  };
+}
+
 export async function getMarsPixelAtCoordinate(
   x: number,
   y: number,
