@@ -47,7 +47,7 @@ type MarsPixelOverlayProps = {
   visible: boolean;
   aresMapX?: number | null;
   aresMapY?: number | null;
-  onAresEnter?: () => void;
+  onAresSelect?: () => void;
   selectedPixel?: MarsPixelCoordinate | null;
   lockedSelectionPixel?: MarsPixelCoordinate | null;
   onPixelSelect?: (
@@ -110,7 +110,7 @@ export function MarsPixelOverlay({
   visible,
   aresMapX = null,
   aresMapY = null,
-  onAresEnter,
+  onAresSelect,
   selectedPixel = null,
   lockedSelectionPixel = null,
   onPixelSelect,
@@ -568,7 +568,7 @@ export function MarsPixelOverlay({
 
         if (
           aresMajorCell &&
-          onAresEnter
+          onAresSelect
         ) {
           const majorCellX =
             Math.floor(
@@ -584,7 +584,7 @@ export function MarsPixelOverlay({
             majorCellX === aresMajorCell.x &&
             majorCellY === aresMajorCell.y
           ) {
-            onAresEnter();
+            onAresSelect();
             return;
           }
         }

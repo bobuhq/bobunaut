@@ -553,11 +553,7 @@ function MarsPlanet({
       <mesh
         castShadow
         receiveShadow
-        onClick={() => {
-          if (selectedSectorId) {
-            onSelectSector(null);
-          }
-        }}
+
       >
         <sphereGeometry
           args={[
@@ -603,16 +599,12 @@ function MarsPlanet({
           aresMapY={
             aresSector?.map_y ?? null
           }
-          onAresEnter={() => {
+          onAresSelect={() => {
             if (!aresSector) {
               return;
             }
 
             onSelectSector(
-              aresSector.sector_id,
-            );
-
-            onEnterSector(
               aresSector.sector_id,
             );
           }}
@@ -671,10 +663,6 @@ function MarsPlanet({
               }
               onSelect={() => {
                 onSelectSector(
-                  sector.sector_id,
-                );
-
-                onEnterSector(
                   sector.sector_id,
                 );
               }}
