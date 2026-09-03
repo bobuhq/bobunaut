@@ -862,7 +862,11 @@ export function MarsExploreWorld() {
         event.code === "Space" &&
         !event.repeat
       ) {
-        marsAudio.jump();
+        void marsAudio
+          .unlock()
+          .then(() => {
+            marsAudio.jump();
+          });
       }
     }
 
