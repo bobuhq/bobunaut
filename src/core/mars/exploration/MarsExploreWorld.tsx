@@ -6,6 +6,8 @@ import {
   useState,
   type MutableRefObject,
 } from "react";
+import { useNavigate } from "react-router-dom";
+
 
 import {
   Canvas,
@@ -469,6 +471,17 @@ function getMarsReturnHref(): string {
 
 export function MarsExploreWorld() {
   const { t, language } = useLanguage();
+  const navigate = useNavigate();
+
+  const marsReturnHref =
+    getMarsReturnHref();
+
+  function handleReturnToMars(
+    event: React.MouseEvent<HTMLAnchorElement>,
+  ): void {
+    event.preventDefault();
+    navigate(marsReturnHref);
+  }
 
   const analogMovementRef =
     useRef<MarsAnalogMovement>({
@@ -1284,7 +1297,8 @@ export function MarsExploreWorld() {
           )}
 
           <a
-            href={getMarsReturnHref()}
+            href={marsReturnHref}
+            onClick={handleReturnToMars}
             style={{
               display:
                 "inline-flex",
@@ -1344,7 +1358,8 @@ export function MarsExploreWorld() {
           Ares Exploration is designed for landscape mode.
         </p>
 
-        <a href={getMarsReturnHref()}>
+        <a href={marsReturnHref}
+            onClick={handleReturnToMars}>
           RETURN TO MARS
         </a>
       </div>
@@ -1830,7 +1845,8 @@ export function MarsExploreWorld() {
 
       <a
         className="mars-explore-return-button"
-        href={getMarsReturnHref()}
+        href={marsReturnHref}
+            onClick={handleReturnToMars}
         aria-label="Return to Mars orbit"
       >
         <span aria-hidden="true">←</span>
