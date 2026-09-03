@@ -40,51 +40,66 @@ const BuilderAuthDialog = lazy(
 
 const navItems = [
   {
+    to: "/mars",
+    labelKey: "nav.mars",
+    icon: Globe2,
+    locked: false,
+    mars: true,
+  },
+  {
     to: "/",
     labelKey: "nav.orbit",
     icon: Orbit,
     locked: false,
+    mars: false,
   },
   {
     to: "/identity",
     labelKey: "nav.genesis",
     icon: User,
     locked: false,
+    mars: false,
   },
   {
     to: "/mining",
     labelKey: "nav.mining",
     icon: Pickaxe,
     locked: false,
+    mars: false,
   },
   {
     to: "/galaxy",
     labelKey: "nav.galaxy",
     icon: Compass,
     locked: false,
+    mars: false,
   },
   {
     to: "/wallet",
     labelKey: "nav.wallet",
     icon: WalletCards,
     locked: false,
+    mars: false,
   },
   {
     to: "/leaderboard",
     labelKey: "nav.leaderboard",
     icon: Trophy,
     locked: false,
+    mars: false,
   },
   {
     to: "/passport",
     labelKey: "nav.passport",
     icon: User,
     locked: false,
+    mars: false,
   },  {
     to: "/missions",
     labelKey: "nav.missions",
     icon: Rocket,
     locked: false,
+    mars: false,
   },
 ] as const;
 
@@ -500,6 +515,53 @@ export function Nav() {
           font-weight: 800;
           letter-spacing: 0.22em;
           line-height: 1;
+        }
+
+        .bobu-nav-link--mars {
+          position: relative;
+          border: 1px solid rgba(111, 255, 146, 0.64) !important;
+          border-radius: 11px !important;
+          padding: 8px 11px !important;
+          color: #d8ffe1 !important;
+          background:
+            radial-gradient(circle at 18% 12%, rgba(122,255,153,.28), transparent 42%),
+            linear-gradient(135deg, rgba(27,103,51,.92), rgba(88,47,22,.94)) !important;
+          box-shadow:
+            0 0 18px rgba(72,255,119,.18),
+            inset 0 1px 0 rgba(255,255,255,.13) !important;
+          font-weight: 900 !important;
+        }
+
+        .bobu-nav-link--mars::after {
+          content: "";
+          width: 6px;
+          height: 6px;
+          margin-left: 2px;
+          flex: 0 0 6px;
+          border-radius: 999px;
+          background: #73ff9c;
+          box-shadow:
+            0 0 6px rgba(115,255,156,.95),
+            0 0 12px rgba(75,255,125,.6);
+        }
+
+        .bobu-nav-link--mars:hover {
+          transform: translateY(-1px);
+          border-color: rgba(148,255,174,.92) !important;
+          color: #ffffff !important;
+          background:
+            radial-gradient(circle at 18% 12%, rgba(132,255,160,.36), transparent 44%),
+            linear-gradient(135deg, rgba(32,126,61,.97), rgba(108,56,24,.97)) !important;
+          box-shadow:
+            0 0 25px rgba(72,255,119,.3),
+            inset 0 1px 0 rgba(255,255,255,.17) !important;
+        }
+
+        .bobu-nav-link--mars.active {
+          border-color: rgba(157,255,181,.96) !important;
+          box-shadow:
+            0 0 28px rgba(72,255,119,.34),
+            inset 0 0 18px rgba(78,255,127,.1) !important;
         }
 
         .bobu-nav-links {
@@ -1092,7 +1154,7 @@ export function Nav() {
         </NavLink>
 
         <div className="bobu-nav-links">
-          {navItems.map(({ to, labelKey, icon: Icon, locked }) =>
+          {navItems.map(({ to, labelKey, icon: Icon, locked, mars }) =>
             locked ? (
               <span
                 key={to}
@@ -1118,7 +1180,7 @@ export function Nav() {
                 to={to}
                 end={to === "/"}
                 className={({ isActive }) =>
-                  `bobu-nav-link${isActive ? " active" : ""}`
+                  `bobu-nav-link${mars ? " bobu-nav-link--mars" : ""}${isActive ? " active" : ""}`
                 }
               >
                 <Icon size={16} strokeWidth={1.8} />
@@ -1349,6 +1411,7 @@ export function Nav() {
                 labelKey,
                 icon: Icon,
                 locked,
+                mars,
               }) => {
                 const status =
                   getMobileStatus(to);
@@ -1388,6 +1451,10 @@ export function Nav() {
                       isActive,
                     }) =>
                       `bobu-nav-link${
+                        mars
+                          ? " bobu-nav-link--mars"
+                          : ""
+                      }${
                         isActive
                           ? " active"
                           : ""

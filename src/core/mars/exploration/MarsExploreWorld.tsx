@@ -426,6 +426,51 @@ export function MarsExploreWorld() {
     session,
   } = useAuthSession();
 
+  const [mobileOrientation, setMobileOrientation] = useState<
+    "desktop" | "portrait" | "landscape"
+  >(() => {
+    if (typeof window === "undefined") {
+      return "desktop";
+    }
+
+    const mobile = window.matchMedia("(max-width: 900px)").matches;
+
+    if (!mobile) {
+      return "desktop";
+    }
+
+    return window.innerWidth > window.innerHeight
+      ? "landscape"
+      : "portrait";
+  });
+
+  useEffect(() => {
+    const updateOrientation = () => {
+      const mobile = window.matchMedia("(max-width: 900px)").matches;
+
+      if (!mobile) {
+        setMobileOrientation("desktop");
+        return;
+      }
+
+      setMobileOrientation(
+        window.innerWidth > window.innerHeight
+          ? "landscape"
+          : "portrait",
+      );
+    };
+
+    updateOrientation();
+
+    window.addEventListener("resize", updateOrientation);
+    window.addEventListener("orientationchange", updateOrientation);
+
+    return () => {
+      window.removeEventListener("resize", updateOrientation);
+      window.removeEventListener("orientationchange", updateOrientation);
+    };
+  }, []);
+
   const builder =
     useBuilderStore();
 
@@ -988,7 +1033,10 @@ export function MarsExploreWorld() {
             style={{
               marginTop: "18px",
               color: "#ff765f",
-              fontSize: "9px",
+              fontSize:
+            mobileOrientation === "landscape"
+              ? "6px"
+              : "9px",
               fontWeight: 900,
               letterSpacing: ".2em",
             }}
@@ -1168,42 +1216,180 @@ export function MarsExploreWorld() {
     );
   }
 
+  if (mobileOrientation === "portrait") {
+    return (
+      <div
+        className="mars-explore-rotate-gate"
+        role="status"
+        aria-live="polite"
+      >
+        <div className="mars-explore-rotate-gate__device" aria-hidden="true">
+          <span />
+        </div>
+
+        <span className="mars-explore-rotate-gate__eyebrow">
+          ARES EXPLORATION
+        </span>
+
+        <h1>ROTATE YOUR DEVICE</h1>
+
+        <p>
+          Ares Exploration is designed for landscape mode.
+        </p>
+
+        <a href="/mars">
+          RETURN TO MARS
+        </a>
+      </div>
+    );
+  }
+
   return (
-    <div
-      style={{
-        position: "relative",
-        width: "100%",
-        height: "100vh",
-        background: "#050712",
-        overflow: "hidden",
-      }}
-    >
+    <div className="mars-explore-world">
+
+      <style>{`
+        .mars-explore-world {
+          position: relative;
+          width: 100%;
+          height: 100dvh;
+          min-height: 100vh;
+          background: #050712;
+          overflow: hidden;
+        }
+
+        .mars-explore-rotate-gate {
+          display: grid;
+          width: 100%;
+          height: 100dvh;
+          min-height: 100vh;
+          padding: 28px;
+          place-content: center;
+          justify-items: center;
+          background:
+            radial-gradient(circle at 50% 40%, rgba(126, 76, 255, 0.2), transparent 34%),
+            radial-gradient(circle at 50% 55%, #281015 0%, #080811 52%, #030409 100%);
+          color: #ffffff;
+          text-align: center;
+          font-family: Inter, system-ui, sans-serif;
+          overflow: hidden;
+        }
+
+        .mars-explore-rotate-gate__device {
+          position: relative;
+          width: 88px;
+          height: 52px;
+          margin-bottom: 24px;
+          border: 2px solid rgba(99, 245, 255, 0.78);
+          border-radius: 13px;
+          box-shadow:
+            0 0 26px rgba(99, 245, 255, 0.16),
+            inset 0 0 18px rgba(99, 245, 255, 0.05);
+        }
+
+        .mars-explore-rotate-gate__device span {
+          position: absolute;
+          top: 50%;
+          right: 6px;
+          width: 4px;
+          height: 4px;
+          border-radius: 50%;
+          background: #63f5ff;
+          transform: translateY(-50%);
+        }
+
+        .mars-explore-rotate-gate__eyebrow {
+          color: #63f5ff;
+          font-size: 9px;
+          font-weight: 900;
+          letter-spacing: 0.22em;
+        }
+
+        .mars-explore-rotate-gate h1 {
+          margin: 10px 0 0;
+          font-size: clamp(26px, 8vw, 42px);
+          font-weight: 900;
+          letter-spacing: -0.035em;
+        }
+
+        .mars-explore-rotate-gate p {
+          max-width: 390px;
+          margin: 12px 0 0;
+          color: rgba(255, 255, 255, 0.58);
+          font-size: 13px;
+          line-height: 1.6;
+        }
+
+        .mars-explore-rotate-gate a {
+          margin-top: 24px;
+          padding: 11px 17px;
+          border: 1px solid rgba(99, 245, 255, 0.25);
+          border-radius: 999px;
+          background: rgba(99, 245, 255, 0.07);
+          color: #63f5ff;
+          font-size: 9px;
+          font-weight: 900;
+          letter-spacing: 0.13em;
+          text-decoration: none;
+        }
+
+        @media (max-width: 900px) and (orientation: landscape) {
+          .mars-explore-world {
+            height: 100dvh;
+            min-height: 0;
+          }
+
+          .mars-explore-return-button {
+            top: 10px !important;
+            left: 10px !important;
+          }
+        }
+      `}</style>
+
       <a
         className="mars-explore-return-button"
         href="/mars"
         aria-label="Return to Mars orbit"
       >
         <span aria-hidden="true">←</span>
-        <span>RETURN TO ORBIT</span>
+        <span>
+          {mobileOrientation === "landscape"
+            ? "ORBIT"
+            : "RETURN TO ORBIT"}
+        </span>
       </a>
 
       <div
         style={{
           position: "absolute",
-          top: "18px",
-          right: "18px",
+          top: mobileOrientation === "landscape" ? "8px" : "18px",
+          right: mobileOrientation === "landscape" ? "8px" : "18px",
           zIndex: 20,
           display: "flex",
           alignItems: "center",
-          gap: "8px",
-          padding: "8px 12px",
-          border: "1px solid rgba(99,245,255,0.24)",
+          gap: mobileOrientation === "landscape" ? "4px" : "8px",
+          padding:
+            mobileOrientation === "landscape"
+              ? "4px 7px"
+              : "8px 12px",
+          border:
+            mobileOrientation === "landscape"
+              ? "0"
+              : "1px solid rgba(99,245,255,0.24)",
           borderRadius: "999px",
-          background: "rgba(5,7,18,0.68)",
+          background:
+            mobileOrientation === "landscape"
+              ? "rgba(5,7,18,0.28)"
+              : "rgba(5,7,18,0.68)",
           color: "#ffffff",
-          fontSize: "10px",
+          fontSize:
+            mobileOrientation === "landscape"
+              ? "7px"
+              : "10px",
           fontWeight: 900,
-          letterSpacing: "0.12em",
+          letterSpacing:
+            mobileOrientation === "landscape"
+              ? "0.08em"
+              : "0.12em",
           pointerEvents: "none",
           backdropFilter: "blur(10px)",
         }}
@@ -1224,17 +1410,35 @@ export function MarsExploreWorld() {
         <div
           style={{
             position: "absolute",
-            top: "18px",
-            right: "164px",
+            top: mobileOrientation === "landscape" ? "8px" : "18px",
+            right:
+              mobileOrientation === "landscape"
+                ? "92px"
+                : "164px",
             zIndex: 20,
-            padding: "8px 12px",
-            border: "1px solid rgba(187,126,255,0.28)",
+            padding:
+              mobileOrientation === "landscape"
+                ? "4px 7px"
+                : "8px 12px",
+            border:
+              mobileOrientation === "landscape"
+                ? "0"
+                : "1px solid rgba(187,126,255,0.28)",
             borderRadius: "999px",
-            background: "rgba(5,7,18,0.68)",
+            background:
+              mobileOrientation === "landscape"
+                ? "rgba(5,7,18,0.28)"
+                : "rgba(5,7,18,0.68)",
             color: "#d9b7ff",
-            fontSize: "10px",
+            fontSize:
+              mobileOrientation === "landscape"
+                ? "7px"
+                : "10px",
             fontWeight: 900,
-            letterSpacing: "0.10em",
+            letterSpacing:
+              mobileOrientation === "landscape"
+                ? "0.06em"
+                : "0.10em",
             pointerEvents: "none",
             backdropFilter: "blur(10px)",
           }}
@@ -1253,11 +1457,23 @@ export function MarsExploreWorld() {
         }
         style={{
           position: "fixed",
-          top: "18px",
-          right: "150px",
+          top:
+            mobileOrientation === "landscape"
+              ? "6px"
+              : "18px",
+          right:
+            mobileOrientation === "landscape"
+              ? "178px"
+              : "150px",
           zIndex: 100,
-          width: "34px",
-          height: "34px",
+          width:
+            mobileOrientation === "landscape"
+              ? "24px"
+              : "34px",
+          height:
+            mobileOrientation === "landscape"
+              ? "24px"
+              : "34px",
           border:
             "1px solid rgba(255,255,255,.15)",
           borderRadius: "50%",
@@ -1270,7 +1486,10 @@ export function MarsExploreWorld() {
           cursor: "pointer",
           backdropFilter:
             "blur(12px)",
-          fontSize: "15px",
+          fontSize:
+            mobileOrientation === "landscape"
+              ? "11px"
+              : "15px",
         }}
       >
         {soundEnabled
@@ -1282,23 +1501,45 @@ export function MarsExploreWorld() {
         <div
           style={{
             position: "fixed",
-            top: "24px",
-            left: "50%",
+            top:
+              mobileOrientation === "landscape"
+                ? "34px"
+                : "24px",
+            left:
+              mobileOrientation === "landscape"
+                ? "auto"
+                : "50%",
+            right:
+              mobileOrientation === "landscape"
+                ? "8px"
+                : "auto",
             transform:
-              "translateX(-50%)",
+              mobileOrientation === "landscape"
+                ? "none"
+                : "translateX(-50%)",
             zIndex: 90,
             width:
-              "min(520px, calc(100vw - 48px))",
+              mobileOrientation === "landscape"
+                ? "132px"
+                : "min(520px, calc(100vw - 48px))",
             padding:
-              "14px 17px",
+              mobileOrientation === "landscape"
+                ? "6px 7px"
+                : "14px 17px",
             border:
               "1px solid rgba(99,245,255,.26)",
             borderRadius:
-              "14px",
+              mobileOrientation === "landscape"
+                ? "7px"
+                : "14px",
             background:
-              "rgba(5,10,20,.88)",
+              mobileOrientation === "landscape"
+                ? "rgba(5,10,20,.46)"
+                : "rgba(5,10,20,.88)",
             boxShadow:
-              "0 14px 50px rgba(0,0,0,.3)",
+              mobileOrientation === "landscape"
+                ? "none"
+                : "0 14px 50px rgba(0,0,0,.3)",
             backdropFilter:
               "blur(14px)",
             color: "#fff",
@@ -1310,10 +1551,15 @@ export function MarsExploreWorld() {
         >
           <div
             style={{
-              fontSize: "9px",
+              fontSize:
+                mobileOrientation === "landscape"
+                  ? "5px"
+                  : "9px",
               fontWeight: 900,
               letterSpacing:
-                ".21em",
+                mobileOrientation === "landscape"
+                  ? ".11em"
+                  : ".21em",
               color: "#63f5ff",
             }}
           >
@@ -1322,8 +1568,14 @@ export function MarsExploreWorld() {
 
           <div
             style={{
-              marginTop: "5px",
-              fontSize: "17px",
+              marginTop:
+                mobileOrientation === "landscape"
+                  ? "2px"
+                  : "5px",
+              fontSize:
+                mobileOrientation === "landscape"
+                  ? "7px"
+                  : "17px",
               fontWeight: 900,
             }}
           >
@@ -1332,7 +1584,10 @@ export function MarsExploreWorld() {
 
           <div
             style={{
-              display: "flex",
+              display:
+                mobileOrientation === "landscape"
+                  ? "none"
+                  : "flex",
               flexWrap: "wrap",
               gap: "7px",
               marginTop: "11px",
@@ -1384,29 +1639,52 @@ export function MarsExploreWorld() {
           aria-label="Ares Objective Navigator"
           style={{
             position: "fixed",
-            left: "50%",
-            bottom: "26px",
+            left:
+              mobileOrientation === "landscape"
+                ? "8px"
+                : "50%",
+            bottom:
+              mobileOrientation === "landscape"
+                ? "8px"
+                : "26px",
             transform:
-              "translateX(-50%)",
+              mobileOrientation === "landscape"
+                ? "none"
+                : "translateX(-50%)",
             zIndex:
               2147483647,
             display: "flex",
             alignItems:
               "center",
-            gap: "14px",
+            gap:
+              mobileOrientation === "landscape"
+                ? "6px"
+                : "14px",
             minWidth:
-              "310px",
+              mobileOrientation === "landscape"
+                ? "0"
+                : "310px",
+            maxWidth:
+              mobileOrientation === "landscape"
+                ? "58vw"
+                : undefined,
             padding:
-              "11px 15px",
+              mobileOrientation === "landscape"
+                ? "5px 8px"
+                : "11px 15px",
             border:
               hiddenMissionNavigation.kind ===
               "mission"
                 ? "1px solid rgba(196,126,255,.58)"
                 : "1px solid rgba(99,245,255,.42)",
             borderRadius:
-              "14px",
+              mobileOrientation === "landscape"
+                ? "8px"
+                : "14px",
             background:
-              "rgba(4,7,15,.9)",
+              mobileOrientation === "landscape"
+                ? "rgba(4,7,15,.42)"
+                : "rgba(4,7,15,.9)",
             boxShadow:
               "0 12px 38px rgba(0,0,0,.25)",
             backdropFilter:
@@ -1420,8 +1698,14 @@ export function MarsExploreWorld() {
         >
           <div
             style={{
-              width: "42px",
-              height: "42px",
+              width:
+                mobileOrientation === "landscape"
+                  ? "22px"
+                  : "42px",
+              height:
+                mobileOrientation === "landscape"
+                  ? "22px"
+                  : "42px",
               display: "grid",
               placeItems:
                 "center",
@@ -1445,7 +1729,10 @@ export function MarsExploreWorld() {
                   "mission"
                     ? "#d8a8ff"
                     : "#63f5ff",
-                fontSize: "21px",
+                fontSize:
+                  mobileOrientation === "landscape"
+                    ? "11px"
+                    : "21px",
                 lineHeight: 1,
                 textShadow:
                   "0 0 15px currentColor",
@@ -1468,7 +1755,10 @@ export function MarsExploreWorld() {
           <div>
             <div
               style={{
-                fontSize: "8px",
+                fontSize:
+                  mobileOrientation === "landscape"
+                    ? "5px"
+                    : "8px",
                 fontWeight: 900,
                 letterSpacing:
                   ".2em",
@@ -1506,7 +1796,10 @@ export function MarsExploreWorld() {
             >
               <strong
                 style={{
-                  fontSize: "15px",
+                  fontSize:
+                    mobileOrientation === "landscape"
+                      ? "8px"
+                      : "15px",
                 }}
               >
                 {showLandmarkNavigation
@@ -1538,7 +1831,10 @@ export function MarsExploreWorld() {
                   "explore") && (
                 <span
                   style={{
-                    fontSize: "11px",
+                    fontSize:
+                      mobileOrientation === "landscape"
+                        ? "7px"
+                        : "11px",
                     fontWeight: 900,
                     color:
                       "rgba(255,255,255,.7)",
@@ -1555,8 +1851,14 @@ export function MarsExploreWorld() {
 
             <div
               style={{
-                marginTop: "3px",
-                fontSize: "8px",
+                marginTop:
+                  mobileOrientation === "landscape"
+                    ? "1px"
+                    : "3px",
+                fontSize:
+                  mobileOrientation === "landscape"
+                    ? "5px"
+                    : "8px",
                 fontWeight: 800,
                 letterSpacing:
                   ".1em",
@@ -1613,11 +1915,27 @@ export function MarsExploreWorld() {
         aria-label="Open Mars Market"
         style={{
           position: "fixed",
-          top: "62px",
-          right: "18px",
+          top:
+            mobileOrientation === "landscape"
+              ? "auto"
+              : "62px",
+          right:
+            mobileOrientation === "landscape"
+              ? "8px"
+              : "18px",
+          bottom:
+            mobileOrientation === "landscape"
+              ? "8px"
+              : "auto",
           zIndex: 100,
-          minHeight: "34px",
-          padding: "0 13px",
+          minHeight:
+            mobileOrientation === "landscape"
+              ? "24px"
+              : "34px",
+          padding:
+            mobileOrientation === "landscape"
+              ? "0 8px"
+              : "0 13px",
           border:
             "1px solid rgba(197,109,255,.34)",
           borderRadius: "999px",

@@ -378,6 +378,7 @@ export function Home() {
         .stat strong{display:block;margin-bottom:7px;font-size:32px}.stat span{color:var(--muted)}
         .transmission{display:flex;align-items:flex-end;justify-content:space-between;gap:30px;margin-top:15px;padding:34px;border-radius:24px}
         .transmission h2{margin:0;font-size:clamp(28px,4vw,44px)}.transmission p{color:var(--muted)}
+
         .section{margin-top:78px}.section-header{display:flex;align-items:flex-end;justify-content:space-between;gap:30px;margin-bottom:22px}
         .section-header h2{margin:0;font-size:clamp(35px,5vw,58px);line-height:.98;letter-spacing:-.05em}
         .section-header p{max-width:570px;color:var(--muted);line-height:1.7}.text-link{color:var(--purple-light)}
@@ -662,6 +663,9 @@ export function Home() {
         <em>{t("home.transmission.author")}</em>
       </motion.section>
 
+      <motion.section variants={fadeUp}>
+      </motion.section>
+
       <motion.section className="section" variants={fadeUp}>
         <header className="section-header">
           <div>
@@ -774,4 +778,3 @@ export function Home() {
     </>
   );
 }
-

@@ -683,3 +683,179 @@ main:has(
     padding-left: 0;
   }
 }
+
+@media (max-width: 680px) {
+  .mars-page {
+    width: 100%;
+    max-width: none;
+    padding-right: 0;
+    padding-left: 0;
+  }
+
+  .mars-sector-network.is-orbit-mode {
+    width: 100%;
+    margin-top: 12px;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    overflow: visible;
+  }
+
+  .mars-sector-network.is-orbit-mode > .mars-sector-heading {
+    padding-right: 16px;
+    padding-left: 16px;
+    margin-bottom: 8px;
+  }
+
+  .mars-sector-network.is-orbit-mode .mars-planet-map-section {
+    width: 100%;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    overflow: visible;
+  }
+}
+
+@media (max-width: 680px) {
+  .mars-page {
+    padding-top: 10px;
+  }
+
+  .mars-hero {
+    margin: 0;
+    padding: 8px 16px 4px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    overflow: visible;
+  }
+
+  .mars-hero .mars-kicker,
+  .mars-hero p,
+  .mars-hero .mars-population,
+  .mars-hero .mars-progress {
+    display: none;
+  }
+
+  .mars-hero h1 {
+    margin: 0;
+    font-size: 1.65rem;
+    line-height: 1;
+    letter-spacing: -0.04em;
+  }
+
+  .mars-sector-network.is-orbit-mode {
+    margin-top: 8px;
+  }
+
+  .mars-sector-network.is-orbit-mode > .mars-sector-heading {
+    display: block;
+    margin: 0;
+    padding: 6px 16px 8px;
+  }
+
+  .mars-sector-network.is-orbit-mode
+    > .mars-sector-heading
+    .mars-section-label,
+  .mars-sector-network.is-orbit-mode
+    > .mars-sector-heading
+    p,
+  .mars-sector-network.is-orbit-mode
+    > .mars-sector-heading
+    svg {
+    display: none;
+  }
+
+  .mars-sector-network.is-orbit-mode
+    > .mars-sector-heading
+    h2 {
+    margin: 0;
+    font-size: 1.15rem;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+}
+
+@media (max-width: 900px) {
+  .mars-page:has(.mars-sector-network.is-orbit-mode) {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .mars-page:has(.mars-sector-network.is-orbit-mode)
+    .mars-hero {
+    display: none !important;
+  }
+
+  .mars-page:has(.mars-sector-network.is-orbit-mode)
+    .mars-orbit-secondary {
+    display: none !important;
+  }
+
+  .mars-sector-network.is-orbit-mode {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .mars-sector-network.is-orbit-mode
+    > .mars-sector-heading {
+    display: none !important;
+  }
+
+  .mars-sector-network.is-orbit-mode
+    .mars-planet-map-section {
+    width: 100%;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    overflow: visible;
+  }
+}
+
+@media (max-width: 900px) and (orientation: portrait) {
+  .mars-page:has(.mars-sector-network.is-orbit-mode) {
+    position: relative;
+    display: grid;
+    min-height: calc(100dvh - 72px);
+    place-items: center;
+    padding: 24px;
+  }
+
+  .mars-page:has(.mars-sector-network.is-orbit-mode)
+    > * {
+    display: none !important;
+  }
+
+  .mars-page:has(.mars-sector-network.is-orbit-mode)::before {
+    display: block;
+    max-width: 280px;
+    color: #ffffff;
+    content:
+      "MARS ORBIT\A\A ROTATE YOUR DEVICE\A\A Mars is designed for landscape mode.";
+    white-space: pre-line;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 800;
+    line-height: 1.65;
+    letter-spacing: 0.08em;
+  }
+}

@@ -16,6 +16,7 @@ export const en: TranslationDictionary = {
   "auth.googleLoginError": "Google sign-in failed: {{message}}",
   "auth.logoutError": "Sign-out failed: {{message}}",
 
+  "nav.mars": "MARS",
   "nav.orbit": "Orbit",
   "nav.commandDeck": "Command Deck",
   "nav.genesis": "Genesis",

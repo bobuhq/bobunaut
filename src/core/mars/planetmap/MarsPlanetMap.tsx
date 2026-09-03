@@ -677,12 +677,18 @@ function MarsPlanet({
 function MarsScene(
   props: MarsPlanetSceneProps,
 ) {
+  const mobileMars =
+    typeof window !== "undefined" &&
+    window.matchMedia("(max-width: 900px)").matches;
+
   return (
     <>
-      <color
-        attach="background"
-        args={["#010207"]}
-      />
+      {!mobileMars && (
+        <color
+          attach="background"
+          args={["#010207"]}
+        />
+      )}
 
       <ambientLight
         intensity={0.24}
@@ -1453,17 +1459,27 @@ export function MarsPlanetMap({
         camera={{
           position: [
             0,
-            0.15,
-            6.45,
+            typeof window !== "undefined" &&
+            window.matchMedia("(max-width: 900px)").matches
+              ? 0.05
+              : 0.15,
+            typeof window !== "undefined" &&
+            window.matchMedia("(max-width: 900px)").matches
+              ? 7.15
+              : 6.45,
           ],
-          fov: 42,
+          fov:
+            typeof window !== "undefined" &&
+            window.matchMedia("(max-width: 900px)").matches
+              ? 46
+              : 42,
           near: 0.1,
           far: 120,
         }}
         dpr={[1, 1.75]}
         gl={{
           antialias: true,
-          alpha: false,
+          alpha: true,
           powerPreference:
             "high-performance",
         }}
