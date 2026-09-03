@@ -1756,6 +1756,66 @@ export function MarsExploreWorld() {
           }
         }
 
+
+        @media (pointer: coarse) and (orientation: landscape) {
+          .ares-terminal-panel {
+            box-sizing: border-box !important;
+            width: min(34vw, 300px) !important;
+            max-width: 300px !important;
+            max-height: 42dvh !important;
+            padding: 8px 10px !important;
+            overflow-x: hidden !important;
+            overflow-y: auto !important;
+            overscroll-behavior: contain !important;
+            -webkit-overflow-scrolling: touch;
+            touch-action: pan-y !important;
+          }
+
+          .ares-terminal-panel--mission {
+            width: min(32vw, 280px) !important;
+            max-width: 280px !important;
+          }
+
+          .ares-terminal-panel--research {
+            width: min(32vw, 280px) !important;
+            max-width: 280px !important;
+          }
+
+          .ares-terminal-panel--command {
+            width: min(34vw, 300px) !important;
+            max-width: 300px !important;
+            max-height: 46dvh !important;
+          }
+
+          .ares-terminal-panel__command-inner {
+            width: 100% !important;
+            padding: 7px 8px !important;
+          }
+
+          .ares-terminal-panel p {
+            margin-top: 5px !important;
+            margin-bottom: 5px !important;
+            font-size: 10px !important;
+            line-height: 1.32 !important;
+          }
+
+          .ares-terminal-panel h1,
+          .ares-terminal-panel h2,
+          .ares-terminal-panel h3 {
+            margin-top: 4px !important;
+            margin-bottom: 6px !important;
+            font-size: 14px !important;
+            line-height: 1.15 !important;
+          }
+
+          .ares-terminal-panel button {
+            min-height: 32px !important;
+            padding: 5px 8px !important;
+            font-size: 9px !important;
+            touch-action: manipulation !important;
+          }
+        }
+
       `}</style>
 
       <AresMobileJoystick
