@@ -1,10 +1,17 @@
 import {
+import { marsAudio } from "../audio/MarsAudioEngine";
   useCallback,
   type PointerEvent as ReactPointerEvent,
 } from "react";
 
 function dispatchKeyboardEvent(
   type: "keydown" | "keyup",
+    void marsAudio
+      .unlock()
+      .then(() => {
+        marsAudio.jump();
+      });
+
   code: "KeyE" | "Space",
   key: "e" | " ",
 ) {

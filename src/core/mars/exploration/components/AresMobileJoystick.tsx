@@ -1,4 +1,5 @@
 import {
+import { marsAudio } from "../audio/MarsAudioEngine";
   useCallback,
   useRef,
   useState,
@@ -104,6 +105,7 @@ export function AresMobileJoystick({
   const handlePointerDown = (
     event: ReactPointerEvent<HTMLDivElement>,
   ) => {
+    void marsAudio.unlock();
     activePointerRef.current =
       event.pointerId;
 

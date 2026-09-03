@@ -797,6 +797,43 @@ export function MarsExploreWorld() {
       null;
 
   useEffect(() => {
+    let animationFrame = 0;
+
+    const tickMovementAudio = () => {
+      const movement =
+        analogMovementRef.current;
+
+      const moving =
+        Math.hypot(
+          movement.x,
+          movement.y,
+        ) > 0.16;
+
+      if (moving) {
+        marsAudio.step(false);
+      }
+
+      animationFrame =
+        window.requestAnimationFrame(
+          tickMovementAudio,
+        );
+    };
+
+    animationFrame =
+      window.requestAnimationFrame(
+        tickMovementAudio,
+      );
+
+    return () => {
+      window.cancelAnimationFrame(
+        animationFrame,
+      );
+    };
+  }, []);
+
+  const BOBU_MOBILE_FOOTSTEP_LOOP = true;
+
+  useEffect(() => {
     function handleKeyDown(
       event: KeyboardEvent,
     ) {
@@ -1825,9 +1862,11 @@ export function MarsExploreWorld() {
 
         @media (pointer: coarse) and (orientation: landscape) {
           .ares-terminal-panel {
-            width: 105px !important;
-            max-width: 105px !important;
-            max-height: 28dvh !important;
+            width: 240px !important;
+            max-width: 240px !important;
+            max-height: 52dvh !important;
+            transform: scale(0.38) !important;
+            transform-origin: center center !important;
             padding: 6px 8px !important;
             border-radius: 8px !important;
             overflow-y: auto !important;
@@ -1839,15 +1878,19 @@ export function MarsExploreWorld() {
 
           .ares-terminal-panel--mission,
           .ares-terminal-panel--research {
-            width: 103px !important;
-            max-width: 103px !important;
-            max-height: 28dvh !important;
+            width: 250px !important;
+            max-width: 250px !important;
+            max-height: 54dvh !important;
+            transform: scale(0.38) !important;
+            transform-origin: center center !important;
           }
 
           .ares-terminal-panel--command {
-            width: 110px !important;
-            max-width: 110px !important;
-            max-height: 30dvh !important;
+            width: 260px !important;
+            max-width: 260px !important;
+            max-height: 54dvh !important;
+            transform: scale(0.34) !important;
+            transform-origin: center center !important;
           }
 
           .ares-terminal-panel__command-inner {
@@ -1858,8 +1901,8 @@ export function MarsExploreWorld() {
           .ares-terminal-panel p {
             margin-top: 3px !important;
             margin-bottom: 3px !important;
-            font-size: 7px !important;
-            line-height: 1.18 !important;
+            font-size: 12px !important;
+            line-height: 1.22 !important;
           }
 
           .ares-terminal-panel h1,
@@ -1867,14 +1910,14 @@ export function MarsExploreWorld() {
           .ares-terminal-panel h3 {
             margin-top: 2px !important;
             margin-bottom: 4px !important;
-            font-size: 9px !important;
-            line-height: 1.1 !important;
+            font-size: 16px !important;
+            line-height: 1.12 !important;
           }
 
           .ares-terminal-panel button {
-            min-height: 22px !important;
-            padding: 3px 4px !important;
-            font-size: 7px !important;
+            min-height: 38px !important;
+            padding: 6px 9px !important;
+            font-size: 12px !important;
           }
 
           .ares-hud-objective {
