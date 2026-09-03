@@ -14,6 +14,8 @@ import {
 
 import * as THREE from "three";
 
+import { useLanguage } from "../../../language";
+
 import {
   accessMyAresMissionTerminal,
   type AresHiddenMission,
@@ -43,6 +45,7 @@ export function AresMissionTerminal({
   worldPosition,
   onMission,
 }: Props) {
+  const { t } = useLanguage();
   const screenRef =
     useRef<THREE.MeshStandardMaterial | null>(
       null,
@@ -363,7 +366,7 @@ export function AresMissionTerminal({
                     "#cda2ff",
                 }}
               >
-                COMMAND TERMINAL
+                {t("mars.mission.commandTerminal")}
               </div>
 
               <div
@@ -377,8 +380,8 @@ export function AresMissionTerminal({
                 }}
               >
                 {busy
-                  ? "CONNECTING..."
-                  : "E — ACCESS TERMINAL"}
+                  ? t("mars.mission.connecting")
+                  : t("mars.mission.accessTerminal")}
               </div>
             </>
           )}
@@ -412,7 +415,7 @@ export function AresMissionTerminal({
                     "#b88be8",
                 }}
               >
-                HIDDEN ARES MISSION
+                {t("mars.mission.hidden")}
               </div>
 
               <div

@@ -14,6 +14,8 @@ import {
 
 import * as THREE from "three";
 
+import { useLanguage } from "../../../language";
+
 import type {
   AresHiddenMission,
 } from "../missions/AresHiddenMissionService";
@@ -60,6 +62,7 @@ export function AresResearchTerminal({
   onArchiveOpenChange,
   onArchiveRecordChange,
 }: Props) {
+  const { t } = useLanguage();
   const screenRef =
     useRef<THREE.MeshStandardMaterial | null>(
       null,
@@ -626,7 +629,7 @@ export function AresResearchTerminal({
                 "7px",
             }}
           >
-            ARES RESEARCH SYSTEM
+            {t("mars.research.system")}
           </div>
 
           <div
@@ -640,16 +643,16 @@ export function AresResearchTerminal({
             }}
           >
             {researchCompleted
-              ? "RESEARCH COMPLETE"
+              ? t("mars.research.complete")
               : researchAnalyzing
-                ? "ANALYZING DISCOVERY"
+                ? t("mars.research.analyzingDiscovery")
                 : researchState === "loading"
-                  ? "CONNECTING RESEARCH LINK"
+                  ? t("mars.research.connectingLink")
                   : researchState === "error"
-                    ? "RESEARCH LINK FAILED"
+                    ? t("mars.research.linkFailed")
                     : researchReady
-                      ? "DISCOVERY READY FOR ANALYSIS"
-                      : "NO RESEARCH SAMPLE AVAILABLE"}
+                      ? t("mars.research.ready")
+                      : t("mars.research.noSample")}
           </div>
 
           {researchReady &&
@@ -684,19 +687,21 @@ export function AresResearchTerminal({
                 >
                   {researchCompleted
                     ? archiveLoading
-                      ? "OPENING DISCOVERY RECORD"
+                      ? t("mars.research.openingRecord")
                       : archiveError
-                        ? "E — RETRY DISCOVERY RECORD"
-                        : "E — VIEW DISCOVERY RECORD"
+                        ? t("mars.research.retryRecord")
+                        : t("mars.research.viewRecord")
                     : researchAnalyzing
-                      ? `ANALYZING · ${Math.round(
-                          researchProgress * 100,
-                        )}%`
+                      ? t("mars.research.analyzing", {
+                          progress: Math.round(
+                            researchProgress * 100,
+                          ),
+                        })
                       : researchState === "loading"
-                        ? "ESTABLISHING SECURE LINK"
+                        ? t("mars.research.establishingLink")
                         : researchState === "error"
-                          ? "E — RETRY ANALYSIS LINK"
-                          : "E — START ANALYSIS"}
+                          ? t("mars.research.retryLink")
+                          : t("mars.research.startAnalysis")}
                 </div>
               </>
             )}
@@ -712,7 +717,7 @@ export function AresResearchTerminal({
                   1.45,
               }}
             >
-              Complete an Ares field mission to recover a research sample.
+              {t("mars.research.completeMission")}
             </div>
           )}
         </div>

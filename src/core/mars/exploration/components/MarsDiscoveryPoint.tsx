@@ -14,6 +14,8 @@ import {
 
 import * as THREE from "three";
 
+import { useLanguage } from "../../../language";
+
 import {
   loadAresGenesisTerrainData,
   sampleAresGenesisGameplaySurfaceMeters,
@@ -43,6 +45,7 @@ export function MarsDiscoveryPoint({
     -28,
   ],
 }: MarsDiscoveryPointProps) {
+  const { t } = useLanguage();
   const markerRef =
     useRef<THREE.Group | null>(
       null,
@@ -682,7 +685,7 @@ export function MarsDiscoveryPoint({
                   "nowrap",
               }}
             >
-              SIGNAL DETECTED
+              {t("mars.discovery.signalDetected")}
             </div>
           </Html>
         </group>
@@ -746,7 +749,7 @@ export function MarsDiscoveryPoint({
                   "5px",
               }}
             >
-              GEOLOGICAL ANOMALY
+              {t("mars.discovery.geologicalAnomaly")}
             </div>
 
             <div
@@ -758,14 +761,14 @@ export function MarsDiscoveryPoint({
               }}
             >
               {isSubmitting
-                ? "SYNCING DISCOVERY..."
+                ? t("mars.discovery.syncing")
                 : isScanned
                   ? rewardGp && rewardGp > 0
-                    ? `DISCOVERY COMPLETE · +${rewardGp} GP`
-                    : "DISCOVERY ALREADY RECORDED TODAY"
+                    ? t("mars.discovery.completeReward", { reward: rewardGp })
+                    : t("mars.discovery.alreadyRecorded")
                   : discoveryError
                     ? discoveryError
-                    : "HOLD E TO SCAN"}
+                    : t("mars.discovery.holdScan")}
             </div>
 
             {!isScanned && (

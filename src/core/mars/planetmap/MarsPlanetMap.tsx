@@ -59,6 +59,9 @@ import {
   createMarsPixelBlockSelectionV1,
 } from "./MarsPixelGridMapper";
 
+import { useLanguage } from "../../language";
+import MarsLanguageSelector from "../components/MarsLanguageSelector";
+
 import "./MarsPlanetMap.css";
 
 type MarsPlanetMapProps = {
@@ -756,6 +759,7 @@ export function MarsPlanetMap({
   aresAccess,
   aresAccessLoading,
 }: MarsPlanetMapProps) {
+  const { t } = useLanguage();
   const [
     pixelNetworkStatus,
     setPixelNetworkStatus,
@@ -1124,7 +1128,7 @@ export function MarsPlanetMap({
         </span>
 
         <strong>
-          Planetary Operations
+          {t("mars.orbit.operations")}
         </strong>
       </div>
 
@@ -1133,7 +1137,10 @@ export function MarsPlanetMap({
         aria-live="polite"
       >
         <span>
-          MARS PIXEL NETWORK
+          <>
+            <MarsLanguageSelector />
+            {t("mars.pixel.network")}
+          </>
         </span>
 
         <strong>
@@ -1161,15 +1168,13 @@ export function MarsPlanetMap({
             className="mars-planet-map__coordinate-hud"
             aria-hidden="true"
           >
-            <span>MARS GRID</span>
+            <span>{t("mars.pixel.grid")}</span>
             <strong>
               X {hoveredPixelCoordinate.x}
               {" · "}
               Y {hoveredPixelCoordinate.y}
             </strong>
-            <small>
-              PIXEL X {hoveredPixelCoordinate.x} / Y {hoveredPixelCoordinate.y}
-            </small>
+            <small>{t("mars.pixel.coordinate", { x: hoveredPixelCoordinate.x, y: hoveredPixelCoordinate.y })}</small>
           </div>
         )}
 
@@ -1184,17 +1189,17 @@ export function MarsPlanetMap({
             <div className="mars-pixel-detail__header">
               <div>
                 <span className="mars-pixel-detail__eyebrow">
-                  MARS PIXEL NETWORK
+                  {t("mars.pixel.network")}
                 </span>
                 <strong>
-                  PIXEL SELECTION
+                  {t("mars.pixel.selection")}
                 </strong>
               </div>
 
               <button
                 type="button"
                 className="mars-pixel-detail__close"
-                aria-label="Close pixel selection"
+                aria-label={t("mars.pixel.closeSelection")}
                 onClick={() => {
                   pixelRequestRef.current += 1;
                   setLockedSelectionTarget(null);
@@ -1250,7 +1255,7 @@ export function MarsPlanetMap({
 
                   {pixelBlockSelection && (
                     <div className="mars-pixel-detail__meta">
-                      <span>PIXELS</span>
+                      <span>{t("mars.pixel.pixels")}</span>
                       <strong>
                         {pixelBlockSelection.pixelCount}
                       </strong>
@@ -1258,7 +1263,7 @@ export function MarsPlanetMap({
                   )}
 
                   <div className="mars-pixel-detail__meta">
-                    <span>X RANGE</span>
+                    <span>{t("mars.pixel.xRange")}</span>
                     <strong>
                       {pixelBlockSelection
                         ? `${pixelBlockSelection.xStart}–${pixelBlockSelection.xEnd}`
@@ -1267,7 +1272,7 @@ export function MarsPlanetMap({
                   </div>
 
                   <div className="mars-pixel-detail__meta">
-                    <span>Y RANGE</span>
+                    <span>{t("mars.pixel.yRange")}</span>
                     <strong>
                       {pixelBlockSelection
                         ? `${pixelBlockSelection.yStart}–${pixelBlockSelection.yEnd}`
@@ -1276,7 +1281,7 @@ export function MarsPlanetMap({
                   </div>
 
                   <div className="mars-pixel-detail__meta">
-                    <span>AREA SIZE</span>
+                    <span>{t("mars.pixel.areaSize")}</span>
                     <strong>
                       {pixelBlockSelection
                         ? `${pixelBlockSelection.width} × ${pixelBlockSelection.height}`
@@ -1285,7 +1290,7 @@ export function MarsPlanetMap({
                   </div>
 
                   <div className="mars-pixel-detail__meta">
-                    <span>REFERENCE VALUE</span>
+                    <span>{t("mars.pixel.referenceValue")}</span>
                     <strong>
                       {selectedPixelValuation
                         ? new Intl.NumberFormat(
@@ -1306,7 +1311,7 @@ export function MarsPlanetMap({
                   </div>
 
                   <div className="mars-pixel-detail__meta">
-                    <span>MINIMUM PURCHASE</span>
+                    <span>{t("mars.pixel.minimumPurchase")}</span>
                     <strong>
                       {selectedPixelValuation
                         ? `${selectedPixelValuation.minimum_purchase_pixels} PIXELS`
@@ -1368,7 +1373,7 @@ export function MarsPlanetMap({
                           <div className="mars-pixel-detail__commercial">
                             {purchasable
                               ? "COMMERCIAL ACCESS ACTIVE"
-                              : "SALES LOCKED"}
+                              : t("mars.pixel.salesLocked")}
                           </div>
                         )}
 
@@ -1542,7 +1547,7 @@ export function MarsPlanetMap({
           <span className="mars-planet-map__focus-eyebrow">
             {current
               ? "MY TERRITORY"
-              : "SELECTED SECTOR"}
+              : t("mars.pixel.selectedSector")}
           </span>
 
           <h3>
@@ -1555,7 +1560,7 @@ export function MarsPlanetMap({
 
           <div className="mars-planet-map__focus-stats">
             <div>
-              <span>COLONIES</span>
+              <span>{t("mars.sector.colonies")}</span>
 
               <strong>
                 {
@@ -1570,7 +1575,7 @@ export function MarsPlanetMap({
 
             <div>
               <span>
-                CONTRIBUTION
+                {t("mars.sector.contribution")}
               </span>
 
               <strong>
@@ -1581,7 +1586,7 @@ export function MarsPlanetMap({
             </div>
 
             <div>
-              <span>STATUS</span>
+              <span>{t("mars.sector.status")}</span>
 
               <strong>
                 {
@@ -1610,13 +1615,13 @@ export function MarsPlanetMap({
 
                 <div>
                   <span className="mars-planet-map__access-kicker">
-                    ARES ACCESS PROTOCOL
+                    {t("mars.ares.accessProtocol")}
                   </span>
                   <strong>
                     {aresAccessLoading
                       ? "VERIFYING ACCESS"
                       : aresAccess?.unlocked
-                        ? "ACCESS AUTHORIZED"
+                        ? t("mars.ares.accessAuthorized")
                         : "SECURITY LOCK ACTIVE"}
                   </strong>
                 </div>
@@ -1630,7 +1635,7 @@ export function MarsPlanetMap({
                       : "is-pending"
                   }
                 >
-                  <span>TELEGRAM VERIFICATION</span>
+                  <span>{t("mars.ares.telegramVerification")}</span>
                   <strong>
                     {aresAccess?.telegram_verified
                       ? "VERIFIED ✓"
@@ -1645,7 +1650,7 @@ export function MarsPlanetMap({
                       : "is-pending"
                   }
                 >
-                  <span>X VERIFICATION</span>
+                  <span>{t("mars.ares.xVerification")}</span>
                   <strong>
                     {aresAccess?.x_verified
                       ? "VERIFIED ✓"
@@ -1662,7 +1667,7 @@ export function MarsPlanetMap({
                       : "is-pending"
                   }
                 >
-                  <span>MINING DAYS</span>
+                  <span>{t("mars.ares.miningDays")}</span>
                   <strong>
                     {aresAccessLoading
                       ? "SYNCING"
@@ -1705,7 +1710,7 @@ export function MarsPlanetMap({
                 {aresAccessLoading
                   ? "VERIFYING ACCESS"
                   : aresAccess?.unlocked
-                    ? "ENTER ARES"
+                    ? t("mars.ares.enter")
                     : "ARES LOCKED"}
                 <span>
                   {aresAccess?.unlocked ? "→" : "×"}
@@ -1738,11 +1743,11 @@ export function MarsPlanetMap({
 
       <div className="mars-planet-map__controls">
         <span>
-          DRAG TO ROTATE
+          {t("mars.orbit.dragRotate")}
         </span>
 
         <span>
-          SCROLL TO ZOOM
+          {t("mars.orbit.scrollZoom")}
         </span>
       </div>
     </section>

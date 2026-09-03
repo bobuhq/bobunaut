@@ -38,6 +38,9 @@ import {
   useAuthSession,
 } from "../../auth/useAuthSession";
 
+import { useLanguage } from "../../language";
+import MarsLanguageSelector from "../components/MarsLanguageSelector";
+
 import {
   useBuilderStore,
 } from "../../../features/identity/hooks/useBuilderStore";
@@ -422,6 +425,7 @@ function MarsExploreScene({
 }
 
 export function MarsExploreWorld() {
+  const { t, language } = useLanguage();
   const {
     session,
   } = useAuthSession();
@@ -1231,7 +1235,7 @@ export function MarsExploreWorld() {
           ARES EXPLORATION
         </span>
 
-        <h1>ROTATE YOUR DEVICE</h1>
+        <h1>{t("mars.ares.rotateTitle")}</h1>
 
         <p>
           Ares Exploration is designed for landscape mode.
@@ -1246,6 +1250,17 @@ export function MarsExploreWorld() {
 
   return (
     <div className="mars-explore-world">
+      <MarsLanguageSelector
+        style={
+          mobileOrientation === "landscape"
+            ? {
+                top: "6px",
+                fontSize: "6px",
+                padding: "2px 5px",
+              }
+            : undefined
+        }
+      />
 
       <style>{`
         .mars-explore-world {
@@ -1403,7 +1418,7 @@ export function MarsExploreWorld() {
             boxShadow: "0 0 10px rgba(99,245,255,0.9)",
           }}
         />
-        ARES ONLINE {onlineCount}
+        {t("mars.ares.online", { count: onlineCount })}
       </div>
 
       {totalGp !== null && (
@@ -1443,7 +1458,7 @@ export function MarsExploreWorld() {
             backdropFilter: "blur(10px)",
           }}
         >
-          {totalGp.toLocaleString("en-US")} GP
+          {totalGp.toLocaleString(language)} GP
         </div>
       )}
 
@@ -1563,7 +1578,7 @@ export function MarsExploreWorld() {
               color: "#63f5ff",
             }}
           >
-            ARES EXPLORATION PROTOCOL
+            {t("mars.ares.protocol")}
           </div>
 
           <div
@@ -1579,7 +1594,7 @@ export function MarsExploreWorld() {
               fontWeight: 900,
             }}
           >
-            FOLLOW THE OBJECTIVE MARKER
+            {t("mars.ares.followObjective")}
           </div>
 
           <div
@@ -1594,11 +1609,11 @@ export function MarsExploreWorld() {
             }}
           >
             {[
-              "WASD MOVE",
-              "SHIFT RUN",
-              "SPACE JUMP",
-              "DRAG CAMERA",
-              "E INTERACT",
+              t("mars.ares.move"),
+              t("mars.ares.run"),
+              t("mars.ares.jump"),
+              t("mars.ares.camera"),
+              t("mars.ares.interact"),
             ].map(
               (
                 item,
@@ -1782,7 +1797,7 @@ export function MarsExploreWorld() {
                     : hiddenMissionNavigation.kind ===
                         "explore"
                       ? "ARES EXPLORATION"
-                      : "PRIMARY OBJECTIVE"}
+                      : t("mars.ares.primaryObjective")}
             </div>
 
             <div
@@ -1811,19 +1826,19 @@ export function MarsExploreWorld() {
                   : hiddenMissionNavigation.kind ===
                       "mission"
                     ? hiddenMissionNavigation.near
-                      ? "SCAN SIGNAL"
+                      ? t("mars.ares.scanSignal")
                       : "FOLLOW SIGNAL"
                     : hiddenMissionNavigation.kind ===
                         "terminal"
                       ? hiddenMissionNavigation.near
-                        ? "ACCESS TERMINAL"
+                        ? t("mars.ares.accessTerminal")
                         : "FIND MISSION TERMINAL"
                       : hiddenMissionNavigation.kind ===
                           "explore"
                         ? "EXPLORE ARES"
                         : hiddenMissionNavigation.near
-                          ? "ENTER COMMAND HUB"
-                          : "REACH COMMAND HUB"}
+                          ? t("mars.ares.enterCommandHub")
+                          : t("mars.ares.reachCommandHub")}
               </strong>
 
               {(showLandmarkNavigation ||
@@ -1883,7 +1898,7 @@ export function MarsExploreWorld() {
                   : hiddenMissionNavigation.kind ===
                     "mission" &&
                   hiddenMissionNavigation.near
-                  ? "HOLD E TO SCAN"
+                  ? t("mars.ares.holdScan")
                   : hiddenMissionNavigation.kind ===
                       "terminal" &&
                     hiddenMissionNavigation.near
@@ -1912,7 +1927,7 @@ export function MarsExploreWorld() {
           setMarketOpen(true);
           setOnboardingVisible(false);
         }}
-        aria-label="Open Mars Market"
+        aria-label={t("mars.market.open")}
         style={{
           position: "fixed",
           top:
@@ -1950,7 +1965,7 @@ export function MarsExploreWorld() {
           letterSpacing: ".1em",
         }}
       >
-        MARS MARKET
+        {t("mars.market.title")}
       </button>
 
       {placementError && (

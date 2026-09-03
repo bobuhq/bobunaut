@@ -17,6 +17,8 @@ import {
   Zap,
 } from "lucide-react";
 
+import { useLanguage } from "../core/language";
+
 import "./MarsMarket.css";
 
 import {
@@ -74,6 +76,7 @@ export default function MarsMarket({
   onPurchaseComplete,
   onPlaceInventoryBuilding,
 }: Props) {
+  const { t } = useLanguage();
   const [tab, setTab] = useState<Tab>("market");
 
   const [market, setMarket] =
@@ -110,7 +113,7 @@ export default function MarsMarket({
       setError(
         loadError instanceof Error
           ? loadError.message
-          : "Unable to load Mars Market.",
+          : t("mars.market.loadFailed"),
       );
     } finally {
       setLoading(false);
@@ -163,7 +166,7 @@ export default function MarsMarket({
       setError(
         purchaseError instanceof Error
           ? purchaseError.message
-          : "Purchase failed.",
+          : t("mars.market.purchaseFailed"),
       );
     } finally {
       setBuyingItemKey(null);
@@ -188,7 +191,7 @@ export default function MarsMarket({
         className="mars-market-panel"
         role="dialog"
         aria-modal="true"
-        aria-label="Mars Market"
+        aria-label={t("mars.market.title")}
       >
         <header className="mars-market-header">
           <div>
@@ -196,7 +199,7 @@ export default function MarsMarket({
               BOBU MARS
             </span>
 
-            <h2>Mars Market</h2>
+            <h2>{t("mars.market.title")}</h2>
 
             <p>
               Acquire structures and equipment
@@ -208,7 +211,7 @@ export default function MarsMarket({
             type="button"
             className="mars-market-close"
             onClick={onClose}
-            aria-label="Close Mars Market"
+            aria-label={t("mars.market.close")}
           >
             <X size={20} />
           </button>
@@ -260,7 +263,7 @@ export default function MarsMarket({
 
         {loading ? (
           <div className="mars-market-loading">
-            Loading Colony systems...
+            {t("mars.market.loading")}
           </div>
         ) : tab === "market" ? (
           <div className="mars-market-content">

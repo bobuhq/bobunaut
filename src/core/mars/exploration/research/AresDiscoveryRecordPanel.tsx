@@ -2,6 +2,8 @@ import type {
   AresDiscoveryRecord,
 } from "./AresDiscoveryArchiveService";
 
+import { useLanguage } from "../../../language";
+
 type Props = {
   record:
     AresDiscoveryRecord;
@@ -14,6 +16,7 @@ export function AresDiscoveryRecordPanel({
   record,
   onClose,
 }: Props) {
+  const { t } = useLanguage();
   return (
       <div
       style={{
@@ -90,7 +93,7 @@ export function AresDiscoveryRecordPanel({
               "8px",
           }}
         >
-          BOBU MARS · DISCOVERY ARCHIVE
+          {t("mars.archive.title")}
         </div>
 
         <div
@@ -134,27 +137,27 @@ export function AresDiscoveryRecordPanel({
           }}
         >
           <Info
-            label="CLASSIFICATION"
+            label={t("mars.archive.classification")}
             value={
               record.classification
             }
           />
 
           <Info
-            label="ARCHIVE CODE"
+            label={t("mars.archive.code")}
             value={
               record.archiveCode
             }
           />
 
           <Info
-            label="SECTOR"
+            label={t("mars.archive.sector")}
             value="ARES"
           />
 
           <Info
-            label="STATUS"
-            value="RESEARCH ARCHIVED"
+            label={t("mars.archive.status")}
+            value={t("mars.archive.archived")}
           />
         </div>
 
@@ -195,7 +198,7 @@ export function AresDiscoveryRecordPanel({
               "12px",
           }}
         >
-          BOBU exploration record. Gameplay classification only.
+          {t("mars.archive.disclaimer")}
         </div>
 
         <button
@@ -230,7 +233,7 @@ export function AresDiscoveryRecordPanel({
               "pointer",
           }}
         >
-          CLOSE RECORD
+          {t("mars.archive.close")}
         </button>
       </div>
     </div>

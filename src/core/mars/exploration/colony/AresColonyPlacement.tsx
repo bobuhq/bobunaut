@@ -15,6 +15,8 @@ import {
 
 import * as THREE from "three";
 
+import { useLanguage } from "../../../language";
+
 import {
   getMyMarsColonyBase,
   type MarsColonyBaseBuilding,
@@ -94,6 +96,7 @@ export default function AresColonyPlacement({
   onCancel,
   onSaved,
 }: Props) {
+  const { t } = useLanguage();
   const normalizedBuildingKey =
     definition.building_key
       .trim()
@@ -734,7 +737,7 @@ export default function AresColonyPlacement({
               letterSpacing: ".16em",
             }}
           >
-            COLONY PLACEMENT
+            {t("mars.placement.title")}
           </div>
 
           <strong
@@ -744,7 +747,7 @@ export default function AresColonyPlacement({
               fontSize: "12px",
             }}
           >
-            MOVE TO BUILD AREA
+            {t("mars.placement.moveToArea")}
           </strong>
 
           <div
@@ -758,10 +761,12 @@ export default function AresColonyPlacement({
             {Number.isFinite(
               builderDistanceFromPreview,
             )
-              ? `${Math.ceil(
-                  builderDistanceFromPreview,
-                )} M TO BUILD AREA`
-              : "LOCATING BUILD AREA"}
+              ? t("mars.placement.distance", {
+                  distance: Math.ceil(
+                    builderDistanceFromPreview,
+                  ),
+                })
+              : t("mars.placement.locating")}
           </div>
 
           <button
@@ -772,7 +777,7 @@ export default function AresColonyPlacement({
               width: "100%",
             }}
           >
-            CANCEL
+            {t("mars.placement.cancel")}
           </button>
           </div>
         </Html>
@@ -950,7 +955,7 @@ export default function AresColonyPlacement({
               letterSpacing: ".16em",
             }}
           >
-            COLONY PLACEMENT
+            {t("mars.placement.title")}
           </div>
 
           <strong
@@ -1012,7 +1017,7 @@ export default function AresColonyPlacement({
               type="button"
               onClick={rotate}
             >
-              ROTATE
+              {t("mars.placement.rotate")}
             </button>
 
             <button
@@ -1024,8 +1029,8 @@ export default function AresColonyPlacement({
               }
             >
               {saving
-                ? "SAVING"
-                : "PLACE"}
+                ? t("mars.placement.saving")
+                : t("mars.placement.place")}
             </button>
           </div>
 
@@ -1038,7 +1043,7 @@ export default function AresColonyPlacement({
               width: "100%",
             }}
           >
-            CANCEL
+            {t("mars.placement.cancel")}
           </button>
 
           {!validation.valid && (
@@ -1050,7 +1055,7 @@ export default function AresColonyPlacement({
                 fontWeight: 800,
               }}
             >
-              INVALID PLACEMENT
+              {t("mars.placement.invalid")}
             </div>
           )}
 

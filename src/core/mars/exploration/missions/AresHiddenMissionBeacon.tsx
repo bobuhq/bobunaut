@@ -14,6 +14,8 @@ import {
 
 import * as THREE from "three";
 
+import { useLanguage } from "../../../language";
+
 import {
   loadAresGenesisTerrainData,
   sampleAresGenesisGameplaySurfaceMeters,
@@ -61,6 +63,7 @@ export function AresHiddenMissionBeacon({
   onCompleted,
   onNavigation,
 }: Props) {
+  const { t } = useLanguage();
   const [
     terrainHeight,
     setTerrainHeight,
@@ -705,7 +708,7 @@ export function AresHiddenMissionBeacon({
               "#c99cf3",
           }}
         >
-          MISSION SIGNAL
+          {t("mars.mission.signal")}
         </div>
 
         {!isNear &&
@@ -721,7 +724,7 @@ export function AresHiddenMissionBeacon({
                   "#d7d0dd",
               }}
             >
-              APPROACH SIGNAL
+              {t("mars.mission.approachSignal")}
             </div>
           )}
 
@@ -740,11 +743,11 @@ export function AresHiddenMissionBeacon({
                 }}
               >
                 {isSubmitting
-                  ? "SYNCING MISSION..."
+                  ? t("mars.mission.syncing")
                   : scanProgress >
                       0
-                    ? `SCANNING ${scanProgress}%`
-                    : "HOLD E — SCAN SIGNAL"}
+                    ? t("mars.mission.scanning", { progress: scanProgress })
+                    : t("mars.mission.holdScan")}
               </div>
 
               <div
@@ -791,8 +794,9 @@ export function AresHiddenMissionBeacon({
                 "#d8b5ff",
             }}
           >
-            MISSION COMPLETE · +
-            {completionReward} GP
+            {t("mars.mission.complete", {
+              reward: completionReward,
+            })}
           </div>
         )}
 

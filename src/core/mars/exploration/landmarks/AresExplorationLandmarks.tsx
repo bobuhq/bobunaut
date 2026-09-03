@@ -16,6 +16,19 @@ import {
 
 import * as THREE from "three";
 
+import { useLanguage } from "../../../language";
+
+function GameplayTerrainClassificationLabel() {
+  const { t } = useLanguage();
+
+  return (
+    <>
+      {t("mars.landmark.gameplayClassification")}
+    </>
+  );
+}
+
+
 import {
   completeMyAresLandmarkSurvey,
   getMyAresLandmarkDiscoveries,
@@ -631,7 +644,7 @@ function LandmarkMarker({
                   1.35,
               }}
             >
-              GAMEPLAY TERRAIN CLASSIFICATION
+              <GameplayTerrainClassificationLabel />
             </div>
 
             {surveyNear && (
