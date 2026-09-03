@@ -231,8 +231,16 @@ export function BuildMars() {
     setSectorDiveActive(true);
 
     window.setTimeout(() => {
+      const nativeBridge =
+        typeof window !== "undefined" &&
+        new URLSearchParams(
+          window.location.search,
+        ).get("nativeBridge") === "1";
+
       navigate(
-        "/mars/explore?sector=ares",
+        nativeBridge
+          ? "/mars/explore?sector=ares&nativeBridge=1"
+          : "/mars/explore?sector=ares",
       );
     }, 5550);
   };

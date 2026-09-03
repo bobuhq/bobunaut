@@ -802,39 +802,6 @@ export function MarsExploreWorld() {
     ) {
       void marsAudio.unlock();
 
-      if (
-        [
-          "KeyW",
-          "KeyA",
-          "KeyS",
-          "KeyD",
-          "ArrowUp",
-          "ArrowDown",
-          "ArrowLeft",
-          "ArrowRight",
-        ].includes(
-          event.code,
-        )
-      ) {
-        marsAudio.step(
-          event.shiftKey,
-        );
-      }
-
-      if (
-        event.code === "Space" &&
-        !event.repeat
-      ) {
-        marsAudio.jump();
-      }
-
-      if (
-        event.code === "KeyE" &&
-        !event.repeat
-      ) {
-        marsAudio.interact();
-      }
-
       setOnboardingVisible(
         false,
       );
@@ -864,6 +831,8 @@ export function MarsExploreWorld() {
         "pointerdown",
         handlePointerDown,
       );
+
+      void marsAudio.stop();
     };
   }, []);
 
@@ -1831,6 +1800,76 @@ export function MarsExploreWorld() {
           }
         }
 
+
+        @media (pointer: coarse) and (orientation: landscape) {
+          .ares-terminal-panel {
+            width: 210px !important;
+            max-width: 210px !important;
+            max-height: 34dvh !important;
+            padding: 6px 8px !important;
+            border-radius: 8px !important;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+            box-sizing: border-box !important;
+            overscroll-behavior: contain !important;
+            touch-action: pan-y !important;
+          }
+
+          .ares-terminal-panel--mission,
+          .ares-terminal-panel--research {
+            width: 205px !important;
+            max-width: 205px !important;
+            max-height: 34dvh !important;
+          }
+
+          .ares-terminal-panel--command {
+            width: 220px !important;
+            max-width: 220px !important;
+            max-height: 38dvh !important;
+          }
+
+          .ares-terminal-panel__command-inner {
+            width: 100% !important;
+            padding: 5px 6px !important;
+          }
+
+          .ares-terminal-panel p {
+            margin-top: 3px !important;
+            margin-bottom: 3px !important;
+            font-size: 8px !important;
+            line-height: 1.22 !important;
+          }
+
+          .ares-terminal-panel h1,
+          .ares-terminal-panel h2,
+          .ares-terminal-panel h3 {
+            margin-top: 2px !important;
+            margin-bottom: 4px !important;
+            font-size: 11px !important;
+            line-height: 1.12 !important;
+          }
+
+          .ares-terminal-panel button {
+            min-height: 28px !important;
+            padding: 4px 6px !important;
+            font-size: 8px !important;
+          }
+
+          .ares-hud-objective {
+            max-width: min(48vw, 360px) !important;
+            min-width: 210px !important;
+          }
+
+          .ares-hud-objective strong {
+            font-size: 13px !important;
+            line-height: 1.1 !important;
+          }
+
+          .ares-hud-objective span {
+            font-size: 11px !important;
+          }
+        }
+
       `}</style>
 
       <AresMobileJoystick
@@ -2261,7 +2300,7 @@ export function MarsExploreWorld() {
               style={{
                 fontSize:
                   mobileOrientation === "landscape"
-                    ? "5px"
+                    ? "10px"
                     : "8px",
                 fontWeight: 900,
                 letterSpacing:
@@ -2302,7 +2341,7 @@ export function MarsExploreWorld() {
                 style={{
                   fontSize:
                     mobileOrientation === "landscape"
-                      ? "8px"
+                      ? "13px"
                       : "15px",
                 }}
               >
@@ -2337,7 +2376,7 @@ export function MarsExploreWorld() {
                   style={{
                     fontSize:
                       mobileOrientation === "landscape"
-                        ? "7px"
+                        ? "11px"
                         : "11px",
                     fontWeight: 900,
                     color:

@@ -61,6 +61,27 @@ class MarsAudioEngine {
     }
   }
 
+  async stop() {
+    const context = this.context;
+
+    this.context = null;
+    this.master = null;
+    this.ambientStarted = false;
+    this.startupPlayed = false;
+    this.lastStepAt = 0;
+
+    if (
+      context &&
+      context.state !== "closed"
+    ) {
+      try {
+        await context.close();
+      } catch {
+        return;
+      }
+    }
+  }
+
   setEnabled(
     enabled: boolean,
   ) {
