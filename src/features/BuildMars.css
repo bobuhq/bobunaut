@@ -830,32 +830,3 @@ main:has(
     overflow: visible;
   }
 }
-
-@media (max-width: 900px) and (orientation: portrait) {
-  .mars-page:has(.mars-sector-network.is-orbit-mode) {
-    position: relative;
-    display: grid;
-    min-height: calc(100dvh - 72px);
-    place-items: center;
-    padding: 24px;
-  }
-
-  .mars-page:has(.mars-sector-network.is-orbit-mode)
-    > * {
-    display: none !important;
-  }
-
-  .mars-page:has(.mars-sector-network.is-orbit-mode)::before {
-    display: block;
-    max-width: 280px;
-    color: #ffffff;
-    content:
-      "MARS ORBIT\A\A ROTATE YOUR DEVICE\A\A Mars is designed for landscape mode.";
-    white-space: pre-line;
-    text-align: center;
-    font-size: 13px;
-    font-weight: 800;
-    line-height: 1.65;
-    letter-spacing: 0.08em;
-  }
-}
