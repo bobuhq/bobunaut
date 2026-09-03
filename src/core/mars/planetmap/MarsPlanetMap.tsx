@@ -726,6 +726,7 @@ function MarsScene(
 
       <OrbitControls
         makeDefault
+        target={[0, 0, 0]}
         enablePan={false}
         enabled={!props.diving}
         enableRotate={
@@ -1464,10 +1465,7 @@ export function MarsPlanetMap({
         camera={{
           position: [
             0,
-            typeof window !== "undefined" &&
-            window.matchMedia("(max-width: 900px)").matches
-              ? 0.05
-              : 0.15,
+            0,
             typeof window !== "undefined" &&
             window.matchMedia("(max-width: 900px)").matches
               ? 7.15

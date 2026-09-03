@@ -4,6 +4,7 @@ import {
   useEffect,
   useRef,
   useState,
+  type MutableRefObject,
 } from "react";
 
 import {
@@ -14,7 +15,13 @@ import * as THREE from "three";
 
 import {
   BobuCharacterController,
+  type MarsAnalogMovement,
 } from "./components/BobuCharacterController";
+
+import {
+  AresMobileJoystick,
+  type AresJoystickVector,
+} from "./components/AresMobileJoystick";
 
 import {
   BobuCharacterVisual,
@@ -121,6 +128,7 @@ import type {
 
 
 interface MarsExploreSceneProps {
+  analogMovementRef: MutableRefObject<MarsAnalogMovement>;
   builderId: string;
   displayName:
     | string
@@ -167,6 +175,7 @@ interface MarsExploreSceneProps {
 }
 
 function MarsExploreScene({
+  analogMovementRef,
   builderId,
   displayName,
   onOnlineCountChange,
@@ -359,6 +368,9 @@ function MarsExploreScene({
         stairStateRef={
           bobuStairStateRef
         }
+        analogMovementRef={
+          analogMovementRef
+        }
         startPosition={[
           0,
           0,
@@ -426,6 +438,23 @@ function MarsExploreScene({
 
 export function MarsExploreWorld() {
   const { t, language } = useLanguage();
+
+  const analogMovementRef =
+    useRef<MarsAnalogMovement>({
+      x: 0,
+      y: 0,
+    });
+
+  const handleJoystickMove =
+    useCallback(
+      (vector: AresJoystickVector) => {
+        analogMovementRef.current = {
+          x: vector.x,
+          y: vector.y,
+        };
+      },
+      [],
+    );
   const {
     session,
   } = useAuthSession();
@@ -1347,10 +1376,84 @@ export function MarsExploreWorld() {
           text-decoration: none;
         }
 
+        .ares-mobile-joystick {
+          display: none;
+        }
+
+        @media (pointer: coarse) and (orientation: landscape) {
+          .ares-mobile-joystick {
+            position: absolute;
+            z-index: 40;
+            bottom: max(18px, env(safe-area-inset-bottom));
+            left: max(22px, calc(env(safe-area-inset-left) + 12px));
+            display: block;
+            width: 116px;
+            height: 116px;
+            touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+            overscroll-behavior: none;
+          }
+
+          .ares-mobile-joystick__base {
+            position: relative;
+            width: 116px;
+            height: 116px;
+            border: 1px solid rgba(99, 245, 255, 0.3);
+            border-radius: 50%;
+            background:
+              radial-gradient(
+                circle at 50% 50%,
+                rgba(99, 245, 255, 0.11),
+                rgba(5, 7, 18, 0.48) 58%,
+                rgba(5, 7, 18, 0.22) 100%
+              );
+            box-shadow:
+              0 0 30px rgba(99, 245, 255, 0.08),
+              inset 0 0 24px rgba(99, 245, 255, 0.05);
+            backdrop-filter: blur(8px);
+            touch-action: none;
+          }
+
+          .ares-mobile-joystick__ring {
+            position: absolute;
+            inset: 20px;
+            border: 1px solid rgba(99, 245, 255, 0.14);
+            border-radius: 50%;
+            pointer-events: none;
+          }
+
+          .ares-mobile-joystick__knob {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 46px;
+            height: 46px;
+            margin-top: -23px;
+            margin-left: -23px;
+            border: 1px solid rgba(99, 245, 255, 0.72);
+            border-radius: 50%;
+            background:
+              radial-gradient(
+                circle at 38% 32%,
+                rgba(255, 255, 255, 0.28),
+                rgba(99, 245, 255, 0.18) 32%,
+                rgba(15, 30, 45, 0.88) 100%
+              );
+            box-shadow:
+              0 0 20px rgba(99, 245, 255, 0.24),
+              inset 0 0 12px rgba(99, 245, 255, 0.12);
+            pointer-events: none;
+            will-change: transform;
+          }
+        }
+
         @media (max-width: 900px) and (orientation: landscape) {
           .mars-explore-world {
             height: 100dvh;
             min-height: 0;
+            overscroll-behavior: none;
           }
 
           .mars-explore-return-button {
@@ -1359,6 +1462,10 @@ export function MarsExploreWorld() {
           }
         }
       `}</style>
+
+      <AresMobileJoystick
+        onMove={handleJoystickMove}
+      />
 
       <a
         className="mars-explore-return-button"
@@ -2041,6 +2148,9 @@ export function MarsExploreWorld() {
         >
           {builderId && (
             <MarsExploreScene
+        analogMovementRef={
+          analogMovementRef
+        }
               builderId={builderId}
               displayName={
                 displayName

@@ -45,6 +45,11 @@ export type MarsCollisionObstacle =
       halfDepth: number;
     };
 
+export type MarsAnalogMovement = {
+  x: number;
+  y: number;
+};
+
 type BobuCharacterControllerProps = {
   children?: React.ReactNode;
   startPosition?: [
@@ -56,6 +61,7 @@ type BobuCharacterControllerProps = {
   characterRef?: React.RefObject<THREE.Group | null>;
   collisionObstacles?: MarsCollisionObstacle[];
   stairStateRef?: React.MutableRefObject<boolean>;
+  analogMovementRef?: React.MutableRefObject<MarsAnalogMovement>;
 };
 
 const KEY_TO_INPUT: Record<
@@ -83,6 +89,7 @@ export function BobuCharacterController({
   characterRef,
   collisionObstacles = [],
   stairStateRef,
+  analogMovementRef,
 }: BobuCharacterControllerProps) {
   const internalGroupRef =
     useRef<THREE.Group | null>(null);
@@ -261,6 +268,27 @@ export function BobuCharacterController({
       getMarsMovementDirection(
         input,
       );
+
+    const analogMovement =
+      analogMovementRef?.current;
+
+    if (
+      analogMovement &&
+      Math.hypot(
+        analogMovement.x,
+        analogMovement.y,
+      ) > 0
+    ) {
+      direction.set(
+        analogMovement.x,
+        0,
+        analogMovement.y,
+      );
+
+      if (direction.lengthSq() > 1) {
+        direction.normalize();
+      }
+    }
 
     if (direction.lengthSq() > 0) {
       camera.getWorldDirection(
