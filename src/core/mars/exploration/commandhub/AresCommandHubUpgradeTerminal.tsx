@@ -21,6 +21,9 @@ type Props = {
   targetRef:
     React.RefObject<THREE.Group | null>;
   onUpgraded?: () => void;
+  onMobileInteractionChange?: (
+    active: boolean,
+  ) => void;
 };
 
 const INTERACTION_DISTANCE = 3.2;
@@ -28,6 +31,7 @@ const INTERACTION_DISTANCE = 3.2;
 export function AresCommandHubUpgradeTerminal({
   targetRef,
   onUpgraded,
+  onMobileInteractionChange,
 }: Props) {
   const [
     upgrade,
@@ -137,6 +141,17 @@ export function AresCommandHubUpgradeTerminal({
     distance <=
     INTERACTION_DISTANCE;
 
+  useEffect(() => {
+    onMobileInteractionChange?.(nearby);
+
+    return () => {
+      onMobileInteractionChange?.(false);
+    };
+  }, [
+    nearby,
+    onMobileInteractionChange,
+  ]);
+
   const handleUpgrade = async () => {
     if (
       !nearby ||
@@ -223,6 +238,7 @@ export function AresCommandHubUpgradeTerminal({
           distanceFactor={7}
         >
           <div
+            className="ares-terminal-panel ares-terminal-panel--command"
             style={{
               width: "260px",
               padding: "14px",
@@ -240,6 +256,7 @@ export function AresCommandHubUpgradeTerminal({
             }}
           >
           <div
+            className="ares-terminal-panel__command-inner"
             style={{
               width: "190px",
               padding: "9px 10px",

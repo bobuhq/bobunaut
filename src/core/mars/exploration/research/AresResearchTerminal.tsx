@@ -48,6 +48,10 @@ type Props = {
     open: boolean,
   ) => void;
 
+  onMobileInteractionChange?: (
+    active: boolean,
+  ) => void;
+
   onArchiveRecordChange?: (
     record: AresDiscoveryRecord | null,
   ) => void;
@@ -60,6 +64,7 @@ export function AresResearchTerminal({
   mission,
   worldPosition,
   onArchiveOpenChange,
+  onMobileInteractionChange,
   onArchiveRecordChange,
 }: Props) {
   const { t } = useLanguage();
@@ -115,6 +120,25 @@ export function AresResearchTerminal({
     setArchiveOpen,
   ] =
     useState(false);
+
+  const mobileInteractionAvailable =
+    isNear &&
+    researchCompleted &&
+    Boolean(mission) &&
+    !archiveOpen;
+
+  useEffect(() => {
+    onMobileInteractionChange?.(
+      mobileInteractionAvailable,
+    );
+
+    return () => {
+      onMobileInteractionChange?.(false);
+    };
+  }, [
+    mobileInteractionAvailable,
+    onMobileInteractionChange,
+  ]);
 
   useEffect(() => {
     onArchiveOpenChange?.(
@@ -593,6 +617,7 @@ export function AresResearchTerminal({
           distanceFactor={6}
         >
           <div
+            className="ares-terminal-panel ares-terminal-panel--research"
             style={{
               width: "290px",
               padding: "14px 16px",

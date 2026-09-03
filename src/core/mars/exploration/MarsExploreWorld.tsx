@@ -24,6 +24,11 @@ import {
 } from "./components/AresMobileJoystick";
 
 import {
+  AresMobileActions,
+  type AresMobileInteractionTarget,
+} from "./components/AresMobileActions";
+
+import {
   BobuCharacterVisual,
 } from "./components/BobuCharacterVisual";
 
@@ -160,6 +165,13 @@ interface MarsExploreSceneProps {
   onArchiveRecordChange: (
     record: AresDiscoveryRecord | null,
   ) => void;
+  onMobileInteractionChange: (
+    target:
+      | "MISSION"
+      | "RESEARCH"
+      | "COMMAND",
+    active: boolean,
+  ) => void;
   placementItem:
     | MarsInventoryItem
     | null;
@@ -186,6 +198,7 @@ function MarsExploreScene({
   onMissionStateChange,
   onArchiveOpenChange,
   onArchiveRecordChange,
+  onMobileInteractionChange,
   placementItem,
   placementDefinition,
   placementColonyId,
@@ -319,7 +332,10 @@ function MarsExploreScene({
         onArchiveRecordChange={
           onArchiveRecordChange
         }
-      />
+              onMobileInteractionChange={
+          onMobileInteractionChange
+        }
+/>
 
       {hiddenMission &&
         hiddenMission.status ===
@@ -444,6 +460,49 @@ export function MarsExploreWorld() {
       x: 0,
       y: 0,
     });
+
+  const [
+    mobileInteractionTarget,
+    setMobileInteractionTarget,
+  ] =
+    useState<AresMobileInteractionTarget>(
+      null,
+    );
+
+  const mobileInteractionRef =
+    useRef({
+      MISSION: false,
+      RESEARCH: false,
+      COMMAND: false,
+    });
+
+  const handleMobileInteractionChange =
+    useCallback(
+      (
+        target:
+          | "MISSION"
+          | "RESEARCH"
+          | "COMMAND",
+        active: boolean,
+      ) => {
+        mobileInteractionRef.current[target] =
+          active;
+
+        const state =
+          mobileInteractionRef.current;
+
+        setMobileInteractionTarget(
+          state.COMMAND
+            ? "COMMAND"
+            : state.RESEARCH
+              ? "RESEARCH"
+              : state.MISSION
+                ? "MISSION"
+                : null,
+        );
+      },
+      [],
+    );
 
   const handleJoystickMove =
     useCallback(
@@ -1292,6 +1351,11 @@ export function MarsExploreWorld() {
       />
 
       <style>{`
+        .ares-mobile-actions {
+          display: none;
+        }
+
+
         .mars-explore-world {
           position: relative;
           width: 100%;
@@ -1381,6 +1445,10 @@ export function MarsExploreWorld() {
         }
 
         @media (pointer: coarse) and (orientation: landscape) {
+          .ares-mobile-actions {
+            display: flex;
+          }
+
           .ares-mobile-joystick {
             position: absolute;
             z-index: 40;
@@ -1456,15 +1524,225 @@ export function MarsExploreWorld() {
             overscroll-behavior: none;
           }
 
+          .ares-hud-online {
+            top: max(7px, env(safe-area-inset-top)) !important;
+            right: max(10px, calc(env(safe-area-inset-right) + 6px)) !important;
+            min-height: 24px;
+            box-sizing: border-box;
+          }
+
+          .ares-hud-gp {
+            top: max(7px, env(safe-area-inset-top)) !important;
+            right: max(92px, calc(env(safe-area-inset-right) + 88px)) !important;
+            min-height: 24px;
+            display: flex;
+            align-items: center;
+            box-sizing: border-box;
+          }
+
+          .ares-hud-sound {
+            top: max(7px, env(safe-area-inset-top)) !important;
+            right: max(170px, calc(env(safe-area-inset-right) + 166px)) !important;
+          }
+
+          .ares-hud-onboarding {
+            top: max(39px, calc(env(safe-area-inset-top) + 36px)) !important;
+            right: max(10px, calc(env(safe-area-inset-right) + 6px)) !important;
+            width: min(132px, 26vw) !important;
+            max-height: 30dvh;
+            overflow: hidden;
+          }
+
+          .ares-hud-objective {
+            left: max(150px, calc(env(safe-area-inset-left) + 146px)) !important;
+            bottom: max(12px, calc(env(safe-area-inset-bottom) + 8px)) !important;
+            max-width: min(44vw, 330px) !important;
+          }
+
+          .ares-hud-market {
+            right: max(92px, calc(env(safe-area-inset-right) + 88px)) !important;
+            bottom: max(12px, calc(env(safe-area-inset-bottom) + 8px)) !important;
+            min-height: 30px !important;
+            padding: 0 10px !important;
+            font-size: 8px !important;
+          }
+
           .mars-explore-return-button {
-            top: 10px !important;
-            left: 10px !important;
+            top: max(7px, env(safe-area-inset-top)) !important;
+            left: max(9px, calc(env(safe-area-inset-left) + 5px)) !important;
+            min-height: 30px !important;
+            padding: 0 9px !important;
+            font-size: 8px !important;
+          }
+
+          .ares-mobile-actions {
+            position: absolute;
+            right: max(16px, calc(env(safe-area-inset-right) + 10px));
+            bottom: max(18px, calc(env(safe-area-inset-bottom) + 8px));
+            z-index: 45;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            pointer-events: auto;
+            touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+          }
+
+          .ares-mobile-action {
+            appearance: none;
+            -webkit-appearance: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 62px;
+            height: 62px;
+            padding: 0;
+            border: 1px solid rgba(99, 245, 255, 0.42);
+            border-radius: 50%;
+            background:
+              radial-gradient(
+                circle at 38% 30%,
+                rgba(99, 245, 255, 0.18),
+                rgba(7, 12, 22, 0.88) 62%
+              );
+            color: #ffffff;
+            box-shadow:
+              inset 0 0 18px rgba(99, 245, 255, 0.08),
+              0 0 18px rgba(99, 245, 255, 0.08);
+            touch-action: none;
+            -webkit-tap-highlight-color: transparent;
+          }
+
+          .ares-mobile-action:active {
+            transform: scale(0.94);
+            border-color: rgba(99, 245, 255, 0.85);
+            background:
+              radial-gradient(
+                circle at 38% 30%,
+                rgba(99, 245, 255, 0.34),
+                rgba(7, 12, 22, 0.94) 65%
+              );
+          }
+
+          .ares-mobile-action--jump {
+            width: 58px;
+            height: 58px;
+          }
+
+          .ares-mobile-action__icon {
+            color: #63f5ff;
+            font-size: 22px;
+            line-height: 18px;
+            font-weight: 900;
+          }
+
+          .ares-mobile-action__key {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border: 1px solid rgba(199, 149, 255, 0.7);
+            border-radius: 7px;
+            color: #d9b4ff;
+            font-size: 14px;
+            font-weight: 900;
+          }
+
+          .ares-mobile-action__label {
+            margin-top: 3px;
+            color: rgba(255, 255, 255, 0.82);
+            font-size: 6px;
+            font-weight: 900;
+            letter-spacing: 0.12em;
+          }
+
+
+          .ares-terminal-panel {
+            box-sizing: border-box !important;
+            width: min(42vw, 230px) !important;
+            max-width: calc(100vw - 150px) !important;
+            max-height: min(54dvh, 235px) !important;
+            padding: 9px 10px !important;
+            border-radius: 9px !important;
+            overflow-x: hidden !important;
+            overflow-y: auto !important;
+            overscroll-behavior: contain !important;
+            -webkit-overflow-scrolling: touch;
+            backdrop-filter: blur(9px);
+          }
+
+          .ares-terminal-panel--mission {
+            width: min(40vw, 215px) !important;
+            pointer-events: auto !important;
+            touch-action: pan-y;
+          }
+
+          .ares-terminal-panel--research {
+            width: min(42vw, 225px) !important;
+            pointer-events: auto !important;
+            touch-action: pan-y;
+          }
+
+          .ares-terminal-panel--command {
+            width: min(44vw, 235px) !important;
+            max-height: min(62dvh, 270px) !important;
+            padding: 8px !important;
+          }
+
+          .ares-terminal-panel__command-inner {
+            box-sizing: border-box !important;
+            width: 100% !important;
+            padding: 8px 9px !important;
+            border-radius: 8px !important;
+          }
+
+          .ares-terminal-panel--mission > div:first-child,
+          .ares-terminal-panel--research > div:first-child,
+          .ares-terminal-panel__command-inner > div:first-child {
+            font-size: 8px !important;
+            letter-spacing: 0.12em !important;
+          }
+
+          .ares-terminal-panel--mission div,
+          .ares-terminal-panel--research div,
+          .ares-terminal-panel--command div {
+            line-height: 1.32 !important;
+          }
+
+          .ares-terminal-panel--mission button,
+          .ares-terminal-panel--research button,
+          .ares-terminal-panel--command button {
+            min-height: 34px !important;
+            padding: 6px 8px !important;
+            font-size: 9px !important;
+            touch-action: manipulation;
+          }
+
+          .ares-terminal-panel::-webkit-scrollbar {
+            width: 3px;
+          }
+
+          .ares-terminal-panel::-webkit-scrollbar-thumb {
+            border-radius: 999px;
+            background: rgba(151, 105, 210, 0.48);
           }
         }
+
       `}</style>
 
       <AresMobileJoystick
         onMove={handleJoystickMove}
+      />
+
+      <AresMobileActions
+        interactionTarget={
+          mobileInteractionTarget
+        }
       />
 
       <a
@@ -1481,6 +1759,7 @@ export function MarsExploreWorld() {
       </a>
 
       <div
+        className="ares-hud-online"
         style={{
           position: "absolute",
           top: mobileOrientation === "landscape" ? "8px" : "18px",
@@ -1530,6 +1809,7 @@ export function MarsExploreWorld() {
 
       {totalGp !== null && (
         <div
+          className="ares-hud-gp"
           style={{
             position: "absolute",
             top: mobileOrientation === "landscape" ? "8px" : "18px",
@@ -1571,6 +1851,7 @@ export function MarsExploreWorld() {
 
       <button
         type="button"
+        className="ares-hud-sound"
         onClick={toggleSound}
         aria-label={
           soundEnabled
@@ -1621,6 +1902,7 @@ export function MarsExploreWorld() {
 
       {onboardingVisible && (
         <div
+          className="ares-hud-onboarding"
           style={{
             position: "fixed",
             top:
@@ -1757,6 +2039,7 @@ export function MarsExploreWorld() {
       {hiddenMissionNavigation &&
         !archiveOpen && (
         <div
+          className="ares-hud-objective"
           data-ares-objective-navigator="active"
           aria-label="Ares Objective Navigator"
           style={{
@@ -2025,6 +2308,7 @@ export function MarsExploreWorld() {
 
       <button
         type="button"
+        className="ares-hud-market"
         onClick={() => {
           if (placementItem) {
             cancelPlacement();
@@ -2174,6 +2458,9 @@ export function MarsExploreWorld() {
               }
               onArchiveRecordChange={
                 setArchiveRecord
+              }
+              onMobileInteractionChange={
+                handleMobileInteractionChange
               }
               placementItem={
                 placementItem

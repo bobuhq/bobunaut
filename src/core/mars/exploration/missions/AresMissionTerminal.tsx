@@ -22,6 +22,9 @@ import {
 } from "./AresHiddenMissionService";
 
 type Props = {
+  onMobileInteractionChange?: (
+    active: boolean,
+  ) => void;
   targetRef:
     React.RefObject<THREE.Group | null>;
 
@@ -41,6 +44,7 @@ const ACCESS_DISTANCE =
   2.8;
 
 export function AresMissionTerminal({
+  onMobileInteractionChange,
   targetRef,
   worldPosition,
   onMission,
@@ -133,6 +137,17 @@ export function AresMissionTerminal({
       }
     },
   );
+
+  useEffect(() => {
+    onMobileInteractionChange?.(isNear);
+
+    return () => {
+      onMobileInteractionChange?.(false);
+    };
+  }, [
+    isNear,
+    onMobileInteractionChange,
+  ]);
 
   useEffect(() => {
     async function accessTerminal() {
@@ -335,6 +350,7 @@ export function AresMissionTerminal({
           distanceFactor={6}
         >
           <div
+            className="ares-terminal-panel ares-terminal-panel--mission"
             style={{
               width: "260px",
               padding: "12px 14px",

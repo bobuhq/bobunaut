@@ -73,6 +73,13 @@ type Props = {
   onArchiveRecordChange?: (
     record: AresDiscoveryRecord | null,
   ) => void;
+  onMobileInteractionChange?: (
+    target:
+      | "MISSION"
+      | "RESEARCH"
+      | "COMMAND",
+    active: boolean,
+  ) => void;
 };
 
 type MarsModuleProps = {
@@ -319,6 +326,7 @@ function CommandInterior({
   mission,
   onArchiveOpenChange,
   onArchiveRecordChange,
+  onMobileInteractionChange,
 }: Props) {
   return (
     <group>
@@ -468,6 +476,12 @@ function CommandInterior({
             3.7,
         }}
         onMission={onMission}
+        onMobileInteractionChange={(active) =>
+          onMobileInteractionChange?.(
+            "MISSION",
+            active,
+          )
+        }
       />
 
       <AresCommandHubUpgradeTerminal
@@ -482,6 +496,12 @@ function CommandInterior({
         }
         onArchiveRecordChange={
           onArchiveRecordChange
+        }
+        onMobileInteractionChange={(active) =>
+          onMobileInteractionChange?.(
+            "RESEARCH",
+            active,
+          )
         }
         worldPosition={{
           x:
@@ -1881,6 +1901,7 @@ export function AresCommandHub({
   mission,
   onArchiveOpenChange,
   onArchiveRecordChange,
+  onMobileInteractionChange,
 }: Props) {
   const [
     terrainHeight,
@@ -2253,7 +2274,10 @@ export function AresCommandHub({
         onArchiveRecordChange={
           onArchiveRecordChange
         }
-      />
+              onMobileInteractionChange={
+          onMobileInteractionChange
+        }
+/>
 
       <Html
         center
