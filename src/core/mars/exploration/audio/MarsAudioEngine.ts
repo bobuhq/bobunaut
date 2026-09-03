@@ -1,8 +1,6 @@
 class MarsAudioEngine {
   private context: AudioContext | null = null;
   private master: GainNode | null = null;
-  private ambientStarted = false;
-  private startupPlayed = false;
   private enabled = true;
   private lastStepAt = 0;
 
@@ -23,13 +21,10 @@ class MarsAudioEngine {
       return null;
     }
 
-    const context =
-      new AudioContextClass();
+    const context = new AudioContextClass();
+    const master = context.createGain();
 
-    const master =
-      context.createGain();
-
-    master.gain.value = 0.7;
+    master.gain.value = this.enabled ? 0.5 : 0;
     master.connect(context.destination);
 
     this.context = context;
@@ -39,8 +34,7 @@ class MarsAudioEngine {
   }
 
   async unlock() {
-    const context =
-      this.ensureContext();
+    const context = this.ensureContext();
 
     if (!context) {
       return;
@@ -49,16 +43,6 @@ class MarsAudioEngine {
     if (context.state === "suspended") {
       await context.resume();
     }
-
-    this.startAmbient();
-
-    if (
-      this.enabled &&
-      !this.startupPlayed
-    ) {
-      this.startupPlayed = true;
-      this.startup();
-    }
   }
 
   async stop() {
@@ -66,8 +50,6 @@ class MarsAudioEngine {
 
     this.context = null;
     this.master = null;
-    this.ambientStarted = false;
-    this.startupPlayed = false;
     this.lastStepAt = 0;
 
     if (
@@ -82,9 +64,7 @@ class MarsAudioEngine {
     }
   }
 
-  setEnabled(
-    enabled: boolean,
-  ) {
+  setEnabled(enabled: boolean) {
     this.enabled = enabled;
 
     if (
@@ -95,19 +75,13 @@ class MarsAudioEngine {
     }
 
     this.master.gain.setTargetAtTime(
-      enabled ? 0.7 : 0,
+      enabled ? 0.5 : 0,
       this.context.currentTime,
-      0.05,
+      0.04,
     );
   }
 
-  private tone(
-    from: number,
-    to: number,
-    duration: number,
-    volume: number,
-    type: OscillatorType = "sine",
-  ) {
+  step(running = false) {
     if (
       !this.enabled ||
       !this.context ||
@@ -116,179 +90,9 @@ class MarsAudioEngine {
       return;
     }
 
-    const now =
-      this.context.currentTime;
-
-    const oscillator =
-      this.context.createOscillator();
-
-    const gain =
-      this.context.createGain();
-
-    oscillator.type = type;
-
-    oscillator.frequency.setValueAtTime(
-      from,
-      now,
-    );
-
-    oscillator.frequency.exponentialRampToValueAtTime(
-      Math.max(40, to),
-      now + duration,
-    );
-
-    gain.gain.setValueAtTime(
-      0.0001,
-      now,
-    );
-
-    gain.gain.exponentialRampToValueAtTime(
-      volume,
-      now + 0.015,
-    );
-
-    gain.gain.exponentialRampToValueAtTime(
-      0.0001,
-      now + duration,
-    );
-
-    oscillator.connect(gain);
-    gain.connect(this.master);
-
-    oscillator.start(now);
-    oscillator.stop(
-      now + duration + 0.03,
-    );
-  }
-
-  private startAmbient() {
-    if (
-      this.ambientStarted ||
-      !this.context ||
-      !this.master
-    ) {
-      return;
-    }
-
-    const context =
-      this.context;
-
-    const ambient =
-      context.createGain();
-
-    ambient.gain.value = 0.13;
-    ambient.connect(this.master);
-
-    const drone =
-      context.createOscillator();
-
-    drone.type = "sine";
-    drone.frequency.value = 112;
-
-    const droneGain =
-      context.createGain();
-
-    droneGain.gain.value = 0.13;
-
-    drone.connect(droneGain);
-    droneGain.connect(ambient);
-
-    const upper =
-      context.createOscillator();
-
-    upper.type = "triangle";
-    upper.frequency.value = 168;
-
-    const upperGain =
-      context.createGain();
-
-    upperGain.gain.value = 0.035;
-
-    upper.connect(upperGain);
-    upperGain.connect(ambient);
-
-    const buffer =
-      context.createBuffer(
-        1,
-        context.sampleRate * 2,
-        context.sampleRate,
-      );
-
-    const data =
-      buffer.getChannelData(0);
-
-    for (
-      let i = 0;
-      i < data.length;
-      i += 1
-    ) {
-      data[i] =
-        (Math.random() * 2 - 1) *
-        0.25;
-    }
-
-    const noise =
-      context.createBufferSource();
-
-    noise.buffer = buffer;
-    noise.loop = true;
-
-    const filter =
-      context.createBiquadFilter();
-
-    filter.type = "bandpass";
-    filter.frequency.value = 420;
-    filter.Q.value = 0.7;
-
-    const noiseGain =
-      context.createGain();
-
-    noiseGain.gain.value = 0.08;
-
-    noise.connect(filter);
-    filter.connect(noiseGain);
-    noiseGain.connect(ambient);
-
-    drone.start();
-    upper.start();
-    noise.start();
-
-    this.ambientStarted = true;
-  }
-
-  startup() {
-    this.tone(
-      440,
-      660,
-      0.18,
-      0.13,
-    );
-
-    window.setTimeout(
-      () => {
-        this.tone(
-          660,
-          920,
-          0.22,
-          0.11,
-        );
-      },
-      120,
-    );
-  }
-
-  step(
-    running: boolean,
-  ) {
-    if (!this.context) {
-      return;
-    }
-
-    const now =
-      this.context.currentTime;
-
-    const interval =
-      running ? 0.16 : 0.25;
+    const context = this.context;
+    const now = context.currentTime;
+    const interval = running ? 0.18 : 0.28;
 
     if (
       now - this.lastStepAt <
@@ -299,40 +103,156 @@ class MarsAudioEngine {
 
     this.lastStepAt = now;
 
-    this.tone(
-      running ? 145 : 120,
-      70,
-      0.08,
-      running ? 0.075 : 0.055,
-      "triangle",
+    const duration = running ? 0.075 : 0.095;
+    const buffer = context.createBuffer(
+      1,
+      Math.max(
+        1,
+        Math.floor(
+          context.sampleRate * duration,
+        ),
+      ),
+      context.sampleRate,
     );
+
+    const data = buffer.getChannelData(0);
+
+    for (
+      let i = 0;
+      i < data.length;
+      i += 1
+    ) {
+      const envelope =
+        1 - i / data.length;
+
+      data[i] =
+        (Math.random() * 2 - 1) *
+        envelope;
+    }
+
+    const noise =
+      context.createBufferSource();
+
+    noise.buffer = buffer;
+
+    const filter =
+      context.createBiquadFilter();
+
+    filter.type = "lowpass";
+    filter.frequency.setValueAtTime(
+      running ? 420 : 340,
+      now,
+    );
+
+    const gain =
+      context.createGain();
+
+    gain.gain.setValueAtTime(
+      running ? 0.05 : 0.04,
+      now,
+    );
+
+    gain.gain.exponentialRampToValueAtTime(
+      0.0001,
+      now + duration,
+    );
+
+    const body =
+      context.createOscillator();
+
+    body.type = "sine";
+    body.frequency.setValueAtTime(
+      running ? 92 : 78,
+      now,
+    );
+
+    body.frequency.exponentialRampToValueAtTime(
+      48,
+      now + duration,
+    );
+
+    const bodyGain =
+      context.createGain();
+
+    bodyGain.gain.setValueAtTime(
+      running ? 0.032 : 0.026,
+      now,
+    );
+
+    bodyGain.gain.exponentialRampToValueAtTime(
+      0.0001,
+      now + duration,
+    );
+
+    noise.connect(filter);
+    filter.connect(gain);
+    gain.connect(this.master);
+
+    body.connect(bodyGain);
+    bodyGain.connect(this.master);
+
+    noise.start(now);
+    noise.stop(now + duration);
+
+    body.start(now);
+    body.stop(now + duration);
   }
 
   jump() {
-    this.tone(
-      230,
-      420,
-      0.18,
-      0.09,
-    );
-  }
+    if (
+      !this.enabled ||
+      !this.context ||
+      !this.master
+    ) {
+      return;
+    }
 
-  interact() {
-    this.tone(
-      620,
-      900,
-      0.12,
-      0.09,
-    );
-  }
+    const context = this.context;
+    const now = context.currentTime;
 
-  confirm() {
-    this.tone(
-      760,
-      1040,
-      0.15,
-      0.1,
+    const oscillator =
+      context.createOscillator();
+
+    const gain =
+      context.createGain();
+
+    oscillator.type = "sine";
+
+    oscillator.frequency.setValueAtTime(
+      145,
+      now,
     );
+
+    oscillator.frequency.exponentialRampToValueAtTime(
+      290,
+      now + 0.12,
+    );
+
+    oscillator.frequency.exponentialRampToValueAtTime(
+      190,
+      now + 0.23,
+    );
+
+    gain.gain.setValueAtTime(
+      0.0001,
+      now,
+    );
+
+    gain.gain.exponentialRampToValueAtTime(
+      0.05,
+      now + 0.025,
+    );
+
+    gain.gain.exponentialRampToValueAtTime(
+      0.0001,
+      now + 0.24,
+    );
+
+    oscillator.connect(gain);
+    gain.connect(this.master);
+
+    oscillator.start(now);
+    oscillator.stop(now + 0.26);
   }
 }
 

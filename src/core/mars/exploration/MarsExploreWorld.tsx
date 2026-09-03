@@ -805,6 +805,28 @@ export function MarsExploreWorld() {
       setOnboardingVisible(
         false,
       );
+
+      if (
+        [
+          "KeyW",
+          "KeyA",
+          "KeyS",
+          "KeyD",
+          "ArrowUp",
+          "ArrowDown",
+          "ArrowLeft",
+          "ArrowRight",
+        ].includes(event.code)
+      ) {
+        marsAudio.step(event.shiftKey);
+      }
+
+      if (
+        event.code === "Space" &&
+        !event.repeat
+      ) {
+        marsAudio.jump();
+      }
     }
 
     function handlePointerDown() {
@@ -1803,9 +1825,9 @@ export function MarsExploreWorld() {
 
         @media (pointer: coarse) and (orientation: landscape) {
           .ares-terminal-panel {
-            width: 210px !important;
-            max-width: 210px !important;
-            max-height: 34dvh !important;
+            width: 105px !important;
+            max-width: 105px !important;
+            max-height: 28dvh !important;
             padding: 6px 8px !important;
             border-radius: 8px !important;
             overflow-y: auto !important;
@@ -1817,15 +1839,15 @@ export function MarsExploreWorld() {
 
           .ares-terminal-panel--mission,
           .ares-terminal-panel--research {
-            width: 205px !important;
-            max-width: 205px !important;
-            max-height: 34dvh !important;
+            width: 103px !important;
+            max-width: 103px !important;
+            max-height: 28dvh !important;
           }
 
           .ares-terminal-panel--command {
-            width: 220px !important;
-            max-width: 220px !important;
-            max-height: 38dvh !important;
+            width: 110px !important;
+            max-width: 110px !important;
+            max-height: 30dvh !important;
           }
 
           .ares-terminal-panel__command-inner {
@@ -1836,8 +1858,8 @@ export function MarsExploreWorld() {
           .ares-terminal-panel p {
             margin-top: 3px !important;
             margin-bottom: 3px !important;
-            font-size: 8px !important;
-            line-height: 1.22 !important;
+            font-size: 7px !important;
+            line-height: 1.18 !important;
           }
 
           .ares-terminal-panel h1,
@@ -1845,14 +1867,14 @@ export function MarsExploreWorld() {
           .ares-terminal-panel h3 {
             margin-top: 2px !important;
             margin-bottom: 4px !important;
-            font-size: 11px !important;
-            line-height: 1.12 !important;
+            font-size: 9px !important;
+            line-height: 1.1 !important;
           }
 
           .ares-terminal-panel button {
-            min-height: 28px !important;
-            padding: 4px 6px !important;
-            font-size: 8px !important;
+            min-height: 22px !important;
+            padding: 3px 4px !important;
+            font-size: 7px !important;
           }
 
           .ares-hud-objective {
