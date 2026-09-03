@@ -114,10 +114,24 @@ export function MarsFollowCamera({
     const element =
       gl.domElement;
 
+    function isMobileTouchInput(
+      event: PointerEvent,
+    ) {
+      return (
+        event.pointerType === "touch" ||
+        window.matchMedia(
+          "(pointer: coarse)",
+        ).matches
+      );
+    }
+
     function handlePointerDown(
       event: PointerEvent,
     ) {
-      if (event.button !== 0) {
+      if (
+        event.button !== 0 ||
+        isMobileTouchInput(event)
+      ) {
         return;
       }
 
@@ -134,7 +148,10 @@ export function MarsFollowCamera({
     function handlePointerMove(
       event: PointerEvent,
     ) {
-      if (!dragging.current) {
+      if (
+        !dragging.current ||
+        isMobileTouchInput(event)
+      ) {
         return;
       }
 
@@ -249,11 +266,20 @@ export function MarsFollowCamera({
         worldPosition.current,
       );
 
+      const mobileLandscape =
+        window.matchMedia(
+          "(pointer: coarse) and (orientation: landscape)",
+        ).matches;
+
       const pitch =
-        orbitPitch.current;
+        mobileLandscape
+          ? INITIAL_PITCH
+          : orbitPitch.current;
 
       const yaw =
-        orbitYaw.current;
+        mobileLandscape
+          ? 0
+          : orbitYaw.current;
 
       const insideCommandHub =
         isInsideAresCommandHub(

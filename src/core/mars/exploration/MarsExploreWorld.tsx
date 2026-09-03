@@ -452,6 +452,21 @@ function MarsExploreScene({
   );
 }
 
+function getMarsReturnHref(): string {
+  if (typeof window === "undefined") {
+    return "/mars";
+  }
+
+  const params =
+    new URLSearchParams(
+      window.location.search,
+    );
+
+  return params.get("nativeBridge") === "1"
+    ? "/mars?nativeBridge=1"
+    : "/mars";
+}
+
 export function MarsExploreWorld() {
   const { t, language } = useLanguage();
 
@@ -1269,7 +1284,7 @@ export function MarsExploreWorld() {
           )}
 
           <a
-            href="/mars"
+            href={getMarsReturnHref()}
             style={{
               display:
                 "inline-flex",
@@ -1329,7 +1344,7 @@ export function MarsExploreWorld() {
           Ares Exploration is designed for landscape mode.
         </p>
 
-        <a href="/mars">
+        <a href={getMarsReturnHref()}>
           RETURN TO MARS
         </a>
       </div>
@@ -1363,6 +1378,14 @@ export function MarsExploreWorld() {
           min-height: 100vh;
           background: #050712;
           overflow: hidden;
+          overscroll-behavior: none;
+        }
+
+        @media (pointer: coarse) {
+          .mars-explore-world,
+          .mars-explore-world canvas {
+            touch-action: none;
+          }
         }
 
         .mars-explore-rotate-gate {
@@ -1747,7 +1770,7 @@ export function MarsExploreWorld() {
 
       <a
         className="mars-explore-return-button"
-        href="/mars"
+        href={getMarsReturnHref()}
         aria-label="Return to Mars orbit"
       >
         <span aria-hidden="true">←</span>
