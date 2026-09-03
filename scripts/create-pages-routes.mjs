@@ -31,6 +31,9 @@ const routes = [
   "galaxy",
   "leaderboard",
 
+  "mars",
+  "mars/explore",
+
   "admin",
   "admin/login",
   "admin/builders",
