@@ -224,10 +224,12 @@ export function Home() {
   const { t } = useLanguage();
 
   const appStoreUrl =
-    import.meta.env.VITE_BOBU_NETWORK_APP_STORE_URL?.trim();
+    import.meta.env.VITE_BOBU_NETWORK_APP_STORE_URL?.trim() ||
+    "https://apps.apple.com/app/bobu-network/id6799754982";
 
   const googlePlayUrl =
-    import.meta.env.VITE_BOBU_NETWORK_GOOGLE_PLAY_URL?.trim();
+    import.meta.env.VITE_BOBU_NETWORK_GOOGLE_PLAY_URL?.trim() ||
+    "https://play.google.com/store/apps/details?id=com.bobuhq.bobu";
 
   const [universeStats, setUniverseStats] = useState<UniverseStats>({
     buildersJoined: 0,
