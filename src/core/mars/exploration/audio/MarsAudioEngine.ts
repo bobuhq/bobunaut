@@ -25,7 +25,7 @@ class MarsAudioEngine {
     const context = new AudioContextClass();
     const master = context.createGain();
 
-    master.gain.value = this.enabled ? 0.42 : 0;
+    master.gain.value = this.enabled ? 0.8 : 0;
     master.connect(context.destination);
 
     this.context = context;
@@ -76,7 +76,7 @@ class MarsAudioEngine {
     }
 
     this.master.gain.setTargetAtTime(
-      enabled ? 0.42 : 0,
+      enabled ? 0.8 : 0,
       this.context.currentTime,
       0.035,
     );
@@ -206,7 +206,7 @@ class MarsAudioEngine {
       now,
     );
     liftGain.gain.exponentialRampToValueAtTime(
-      0.07,
+      0.18,
       now + 0.018,
     );
     liftGain.gain.exponentialRampToValueAtTime(
@@ -228,7 +228,7 @@ class MarsAudioEngine {
     );
 
     impulseGain.gain.setValueAtTime(
-      0.075,
+      0.16,
       now,
     );
     impulseGain.gain.exponentialRampToValueAtTime(

@@ -797,43 +797,6 @@ export function MarsExploreWorld() {
       null;
 
   useEffect(() => {
-    let animationFrame = 0;
-
-    const tickMovementAudio = () => {
-      const movement =
-        analogMovementRef.current;
-
-      const moving =
-        Math.hypot(
-          movement.x,
-          movement.y,
-        ) > 0.16;
-
-      if (moving) {
-        marsAudio.step(false);
-      }
-
-      animationFrame =
-        window.requestAnimationFrame(
-          tickMovementAudio,
-        );
-    };
-
-    animationFrame =
-      window.requestAnimationFrame(
-        tickMovementAudio,
-      );
-
-    return () => {
-      window.cancelAnimationFrame(
-        animationFrame,
-      );
-    };
-  }, []);
-
-  const BOBU_MOBILE_FOOTSTEP_LOOP = true;
-
-  useEffect(() => {
     function handleKeyDown(
       event: KeyboardEvent,
     ) {
