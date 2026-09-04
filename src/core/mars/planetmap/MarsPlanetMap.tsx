@@ -1292,7 +1292,8 @@ export function MarsPlanetMap({
   const territorySelectionColor =
     useMemo<[number, number, number] | null>(() => {
       if (
-        !territorySelectionLocked ||
+        !selectedPixelSelection ||
+        selectedPixelSelection.selection_status !== "available" ||
         !selectedPixelColorKey
       ) {
         return null;
@@ -1319,7 +1320,7 @@ export function MarsPlanetMap({
       ];
     }, [
       selectedPixelColorKey,
-      territorySelectionLocked,
+      selectedPixelSelection,
     ]);
 
 
