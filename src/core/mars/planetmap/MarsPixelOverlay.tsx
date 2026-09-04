@@ -5,6 +5,7 @@ import {
 } from "react";
 import {
   ClampToEdgeWrapping,
+  Color,
   DataTexture,
   NearestFilter,
   RepeatWrapping,
@@ -51,6 +52,7 @@ type MarsPixelOverlayProps = {
   onAresSelect?: () => void;
   selectedPixel?: MarsPixelCoordinate | null;
   lockedSelectionPixel?: MarsPixelCoordinate | null;
+  territorySelectionColor?: [number, number, number] | null;
   onPixelSelect?: (
     coordinate: MarsPixelCoordinate,
     allocation: MarsPixelPublicAllocation | null,
@@ -124,6 +126,7 @@ export function MarsPixelOverlay({
   onAresSelect,
   selectedPixel = null,
   lockedSelectionPixel = null,
+  territorySelectionColor = null,
   onPixelSelect,
   onPixelDragStart,
   onPixelDragSelect,
@@ -454,6 +457,26 @@ export function MarsPixelOverlay({
     );
   }, [lockedSelectionBlock]);
 
+  useEffect(() => {
+    const material = materialRef.current;
+
+    if (!material) {
+      return;
+    }
+
+    const color =
+      territorySelectionColor ?? [0.08, 0.92, 1.0];
+
+    material.uniforms.territorySelectionColor.value.set(
+      color[0],
+      color[1],
+      color[2],
+    );
+
+    material.uniforms.useTerritorySelectionColor.value =
+      territorySelectionColor ? 1 : 0;
+  }, [territorySelectionColor]);
+
   useFrame(({ camera }) => {
     const material =
       materialRef.current;
@@ -760,6 +783,12 @@ export function MarsPixelOverlay({
           saleBlockSize: {
             value: MARS_PIXEL_SALE_BLOCK_SIZE,
           },
+          territorySelectionColor: {
+            value: new Color(0.08, 0.92, 1.0),
+          },
+          useTerritorySelectionColor: {
+            value: 0,
+          },
         }}
         vertexShader={`
           varying vec2 vUv;
@@ -785,6 +814,8 @@ export function MarsPixelOverlay({
           uniform vec2 selectionHoverBlock;
           uniform vec2 lockedSelectionBlock;
           uniform float saleBlockSize;
+          uniform vec3 territorySelectionColor;
+          uniform float useTerritorySelectionColor;
 
           varying vec2 vUv;
 
@@ -1247,11 +1278,19 @@ export function MarsPixelOverlay({
                   )
               );
 
-            vec3 selectionPreviewColor =
+            vec3 defaultSelectionPreviewColor =
               vec3(
                 0.08,
                 0.92,
                 1.0
+              );
+
+            vec3 selectionPreviewColor =
+              mix(
+                defaultSelectionPreviewColor,
+                territorySelectionColor,
+                useTerritorySelectionColor *
+                  hasLockedSelection
               );
 
             finalColor =

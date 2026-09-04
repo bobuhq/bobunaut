@@ -150,6 +150,7 @@ type MarsPlanetSceneProps = Omit<
     x: number;
     y: number;
   } | null;
+  territorySelectionColor: [number, number, number] | null;
   onPixelSelect: (coordinate: {
     x: number;
     y: number;
@@ -430,6 +431,7 @@ function MarsPlanet({
   pixelReservedZones,
   selectedPixelCoordinate,
   lockedSelectionCoordinate,
+  territorySelectionColor,
   onPixelSelect,
   onPixelDragStart,
   onPixelDragSelect,
@@ -646,6 +648,7 @@ function MarsPlanet({
           visible={!diving}
           selectedPixel={selectedPixelCoordinate}
           lockedSelectionPixel={lockedSelectionCoordinate}
+          territorySelectionColor={territorySelectionColor}
           onPixelSelect={onPixelSelect}
           onPixelDragStart={onPixelDragStart}
           onPixelDragSelect={onPixelDragSelect}
@@ -1285,6 +1288,40 @@ export function MarsPlanetMap({
   const territorySelectionLocked =
     selectedPixel !== null &&
     lockedSelectionTarget !== null;
+
+  const territorySelectionColor =
+    useMemo<[number, number, number] | null>(() => {
+      if (
+        !territorySelectionLocked ||
+        !selectedPixelColorKey
+      ) {
+        return null;
+      }
+
+      const hex =
+        MARS_PIXEL_TERRITORY_COLORS[
+          selectedPixelColorKey
+        ];
+
+      if (!hex) {
+        return null;
+      }
+
+      const value = Number.parseInt(
+        hex.slice(1),
+        16,
+      );
+
+      return [
+        ((value >> 16) & 255) / 255,
+        ((value >> 8) & 255) / 255,
+        (value & 255) / 255,
+      ];
+    }, [
+      selectedPixelColorKey,
+      territorySelectionLocked,
+    ]);
+
 
   const handlePixelSelect = async (
     coordinate: {
@@ -2223,6 +2260,9 @@ export function MarsPlanetMap({
           }
           lockedSelectionCoordinate={
             lockedSelectionTarget
+          }
+          territorySelectionColor={
+            territorySelectionColor
           }
           onPixelSelect={handleTerritorySizeSelect}
           onPixelHover={(coordinate) => {
