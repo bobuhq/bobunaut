@@ -4,6 +4,7 @@ import {
   useState,
   type PointerEvent as ReactPointerEvent,
 } from "react";
+import { marsAudio } from "../audio/MarsAudioEngine";
 
 export type AresJoystickVector = {
   x: number;
@@ -38,6 +39,8 @@ export function AresMobileJoystick({
       x: 0,
       y: 0,
     });
+
+    marsAudio.step(false);
   }, [onMove]);
 
   const updateFromPointer = useCallback(

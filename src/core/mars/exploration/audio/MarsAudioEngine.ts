@@ -124,7 +124,7 @@ class MarsAudioEngine {
       now,
     );
     impactGain.gain.exponentialRampToValueAtTime(
-      running ? 0.12 : 0.095,
+      running ? 0.22 : 0.18,
       now + 0.008,
     );
     impactGain.gain.exponentialRampToValueAtTime(
@@ -150,7 +150,7 @@ class MarsAudioEngine {
       now,
     );
     soleGain.gain.exponentialRampToValueAtTime(
-      running ? 0.034 : 0.027,
+      running ? 0.075 : 0.06,
       now + 0.004,
     );
     soleGain.gain.exponentialRampToValueAtTime(
