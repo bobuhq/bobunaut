@@ -165,10 +165,31 @@ export function ApplicationBootstrap({
         if (
           preferencesRestore.status === "rejected"
         ) {
-          console.error(
-            "Authenticated preferences restore failed:",
+          console.warn(
+            "Authenticated preferences restore failed; retrying once:",
             preferencesRestore.reason,
           );
+
+          if (!isCurrentGeneration()) {
+            return;
+          }
+
+          try {
+            await preferencesService.restore(builderId);
+          } catch (retryError) {
+            if (!isCurrentGeneration()) {
+              return;
+            }
+
+            console.error(
+              "Authenticated preferences restore retry failed:",
+              retryError,
+            );
+          }
+        }
+
+        if (!isCurrentGeneration()) {
+          return;
         }
 
         const [
