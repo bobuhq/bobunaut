@@ -99,6 +99,26 @@ type MarsPlanetSceneProps = Omit<
     x: number;
     y: number;
   } | null;
+  pixelDragActive: boolean;
+  onDragStateChange: (
+    dragging: boolean,
+  ) => void;
+  onPixelDragStart: (
+    anchor: {
+      x: number;
+      y: number;
+    },
+  ) => void;
+  onPixelDragSelect: (
+    anchor: {
+      x: number;
+      y: number;
+    },
+    target: {
+      x: number;
+      y: number;
+    },
+  ) => void;
   lockedSelectionCoordinate: {
     x: number;
     y: number;
@@ -384,6 +404,9 @@ function MarsPlanet({
   selectedPixelCoordinate,
   lockedSelectionCoordinate,
   onPixelSelect,
+  onPixelDragStart,
+  onPixelDragSelect,
+  onDragStateChange,
   onPixelHover,
 }: MarsPlanetSceneProps) {
   const groupRef =
@@ -597,6 +620,9 @@ function MarsPlanet({
           selectedPixel={selectedPixelCoordinate}
           lockedSelectionPixel={lockedSelectionCoordinate}
           onPixelSelect={onPixelSelect}
+          onPixelDragStart={onPixelDragStart}
+          onPixelDragSelect={onPixelDragSelect}
+          onDragStateChange={onDragStateChange}
           onPixelHover={onPixelHover}
           aresMapX={
             aresSector?.map_x ?? null
@@ -728,12 +754,19 @@ function MarsScene(
         makeDefault
         target={[0, 0, 0]}
         enablePan={false}
-        enabled={!props.diving}
+        enabled={
+          !props.diving &&
+          !props.pixelDragActive
+        }
         enableRotate={
           !props.selectedSectorId &&
-          !props.diving
+          !props.diving &&
+          !props.pixelDragActive
         }
-        enableZoom={!props.diving}
+        enableZoom={
+          !props.diving &&
+          !props.pixelDragActive
+        }
         enableDamping
         dampingFactor={0.055}
         minDistance={3.45}
@@ -850,7 +883,34 @@ export function MarsPlanetMap({
 
   const pixelRequestRef = useRef(0);
 
+  const [
+    pixelDragActive,
+    setPixelDragActive,
+  ] = useState(false);
+
+  const [
+    pixelDragAnchor,
+    setPixelDragAnchor,
+  ] = useState<{
+    x: number;
+    y: number;
+  } | null>(null);
+
   const pixelBlockSelection = useMemo(() => {
+    if (pixelDragAnchor) {
+      const target =
+        lockedSelectionTarget ??
+        hoveredPixelCoordinate ??
+        pixelDragAnchor;
+
+      return createMarsPixelBlockSelectionV1(
+        pixelDragAnchor.x,
+        pixelDragAnchor.y,
+        target.x,
+        target.y,
+      );
+    }
+
     if (!selectedPixel) {
       return null;
     }
@@ -872,8 +932,139 @@ export function MarsPlanetMap({
   }, [
     hoveredPixelCoordinate,
     lockedSelectionTarget,
+    pixelDragAnchor,
     selectedPixel,
   ]);
+
+  const handlePixelDragStart = (
+    anchor: {
+      x: number;
+      y: number;
+    },
+  ) => {
+    pixelRequestRef.current += 1;
+
+    setPixelDragAnchor(anchor);
+    setLockedSelectionTarget(null);
+    setSelectedPixel(null);
+    setSelectedPixelSelection(null);
+    setSelectedPixelValuation(null);
+    setSelectedPixelError(null);
+    setSelectedPixelSelectionError(null);
+    setSelectedPixelLoading(false);
+    setSelectedPixelSelectionLoading(false);
+  };
+
+  const handlePixelDragStateChange = (
+    dragging: boolean,
+  ) => {
+    setPixelDragActive(dragging);
+
+    if (!dragging) {
+      setPixelDragAnchor(null);
+    }
+  };
+
+  const handlePixelDragSelect = async (
+    anchor: {
+      x: number;
+      y: number;
+    },
+    target: {
+      x: number;
+      y: number;
+    },
+  ) => {
+    setPixelDragAnchor(anchor);
+
+    const requestId =
+      pixelRequestRef.current + 1;
+
+    pixelRequestRef.current = requestId;
+
+    setLockedSelectionTarget({
+      x: target.x,
+      y: target.y,
+    });
+
+    setSelectedPixel(null);
+    setSelectedPixelSelection(null);
+    setSelectedPixelValuation(null);
+    setSelectedPixelError(null);
+    setSelectedPixelSelectionError(null);
+    setSelectedPixelLoading(true);
+    setSelectedPixelSelectionLoading(true);
+
+    try {
+      const [
+        anchorDetail,
+        selectionDetail,
+        valuation,
+      ] = await Promise.all([
+        getMarsPixelBlockAtCoordinate(
+          anchor.x,
+          anchor.y,
+        ),
+        getMarsPixelSelectionDetail(
+          anchor.x,
+          anchor.y,
+          target.x,
+          target.y,
+        ),
+        getMarsPixelSelectionValuation(
+          anchor.x,
+          anchor.y,
+          target.x,
+          target.y,
+        ),
+      ]);
+
+      if (
+        pixelRequestRef.current !==
+        requestId
+      ) {
+        return;
+      }
+
+      setSelectedPixel(anchorDetail);
+      setSelectedPixelSelection(
+        selectionDetail,
+      );
+      setSelectedPixelValuation(
+        valuation,
+      );
+    } catch (error) {
+      if (
+        pixelRequestRef.current !==
+        requestId
+      ) {
+        return;
+      }
+
+      console.error(
+        "Mars Pixel drag selection lookup failed.",
+        error,
+      );
+
+      setSelectedPixel(null);
+      setLockedSelectionTarget(null);
+      setSelectedPixelSelection(null);
+      setSelectedPixelValuation(null);
+      setSelectedPixelSelectionError(
+        "SELECTION DATA UNAVAILABLE",
+      );
+    } finally {
+      if (
+        pixelRequestRef.current ===
+        requestId
+      ) {
+        setSelectedPixelLoading(false);
+        setSelectedPixelSelectionLoading(
+          false,
+        );
+      }
+    }
+  };
 
   const handlePixelSelect = async (
     coordinate: {
@@ -1180,9 +1371,12 @@ export function MarsPlanetMap({
         )}
 
       {!diving &&
-        (selectedPixelLoading ||
+          (
+            pixelDragAnchor !== null ||
+            pixelDragActive ||selectedPixelLoading ||
           selectedPixel !== null ||
-          selectedPixelError !== null) && (
+          selectedPixelError !== null
+          ) && (
           <aside
             className="mars-pixel-detail"
             aria-live="polite"
@@ -1190,10 +1384,10 @@ export function MarsPlanetMap({
             <div className="mars-pixel-detail__header">
               <div>
                 <span className="mars-pixel-detail__eyebrow">
-                  {t("mars.pixel.network")}
+                  MARS PIXEL REGISTRY
                 </span>
                 <strong>
-                  {t("mars.pixel.selection")}
+                  TERRITORY INSPECTOR
                 </strong>
               </div>
 
@@ -1204,6 +1398,7 @@ export function MarsPlanetMap({
                 onClick={() => {
                   pixelRequestRef.current += 1;
                   setLockedSelectionTarget(null);
+                  setPixelDragAnchor(null);
                   setHoveredPixelCoordinate(null);
                   setSelectedPixelSelection(null);
                   setSelectedPixelValuation(null);
@@ -1218,11 +1413,18 @@ export function MarsPlanetMap({
               </button>
             </div>
 
-            {selectedPixelLoading && (
+            {pixelDragActive && (
               <div className="mars-pixel-detail__message">
-                READING PRODUCTION STATE
+                SELECTING TERRITORY
               </div>
             )}
+
+            {!pixelDragActive &&
+              selectedPixelLoading && (
+                <div className="mars-pixel-detail__message">
+                  READING PRODUCTION STATE
+                </div>
+              )}
 
             {!selectedPixelLoading &&
               selectedPixelError && (
@@ -1231,10 +1433,11 @@ export function MarsPlanetMap({
                 </div>
               )}
 
-            {!selectedPixelLoading &&
+            {!pixelDragActive &&
+              !selectedPixelLoading &&
               selectedPixelSelectionLoading && (
                 <div className="mars-pixel-detail__message">
-                  VALIDATING SELECTION
+                  VALIDATING TERRITORY
                 </div>
               )}
 
@@ -1246,19 +1449,62 @@ export function MarsPlanetMap({
               )}
 
             {!selectedPixelLoading &&
+              !selectedPixel &&
+              pixelDragAnchor &&
+              pixelBlockSelection && (
+                <>
+                  <div className="mars-pixel-detail__coordinate">
+                    {`TERRITORY ${pixelBlockSelection.width} × ${pixelBlockSelection.height}`}
+                  </div>
+
+                  <div className="mars-pixel-detail__meta">
+                    <span>TOTAL PIXELS</span>
+                    <strong>
+                      {pixelBlockSelection.pixelCount.toLocaleString(
+                        "en-US",
+                      )}
+                    </strong>
+                  </div>
+
+                  <div className="mars-pixel-detail__meta">
+                    <span>{t("mars.pixel.xRange")}</span>
+                    <strong>
+                      {pixelBlockSelection.xStart}–{pixelBlockSelection.xEnd}
+                    </strong>
+                  </div>
+
+                  <div className="mars-pixel-detail__meta">
+                    <span>{t("mars.pixel.yRange")}</span>
+                    <strong>
+                      {pixelBlockSelection.yStart}–{pixelBlockSelection.yEnd}
+                    </strong>
+                  </div>
+
+                  <div className="mars-pixel-detail__meta">
+                    <span>{t("mars.pixel.areaSize")}</span>
+                    <strong>
+                      {pixelBlockSelection.width} × {pixelBlockSelection.height}
+                    </strong>
+                  </div>
+                </>
+              )}
+
+            {!selectedPixelLoading &&
               selectedPixel && (
                 <>
                   <div className="mars-pixel-detail__coordinate">
                     {pixelBlockSelection
-                      ? `SELECTION ${pixelBlockSelection.blockColumns} × ${pixelBlockSelection.blockRows}`
-                      : `BLOCK ${selectedPixel.block_x} / ${selectedPixel.block_y}`}
+                      ? `TERRITORY ${pixelBlockSelection.width} × ${pixelBlockSelection.height}`
+                      : `PIXEL X${selectedPixel.x_start} / Y${selectedPixel.y_start}`}
                   </div>
 
                   {pixelBlockSelection && (
                     <div className="mars-pixel-detail__meta">
-                      <span>{t("mars.pixel.pixels")}</span>
+                      <span>TOTAL PIXELS</span>
                       <strong>
-                        {pixelBlockSelection.pixelCount}
+                        {pixelBlockSelection.pixelCount.toLocaleString(
+                          "en-US",
+                        )}
                       </strong>
                     </div>
                   )}
@@ -1344,6 +1590,16 @@ export function MarsPlanetMap({
                         ? selectedPixelSelection?.reserved_zone_code
                         : selectedPixel.reserved_zone_code;
 
+                    const reservedOverlapCount =
+                      selectionLocked
+                        ? selectedPixelSelection?.reserved_overlap_count
+                        : null;
+
+                    const ownedOverlapCount =
+                      selectionLocked
+                        ? selectedPixelSelection?.owned_overlap_count
+                        : null;
+
                     if (
                       selectionLocked &&
                       (
@@ -1367,10 +1623,57 @@ export function MarsPlanetMap({
                             `is-${status}`,
                           ].join(" ")}
                         >
-                          {status.toUpperCase()}
+                          {reservedZoneCode === "ARES_PROTECTED"
+                            ? "PROTECTED"
+                            : status.toUpperCase()}
                         </div>
 
-                        {status === "available" && (
+                        {selectionLocked && (
+                          <>
+                            <div className="mars-pixel-detail__meta">
+                              <span>RESERVED OVERLAP</span>
+                              <strong>
+                                {reservedOverlapCount ?? 0}
+                              </strong>
+                            </div>
+
+                            <div className="mars-pixel-detail__meta">
+                              <span>OWNED OVERLAP</span>
+                              <strong>
+                                {ownedOverlapCount ?? 0}
+                              </strong>
+                            </div>
+
+                            <div className="mars-pixel-detail__meta">
+                              <span>AVAILABILITY</span>
+                              <strong>
+                                {reservedZoneCode === "ARES_PROTECTED"
+                                  ? "PROTECTED"
+                                  : status === "available"
+                                    ? "AVAILABLE"
+                                    : "UNAVAILABLE"}
+                              </strong>
+                            </div>
+                          </>
+                        )}
+
+                        {reservedZoneCode === "ARES_PROTECTED" && (
+                          <>
+                            <div className="mars-pixel-detail__commercial">
+                              NOT FOR SALE
+                            </div>
+
+                            <div className="mars-pixel-detail__meta">
+                              <span>PROTECTED TERRITORY</span>
+                              <strong>
+                                {reservedZoneName ?? "Ares Sector"}
+                              </strong>
+                            </div>
+                          </>
+                        )}
+
+                        {status === "available" &&
+                          reservedZoneCode !== "ARES_PROTECTED" && (
                           <div className="mars-pixel-detail__commercial">
                             {purchasable
                               ? "COMMERCIAL ACCESS ACTIVE"
@@ -1378,7 +1681,8 @@ export function MarsPlanetMap({
                           </div>
                         )}
 
-                        {status === "reserved" && (
+                        {status === "reserved" &&
+                          reservedZoneCode !== "ARES_PROTECTED" && (
                           <>
                             <div className="mars-pixel-detail__commercial">
                               NOT FOR SALE
@@ -1488,13 +1792,20 @@ export function MarsPlanetMap({
         }}
       >
         <MarsScene
+          pixelDragActive={pixelDragActive}
+          onDragStateChange={handlePixelDragStateChange}
+          onPixelDragStart={handlePixelDragStart}
+          onPixelDragSelect={handlePixelDragSelect}
           selectedPixelCoordinate={
-            selectedPixel
-              ? {
-                  x: selectedPixel.x_start,
-                  y: selectedPixel.y_start,
-                }
-              : null
+            pixelDragAnchor ??
+            (
+              selectedPixel
+                ? {
+                    x: selectedPixel.x_start,
+                    y: selectedPixel.y_start,
+                  }
+                : null
+            )
           }
           lockedSelectionCoordinate={
             lockedSelectionTarget

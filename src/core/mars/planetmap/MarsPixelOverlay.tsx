@@ -55,6 +55,16 @@ type MarsPixelOverlayProps = {
     coordinate: MarsPixelCoordinate,
     allocation: MarsPixelPublicAllocation | null,
   ) => void;
+  onPixelDragStart?: (
+    anchor: MarsPixelCoordinate,
+  ) => void;
+  onPixelDragSelect?: (
+    anchor: MarsPixelCoordinate,
+    target: MarsPixelCoordinate,
+  ) => void;
+  onDragStateChange?: (
+    dragging: boolean,
+  ) => void;
   onPixelHover?: (
     coordinate: {
       x: number;
@@ -115,6 +125,9 @@ export function MarsPixelOverlay({
   selectedPixel = null,
   lockedSelectionPixel = null,
   onPixelSelect,
+  onPixelDragStart,
+  onPixelDragSelect,
+  onDragStateChange,
   onPixelHover,
 }: MarsPixelOverlayProps) {
   const texture = useMemo(() => {
@@ -381,6 +394,18 @@ export function MarsPixelOverlay({
   const materialRef =
     useRef<ShaderMaterial | null>(null);
 
+  const dragStartRef =
+    useRef<MarsPixelCoordinate | null>(null);
+
+  const dragCurrentRef =
+    useRef<MarsPixelCoordinate | null>(null);
+
+  const dragPointerIdRef =
+    useRef<number | null>(null);
+
+  const dragMovedRef =
+    useRef(false);
+
   const selectedBlock = useMemo(
     () =>
       selectedPixel
@@ -491,6 +516,20 @@ export function MarsPixelOverlay({
           block.blockY,
         );
 
+        if (
+          dragStartRef.current &&
+          dragPointerIdRef.current === event.pointerId
+        ) {
+          dragCurrentRef.current = coordinate;
+
+          if (
+            coordinate.x !== dragStartRef.current.x ||
+            coordinate.y !== dragStartRef.current.y
+          ) {
+            dragMovedRef.current = true;
+          }
+        }
+
         onPixelHover?.({
           x: coordinate.x,
           y: coordinate.y,
@@ -537,29 +576,129 @@ export function MarsPixelOverlay({
             gridHeight,
           );
 
+        dragStartRef.current = coordinate;
+        dragCurrentRef.current = coordinate;
+        dragPointerIdRef.current = event.pointerId;
+        dragMovedRef.current = false;
+
+        onPixelDragStart?.(coordinate);
+        onDragStateChange?.(true);
+
+        const target =
+          event.target as EventTarget & {
+            setPointerCapture?: (
+              pointerId: number,
+            ) => void;
+          };
+
+        target.setPointerCapture?.(
+          event.pointerId,
+        );
+      }}
+      onPointerUp={(
+        event: ThreeEvent<PointerEvent>,
+      ) => {
         if (
+          event.button !== 0 ||
+          !onPixelSelect ||
+          dragPointerIdRef.current !==
+            event.pointerId
+        ) {
+          return;
+        }
+
+        event.stopPropagation();
+
+        const start =
+          dragStartRef.current;
+
+        const uv = event.uv;
+
+        const end =
+          uv
+            ? marsUvToPixelCoordinateV1(
+                uv.x,
+                uv.y,
+                gridWidth,
+                gridHeight,
+              )
+            : dragCurrentRef.current;
+
+        const moved =
+          dragMovedRef.current;
+
+        dragStartRef.current = null;
+        dragCurrentRef.current = null;
+        dragPointerIdRef.current = null;
+        dragMovedRef.current = false;
+
+        onDragStateChange?.(false);
+
+        const target =
+          event.target as EventTarget & {
+            releasePointerCapture?: (
+              pointerId: number,
+            ) => void;
+          };
+
+        target.releasePointerCapture?.(
+          event.pointerId,
+        );
+
+        if (!start || !end) {
+          return;
+        }
+
+        if (
+          !moved &&
           onAresSelect &&
-          coordinate.x >= aresPixelRegion.xStart &&
-          coordinate.x <= aresPixelRegion.xEnd &&
-          coordinate.y >= aresPixelRegion.yStart &&
-          coordinate.y <= aresPixelRegion.yEnd
+          start.x >= aresPixelRegion.xStart &&
+          start.x <= aresPixelRegion.xEnd &&
+          start.y >= aresPixelRegion.yStart &&
+          start.y <= aresPixelRegion.yEnd
         ) {
           onAresSelect();
           return;
         }
 
-        const allocation =
-          allocations.find((candidate) =>
-            containsCoordinate(
-              candidate,
-              coordinate,
-            ),
-          ) ?? null;
+        if (!moved) {
+          const allocation =
+            allocations.find((candidate) =>
+              containsCoordinate(
+                candidate,
+                start,
+              ),
+            ) ?? null;
 
-        onPixelSelect?.(
-          coordinate,
-          allocation,
+          onPixelSelect(
+            start,
+            allocation,
+          );
+
+          return;
+        }
+
+        onPixelDragSelect?.(
+          start,
+          end,
         );
+      }}
+      onPointerCancel={(
+        event: ThreeEvent<PointerEvent>,
+      ) => {
+        if (
+          dragPointerIdRef.current !==
+          event.pointerId
+        ) {
+          return;
+        }
+
+        dragStartRef.current = null;
+        dragCurrentRef.current = null;
+        dragPointerIdRef.current = null;
+        dragMovedRef.current = false;
+
+        onDragStateChange?.(false);
       }}
     >
       <sphereGeometry
@@ -691,19 +830,27 @@ export function MarsPixelOverlay({
                 1.0 - vUv.y
               );
 
-            float nearFactor =
+            float overviewFactor =
               1.0 -
               smoothstep(
-                3.7,
-                5.1,
+                6.2,
+                7.8,
                 cameraDistance
               );
 
-            float mediumFactor =
+            float regionalFactor =
               1.0 -
               smoothstep(
-                4.8,
-                6.6,
+                5.0,
+                6.5,
+                cameraDistance
+              );
+
+            float pixelFactor =
+              1.0 -
+              smoothstep(
+                3.75,
+                5.15,
                 cameraDistance
               );
 
@@ -711,31 +858,32 @@ export function MarsPixelOverlay({
               gridLayer(
                 canonicalUv,
                 vec2(20.0),
-                0.009
-              );
+                0.010
+              ) *
+              overviewFactor;
 
-            float blockGrid =
+            float regionalGrid =
               gridLayer(
                 canonicalUv,
-                gridSize / saleBlockSize,
-                0.009
+                vec2(100.0),
+                0.014
               ) *
-              mediumFactor;
+              regionalFactor;
 
             float pixelGrid =
               gridLayer(
                 canonicalUv,
                 gridSize,
-                0.045
+                0.050
               ) *
-              nearFactor;
+              pixelFactor;
 
             float gridAlpha =
               max(
-                majorGrid * 0.065,
+                majorGrid * 0.075,
                 max(
-                  blockGrid * 0.11,
-                  pixelGrid * 0.014
+                  regionalGrid * 0.060,
+                  pixelGrid * 0.032
                 )
               );
 
