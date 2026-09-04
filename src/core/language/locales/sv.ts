@@ -759,7 +759,7 @@ export const sv: TranslationDictionary = {
   'home.network.pioneer.eyebrow': 'MOBIL PIONJÄR',
   'home.network.pioneer.title': 'Verifierad mobilstart',
   'home.network.pioneer.description': 'Starta BOBU Network på en verifierad mobil enhet för att låsa upp din Pioneer-belöning en gång.',
-  'home.network.pioneer.status': 'KOMMER SNART',
+  'home.network.pioneer.status': 'AKTIV',
   'home.network.release': 'Lanseras tillsammans med den officiella BOBU Universe-releasen.',
   'home.network.imageAlt': 'BOBU Networks officiella mobilapp',
   'home.network.officialApp': 'OFFICIELL MOBILAPP',

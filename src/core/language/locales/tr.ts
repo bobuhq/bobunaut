@@ -768,7 +768,7 @@ export const tr: TranslationDictionary = {
   'home.network.pioneer.eyebrow': 'MOBİL ÖNCÜ',
   'home.network.pioneer.title': 'Doğrulanmış Mobil Başlangıç',
   'home.network.pioneer.description': "Tek seferlik Pioneer ödülünü açmak için BOBU Network'ü doğrulanmış bir mobil cihazda başlat.",
-  'home.network.pioneer.status': 'YAKINDA',
+  'home.network.pioneer.status': 'AKTİF',
   'home.network.release': 'Resmi BOBU Universe lansmanıyla birlikte geliyor.',
   'home.network.imageAlt': 'BOBU Network resmi mobil uygulaması',
   'home.network.officialApp': 'RESMİ MOBİL UYGULAMA',

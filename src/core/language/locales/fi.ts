@@ -759,7 +759,7 @@ export const fi: TranslationDictionary = {
   'home.network.pioneer.eyebrow': 'MOBIILIPIONEERI',
   'home.network.pioneer.title': 'Vahvistettu mobiilikäynnistys',
   'home.network.pioneer.description': 'Käynnistä BOBU Network vahvistetulla mobiililaitteella avataksesi kertaluonteisen Pioneer-palkintosi.',
-  'home.network.pioneer.status': 'TULOSSA PIAN',
+  'home.network.pioneer.status': 'AKTIIVINEN',
   'home.network.release': 'Julkaistaan virallisen BOBU Universe -julkaisun yhteydessä.',
   'home.network.imageAlt': 'BOBU Networkin virallinen mobiilisovellus',
   'home.network.officialApp': 'VIRALLINEN MOBIILISOVELLUS',

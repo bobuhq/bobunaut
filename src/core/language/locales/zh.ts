@@ -766,7 +766,7 @@ export const zh: TranslationDictionary = {
   'home.network.pioneer.eyebrow': '移动先锋',
   'home.network.pioneer.title': '已验证移动端启动',
   'home.network.pioneer.description': '在经过验证的移动设备上启动 BOBU Network，即可解锁一次性的 Pioneer 奖励。',
-  'home.network.pioneer.status': '即将推出',
+  'home.network.pioneer.status': '已启用',
   'home.network.release': '将与 BOBU Universe 正式版本同步发布。',
   'home.network.imageAlt': 'BOBU Network 官方移动应用',
   'home.network.officialApp': '官方移动应用',

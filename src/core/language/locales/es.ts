@@ -770,7 +770,7 @@ export const es: TranslationDictionary = {
   'home.network.pioneer.eyebrow': 'PIONERO MÓVIL',
   'home.network.pioneer.title': 'Lanzamiento móvil verificado',
   'home.network.pioneer.description': 'Inicia BOBU Network en un dispositivo móvil verificado para desbloquear tu recompensa Pioneer única.',
-  'home.network.pioneer.status': 'PRÓXIMAMENTE',
+  'home.network.pioneer.status': 'ACTIVO',
   'home.network.release': 'Se lanzará con el estreno oficial de BOBU Universe.',
   'home.network.imageAlt': 'Aplicación móvil oficial de BOBU Network',
   'home.network.officialApp': 'APLICACIÓN MÓVIL OFICIAL',
