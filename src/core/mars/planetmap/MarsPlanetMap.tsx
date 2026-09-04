@@ -883,6 +883,11 @@ export function MarsPlanetMap({
 
   const pixelRequestRef = useRef(0);
 
+  const [pixelGoToX, setPixelGoToX] = useState("520");
+  const [pixelGoToY, setPixelGoToY] = useState("370");
+  const [pixelGoToError, setPixelGoToError] =
+    useState<string | null>(null);
+
   const [
     pixelDragActive,
     setPixelDragActive,
@@ -1064,6 +1069,38 @@ export function MarsPlanetMap({
         );
       }
     }
+  };
+
+  const handlePixelGoToCoordinate = (): void => {
+    const gridWidth = pixelNetworkStatus?.grid_width ?? 1000;
+    const gridHeight = pixelNetworkStatus?.grid_height ?? 1000;
+
+    const x = Number(pixelGoToX);
+    const y = Number(pixelGoToY);
+
+    if (
+      !Number.isInteger(x) ||
+      !Number.isInteger(y) ||
+      x < 0 ||
+      x >= gridWidth ||
+      y < 0 ||
+      y >= gridHeight
+    ) {
+      setPixelGoToError(
+        `ENTER X 0–${gridWidth - 1} / Y 0–${gridHeight - 1}`,
+      );
+      return;
+    }
+
+    setPixelGoToError(null);
+    setHoveredPixelCoordinate({
+      x,
+      y,
+      blockX: x,
+      blockY: y,
+    });
+
+    void handlePixelSelect({ x, y });
   };
 
   const handlePixelSelect = async (
@@ -1353,6 +1390,87 @@ export function MarsPlanetMap({
               : "READING PRODUCTION STATE"}
         </small>
       </div>
+
+      {!diving && pixelNetworkStatus && (
+        <div className="mars-pixel-goto">
+          <span className="mars-pixel-goto__eyebrow">
+            GO TO COORDINATE
+          </span>
+
+          <div className="mars-pixel-goto__controls">
+            <label>
+              <span>X</span>
+              <input
+                type="number"
+                min={0}
+                max={pixelNetworkStatus.grid_width - 1}
+                value={pixelGoToX}
+                onChange={(event) =>
+                  setPixelGoToX(event.target.value)
+                }
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") {
+                    handlePixelGoToCoordinate();
+                  }
+                }}
+              />
+            </label>
+
+            <label>
+              <span>Y</span>
+              <input
+                type="number"
+                min={0}
+                max={pixelNetworkStatus.grid_height - 1}
+                value={pixelGoToY}
+                onChange={(event) =>
+                  setPixelGoToY(event.target.value)
+                }
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") {
+                    handlePixelGoToCoordinate();
+                  }
+                }}
+              />
+            </label>
+
+            <button
+              type="button"
+              onClick={handlePixelGoToCoordinate}
+            >
+              GO
+            </button>
+          </div>
+
+          <button
+            type="button"
+            className="mars-pixel-goto__ares"
+            onClick={() => {
+              setPixelGoToX("520");
+              setPixelGoToY("370");
+              setPixelGoToError(null);
+              setHoveredPixelCoordinate({
+                x: 520,
+                y: 370,
+                blockX: 520,
+                blockY: 370,
+              });
+              void handlePixelSelect({
+                x: 520,
+                y: 370,
+              });
+            }}
+          >
+            ARES PROTECTED · X520 Y370
+          </button>
+
+          {pixelGoToError && (
+            <small className="mars-pixel-goto__error">
+              {pixelGoToError}
+            </small>
+          )}
+        </div>
+      )}
 
       {!diving &&
         hoveredPixelCoordinate && (

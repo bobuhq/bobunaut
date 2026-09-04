@@ -3359,3 +3359,111 @@
     opacity: 0;
   }
 }
+
+/* MARS PIXEL REGISTRY — COORDINATE NAVIGATION V1 */
+
+.mars-pixel-goto {
+  position: absolute;
+  z-index: 12;
+  top: 22px;
+  left: 22px;
+  width: min(300px, calc(100% - 44px));
+  padding: 12px;
+  border: 1px solid rgba(76, 224, 235, 0.26);
+  border-radius: 12px;
+  background: rgba(6, 12, 22, 0.88);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.28);
+}
+
+.mars-pixel-goto__eyebrow {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  color: #7cecf3;
+}
+
+.mars-pixel-goto__controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 7px;
+  align-items: end;
+}
+
+.mars-pixel-goto__controls label {
+  display: grid;
+  gap: 4px;
+}
+
+.mars-pixel-goto__controls label span {
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  opacity: 0.62;
+}
+
+.mars-pixel-goto__controls input {
+  width: 100%;
+  min-width: 0;
+  height: 32px;
+  box-sizing: border-box;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 7px;
+  padding: 0 8px;
+  background: rgba(255, 255, 255, 0.045);
+  color: #fff;
+  font: inherit;
+  font-size: 12px;
+  outline: none;
+}
+
+.mars-pixel-goto__controls input:focus {
+  border-color: rgba(76, 224, 235, 0.72);
+}
+
+.mars-pixel-goto__controls button {
+  height: 32px;
+  padding: 0 13px;
+  border: 1px solid rgba(76, 224, 235, 0.5);
+  border-radius: 7px;
+  background: rgba(76, 224, 235, 0.12);
+  color: #7cecf3;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+}
+
+.mars-pixel-goto__ares {
+  width: 100%;
+  margin-top: 8px;
+  min-height: 28px;
+  border: 1px solid rgba(255, 184, 94, 0.26);
+  border-radius: 7px;
+  background: rgba(255, 153, 71, 0.08);
+  color: #ffc27e;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+}
+
+.mars-pixel-goto__error {
+  display: block;
+  margin-top: 7px;
+  color: #ff8c8c;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+@media (max-width: 900px) {
+  .mars-pixel-goto {
+    top: 12px;
+    left: 12px;
+    width: min(260px, calc(100% - 24px));
+    padding: 9px;
+  }
+}
