@@ -1289,8 +1289,16 @@ export function MarsPixelOverlay({
               mix(
                 defaultSelectionPreviewColor,
                 territorySelectionColor,
-                useTerritorySelectionColor *
-                  hasLockedSelection
+                useTerritorySelectionColor
+              );
+
+            float selectionColorStrength =
+              mix(
+                0.34 +
+                  selectionOuterBorder * 0.54,
+                0.58 +
+                  selectionOuterBorder * 0.34,
+                useTerritorySelectionColor
               );
 
             finalColor =
@@ -1298,10 +1306,7 @@ export function MarsPixelOverlay({
                 finalColor,
                 selectionPreviewColor,
                 isSelectionPreview *
-                  (
-                    0.34 +
-                    selectionOuterBorder * 0.54
-                  )
+                  selectionColorStrength
               );
 
             float interactionAlpha =
