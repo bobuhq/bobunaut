@@ -108,6 +108,14 @@ export type MarsPixelCoordinateDetail = {
   destination_url: string | null;
 };
 
+export type MarsPixelTerritoryColorOption = {
+  color_key: string;
+  allowed: boolean;
+  adjacent: boolean;
+  usage_count: number;
+  auto_rank: number;
+};
+
 export async function getMarsPixelNetworkStatus(): Promise<MarsPixelNetworkStatus> {
   const { data, error } = await supabase.rpc(
     "get_mars_pixel_network_status",
@@ -430,4 +438,55 @@ export async function getMarsPixelAtCoordinate(
     purchasable:
       detail.purchasable === true,
   };
+}
+
+
+export async function getMarsPixelTerritoryColorOptions(
+  xStart: number,
+  yStart: number,
+  width: number,
+  height: number,
+): Promise<MarsPixelTerritoryColorOption[]> {
+  const values = [
+    xStart,
+    yStart,
+    width,
+    height,
+  ];
+
+  if (
+    values.some((value) => !Number.isInteger(value)) ||
+    width < 1 ||
+    height < 1
+  ) {
+    throw new Error(
+      "Mars Pixel territory color request requires valid integer geometry.",
+    );
+  }
+
+  const { data, error } = await supabase.rpc(
+    "get_mars_pixel_territory_color_options_v1",
+    {
+      p_x_start: xStart,
+      p_y_start: yStart,
+      p_width: width,
+      p_height: height,
+    },
+  );
+
+  if (error) {
+    throw error;
+  }
+
+  return (
+    (data as MarsPixelTerritoryColorOption[] | null)?.map(
+      (option) => ({
+        ...option,
+        allowed: option.allowed === true,
+        adjacent: option.adjacent === true,
+        usage_count: Number(option.usage_count),
+        auto_rank: Number(option.auto_rank),
+      }),
+    ) ?? []
+  );
 }

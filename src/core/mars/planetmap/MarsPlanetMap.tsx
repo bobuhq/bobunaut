@@ -40,6 +40,7 @@ import {
   getMarsPixelPublicReservedZones,
   getMarsPixelSelectionDetail,
   getMarsPixelSelectionValuation,
+  getMarsPixelTerritoryColorOptions,
 } from "../MarsPixelNetworkService";
 
 import type {
@@ -49,6 +50,7 @@ import type {
   MarsPixelPublicReservedZone,
   MarsPixelSelectionDetail,
   MarsPixelSelectionValuation,
+  MarsPixelTerritoryColorOption,
 } from "../MarsPixelNetworkService";
 
 import {
@@ -63,6 +65,31 @@ import { useLanguage } from "../../language";
 import MarsLanguageSelector from "../components/MarsLanguageSelector";
 
 import "./MarsPlanetMap.css";
+
+const MARS_PIXEL_TERRITORY_COLORS: Record<string, string> = {
+  RAINBOW_01: "#ff4d6d",
+  RAINBOW_02: "#ff6b35",
+  RAINBOW_03: "#ff9f1c",
+  RAINBOW_04: "#ffd166",
+  RAINBOW_05: "#b8de3c",
+  RAINBOW_06: "#52d273",
+  RAINBOW_07: "#20c997",
+  RAINBOW_08: "#19c3b1",
+  RAINBOW_09: "#21c7e8",
+  RAINBOW_10: "#42a5f5",
+  RAINBOW_11: "#5c7cfa",
+  RAINBOW_12: "#6c63ff",
+  RAINBOW_13: "#845ef7",
+  RAINBOW_14: "#9c5de5",
+  RAINBOW_15: "#be4bdb",
+  RAINBOW_16: "#e649b5",
+  RAINBOW_17: "#f06595",
+  RAINBOW_18: "#ff70a6",
+  RAINBOW_19: "#c77dff",
+  RAINBOW_20: "#8ac926",
+};
+
+
 
 type MarsPlanetMapProps = {
   sectors: MarsSector[];
@@ -902,6 +929,123 @@ export function MarsPlanetMap({
     x: number;
     y: number;
   } | null>(null);
+
+  const [
+    pixelColorOptions,
+    setPixelColorOptions,
+  ] = useState<MarsPixelTerritoryColorOption[]>([]);
+
+  const [
+    selectedPixelColorKey,
+    setSelectedPixelColorKey,
+  ] = useState<string | null>(null);
+
+  const [
+    pixelColorMode,
+    setPixelColorMode,
+  ] = useState<"auto" | "manual">("auto");
+
+  const [
+    pixelColorPickerOpen,
+    setPixelColorPickerOpen,
+  ] = useState(false);
+
+  const [
+    pixelColorLoading,
+    setPixelColorLoading,
+  ] = useState(false);
+
+  const [
+    pixelColorError,
+    setPixelColorError,
+  ] = useState<string | null>(null);
+
+  const pixelColorRequestRef = useRef(0);
+
+  useEffect(() => {
+    const requestId =
+      ++pixelColorRequestRef.current;
+
+    setPixelColorPickerOpen(false);
+    setPixelColorMode("auto");
+    setPixelColorError(null);
+
+    if (
+      !selectedPixelSelection ||
+      selectedPixelSelection.selection_status !== "available"
+    ) {
+      setPixelColorOptions([]);
+      setSelectedPixelColorKey(null);
+      setPixelColorLoading(false);
+      return;
+    }
+
+    setPixelColorLoading(true);
+    setPixelColorOptions([]);
+    setSelectedPixelColorKey(null);
+
+    void getMarsPixelTerritoryColorOptions(
+      selectedPixelSelection.x_start,
+      selectedPixelSelection.y_start,
+      selectedPixelSelection.width,
+      selectedPixelSelection.height,
+    )
+      .then((options) => {
+        if (
+          pixelColorRequestRef.current !== requestId
+        ) {
+          return;
+        }
+
+        const ordered = [...options].sort(
+          (a, b) => a.auto_rank - b.auto_rank,
+        );
+
+        const automatic =
+          ordered.find((option) => option.allowed) ??
+          null;
+
+        setPixelColorOptions(ordered);
+        setSelectedPixelColorKey(
+          automatic?.color_key ?? null,
+        );
+
+        if (!automatic) {
+          setPixelColorError(
+            "No eligible territory color is available.",
+          );
+        }
+      })
+      .catch((error: unknown) => {
+        if (
+          pixelColorRequestRef.current !== requestId
+        ) {
+          return;
+        }
+
+        setPixelColorOptions([]);
+        setSelectedPixelColorKey(null);
+        setPixelColorError(
+          error instanceof Error
+            ? error.message
+            : "Territory color options could not be loaded.",
+        );
+      })
+      .finally(() => {
+        if (
+          pixelColorRequestRef.current === requestId
+        ) {
+          setPixelColorLoading(false);
+        }
+      });
+  }, [selectedPixelSelection]);
+
+  const selectedPixelColor =
+    selectedPixelColorKey
+      ? MARS_PIXEL_TERRITORY_COLORS[
+          selectedPixelColorKey
+        ] ?? "#63f5ff"
+      : "#63f5ff";
 
   const pixelBlockSelection = useMemo(() => {
     if (pixelDragAnchor) {
@@ -1896,7 +2040,115 @@ export function MarsPlanetMap({
                           </div>
                         )}
 
-                        <div className="mars-pixel-detail__grid">
+                        {selectedPixelSelection?.selection_status === "available" && (
+                <div className="mars-pixel-color">
+                  <div className="mars-pixel-color__current">
+                    <span
+                      className="mars-pixel-color__swatch"
+                      style={{
+                        background: selectedPixelColor,
+                      }}
+                    />
+                    <div>
+                      <small>TERRITORY COLOR</small>
+                      <strong>
+                        {pixelColorLoading
+                          ? "SELECTING..."
+                          : selectedPixelColorKey ?? "UNAVAILABLE"}
+                      </strong>
+                      <em>
+                        {pixelColorMode === "auto"
+                          ? "AUTO SELECTED"
+                          : "MANUAL SELECTION"}
+                      </em>
+                    </div>
+
+                    <button
+                      type="button"
+                      disabled={
+                        pixelColorLoading ||
+                        pixelColorOptions.length === 0
+                      }
+                      onClick={() =>
+                        setPixelColorPickerOpen(
+                          (open) => !open,
+                        )
+                      }
+                    >
+                      {pixelColorPickerOpen
+                        ? "CLOSE"
+                        : "CHANGE COLOR"}
+                    </button>
+                  </div>
+
+                  {pixelColorError && (
+                    <div className="mars-pixel-color__error">
+                      {pixelColorError}
+                    </div>
+                  )}
+
+                  {pixelColorPickerOpen && (
+                    <div className="mars-pixel-color__palette">
+                      {pixelColorOptions.map((option) => {
+                        const color =
+                          MARS_PIXEL_TERRITORY_COLORS[
+                            option.color_key
+                          ] ?? "#63f5ff";
+
+                        const active =
+                          selectedPixelColorKey ===
+                          option.color_key;
+
+                        return (
+                          <button
+                            key={option.color_key}
+                            type="button"
+                            className={[
+                              "mars-pixel-color__option",
+                              active ? "is-active" : "",
+                              !option.allowed
+                                ? "is-disabled"
+                                : "",
+                            ]
+                              .filter(Boolean)
+                              .join(" ")}
+                            disabled={!option.allowed}
+                            title={
+                              option.allowed
+                                ? option.color_key
+                                : `${option.color_key} · adjacent color unavailable`
+                            }
+                            aria-label={
+                              option.allowed
+                                ? `Select ${option.color_key}`
+                                : `${option.color_key} unavailable because of edge adjacency`
+                            }
+                            onClick={() => {
+                              if (!option.allowed) {
+                                return;
+                              }
+
+                              setSelectedPixelColorKey(
+                                option.color_key,
+                              );
+                              setPixelColorMode("manual");
+                              setPixelColorPickerOpen(false);
+                            }}
+                          >
+                            <span
+                              style={{
+                                background: color,
+                              }}
+                            />
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div className="mars-pixel-detail__grid">
                           GRID V
                           {selectionLocked
                             ? selectedPixelSelection?.grid_version

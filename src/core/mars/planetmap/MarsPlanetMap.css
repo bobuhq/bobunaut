@@ -3495,3 +3495,174 @@
 .mars-pixel-goto__ares {
   display: none;
 }
+
+
+/* MARS PIXEL REGISTRY — TERRITORY COLOR UI V1 */
+
+.mars-pixel-color {
+  margin-top: 10px;
+  padding-top: 9px;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.mars-pixel-color__current {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.mars-pixel-color__swatch {
+  width: 24px;
+  height: 24px;
+  border: 2px solid rgba(255, 255, 255, 0.72);
+  border-radius: 7px;
+  box-shadow:
+    0 0 14px rgba(255, 255, 255, 0.14),
+    inset 0 0 8px rgba(255, 255, 255, 0.18);
+}
+
+.mars-pixel-color__current > div {
+  display: grid;
+  min-width: 0;
+  gap: 1px;
+}
+
+.mars-pixel-color__current small,
+.mars-pixel-color__current em {
+  color: rgba(255, 255, 255, 0.42);
+  font-size: 6px;
+  font-style: normal;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+}
+
+.mars-pixel-color__current strong {
+  overflow: hidden;
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mars-pixel-color__current > button {
+  min-height: 25px;
+  padding: 0 7px;
+  border: 1px solid rgba(99, 245, 255, 0.28);
+  border-radius: 6px;
+  background: rgba(99, 245, 255, 0.07);
+  color: #7cecf3;
+  font: inherit;
+  font-size: 6px;
+  font-weight: 900;
+  letter-spacing: 0.07em;
+  cursor: pointer;
+}
+
+.mars-pixel-color__current > button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.mars-pixel-color__palette {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  margin-top: 8px;
+  gap: 5px;
+}
+
+.mars-pixel-color__option {
+  display: grid;
+  aspect-ratio: 1;
+  min-width: 0;
+  padding: 2px;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.035);
+  cursor: pointer;
+}
+
+.mars-pixel-color__option > span {
+  width: 100%;
+  height: 100%;
+  min-height: 13px;
+  border-radius: 3px;
+}
+
+.mars-pixel-color__option.is-active {
+  border-color: #ffffff;
+  box-shadow:
+    0 0 0 1px rgba(99, 245, 255, 0.55),
+    0 0 12px rgba(99, 245, 255, 0.16);
+}
+
+.mars-pixel-color__option.is-disabled {
+  opacity: 0.18;
+  cursor: not-allowed;
+  filter: grayscale(1);
+}
+
+.mars-pixel-color__error {
+  margin-top: 6px;
+  color: #ff8a78;
+  font-size: 6px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+}
+
+@media (max-width: 900px) and (orientation: landscape) {
+  .mars-pixel-color {
+    margin-top: 4px;
+    padding-top: 4px;
+  }
+
+  .mars-pixel-color__current {
+    grid-template-columns: 14px minmax(0, 1fr) auto;
+    gap: 4px;
+  }
+
+  .mars-pixel-color__swatch {
+    width: 14px;
+    height: 14px;
+    border-width: 1px;
+    border-radius: 4px;
+  }
+
+  .mars-pixel-color__current small,
+  .mars-pixel-color__current em {
+    font-size: 4px;
+  }
+
+  .mars-pixel-color__current strong {
+    font-size: 5px;
+  }
+
+  .mars-pixel-color__current > button {
+    min-height: 17px;
+    padding: 0 4px;
+    font-size: 4px;
+  }
+
+  .mars-pixel-color__palette {
+    grid-template-columns: repeat(10, 1fr);
+    margin-top: 4px;
+    gap: 3px;
+  }
+
+  .mars-pixel-color__option {
+    padding: 1px;
+    border-radius: 3px;
+  }
+
+  .mars-pixel-color__option > span {
+    min-height: 8px;
+    border-radius: 2px;
+  }
+
+  .mars-pixel-detail:has(.mars-pixel-color__palette) {
+    max-height: 150px;
+  }
+}
