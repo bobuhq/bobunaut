@@ -1138,6 +1138,10 @@ export function MarsPlanetMap({
     );
   };
 
+  const territorySelectionLocked =
+    selectedPixel !== null &&
+    lockedSelectionTarget !== null;
+
   const handlePixelSelect = async (
     coordinate: {
       x: number;
@@ -1936,8 +1940,24 @@ export function MarsPlanetMap({
         <MarsScene
           pixelDragActive={pixelDragActive}
           onDragStateChange={handlePixelDragStateChange}
-          onPixelDragStart={handlePixelDragStart}
-          onPixelDragSelect={handlePixelDragSelect}
+          onPixelDragStart={(coordinate) => {
+            if (territorySelectionLocked) {
+              return;
+            }
+
+            const preview =
+              getTerritoryPreview(coordinate);
+
+            if (!preview) {
+              return;
+            }
+
+            setPixelDragAnchor(preview.anchor);
+            setLockedSelectionTarget(preview.target);
+          }}
+          onPixelDragSelect={(anchor) => {
+            void handleTerritorySizeSelect(anchor);
+          }}
           selectedPixelCoordinate={
             pixelDragAnchor ??
             (
@@ -1955,6 +1975,10 @@ export function MarsPlanetMap({
           onPixelSelect={handleTerritorySizeSelect}
           onPixelHover={(coordinate) => {
             setHoveredPixelCoordinate(coordinate);
+
+            if (territorySelectionLocked) {
+              return;
+            }
 
             if (!coordinate) {
               if (!pixelDragActive) {
