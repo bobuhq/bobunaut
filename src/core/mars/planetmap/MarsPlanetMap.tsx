@@ -883,9 +883,11 @@ export function MarsPlanetMap({
 
   const pixelRequestRef = useRef(0);
 
-  const [pixelGoToX, setPixelGoToX] = useState("520");
-  const [pixelGoToY, setPixelGoToY] = useState("370");
-  const [pixelGoToError, setPixelGoToError] =
+  const [territoryWidth, setTerritoryWidth] =
+    useState("10");
+  const [territoryHeight, setTerritoryHeight] =
+    useState("5");
+  const [territorySizeError, setTerritorySizeError] =
     useState<string | null>(null);
 
   const [
@@ -1071,36 +1073,69 @@ export function MarsPlanetMap({
     }
   };
 
-  const handlePixelGoToCoordinate = (): void => {
+  const getTerritoryPreview = (
+    coordinate: {
+      x: number;
+      y: number;
+    },
+  ) => {
     const gridWidth = pixelNetworkStatus?.grid_width ?? 1000;
     const gridHeight = pixelNetworkStatus?.grid_height ?? 1000;
 
-    const x = Number(pixelGoToX);
-    const y = Number(pixelGoToY);
+    const width = Number(territoryWidth);
+    const height = Number(territoryHeight);
 
     if (
-      !Number.isInteger(x) ||
-      !Number.isInteger(y) ||
-      x < 0 ||
-      x >= gridWidth ||
-      y < 0 ||
-      y >= gridHeight
+      !Number.isInteger(width) ||
+      !Number.isInteger(height) ||
+      width < 1 ||
+      height < 1 ||
+      width * height < 50
     ) {
-      setPixelGoToError(
-        `ENTER X 0–${gridWidth - 1} / Y 0–${gridHeight - 1}`,
+      return null;
+    }
+
+    return {
+      anchor: {
+        x: coordinate.x,
+        y: coordinate.y,
+      },
+      target: {
+        x: Math.min(
+          coordinate.x + width - 1,
+          gridWidth - 1,
+        ),
+        y: Math.min(
+          coordinate.y + height - 1,
+          gridHeight - 1,
+        ),
+      },
+      width,
+      height,
+    };
+  };
+
+  const handleTerritorySizeSelect = async (
+    coordinate: {
+      x: number;
+      y: number;
+    },
+  ) => {
+    const preview = getTerritoryPreview(coordinate);
+
+    if (!preview) {
+      setTerritorySizeError(
+        "MINIMUM TERRITORY SIZE IS 50 PIXELS",
       );
       return;
     }
 
-    setPixelGoToError(null);
-    setHoveredPixelCoordinate({
-      x,
-      y,
-      blockX: x,
-      blockY: y,
-    });
+    setTerritorySizeError(null);
 
-    void handlePixelSelect({ x, y });
+    await handlePixelDragSelect(
+      preview.anchor,
+      preview.target,
+    );
   };
 
   const handlePixelSelect = async (
@@ -1394,79 +1429,68 @@ export function MarsPlanetMap({
       {!diving && pixelNetworkStatus && (
         <div className="mars-pixel-goto">
           <span className="mars-pixel-goto__eyebrow">
-            GO TO COORDINATE
+            SELECT TERRITORY SIZE
           </span>
 
           <div className="mars-pixel-goto__controls">
             <label>
-              <span>X</span>
+              <span>WIDTH</span>
               <input
                 type="number"
-                min={0}
-                max={pixelNetworkStatus.grid_width - 1}
-                value={pixelGoToX}
+                min={1}
+                max={pixelNetworkStatus.grid_width}
+                value={territoryWidth}
                 onChange={(event) =>
-                  setPixelGoToX(event.target.value)
+                  setTerritoryWidth(event.target.value)
                 }
                 onKeyDown={(event) => {
                   if (event.key === "Enter") {
-                    handlePixelGoToCoordinate();
+                    setTerritorySizeError(null);
                   }
                 }}
               />
             </label>
 
             <label>
-              <span>Y</span>
+              <span>HEIGHT</span>
               <input
                 type="number"
                 min={0}
-                max={pixelNetworkStatus.grid_height - 1}
-                value={pixelGoToY}
+                max={pixelNetworkStatus.grid_height}
+                value={territoryHeight}
                 onChange={(event) =>
-                  setPixelGoToY(event.target.value)
+                  setTerritoryHeight(event.target.value)
                 }
                 onKeyDown={(event) => {
                   if (event.key === "Enter") {
-                    handlePixelGoToCoordinate();
+                    setTerritorySizeError(null);
                   }
                 }}
               />
             </label>
 
-            <button
-              type="button"
-              onClick={handlePixelGoToCoordinate}
-            >
-              GO
-            </button>
+            <div className="mars-pixel-goto__total">
+              {(() => {
+                const width = Number(territoryWidth);
+                const height = Number(territoryHeight);
+                const total =
+                  Number.isFinite(width) &&
+                  Number.isFinite(height)
+                    ? width * height
+                    : 0;
+
+                return `${total.toLocaleString("en-US")} PIXELS`;
+              })()}
+            </div>
           </div>
 
-          <button
-            type="button"
-            className="mars-pixel-goto__ares"
-            onClick={() => {
-              setPixelGoToX("520");
-              setPixelGoToY("370");
-              setPixelGoToError(null);
-              setHoveredPixelCoordinate({
-                x: 520,
-                y: 370,
-                blockX: 520,
-                blockY: 370,
-              });
-              void handlePixelSelect({
-                x: 520,
-                y: 370,
-              });
-            }}
-          >
-            ARES PROTECTED · X520 Y370
-          </button>
+          <small className="mars-pixel-goto__hint">
+            MOVE OVER MARS · CLICK TO LOCK TERRITORY
+          </small>
 
-          {pixelGoToError && (
+          {territorySizeError && (
             <small className="mars-pixel-goto__error">
-              {pixelGoToError}
+              {territorySizeError}
             </small>
           )}
         </div>
@@ -1928,8 +1952,28 @@ export function MarsPlanetMap({
           lockedSelectionCoordinate={
             lockedSelectionTarget
           }
-          onPixelSelect={handlePixelSelect}
-          onPixelHover={setHoveredPixelCoordinate}
+          onPixelSelect={handleTerritorySizeSelect}
+          onPixelHover={(coordinate) => {
+            setHoveredPixelCoordinate(coordinate);
+
+            if (!coordinate) {
+              if (!pixelDragActive) {
+                setPixelDragAnchor(null);
+                setLockedSelectionTarget(null);
+              }
+              return;
+            }
+
+            const preview =
+              getTerritoryPreview(coordinate);
+
+            if (!preview || pixelDragActive) {
+              return;
+            }
+
+            setPixelDragAnchor(preview.anchor);
+            setLockedSelectionTarget(preview.target);
+          }}
           sectors={sectors}
           currentSectorId={
             currentSectorId
