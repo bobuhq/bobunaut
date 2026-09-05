@@ -3666,3 +3666,243 @@
     max-height: 150px;
   }
 }
+
+/* BOBU MARS PIXEL — MOBILE TOUCH UI V1 */
+@media (max-width: 680px) {
+  .mars-planet-map {
+    width: 100%;
+    height: min(118vw, 72dvh);
+    min-height: 440px;
+    max-height: 720px;
+    overflow: hidden;
+  }
+
+  .mars-pixel-goto {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+    width: auto;
+    max-width: none;
+    padding: 8px 10px;
+    border-radius: 12px;
+    z-index: 24;
+  }
+
+  .mars-pixel-goto__eyebrow {
+    font-size: 7px;
+    letter-spacing: 0.15em;
+  }
+
+  .mars-pixel-goto__controls {
+    display: grid;
+    grid-template-columns:
+      minmax(0, 1fr)
+      minmax(0, 1fr)
+      minmax(92px, 1.15fr);
+    gap: 7px;
+    margin-top: 6px;
+  }
+
+  .mars-pixel-goto__controls label {
+    min-width: 0;
+  }
+
+  .mars-pixel-goto__controls label > span {
+    font-size: 6px;
+    letter-spacing: 0.12em;
+  }
+
+  .mars-pixel-goto__controls input {
+    width: 100%;
+    height: 38px;
+    min-width: 0;
+    padding: 0 10px;
+    font-size: 15px;
+    border-radius: 8px;
+  }
+
+  .mars-pixel-goto__total {
+    width: 100%;
+    min-width: 0;
+    height: 38px;
+    align-self: end;
+    font-size: 8px;
+  }
+
+  .mars-pixel-goto__hint {
+    margin-top: 6px;
+    font-size: 6px;
+    line-height: 1.25;
+    letter-spacing: 0.07em;
+  }
+
+  .mars-planet-map__coordinate-hud {
+    display: none;
+  }
+
+  .mars-pixel-detail {
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    left: 8px;
+    width: auto;
+    max-height: min(42dvh, 340px);
+    padding: 10px 12px 12px;
+    border-radius: 15px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    z-index: 30;
+  }
+
+  .mars-pixel-detail__header {
+    position: sticky;
+    top: -10px;
+    z-index: 4;
+    margin: -10px -12px 6px;
+    padding: 10px 12px 7px;
+    background:
+      linear-gradient(
+        180deg,
+        rgba(5, 10, 18, 0.98),
+        rgba(5, 10, 18, 0.94)
+      );
+  }
+
+  .mars-pixel-detail__eyebrow {
+    font-size: 6px;
+  }
+
+  .mars-pixel-detail__header strong {
+    font-size: 12px;
+  }
+
+  .mars-pixel-detail__close {
+    width: 30px;
+    height: 30px;
+    min-width: 30px;
+    touch-action: manipulation;
+  }
+
+  .mars-pixel-detail__row {
+    min-height: 25px;
+    padding: 4px 0;
+    font-size: 8px;
+  }
+
+  .mars-pixel-detail__row span,
+  .mars-pixel-detail__row small {
+    font-size: 7px;
+  }
+
+  .mars-pixel-detail__row strong {
+    font-size: 9px;
+  }
+
+  .mars-pixel-color {
+    margin-top: 8px;
+    padding-top: 8px;
+  }
+
+  .mars-pixel-color__current {
+    grid-template-columns: 26px minmax(0, 1fr) auto;
+    gap: 7px;
+  }
+
+  .mars-pixel-color__swatch {
+    width: 26px;
+    height: 26px;
+  }
+
+  .mars-pixel-color__current small,
+  .mars-pixel-color__current em {
+    font-size: 6px;
+  }
+
+  .mars-pixel-color__current strong {
+    font-size: 8px;
+  }
+
+  .mars-pixel-color__current > button {
+    min-height: 34px;
+    padding: 0 10px;
+    font-size: 6px;
+    touch-action: manipulation;
+  }
+
+  .mars-pixel-color__palette {
+    grid-template-columns: repeat(5, 1fr);
+    margin-top: 9px;
+    gap: 7px;
+  }
+
+  .mars-pixel-color__option {
+    min-height: 42px;
+    padding: 4px;
+    border-radius: 8px;
+    touch-action: manipulation;
+  }
+
+  .mars-pixel-color__option > span {
+    min-height: 30px;
+    border-radius: 5px;
+  }
+
+  .mars-pixel-detail:has(.mars-pixel-color__palette) {
+    max-height: min(56dvh, 430px);
+  }
+}
+
+@media (max-width: 430px) {
+  .mars-planet-map {
+    height: min(125vw, 74dvh);
+    min-height: 430px;
+  }
+
+  .mars-pixel-detail {
+    right: 6px;
+    bottom: 6px;
+    left: 6px;
+    max-height: min(44dvh, 330px);
+  }
+
+  .mars-pixel-detail:has(.mars-pixel-color__palette) {
+    max-height: min(58dvh, 430px);
+  }
+}
+
+.mars-pixel-goto__lock {
+  display: none;
+}
+
+@media (max-width: 680px) and (pointer: coarse) {
+  .mars-pixel-goto__lock {
+    display: block;
+    width: 100%;
+    min-height: 42px;
+    margin-top: 7px;
+    border: 1px solid rgba(99, 245, 255, 0.5);
+    border-radius: 9px;
+    background:
+      linear-gradient(
+        135deg,
+        rgba(99, 245, 255, 0.16),
+        rgba(199, 149, 255, 0.12)
+      );
+    color: #7cecf3;
+    font: inherit;
+    font-size: 8px;
+    font-weight: 900;
+    letter-spacing: 0.12em;
+    touch-action: manipulation;
+  }
+
+  .mars-pixel-goto__lock:active {
+    transform: scale(0.985);
+  }
+
+  .mars-planet-map__canvas {
+    touch-action: manipulation;
+  }
+}

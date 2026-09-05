@@ -1289,6 +1289,12 @@ export function MarsPlanetMap({
     selectedPixel !== null &&
     lockedSelectionTarget !== null;
 
+  const mobileTouchMode =
+    typeof window !== "undefined" &&
+    window.matchMedia(
+      "(max-width: 680px) and (pointer: coarse)",
+    ).matches;
+
   const territorySelectionColor =
     useMemo<[number, number, number] | null>(() => {
       if (
@@ -1671,8 +1677,26 @@ export function MarsPlanetMap({
           </div>
 
           <small className="mars-pixel-goto__hint">
-            MOVE OVER MARS · CLICK TO LOCK TERRITORY
+            {mobileTouchMode
+              ? "TAP MARS TO POSITION · THEN LOCK TERRITORY"
+              : "MOVE OVER MARS · CLICK TO LOCK TERRITORY"}
           </small>
+
+          {mobileTouchMode &&
+            pixelDragAnchor &&
+            !territorySelectionLocked && (
+              <button
+                type="button"
+                className="mars-pixel-goto__lock"
+                onClick={() => {
+                  void handleTerritorySizeSelect(
+                    pixelDragAnchor,
+                  );
+                }}
+              >
+                LOCK TERRITORY
+              </button>
+            )}
 
           {territorySizeError && (
             <small className="mars-pixel-goto__error">
@@ -2231,7 +2255,10 @@ export function MarsPlanetMap({
           pixelDragActive={pixelDragActive}
           onDragStateChange={handlePixelDragStateChange}
           onPixelDragStart={(coordinate) => {
-            if (territorySelectionLocked) {
+            if (
+              mobileTouchMode ||
+              territorySelectionLocked
+            ) {
               return;
             }
 
@@ -2246,6 +2273,10 @@ export function MarsPlanetMap({
             setLockedSelectionTarget(preview.target);
           }}
           onPixelDragSelect={(anchor) => {
+            if (mobileTouchMode) {
+              return;
+            }
+
             void handleTerritorySizeSelect(anchor);
           }}
           selectedPixelCoordinate={
@@ -2265,8 +2296,37 @@ export function MarsPlanetMap({
           territorySelectionColor={
             territorySelectionColor
           }
-          onPixelSelect={handleTerritorySizeSelect}
+          onPixelSelect={(coordinate) => {
+            if (!mobileTouchMode) {
+              void handleTerritorySizeSelect(
+                coordinate,
+              );
+              return;
+            }
+
+            if (territorySelectionLocked) {
+              return;
+            }
+
+            const preview =
+              getTerritoryPreview(coordinate);
+
+            if (!preview) {
+              return;
+            }
+
+            setHoveredPixelCoordinate(null);
+            setPixelDragAnchor(preview.anchor);
+            setLockedSelectionTarget(
+              preview.target,
+            );
+          }}
           onPixelHover={(coordinate) => {
+            if (mobileTouchMode) {
+              setHoveredPixelCoordinate(null);
+              return;
+            }
+
             setHoveredPixelCoordinate(coordinate);
 
             if (territorySelectionLocked) {
