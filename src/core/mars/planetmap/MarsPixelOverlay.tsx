@@ -1115,65 +1115,193 @@ export function MarsPixelOverlay({
               );
 
             float territoryPulse =
-              0.50 +
-              sin(time * 2.85) * 0.50;
+              0.78 +
+              sin(time * 3.2) * 0.22;
 
             vec3 territoryEdgeColor =
               min(
                 vec3(1.0),
-                allocation.rgb * 1.75 +
-                vec3(0.18)
+                allocation.rgb * 1.82 +
+                vec3(0.28)
               );
 
-            float neighborWeight =
+            vec4 allocationLeft4 =
+              texture2D(
+                allocationTexture,
+                vUv - vec2(allocationTexel.x * 4.0, 0.0)
+              );
+
+            vec4 allocationRight4 =
+              texture2D(
+                allocationTexture,
+                vUv + vec2(allocationTexel.x * 4.0, 0.0)
+              );
+
+            vec4 allocationUp4 =
+              texture2D(
+                allocationTexture,
+                vUv + vec2(0.0, allocationTexel.y * 4.0)
+              );
+
+            vec4 allocationDown4 =
+              texture2D(
+                allocationTexture,
+                vUv - vec2(0.0, allocationTexel.y * 4.0)
+              );
+
+            vec4 allocationLeft8 =
+              texture2D(
+                allocationTexture,
+                vUv - vec2(allocationTexel.x * 8.0, 0.0)
+              );
+
+            vec4 allocationRight8 =
+              texture2D(
+                allocationTexture,
+                vUv + vec2(allocationTexel.x * 8.0, 0.0)
+              );
+
+            vec4 allocationUp8 =
+              texture2D(
+                allocationTexture,
+                vUv + vec2(0.0, allocationTexel.y * 8.0)
+              );
+
+            vec4 allocationDown8 =
+              texture2D(
+                allocationTexture,
+                vUv - vec2(0.0, allocationTexel.y * 8.0)
+              );
+
+            float nearWeight =
               allocationLeft.a +
               allocationRight.a +
               allocationUp.a +
-              allocationDown.a +
-              allocationLeft2.a * 0.55 +
-              allocationRight2.a * 0.55 +
-              allocationUp2.a * 0.55 +
-              allocationDown2.a * 0.55;
+              allocationDown.a;
 
-            vec3 neighborColor =
+            float midWeight =
+              allocationLeft2.a +
+              allocationRight2.a +
+              allocationUp2.a +
+              allocationDown2.a;
+
+            float farWeight =
+              allocationLeft4.a +
+              allocationRight4.a +
+              allocationUp4.a +
+              allocationDown4.a;
+
+            float wideWeight =
+              allocationLeft8.a +
+              allocationRight8.a +
+              allocationUp8.a +
+              allocationDown8.a;
+
+            vec3 nearColor =
               (
                 allocationLeft.rgb * allocationLeft.a +
                 allocationRight.rgb * allocationRight.a +
                 allocationUp.rgb * allocationUp.a +
-                allocationDown.rgb * allocationDown.a +
-                allocationLeft2.rgb * allocationLeft2.a * 0.55 +
-                allocationRight2.rgb * allocationRight2.a * 0.55 +
-                allocationUp2.rgb * allocationUp2.a * 0.55 +
-                allocationDown2.rgb * allocationDown2.a * 0.55
+                allocationDown.rgb * allocationDown.a
               ) /
-              max(neighborWeight, 0.001);
+              max(nearWeight, 0.001);
 
-            float outerAllocationGlow =
-              (1.0 - hasAllocation) *
-              step(
-                0.01,
-                neighborWeight
-              );
+            vec3 midColor =
+              (
+                allocationLeft2.rgb * allocationLeft2.a +
+                allocationRight2.rgb * allocationRight2.a +
+                allocationUp2.rgb * allocationUp2.a +
+                allocationDown2.rgb * allocationDown2.a
+              ) /
+              max(midWeight, 0.001);
 
-            vec3 outerTerritoryColor =
+            vec3 farColor =
+              (
+                allocationLeft4.rgb * allocationLeft4.a +
+                allocationRight4.rgb * allocationRight4.a +
+                allocationUp4.rgb * allocationUp4.a +
+                allocationDown4.rgb * allocationDown4.a
+              ) /
+              max(farWeight, 0.001);
+
+            vec3 wideColor =
+              (
+                allocationLeft8.rgb * allocationLeft8.a +
+                allocationRight8.rgb * allocationRight8.a +
+                allocationUp8.rgb * allocationUp8.a +
+                allocationDown8.rgb * allocationDown8.a
+              ) /
+              max(wideWeight, 0.001);
+
+            float outsideAllocation =
+              1.0 - hasAllocation;
+
+            float glowNear =
+              outsideAllocation *
+              step(0.01, nearWeight);
+
+            float glowMid =
+              outsideAllocation *
+              (1.0 - glowNear) *
+              step(0.01, midWeight);
+
+            float glowFar =
+              outsideAllocation *
+              (1.0 - glowNear) *
+              (1.0 - glowMid) *
+              step(0.01, farWeight);
+
+            float glowWide =
+              outsideAllocation *
+              (1.0 - glowNear) *
+              (1.0 - glowMid) *
+              (1.0 - glowFar) *
+              step(0.01, wideWeight);
+
+            vec3 glowColor =
+              nearColor * glowNear +
+              midColor * glowMid +
+              farColor * glowFar +
+              wideColor * glowWide;
+
+            glowColor =
               min(
                 vec3(1.0),
-                neighborColor * 1.85 +
-                vec3(0.22)
+                glowColor * 1.95 +
+                vec3(0.24)
               );
 
             float territoryGlowAlpha =
-              outerAllocationGlow *
-              (
-                0.16 +
-                territoryPulse * 0.34
-              );
+              glowNear *
+                (
+                  0.46 +
+                  territoryPulse * 0.34
+                ) +
+              glowMid *
+                (
+                  0.28 +
+                  territoryPulse * 0.24
+                ) +
+              glowFar *
+                (
+                  0.16 +
+                  territoryPulse * 0.16
+                ) +
+              glowWide *
+                (
+                  0.07 +
+                  territoryPulse * 0.10
+                );
 
             finalColor =
               mix(
                 finalColor,
-                outerTerritoryColor,
-                territoryGlowAlpha
+                glowColor,
+                clamp(
+                  territoryGlowAlpha,
+                  0.0,
+                  0.94
+                )
               );
 
             finalColor =
@@ -1182,8 +1310,8 @@ export function MarsPixelOverlay({
                 territoryEdgeColor,
                 allocationGlow *
                   (
-                    0.28 +
-                    territoryPulse * 0.30
+                    0.52 +
+                    territoryPulse * 0.34
                   )
               );
 
@@ -1193,8 +1321,8 @@ export function MarsPixelOverlay({
                 territoryEdgeColor,
                 allocationEdge *
                   (
-                    0.68 +
-                    territoryPulse * 0.30
+                    0.84 +
+                    territoryPulse * 0.16
                   )
               );
 
