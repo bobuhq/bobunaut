@@ -1366,46 +1366,37 @@ export function MarsPixelOverlay({
               step(0.01, farWeight);
 
             float glowWide =
-              outsideAllocation *
-              (1.0 - glowNear) *
-              (1.0 - glowMid) *
-              (1.0 - glowFar) *
-              step(0.01, wideWeight);
+              0.0;
 
             vec3 glowColor =
               nearColor * glowNear +
               midColor * glowMid +
-              farColor * glowFar +
-              wideColor * glowWide;
+              farColor * glowFar;
 
             glowColor =
               min(
                 vec3(1.0),
-                glowColor * 2.10 +
-                vec3(0.28)
+                glowColor * 1.82 +
+                vec3(0.20)
               );
 
             float territoryGlowAlpha =
               glowNear *
                 (
-                  0.52 +
-                  territoryPulse * 0.32
+                  0.44 +
+                  territoryPulse * 0.24
                 ) +
               glowMid *
                 (
-                  0.32 +
-                  territoryPulse * 0.22
+                  0.20 +
+                  territoryPulse * 0.14
                 ) +
               glowFar *
                 (
-                  0.18 +
-                  territoryPulse * 0.14
+                  0.06 +
+                  territoryPulse * 0.05
                 ) +
-              glowWide *
-                (
-                  0.08 +
-                  territoryPulse * 0.08
-                );
+              glowWide;
 
             finalColor =
               mix(
