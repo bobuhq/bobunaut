@@ -43,6 +43,8 @@ import {
   getMarsPixelTerritoryColorOptions,
   getMarsPixelContentTier,
   purchaseMarsPixelTerritory,
+  saveMarsPixelCreative,
+  uploadMarsPixelCreativeImage,
 } from "../MarsPixelNetworkService";
 
 import type {
@@ -1374,6 +1376,151 @@ export function MarsPlanetMap({
     setMarsPixelPurchaseSuccess,
   ] = useState<string | null>(null);
 
+  const [creativeEditorOpen, setCreativeEditorOpen] =
+    useState(false);
+  const [creativeTitle, setCreativeTitle] =
+    useState("");
+  const [creativeDescription, setCreativeDescription] =
+    useState("");
+  const [creativeImageUrl, setCreativeImageUrl] =
+    useState("");
+  const [creativeImageFile, setCreativeImageFile] =
+    useState<File | null>(null);
+  const [creativeImageUploading, setCreativeImageUploading] =
+    useState(false);
+  const [creativeDestinationUrl, setCreativeDestinationUrl] =
+    useState("");
+  const [creativeCtaLabel, setCreativeCtaLabel] =
+    useState("");
+  const [creativeLinks, setCreativeLinks] =
+    useState("");
+  const [creativeSaveLoading, setCreativeSaveLoading] =
+    useState(false);
+  const [creativeSaveError, setCreativeSaveError] =
+    useState<string | null>(null);
+  const [creativeSaveSuccess, setCreativeSaveSuccess] =
+    useState<string | null>(null);
+
+  const ownedTerritoryPixelCount =
+    selectedPixel?.block_status === "owned"
+      ? selectedPixel.width * selectedPixel.height
+      : null;
+
+  const [ownedTerritoryTier, setOwnedTerritoryTier] =
+    useState<MarsPixelContentTier | null>(null);
+
+  useEffect(() => {
+    let active = true;
+
+    if (
+      !creativeEditorOpen ||
+      !ownedTerritoryPixelCount ||
+      ownedTerritoryPixelCount < 50
+    ) {
+      setOwnedTerritoryTier(null);
+      return () => {
+        active = false;
+      };
+    }
+
+    void getMarsPixelContentTier(
+      ownedTerritoryPixelCount,
+    )
+      .then((tier) => {
+        if (active) {
+          setOwnedTerritoryTier(tier);
+        }
+      })
+      .catch((error) => {
+        console.error(
+          "Mars Pixel owned territory tier lookup failed.",
+          error,
+        );
+
+        if (active) {
+          setOwnedTerritoryTier(null);
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [
+    creativeEditorOpen,
+    ownedTerritoryPixelCount,
+  ]);
+
+  const handleSaveMarsPixelCreative = async () => {
+    if (
+      creativeSaveLoading ||
+      !selectedPixel?.allocation_id ||
+      !ownedTerritoryTier
+    ) {
+      return;
+    }
+
+    setCreativeSaveLoading(true);
+    setCreativeSaveError(null);
+    setCreativeSaveSuccess(null);
+
+    try {
+      const parsedLinks = creativeLinks
+        .split("\n")
+        .map((value) => value.trim())
+        .filter(Boolean)
+        .slice(0, ownedTerritoryTier.max_links)
+        .map((url) => ({
+          type: "website" as const,
+          url,
+        }));
+
+      let finalImageUrl = creativeImageUrl;
+
+      if (
+        ownedTerritoryTier.image_allowed &&
+        creativeImageFile
+      ) {
+        setCreativeImageUploading(true);
+
+        finalImageUrl =
+          await uploadMarsPixelCreativeImage(
+            selectedPixel.allocation_id,
+            creativeImageFile,
+          );
+      }
+
+      const result = await saveMarsPixelCreative({
+        allocationId: selectedPixel.allocation_id,
+        title: creativeTitle,
+        description: creativeDescription,
+        imageUrl: ownedTerritoryTier.image_allowed
+          ? finalImageUrl
+          : undefined,
+        destinationUrl: creativeDestinationUrl,
+        ctaLabel: ownedTerritoryTier.cta_allowed
+          ? creativeCtaLabel
+          : undefined,
+        links: parsedLinks,
+      });
+
+      setCreativeImageUrl(finalImageUrl);
+      setCreativeImageFile(null);
+
+      setCreativeSaveSuccess(
+        `${t("mars.pixel.submitted")} · ${result.creative_status.toUpperCase()}`,
+      );
+    } catch (error) {
+      setCreativeSaveError(
+        error instanceof Error
+          ? error.message
+          : "Creative submission failed.",
+      );
+    } finally {
+      setCreativeImageUploading(false);
+      setCreativeSaveLoading(false);
+    }
+  };
+
   const territorySelectionLocked =
     selectedPixel !== null &&
     lockedSelectionTarget !== null;
@@ -2245,14 +2392,181 @@ export function MarsPlanetMap({
 
                             {selectedPixel.creative_title && (
                               <div className="mars-pixel-detail__meta">
-                                <span>
-                                  CREATIVE
-                                </span>
+                                <span>{t("mars.pixel.creative")}</span>
                                 <strong>
-                                  {
-                                    selectedPixel.creative_title
-                                  }
+                                  {selectedPixel.creative_title}
                                 </strong>
+                              </div>
+                            )}
+
+                            <button
+                              type="button"
+                              className="mars-pixel-creative__edit"
+                              onClick={() => {
+                                setCreativeEditorOpen(
+                                  (value) => !value,
+                                );
+                                setCreativeTitle(
+                                  selectedPixel.creative_title ?? "",
+                                );
+                                setCreativeImageUrl(
+                                  selectedPixel.creative_image_url ?? "",
+                                );
+                                setCreativeSaveError(null);
+                                setCreativeSaveSuccess(null);
+                              }}
+                            >
+                              {creativeEditorOpen
+                                ? t("mars.pixel.closeEditor")
+                                : t("mars.pixel.editContent")}
+                            </button>
+
+                            {creativeEditorOpen && (
+                              <div className="mars-pixel-creative">
+                                <div className="mars-pixel-creative__tier">
+                                  {ownedTerritoryTier
+                                    ? `${ownedTerritoryTier.tier_key} · ${ownedTerritoryPixelCount?.toLocaleString("en-US")} PIXELS`
+                                    : t("mars.pixel.loadingTier")}
+                                </div>
+
+                                <label>
+                                  <span>{t("mars.pixel.territoryName")}</span>
+                                  <input
+                                    value={creativeTitle}
+                                    maxLength={
+                                      ownedTerritoryTier
+                                        ?.territory_name_max_chars ?? 30
+                                    }
+                                    onChange={(event) =>
+                                      setCreativeTitle(
+                                        event.target.value,
+                                      )
+                                    }
+                                  />
+                                </label>
+
+                                <label>
+                                  <span>{t("mars.pixel.creativeDescription")}</span>
+                                  <textarea
+                                    value={creativeDescription}
+                                    maxLength={
+                                      ownedTerritoryTier
+                                        ?.description_max_chars ?? 50
+                                    }
+                                    onChange={(event) =>
+                                      setCreativeDescription(
+                                        event.target.value,
+                                      )
+                                    }
+                                  />
+                                </label>
+
+                                <label>
+                                  <span>{t("mars.pixel.logoImage")}</span>
+                                  <input
+                                    className="mars-pixel-creative__file"
+                                    type="file"
+                                    accept="image/jpeg,image/png,image/webp"
+                                    disabled={
+                                      !ownedTerritoryTier?.image_allowed ||
+                                      creativeImageUploading
+                                    }
+                                    onChange={(event) => {
+                                      const file =
+                                        event.target.files?.[0] ?? null;
+                                      setCreativeImageFile(file);
+                                    }}
+                                  />
+                                  <small>
+                                    {creativeImageFile
+                                      ? `${t("mars.pixel.imageSelected")} · ${creativeImageFile.name}`
+                                      : t("mars.pixel.imageHelp")}
+                                  </small>
+                                  {creativeImageUrl && (
+                                    <img
+                                      className="mars-pixel-creative__preview"
+                                      src={creativeImageUrl}
+                                      alt=""
+                                    />
+                                  )}
+                                </label>
+
+                                <label>
+                                  <span>{t("mars.pixel.website")}</span>
+                                  <input
+                                    type="url"
+                                    placeholder="https://"
+                                    value={creativeDestinationUrl}
+                                    onChange={(event) =>
+                                      setCreativeDestinationUrl(
+                                        event.target.value,
+                                      )
+                                    }
+                                  />
+                                </label>
+
+                                <label>
+                                  <span>CTA</span>
+                                  <input
+                                    maxLength={30}
+                                    disabled={
+                                      !ownedTerritoryTier?.cta_allowed
+                                    }
+                                    value={creativeCtaLabel}
+                                    onChange={(event) =>
+                                      setCreativeCtaLabel(
+                                        event.target.value,
+                                      )
+                                    }
+                                  />
+                                </label>
+
+                                <label>
+                                  <span>
+                                    {t("mars.pixel.linksHelp")}
+                                  </span>
+                                  <textarea
+                                    disabled={
+                                      !ownedTerritoryTier ||
+                                      ownedTerritoryTier.max_links < 1
+                                    }
+                                    value={creativeLinks}
+                                    onChange={(event) =>
+                                      setCreativeLinks(
+                                        event.target.value,
+                                      )
+                                    }
+                                  />
+                                </label>
+
+                                <button
+                                  type="button"
+                                  className="mars-pixel-creative__save"
+                                  disabled={
+                                    creativeSaveLoading ||
+                                    !ownedTerritoryTier ||
+                                    !creativeTitle.trim()
+                                  }
+                                  onClick={() => {
+                                    void handleSaveMarsPixelCreative();
+                                  }}
+                                >
+                                  {creativeSaveLoading
+                                    ? t("mars.pixel.submitting")
+                                    : t("mars.pixel.submitReview")}
+                                </button>
+
+                                {creativeSaveError && (
+                                  <div className="mars-pixel-creative__error">
+                                    {creativeSaveError}
+                                  </div>
+                                )}
+
+                                {creativeSaveSuccess && (
+                                  <div className="mars-pixel-creative__success">
+                                    {creativeSaveSuccess}
+                                  </div>
+                                )}
                               </div>
                             )}
                           </>

@@ -648,3 +648,133 @@ export async function purchaseMarsPixelTerritory(input: {
 
   return data as MarsPixelPurchaseResult;
 }
+
+export type MarsPixelCreativeLink = {
+  type:
+    | "website"
+    | "x"
+    | "telegram"
+    | "instagram"
+    | "youtube"
+    | "linkedin";
+  url: string;
+};
+
+export type SaveMarsPixelCreativeInput = {
+  allocationId: string;
+  title: string;
+  description?: string;
+  imageUrl?: string;
+  destinationUrl?: string;
+  ctaLabel?: string;
+  links?: MarsPixelCreativeLink[];
+};
+
+export type SaveMarsPixelCreativeResult = {
+  creative_id: string;
+  allocation_id: string;
+  pixel_count: number;
+  tier_key: string;
+  creative_status: string;
+};
+
+export async function saveMarsPixelCreative(
+  input: SaveMarsPixelCreativeInput,
+): Promise<SaveMarsPixelCreativeResult> {
+  const { data, error } = await supabase.rpc(
+    "save_mars_pixel_creative_v1",
+    {
+      p_allocation_id: input.allocationId,
+      p_title: input.title.trim(),
+      p_description: input.description?.trim() || null,
+      p_image_url: input.imageUrl?.trim() || null,
+      p_destination_url:
+        input.destinationUrl?.trim() || null,
+      p_cta_label: input.ctaLabel?.trim() || null,
+      p_links: input.links ?? [],
+    },
+  );
+
+  if (error) {
+    throw error;
+  }
+
+  const row = Array.isArray(data) ? data[0] : data;
+
+  if (!row) {
+    throw new Error(
+      "Mars Pixel creative submission returned no result.",
+    );
+  }
+
+  return {
+    ...(row as SaveMarsPixelCreativeResult),
+    pixel_count: Number(
+      (row as SaveMarsPixelCreativeResult).pixel_count,
+    ),
+  };
+}
+
+export async function uploadMarsPixelCreativeImage(
+  allocationId: string,
+  file: File,
+): Promise<string> {
+  if (
+    !["image/jpeg", "image/png", "image/webp"].includes(
+      file.type,
+    )
+  ) {
+    throw new Error("MARS_PIXEL_IMAGE_TYPE_NOT_ALLOWED");
+  }
+
+  if (file.size > 5 * 1024 * 1024) {
+    throw new Error("MARS_PIXEL_IMAGE_TOO_LARGE");
+  }
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    throw new Error("MARS_PIXEL_AUTH_REQUIRED");
+  }
+
+  const extension =
+    file.type === "image/png"
+      ? "png"
+      : file.type === "image/webp"
+        ? "webp"
+        : "jpg";
+
+  const safeAllocationId = allocationId.replace(
+    /[^a-zA-Z0-9-]/g,
+    "",
+  );
+
+  const objectPath =
+    `${user.id}/${safeAllocationId}/` +
+    `${crypto.randomUUID()}.${extension}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from("mars-pixel-creatives")
+    .upload(objectPath, file, {
+      cacheControl: "3600",
+      contentType: file.type,
+      upsert: false,
+    });
+
+  if (uploadError) {
+    throw uploadError;
+  }
+
+  const { data } = supabase.storage
+    .from("mars-pixel-creatives")
+    .getPublicUrl(objectPath);
+
+  if (!data.publicUrl) {
+    throw new Error("MARS_PIXEL_IMAGE_URL_FAILED");
+  }
+
+  return data.publicUrl;
+}
