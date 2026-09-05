@@ -969,6 +969,152 @@ export function MarsPixelOverlay({
                 isAresCell
               );
 
+            vec2 allocationTexel =
+              vec2(
+                1.0 / gridSize.x,
+                1.0 / gridSize.y
+              );
+
+            vec4 allocationLeft =
+              texture2D(
+                allocationTexture,
+                vUv - vec2(allocationTexel.x, 0.0)
+              );
+
+            vec4 allocationRight =
+              texture2D(
+                allocationTexture,
+                vUv + vec2(allocationTexel.x, 0.0)
+              );
+
+            vec4 allocationUp =
+              texture2D(
+                allocationTexture,
+                vUv + vec2(0.0, allocationTexel.y)
+              );
+
+            vec4 allocationDown =
+              texture2D(
+                allocationTexture,
+                vUv - vec2(0.0, allocationTexel.y)
+              );
+
+            vec4 allocationLeft2 =
+              texture2D(
+                allocationTexture,
+                vUv - vec2(allocationTexel.x * 2.0, 0.0)
+              );
+
+            vec4 allocationRight2 =
+              texture2D(
+                allocationTexture,
+                vUv + vec2(allocationTexel.x * 2.0, 0.0)
+              );
+
+            vec4 allocationUp2 =
+              texture2D(
+                allocationTexture,
+                vUv + vec2(0.0, allocationTexel.y * 2.0)
+              );
+
+            vec4 allocationDown2 =
+              texture2D(
+                allocationTexture,
+                vUv - vec2(0.0, allocationTexel.y * 2.0)
+              );
+
+            float hasAllocation =
+              step(0.01, allocation.a);
+
+            float allocationEdge =
+              hasAllocation *
+              max(
+                max(
+                  step(
+                    0.04,
+                    abs(allocation.a - allocationLeft.a) +
+                    distance(allocation.rgb, allocationLeft.rgb)
+                  ),
+                  step(
+                    0.04,
+                    abs(allocation.a - allocationRight.a) +
+                    distance(allocation.rgb, allocationRight.rgb)
+                  )
+                ),
+                max(
+                  step(
+                    0.04,
+                    abs(allocation.a - allocationUp.a) +
+                    distance(allocation.rgb, allocationUp.rgb)
+                  ),
+                  step(
+                    0.04,
+                    abs(allocation.a - allocationDown.a) +
+                    distance(allocation.rgb, allocationDown.rgb)
+                  )
+                )
+              );
+
+            float allocationGlow =
+              hasAllocation *
+              max(
+                max(
+                  step(
+                    0.04,
+                    abs(allocation.a - allocationLeft2.a) +
+                    distance(allocation.rgb, allocationLeft2.rgb)
+                  ),
+                  step(
+                    0.04,
+                    abs(allocation.a - allocationRight2.a) +
+                    distance(allocation.rgb, allocationRight2.rgb)
+                  )
+                ),
+                max(
+                  step(
+                    0.04,
+                    abs(allocation.a - allocationUp2.a) +
+                    distance(allocation.rgb, allocationUp2.rgb)
+                  ),
+                  step(
+                    0.04,
+                    abs(allocation.a - allocationDown2.a) +
+                    distance(allocation.rgb, allocationDown2.rgb)
+                  )
+                )
+              );
+
+            float territoryPulse =
+              0.62 +
+              sin(time * 2.65) * 0.38;
+
+            vec3 territoryEdgeColor =
+              min(
+                vec3(1.0),
+                allocation.rgb * 1.42 +
+                vec3(0.10)
+              );
+
+            finalColor =
+              mix(
+                finalColor,
+                territoryEdgeColor,
+                allocationGlow *
+                  territoryPulse *
+                  0.24
+              );
+
+            finalColor =
+              mix(
+                finalColor,
+                territoryEdgeColor,
+                allocationEdge *
+                  (
+                    0.52 +
+                    territoryPulse * 0.42
+                  )
+              );
+
             vec2 pixelCoord =
               floor(
                 canonicalUv * gridSize
