@@ -1072,6 +1072,12 @@ export function MarsPlanetMap({
         ] ?? "#63f5ff"
       : "#63f5ff";
 
+  const selectedPixelColorRgb: [number, number, number] = [
+    parseInt(selectedPixelColor.slice(1, 3), 16) / 255,
+    parseInt(selectedPixelColor.slice(3, 5), 16) / 255,
+    parseInt(selectedPixelColor.slice(5, 7), 16) / 255,
+  ];
+
   const pixelBlockSelection = useMemo(() => {
     if (pixelDragAnchor) {
       const target =
@@ -2326,7 +2332,9 @@ export function MarsPlanetMap({
             lockedSelectionTarget
           }
           territorySelectionColor={
-            territorySelectionColor
+            selectedPixelColorKey
+              ? selectedPixelColorRgb
+              : territorySelectionColor
           }
           onPixelSelect={(coordinate) => {
             if (!mobileTouchMode) {

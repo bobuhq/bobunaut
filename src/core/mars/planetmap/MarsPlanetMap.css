@@ -4455,3 +4455,99 @@
     display: none !important;
   }
 }
+
+/* BOBU NATIVE MARS LANDSCAPE V1 */
+@media (orientation: landscape) and (pointer: coarse) {
+  .mars-planet-map {
+    min-height: 100vh;
+    border-radius: 0;
+  }
+
+  .mars-planet-map__focus-panel {
+    left: 12px;
+    right: auto;
+    bottom: 12px;
+    width: min(286px, 35vw);
+    max-height: calc(100vh - 24px);
+    padding: 12px;
+    overflow-y: auto;
+    border-radius: 13px;
+  }
+
+  .mars-planet-map__focus-panel h3 {
+    font-size: 16px;
+  }
+
+  .mars-planet-map__focus-stats {
+    gap: 5px;
+  }
+
+  .mars-planet-map__focus-stats > div {
+    padding: 7px;
+  }
+
+  .mars-pixel-detail {
+    right: 12px;
+    left: auto;
+    bottom: 12px;
+    width: min(286px, 35vw);
+    max-height: calc(100vh - 24px);
+    padding: 12px;
+    overflow-y: auto;
+    border-radius: 13px;
+  }
+
+  .mars-pixel-detail__header {
+    gap: 9px;
+  }
+
+  .mars-pixel-detail__header strong {
+    font-size: 12px;
+  }
+
+  .mars-pixel-detail__coordinate {
+    margin-top: 10px;
+    font-size: 8px;
+  }
+
+  .mars-pixel-detail__status {
+    margin-top: 3px;
+    font-size: 16px;
+  }
+
+  .mars-pixel-detail__commercial {
+    margin-top: 7px;
+    padding: 6px 8px;
+    font-size: 7px;
+  }
+
+  .mars-pixel-detail__meta {
+    margin-top: 6px;
+    padding-top: 6px;
+  }
+
+  .mars-pixel-detail__message {
+    margin-top: 8px;
+  }
+
+  .mars-pixel-detail__grid {
+    margin-top: 7px;
+  }
+
+  .mars-pixel-color {
+    margin-top: 8px;
+  }
+
+  .mars-pixel-color__palette {
+    max-height: 128px;
+    overflow-y: auto;
+  }
+
+  .mars-planet-map__coordinate-hud {
+    left: 50%;
+    bottom: 10px;
+    min-width: 130px;
+    padding: 7px 9px;
+    transform: translateX(-50%);
+  }
+}
