@@ -647,21 +647,25 @@ export async function purchaseMarsPixelTerritory(input: {
   );
 
   if (error) {
-    let message = error.message || "Mars Pixel purchase failed.";
+    let message =
+      error.message || "Mars Pixel purchase failed.";
 
     const context = (error as {
-      context?: {
-        json?: () => Promise<unknown>;
-        text?: () => Promise<string>;
-      };
+      context?: unknown;
     }).context;
 
-    if (context?.json) {
+    if (
+      typeof Response !== "undefined" &&
+      context instanceof Response
+    ) {
+      const response = context as Response;
+
       try {
-        const payload = await context.json();
+        const payload = await response.clone().json();
 
         if (payload && typeof payload === "object") {
           const body = payload as Record<string, unknown>;
+
           const detail =
             typeof body.error === "string"
               ? body.error
@@ -678,14 +682,13 @@ export async function purchaseMarsPixelTerritory(input: {
           }
         }
       } catch {
-        if (context?.text) {
-          try {
-            const text = await context.text();
-            if (text.trim()) {
-              message = text.trim();
-            }
-          } catch {
+        try {
+          const text = await response.clone().text();
+
+          if (text.trim()) {
+            message = text.trim();
           }
+        } catch {
         }
       }
     }
