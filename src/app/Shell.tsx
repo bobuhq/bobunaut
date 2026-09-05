@@ -22,9 +22,15 @@ export function Shell() {
 
   const isNativeMarsBridge =
     isMarsGame &&
-    new URLSearchParams(
-      location.search,
-    ).get("nativeBridge") === "1";
+    (
+      new URLSearchParams(
+        location.search,
+      ).get("nativeBridge") === "1" ||
+      (
+        typeof navigator !== "undefined" &&
+        navigator.userAgent.includes("BOBU-Mobile")
+      )
+    );
 
   return (
     <div className="app">
