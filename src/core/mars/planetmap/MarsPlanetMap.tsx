@@ -770,15 +770,37 @@ function MarsScene(
 
       <MarsPlanet {...props} />
 
-      <Stars
-        radius={100}
-        depth={45}
-        count={2600}
-        factor={3}
-        saturation={0.15}
-        fade
-        speed={0.12}
-      />
+      <group name="bobu-deep-space">
+        <Stars
+          radius={155}
+          depth={90}
+          count={4200}
+          factor={1.45}
+          saturation={0.42}
+          fade
+          speed={0.018}
+        />
+
+        <Stars
+          radius={105}
+          depth={58}
+          count={1800}
+          factor={2.35}
+          saturation={0.58}
+          fade
+          speed={0.035}
+        />
+
+        <Stars
+          radius={72}
+          depth={34}
+          count={420}
+          factor={3.8}
+          saturation={0.72}
+          fade
+          speed={0.055}
+        />
+      </group>
 
       <OrbitControls
         makeDefault
