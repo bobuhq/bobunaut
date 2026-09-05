@@ -1282,7 +1282,7 @@ export function MarsPlanetMap({
 
     if (!preview) {
       setTerritorySizeError(
-        "MINIMUM TERRITORY SIZE IS 50 PIXELS",
+        t("mars.pixel.minimumTerritorySize"),
       );
       return;
     }
@@ -1419,7 +1419,7 @@ export function MarsPlanetMap({
       }
 
       setMarsPixelPurchaseSuccess(
-        `TERRITORY CLAIMED · ${result.allocation.allocation_id}`,
+        t("mars.pixel.territoryClaimed", { id: result.allocation.allocation_id }),
       );
 
       const [refreshedDetail, refreshedValuation] =
@@ -1784,7 +1784,7 @@ export function MarsPlanetMap({
       {!diving && pixelNetworkStatus && (
         <div className="mars-pixel-goto">
           <span className="mars-pixel-goto__eyebrow">
-            SELECT TERRITORY SIZE
+            {t("mars.pixel.selectTerritorySize")}
           </span>
 
           <div className="mars-pixel-goto__controls">
@@ -1834,15 +1834,15 @@ export function MarsPlanetMap({
                     ? width * height
                     : 0;
 
-                return `${total.toLocaleString("en-US")} PIXELS`;
+                return `${total.toLocaleString("en-US")} ${t("mars.pixel.pixels")}`;
               })()}
             </div>
           </div>
 
           <small className="mars-pixel-goto__hint">
             {mobileTouchMode
-              ? "TAP MARS TO POSITION · THEN LOCK TERRITORY"
-              : "MOVE OVER MARS · CLICK TO LOCK TERRITORY"}
+              ? t("mars.pixel.tapToPosition")
+              : t("mars.pixel.moveToPosition")}
           </small>
 
           {mobileTouchMode &&
@@ -1857,7 +1857,7 @@ export function MarsPlanetMap({
                   );
                 }}
               >
-                LOCK TERRITORY
+                {t("mars.pixel.lockTerritory")}
               </button>
             )}
 
@@ -1902,7 +1902,7 @@ export function MarsPlanetMap({
                   MARS PIXEL REGISTRY
                 </span>
                 <strong>
-                  TERRITORY INSPECTOR
+                  {t("mars.pixel.territoryInspector")}
                 </strong>
               </div>
 
@@ -1930,7 +1930,7 @@ export function MarsPlanetMap({
 
             {pixelDragActive && (
               <div className="mars-pixel-detail__message">
-                SELECTING TERRITORY
+                {t("mars.pixel.selectingTerritory")}
               </div>
             )}
 
@@ -1952,7 +1952,7 @@ export function MarsPlanetMap({
               !selectedPixelLoading &&
               selectedPixelSelectionLoading && (
                 <div className="mars-pixel-detail__message">
-                  VALIDATING TERRITORY
+                  {t("mars.pixel.validatingTerritory")}
                 </div>
               )}
 
@@ -1969,11 +1969,11 @@ export function MarsPlanetMap({
               pixelBlockSelection && (
                 <>
                   <div className="mars-pixel-detail__coordinate">
-                    {`TERRITORY ${pixelBlockSelection.width} × ${pixelBlockSelection.height}`}
+                    {`${t("mars.pixel.territory")} ${pixelBlockSelection.width} × ${pixelBlockSelection.height}`}
                   </div>
 
                   <div className="mars-pixel-detail__meta">
-                    <span>TOTAL PIXELS</span>
+                    <span>{t("mars.pixel.totalPixels")}</span>
                     <strong>
                       {pixelBlockSelection.pixelCount.toLocaleString(
                         "en-US",
@@ -2009,13 +2009,13 @@ export function MarsPlanetMap({
                 <>
                   <div className="mars-pixel-detail__coordinate">
                     {pixelBlockSelection
-                      ? `TERRITORY ${pixelBlockSelection.width} × ${pixelBlockSelection.height}`
+                      ? `${t("mars.pixel.territory")} ${pixelBlockSelection.width} × ${pixelBlockSelection.height}`
                       : `PIXEL X${selectedPixel.x_start} / Y${selectedPixel.y_start}`}
                   </div>
 
                   {pixelBlockSelection && (
                     <div className="mars-pixel-detail__meta">
-                      <span>TOTAL PIXELS</span>
+                      <span>{t("mars.pixel.totalPixels")}</span>
                       <strong>
                         {pixelBlockSelection.pixelCount.toLocaleString(
                           "en-US",
@@ -2179,7 +2179,7 @@ export function MarsPlanetMap({
                             </div>
 
                             <div className="mars-pixel-detail__meta">
-                              <span>PROTECTED TERRITORY</span>
+                              <span>{t("mars.pixel.protectedTerritory")}</span>
                               <strong>
                                 {reservedZoneName ?? "Ares Sector"}
                               </strong>
@@ -2191,7 +2191,7 @@ export function MarsPlanetMap({
                           reservedZoneCode !== "ARES_PROTECTED" && (
                           <div className="mars-pixel-detail__commercial">
                             {purchasable
-                              ? "COMMERCIAL ACCESS ACTIVE"
+                              ? t("mars.pixel.commercialAccessActive")
                               : t("mars.pixel.salesLocked")}
                           </div>
                         )}
@@ -2271,7 +2271,7 @@ export function MarsPlanetMap({
                               <div className="mars-purchase-flow__heading">
                                 <span>01</span>
                                 <div>
-                                  <small>01 TERRITORY</small>
+                                  <small>01 {t("mars.pixel.territory")}</small>
                                   <strong>
                                     {selectedPixelSelection.width} × {selectedPixelSelection.height}
                                   </strong>
@@ -2292,7 +2292,7 @@ export function MarsPlanetMap({
                               <div className="mars-purchase-flow__heading">
                                 <span>02</span>
                                 <div>
-                                  <small>YOUR TIER</small>
+                                  <small>{t("mars.pixel.yourTier")}</small>
                                   <strong>
                                     {selectedPixelContentTierLoading
                                       ? "CALCULATING..."
@@ -2311,7 +2311,9 @@ export function MarsPlanetMap({
                                 <>
                                   <div className="mars-purchase-flow__features">
                                     <span>
-                                      {selectedPixelContentTier.description_max_chars} CHAR DESCRIPTION
+                                      {t("mars.pixel.charDescription", {
+                                        count: selectedPixelContentTier.description_max_chars,
+                                      })}
                                     </span>
                                     <span>
                                       {selectedPixelContentTier.image_allowed
@@ -2329,21 +2331,24 @@ export function MarsPlanetMap({
                                     </span>
                                     <span>
                                       {selectedPixelContentTier.socials_allowed
-                                        ? "SOCIAL LINKS"
+                                        ? t("mars.pixel.socialLinks")
                                         : "SOCIALS LOCKED"}
                                     </span>
                                     {selectedPixelContentTier.analytics_allowed && (
-                                      <span>ANALYTICS</span>
+                                      <span>{t("mars.pixel.analytics")}</span>
                                     )}
                                     {selectedPixelContentTier.premium && (
-                                      <span>PREMIUM</span>
+                                      <span>{t("mars.pixel.premium")}</span>
                                     )}
                                   </div>
 
                                   {selectedPixelContentTier.max_pixels !== null && (
                                     <div className="mars-purchase-flow__upgrade">
-                                      NEXT TIER STARTS AT{" "}
-                                      {(selectedPixelContentTier.max_pixels + 1).toLocaleString("en-US")} PIXELS
+                                      {t("mars.pixel.nextTierStarts", {
+                                      count: (
+                                        selectedPixelContentTier.max_pixels + 1
+                                      ).toLocaleString("en-US"),
+                                    })}
                                     </div>
                                   )}
                                 </>
@@ -2354,7 +2359,7 @@ export function MarsPlanetMap({
                               <div className="mars-purchase-flow__heading">
                                 <span>03</span>
                                 <div>
-                                  <small>TERRITORY COLOR</small>
+                                  <small>{t("mars.pixel.territoryColor")}</small>
                                   <strong>
                                     {selectedPixelColorKey ?? "AUTO"}
                                   </strong>
@@ -2374,7 +2379,7 @@ export function MarsPlanetMap({
                       }}
                     />
                     <div>
-                      <small>TERRITORY COLOR</small>
+                      <small>{t("mars.pixel.territoryColor")}</small>
                       <strong>
                         {pixelColorLoading
                           ? "SELECTING..."
@@ -2478,10 +2483,13 @@ export function MarsPlanetMap({
                               <div className="mars-purchase-flow__heading">
                                 <span>04</span>
                                 <div>
-                                  <small>04 CONTENT & BRANDING</small>
+                                  <small>04 {t("mars.pixel.contentBranding")}</small>
                                   <strong>
                                     {selectedPixelContentTier
-                                      ? `${selectedPixelContentTier.territory_name_max_chars} CHAR NAME`
+                                      ? t("mars.pixel.charName", {
+                                          count:
+                                            selectedPixelContentTier.territory_name_max_chars,
+                                        })
                                       : "TIER REQUIRED"}
                                   </strong>
                                 </div>
@@ -2494,7 +2502,7 @@ export function MarsPlanetMap({
                                   </span>
                                   <span>
                                     {selectedPixelContentTier.image_allowed
-                                      ? "IMAGE UNLOCKED"
+                                      ? t("mars.pixel.imageUnlocked")
                                       : "IMAGE LOCKED"}
                                   </span>
                                   <span>
@@ -2503,7 +2511,7 @@ export function MarsPlanetMap({
                                   </span>
                                   <span>
                                     {selectedPixelContentTier.cta_allowed
-                                      ? "CTA UNLOCKED"
+                                      ? t("mars.pixel.ctaUnlocked")
                                       : "CTA LOCKED"}
                                   </span>
                                 </div>
@@ -2514,7 +2522,7 @@ export function MarsPlanetMap({
                               <div className="mars-purchase-flow__heading">
                                 <span>05</span>
                                 <div>
-                                  <small>PRICE</small>
+                                  <small>{t("mars.pixel.price")}</small>
                                   <strong>
                                     {selectedPixelValuation
                                       ? new Intl.NumberFormat(
@@ -2540,7 +2548,10 @@ export function MarsPlanetMap({
                                     {selectedPixelValuation.pixel_count.toLocaleString("en-US")} PIXELS
                                   </span>
                                   <span>
-                                    MIN {selectedPixelValuation.minimum_purchase_pixels} PIXELS
+                                    {t("mars.pixel.minPixels", {
+                                      count:
+                                        selectedPixelValuation.minimum_purchase_pixels,
+                                    })}
                                   </span>
                                 </div>
                               )}
@@ -2550,11 +2561,11 @@ export function MarsPlanetMap({
                               <div className="mars-purchase-flow__heading">
                                 <span>06</span>
                                 <div>
-                                  <small>PURCHASE</small>
+                                  <small>{t("mars.pixel.purchase")}</small>
                                   <strong>
                                     {purchasable
-                                      ? "COMMERCIAL ACCESS ACTIVE"
-                                      : "SALES CURRENTLY LOCKED"}
+                                      ? t("mars.pixel.commercialAccessActive")
+                                      : t("mars.pixel.salesCurrentlyLocked")}
                                   </strong>
                                 </div>
                               </div>
@@ -2571,10 +2582,10 @@ export function MarsPlanetMap({
                                 }}
                               >
                                 {marsPixelPurchaseLoading
-                                  ? "PROCESSING..."
+                                  ? t("mars.pixel.processing")
                                   : purchasable
-                                    ? `CLAIM ${selectedPixelSelection.pixel_count.toLocaleString("en-US")} MARS PIXELS`
-                                    : "PURCHASE LOCKED"}
+                                    ? t("mars.pixel.claimPixels", { count: selectedPixelSelection.pixel_count.toLocaleString("en-US") })
+                                    : t("mars.pixel.purchaseLocked")}
                               </button>
 
                               {marsPixelPurchaseError && (
@@ -2590,7 +2601,7 @@ export function MarsPlanetMap({
                               )}
 
                               <div className="mars-purchase-flow__notice">
-                                TERRITORY AVAILABILITY, PRICE AND TIER ARE SERVER VERIFIED.
+                                {t("mars.pixel.serverVerified")}
                               </div>
                             </section>
                           </div>
@@ -2792,7 +2803,7 @@ export function MarsPlanetMap({
 
           <span className="mars-planet-map__focus-eyebrow">
             {current
-              ? "MY TERRITORY"
+              ? t("mars.pixel.myTerritory")
               : t("mars.pixel.selectedSector")}
           </span>
 
