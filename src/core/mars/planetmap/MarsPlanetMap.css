@@ -4988,3 +4988,61 @@
     font-size: 10px;
   }
 }
+
+
+/* BOBU MARS PIXEL CREATIVE LINK EDITOR V1 */
+
+.mars-pixel-creative__owner-loading {
+  width: 100%;
+  min-height: 2px;
+  opacity: 0.55;
+}
+
+.mars-pixel-creative__links {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+}
+
+.mars-pixel-creative__links > span {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  opacity: 0.72;
+}
+
+.mars-pixel-creative__link-row {
+  display: grid;
+  grid-template-columns: minmax(104px, 0.32fr) minmax(0, 1fr) 36px;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+}
+
+.mars-pixel-creative__link-row select,
+.mars-pixel-creative__link-row input {
+  width: 100%;
+  min-width: 0;
+}
+
+.mars-pixel-creative__link-add,
+.mars-pixel-creative__link-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  min-height: 34px;
+  cursor: pointer;
+}
+
+.mars-pixel-creative__link-add:disabled,
+.mars-pixel-creative__link-remove:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+@media (max-width: 720px) {
+  .mars-pixel-creative__link-row {
+    grid-template-columns: minmax(84px, 0.38fr) minmax(0, 1fr) 34px;
+    gap: 6px;
+  }
+}

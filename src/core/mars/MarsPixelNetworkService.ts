@@ -715,10 +715,15 @@ export async function saveMarsPixelCreative(
   };
 }
 
+export type MarsPixelCreativeImageUpload = {
+  publicUrl: string;
+  objectPath: string;
+};
+
 export async function uploadMarsPixelCreativeImage(
   allocationId: string,
   file: File,
-): Promise<string> {
+): Promise<MarsPixelCreativeImageUpload> {
   if (
     !["image/jpeg", "image/png", "image/webp"].includes(
       file.type,
@@ -776,5 +781,140 @@ export async function uploadMarsPixelCreativeImage(
     throw new Error("MARS_PIXEL_IMAGE_URL_FAILED");
   }
 
-  return data.publicUrl;
+  return {
+    publicUrl: data.publicUrl,
+    objectPath,
+  };
+}
+
+export async function deleteMarsPixelCreativeImage(
+  objectPath: string,
+): Promise<void> {
+  const normalizedPath = objectPath.trim();
+
+  if (!normalizedPath) {
+    return;
+  }
+
+  const { error } = await supabase.storage
+    .from("mars-pixel-creatives")
+    .remove([normalizedPath]);
+
+  if (error) {
+    throw error;
+  }
+}
+
+export type MarsPixelOwnerCreativeDetail = {
+  allocation_id: string;
+  pixel_count: number;
+  creative_id: string | null;
+  creative_status: string | null;
+  title: string | null;
+  description: string | null;
+  image_url: string | null;
+  destination_url: string | null;
+  cta_label: string | null;
+  links: MarsPixelCreativeLink[];
+};
+
+export async function getMyMarsPixelCreative(
+  allocationId: string,
+): Promise<MarsPixelOwnerCreativeDetail | null> {
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    return null;
+  }
+
+  const { data, error } = await supabase.rpc(
+    "get_my_mars_pixel_creative_v1",
+    {
+      p_allocation_id: allocationId,
+    },
+  );
+
+  if (error) {
+    if (
+      error.code === "42501" ||
+      error.code === "P0002" ||
+      error.message.includes(
+        "MARS_PIXEL_NOT_ALLOCATION_OWNER",
+      )
+    ) {
+      return null;
+    }
+
+    throw error;
+  }
+
+  const row = Array.isArray(data) ? data[0] : data;
+
+  if (!row) {
+    return null;
+  }
+
+  const rawLinks: unknown[] = Array.isArray(row.links)
+    ? row.links
+    : [];
+
+  const links: MarsPixelCreativeLink[] = rawLinks
+    .filter(
+      (value): value is Record<string, unknown> =>
+        typeof value === "object" &&
+        value !== null,
+    )
+    .map((value) => ({
+      type: String(
+        value.type ?? "website",
+      ) as MarsPixelCreativeLink["type"],
+      url: String(value.url ?? ""),
+    }))
+    .filter((value) =>
+      [
+        "website",
+        "x",
+        "telegram",
+        "instagram",
+        "youtube",
+        "linkedin",
+      ].includes(value.type),
+    );
+
+  return {
+    allocation_id: String(row.allocation_id),
+    pixel_count: Number(row.pixel_count),
+    creative_id:
+      typeof row.creative_id === "string"
+        ? row.creative_id
+        : null,
+    creative_status:
+      typeof row.creative_status === "string"
+        ? row.creative_status
+        : null,
+    title:
+      typeof row.title === "string"
+        ? row.title
+        : null,
+    description:
+      typeof row.description === "string"
+        ? row.description
+        : null,
+    image_url:
+      typeof row.image_url === "string"
+        ? row.image_url
+        : null,
+    destination_url:
+      typeof row.destination_url === "string"
+        ? row.destination_url
+        : null,
+    cta_label:
+      typeof row.cta_label === "string"
+        ? row.cta_label
+        : null,
+    links,
+  };
 }
