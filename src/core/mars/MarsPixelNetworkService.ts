@@ -25,6 +25,7 @@ export type MarsPixelPublicAllocation = {
   advertiser_name: string;
   creative_title: string | null;
   creative_image_url: string | null;
+  color_key: string | null;
 };
 
 export type MarsPixelPublicReservedZone = {
