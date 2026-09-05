@@ -5324,3 +5324,236 @@
   content: "SELECT MODE ACTIVE";
   color: rgba(110, 255, 165, 1);
 }
+
+.mars-checkout-journey {
+  display: grid;
+  margin-top: 18px;
+  gap: 16px;
+}
+
+.mars-checkout-journey__steps {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.mars-checkout-step {
+  display: grid;
+  min-width: 0;
+  min-height: 58px;
+  padding: 8px 5px;
+  place-items: center;
+  gap: 5px;
+  border: 1px solid rgba(72, 170, 255, 0.28);
+  border-radius: 11px;
+  background: rgba(28, 91, 170, 0.13);
+  color: rgba(175, 217, 255, 0.72);
+  cursor: pointer;
+}
+
+.mars-checkout-step span {
+  display: grid;
+  width: 23px;
+  height: 23px;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(60, 150, 255, 0.16);
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.mars-checkout-step strong {
+  font-size: 7px;
+  letter-spacing: 0.08em;
+}
+
+.mars-checkout-step.is-active {
+  border-color: rgba(79, 174, 255, 0.92);
+  background: rgba(40, 126, 224, 0.24);
+  color: #dff2ff;
+  box-shadow: 0 0 20px rgba(43, 143, 255, 0.16);
+}
+
+.mars-checkout-step.is-complete {
+  border-color: rgba(77, 255, 145, 0.72);
+  background: rgba(43, 220, 115, 0.15);
+  color: #75ffa9;
+}
+
+.mars-checkout-step.is-complete span {
+  background: rgba(43, 220, 115, 0.25);
+}
+
+.mars-checkout-journey__body {
+  display: grid;
+}
+
+.mars-checkout-card {
+  display: grid;
+  min-height: 122px;
+  padding: 20px;
+  align-content: center;
+  gap: 8px;
+  border: 1px solid rgba(78, 170, 255, 0.32);
+  border-radius: 16px;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(32, 111, 205, 0.16),
+      rgba(7, 20, 42, 0.42)
+    );
+}
+
+.mars-checkout-card.is-selected {
+  border-color: rgba(77, 255, 145, 0.7);
+  box-shadow: inset 0 0 26px rgba(43, 220, 115, 0.05);
+}
+
+.mars-checkout-card small,
+.mars-checkout-agreement small {
+  color: rgba(99, 245, 255, 0.72);
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+}
+
+.mars-checkout-card strong {
+  font-size: 19px;
+  letter-spacing: 0.04em;
+}
+
+.mars-checkout-card p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.mars-checkout-continue {
+  min-height: 52px;
+  border: 1px solid rgba(76, 174, 255, 0.72);
+  border-radius: 13px;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(36, 132, 235, 0.88),
+      rgba(27, 83, 178, 0.88)
+    );
+  color: #fff;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 950;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+}
+
+.mars-checkout-agreement {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  width: 100%;
+  min-height: 132px;
+  padding: 20px;
+  align-items: center;
+  gap: 15px;
+  border: 1px solid rgba(76, 174, 255, 0.45);
+  border-radius: 16px;
+  background: rgba(28, 91, 170, 0.12);
+  color: #f5fbff;
+  text-align: left;
+  cursor: pointer;
+}
+
+.mars-checkout-agreement__check {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 2px solid rgba(82, 177, 255, 0.78);
+  border-radius: 9px;
+  font-size: 20px;
+  font-weight: 950;
+}
+
+.mars-checkout-agreement > span:last-child {
+  display: grid;
+  gap: 6px;
+}
+
+.mars-checkout-agreement strong {
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.mars-checkout-agreement em {
+  color: rgba(255, 255, 255, 0.44);
+  font-size: 9px;
+  font-style: normal;
+}
+
+.mars-checkout-agreement.is-accepted {
+  border-color: rgba(77, 255, 145, 0.92);
+  background:
+    linear-gradient(
+      135deg,
+      rgba(43, 220, 115, 0.23),
+      rgba(14, 83, 50, 0.16)
+    );
+  box-shadow: 0 0 24px rgba(43, 220, 115, 0.14);
+}
+
+.mars-checkout-agreement.is-accepted .mars-checkout-agreement__check {
+  border-color: #63ff9e;
+  background: rgba(43, 220, 115, 0.28);
+  color: #8affb5;
+}
+
+.mars-pixel-detail.is-purchase-flow {
+  width: min(560px, calc(100vw - 36px));
+  max-height: min(82dvh, 820px);
+  overflow-y: auto;
+}
+
+@media (max-width: 900px) and (orientation: landscape) {
+  .mars-pixel-detail.is-purchase-flow {
+    top: 8px;
+    right: 8px;
+    bottom: 8px;
+    left: auto;
+    width: min(48vw, 520px);
+    max-height: none;
+    padding: 16px;
+  }
+
+  .mars-checkout-journey {
+    gap: 11px;
+  }
+
+  .mars-checkout-step {
+    min-height: 46px;
+  }
+
+  .mars-checkout-card,
+  .mars-checkout-agreement {
+    min-height: 104px;
+    padding: 14px;
+  }
+
+  .mars-checkout-continue {
+    min-height: 46px;
+  }
+}
+
+@media (max-width: 680px) and (orientation: portrait) {
+  .mars-pixel-detail.is-purchase-flow {
+    top: 8px;
+    right: 8px;
+    bottom: 8px;
+    left: 8px;
+    width: auto;
+    max-height: none;
+  }
+
+  .mars-checkout-step strong {
+    font-size: 6px;
+  }
+}
