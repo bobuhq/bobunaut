@@ -3410,6 +3410,38 @@ export function MarsPlanetMap({
                                       <div>
                                         <span>TOTAL</span>
                                         <strong>
+                                          {selectedPixelValuation?.settlement_total_price !=
+                                          null
+                                            ? `${selectedPixelValuation.settlement_total_price.toLocaleString(
+                                                "en-US",
+                                              )} ${
+                                                selectedPixelValuation.settlement_currency_code ??
+                                                "GP"
+                                              }`
+                                            : "—"}
+                                        </strong>
+                                      </div>
+
+                                      <div>
+                                        <span>PRICE / PIXEL</span>
+                                        <strong>
+                                          {selectedPixelValuation?.settlement_price_per_pixel !=
+                                          null
+                                            ? `${selectedPixelValuation.settlement_price_per_pixel.toLocaleString(
+                                                "en-US",
+                                              )} ${
+                                                selectedPixelValuation.settlement_currency_code ??
+                                                "GP"
+                                              }`
+                                            : "—"}
+                                        </strong>
+                                      </div>
+
+                                      <div>
+                                        <span>
+                                          {t("mars.pixel.referenceValue")}
+                                        </span>
+                                        <strong>
                                           {selectedPixelValuation
                                             ? new Intl.NumberFormat(
                                                 "en-US",

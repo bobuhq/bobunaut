@@ -323,6 +323,13 @@ export type MarsPixelSelectionValuation = {
   polar_price_per_pixel_minor: number;
   total_reference_value_minor: number;
   minimum_purchase_pixels: number;
+
+  // V23 pixel-native commercial settlement quote.
+  quote_status: string;
+  quotable: boolean;
+  settlement_currency_code: string | null;
+  settlement_price_per_pixel: number | null;
+  settlement_total_price: number | null;
 };
 
 export async function getMarsPixelSelectionValuation(
@@ -348,24 +355,47 @@ export async function getMarsPixelSelectionValuation(
     );
   }
 
-  const { data, error } = await supabase.rpc(
-    "get_mars_pixel_selection_valuation_v1",
-    {
-      p_anchor_x: anchorX,
-      p_anchor_y: anchorY,
-      p_target_x: targetX,
-      p_target_y: targetY,
-    },
-  );
+  const [
+    valuationResult,
+    quoteResult,
+  ] = await Promise.all([
+    supabase.rpc(
+      "get_mars_pixel_selection_valuation_v1",
+      {
+        p_anchor_x: anchorX,
+        p_anchor_y: anchorY,
+        p_target_x: targetX,
+        p_target_y: targetY,
+      },
+    ),
+    supabase.rpc(
+      "get_mars_pixel_quote_v2",
+      {
+        p_anchor_x: anchorX,
+        p_anchor_y: anchorY,
+        p_target_x: targetX,
+        p_target_y: targetY,
+      },
+    ),
+  ]);
 
-  if (error) {
-    throw error;
+  if (valuationResult.error) {
+    throw valuationResult.error;
+  }
+
+  if (quoteResult.error) {
+    throw quoteResult.error;
   }
 
   const row =
-    Array.isArray(data)
-      ? data[0]
-      : data;
+    Array.isArray(valuationResult.data)
+      ? valuationResult.data[0]
+      : valuationResult.data;
+
+  const quoteRow =
+    Array.isArray(quoteResult.data)
+      ? quoteResult.data[0]
+      : quoteResult.data;
 
   if (!row) {
     throw new Error(
@@ -373,8 +403,22 @@ export async function getMarsPixelSelectionValuation(
     );
   }
 
+  if (!quoteRow) {
+    throw new Error(
+      "Mars Pixel settlement quote was not returned.",
+    );
+  }
+
   const valuation =
     row as MarsPixelSelectionValuation;
+
+  const quote = quoteRow as {
+    quote_status: string;
+    quotable: boolean;
+    settlement_currency_code: string | null;
+    settlement_price_per_pixel: number | string | null;
+    settlement_total_price: number | string | null;
+  };
 
   return {
     ...valuation,
@@ -392,6 +436,21 @@ export async function getMarsPixelSelectionValuation(
       Number(valuation.total_reference_value_minor),
     minimum_purchase_pixels:
       Number(valuation.minimum_purchase_pixels),
+
+    quote_status:
+      quote.quote_status,
+    quotable:
+      quote.quotable === true,
+    settlement_currency_code:
+      quote.settlement_currency_code,
+    settlement_price_per_pixel:
+      quote.settlement_price_per_pixel == null
+        ? null
+        : Number(quote.settlement_price_per_pixel),
+    settlement_total_price:
+      quote.settlement_total_price == null
+        ? null
+        : Number(quote.settlement_total_price),
   };
 }
 
