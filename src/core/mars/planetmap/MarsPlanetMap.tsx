@@ -2279,6 +2279,9 @@ export function MarsPlanetMap({
           powerPreference:
             "high-performance",
         }}
+        onCreated={({ gl }) => {
+          gl.setClearColor(0x000000, 0);
+        }}
       >
         <MarsScene
           pixelDragActive={pixelDragActive}
