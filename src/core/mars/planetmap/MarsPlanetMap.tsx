@@ -879,6 +879,9 @@ export function MarsPlanetMap({
       null,
     );
 
+  const [pixelSelectionMode, setPixelSelectionMode] =
+    useState(false);
+
   const [
     selectedPixelLoading,
     setSelectedPixelLoading,
@@ -1689,6 +1692,25 @@ export function MarsPlanetMap({
     selectedPixel !== null &&
     lockedSelectionTarget !== null;
 
+  const closePixelPurchaseFlow = () => {
+    pixelRequestRef.current += 1;
+    setPixelSelectionMode(false);
+    setPixelDragActive(false);
+    setPixelDragAnchor(null);
+    setHoveredPixelCoordinate(null);
+    setLockedSelectionTarget(null);
+    setSelectedPixel(null);
+    setSelectedPixelSelection(null);
+    setSelectedPixelValuation(null);
+    setSelectedPixelError(null);
+    setSelectedPixelSelectionError(null);
+    setSelectedPixelLoading(false);
+    setSelectedPixelSelectionLoading(false);
+    setMarsPixelPurchaseError(null);
+    setMarsPixelPurchaseSuccess(null);
+    setPixelColorPickerOpen(false);
+  };
+
   const handleMarsPixelPurchase = async () => {
     if (
       marsPixelPurchaseLoading ||
@@ -2135,7 +2157,25 @@ export function MarsPlanetMap({
               />
             </label>
 
-            <div className="mars-pixel-goto__total">
+            <button
+              type="button"
+              className={[
+                "mars-pixel-goto__total",
+                pixelSelectionMode ? "is-active" : "",
+              ]
+                .filter(Boolean)
+                .join(" ")}
+              aria-pressed={pixelSelectionMode}
+              onClick={() => {
+                if (pixelSelectionMode) {
+                  closePixelPurchaseFlow();
+                  return;
+                }
+
+                closePixelPurchaseFlow();
+                setPixelSelectionMode(true);
+              }}
+            >
               {(() => {
                 const width = Number(territoryWidth);
                 const height = Number(territoryHeight);
@@ -2147,7 +2187,7 @@ export function MarsPlanetMap({
 
                 return `${total.toLocaleString("en-US")} ${t("mars.pixel.pixels")}`;
               })()}
-            </div>
+            </button>
           </div>
 
           <small className="mars-pixel-goto__hint">
@@ -2181,30 +2221,23 @@ export function MarsPlanetMap({
       )}
 
       {!diving &&
-        hoveredPixelCoordinate && (
-          <div
-            className="mars-planet-map__coordinate-hud"
-            aria-hidden="true"
-          >
-            <span>{t("mars.pixel.grid")}</span>
-            <strong>
-              X {hoveredPixelCoordinate.x}
-              {" · "}
-              Y {hoveredPixelCoordinate.y}
-            </strong>
-            <small>{t("mars.pixel.coordinate", { x: hoveredPixelCoordinate.x, y: hoveredPixelCoordinate.y })}</small>
-          </div>
-        )}
-
-      {!diving &&
-          (
-            pixelDragAnchor !== null ||
-            pixelDragActive ||selectedPixelLoading ||
+        pixelSelectionMode &&
+        (
+          pixelDragAnchor !== null ||
+          pixelDragActive ||
+          selectedPixelLoading ||
           selectedPixel !== null ||
           selectedPixelError !== null
-          ) && (
+        ) && (
           <aside
-            className="mars-pixel-detail"
+            className={[
+              "mars-pixel-detail",
+              selectedPixelSelection?.selection_status === "available"
+                ? "is-checkout"
+                : "",
+            ]
+              .filter(Boolean)
+              .join(" ")}
             aria-live="polite"
           >
             <div className="mars-pixel-detail__header">
@@ -2215,25 +2248,13 @@ export function MarsPlanetMap({
                 <strong>
                   {t("mars.pixel.territoryInspector")}
                 </strong>
-              </div>
+</div>
 
               <button
                 type="button"
                 className="mars-pixel-detail__close"
                 aria-label={t("mars.pixel.closeSelection")}
-                onClick={() => {
-                  pixelRequestRef.current += 1;
-                  setLockedSelectionTarget(null);
-                  setPixelDragAnchor(null);
-                  setHoveredPixelCoordinate(null);
-                  setSelectedPixelSelection(null);
-                  setSelectedPixelValuation(null);
-                  setSelectedPixelSelectionError(null);
-                  setSelectedPixelSelectionLoading(false);
-                  setSelectedPixel(null);
-                  setSelectedPixelError(null);
-                  setSelectedPixelLoading(false);
-                }}
+                onClick={closePixelPurchaseFlow}
               >
                 ×
               </button>
@@ -3251,6 +3272,7 @@ export function MarsPlanetMap({
           onDragStateChange={handlePixelDragStateChange}
           onPixelDragStart={(coordinate) => {
             if (
+              !pixelSelectionMode ||
               mobileTouchMode ||
               territorySelectionLocked
             ) {
@@ -3268,7 +3290,10 @@ export function MarsPlanetMap({
             setLockedSelectionTarget(preview.target);
           }}
           onPixelDragSelect={(anchor) => {
-            if (mobileTouchMode) {
+            if (
+              !pixelSelectionMode ||
+              mobileTouchMode
+            ) {
               return;
             }
 
@@ -3294,6 +3319,10 @@ export function MarsPlanetMap({
               : territorySelectionColor
           }
           onPixelSelect={(coordinate) => {
+            if (!pixelSelectionMode) {
+              return;
+            }
+
             if (!mobileTouchMode) {
               void handleTerritorySizeSelect(
                 coordinate,
@@ -3319,6 +3348,11 @@ export function MarsPlanetMap({
             );
           }}
           onPixelHover={(coordinate) => {
+            if (!pixelSelectionMode) {
+              setHoveredPixelCoordinate(null);
+              return;
+            }
+
             if (mobileTouchMode) {
               setHoveredPixelCoordinate(null);
               return;

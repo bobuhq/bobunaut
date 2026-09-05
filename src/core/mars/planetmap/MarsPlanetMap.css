@@ -5155,3 +5155,134 @@
     font-size: 8px;
   }
 }
+
+.mars-pixel-detail.is-checkout {
+  width: min(560px, calc(100% - 36px));
+  max-height: calc(100% - 36px);
+  padding: 22px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+
+.mars-pixel-detail.is-checkout .mars-pixel-detail__header strong {
+  font-size: 18px;
+}
+
+.mars-pixel-detail.is-checkout .mars-pixel-detail__eyebrow {
+  font-size: 9px;
+}
+
+.mars-pixel-detail.is-checkout .mars-pixel-detail__coordinate {
+  font-size: 11px;
+}
+
+.mars-pixel-detail.is-checkout .mars-pixel-detail__status {
+  font-size: 25px;
+}
+
+.mars-pixel-detail.is-checkout .mars-pixel-detail__commercial,
+.mars-pixel-detail.is-checkout .mars-pixel-detail__message {
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.mars-pixel-detail__close--floating {
+  position: sticky;
+  top: 0;
+  float: right;
+  z-index: 5;
+}
+
+.mars-planet-map__pixel-hud button.is-active,
+.mars-planet-map__territory-size button.is-active,
+.mars-territory-size button.is-active {
+  border-color: rgba(99, 245, 255, 0.82);
+  box-shadow:
+    0 0 0 1px rgba(99, 245, 255, 0.2),
+    0 0 24px rgba(99, 245, 255, 0.2);
+}
+
+@media (max-width: 960px) and (orientation: landscape) {
+  .mars-pixel-detail.is-checkout {
+    top: 10px;
+    right: 10px;
+    bottom: 10px;
+    left: auto;
+    width: min(48vw, 560px);
+    max-height: none;
+    padding: 18px;
+    border-radius: 16px;
+    overflow-y: auto;
+  }
+
+  .mars-pixel-detail.is-checkout .mars-pixel-detail__header strong {
+    font-size: 16px;
+  }
+
+  .mars-pixel-detail.is-checkout .mars-pixel-detail__status {
+    font-size: 21px;
+  }
+
+  .mars-pixel-detail.is-checkout .mars-purchase-flow__section {
+    padding: 12px;
+  }
+}
+
+@media (max-width: 680px) and (orientation: portrait) {
+  .mars-pixel-detail.is-checkout {
+    top: 12%;
+    right: 8px;
+    bottom: 8px;
+    left: 8px;
+    width: auto;
+    max-height: none;
+    padding: 16px;
+    border-radius: 16px;
+    overflow-y: auto;
+  }
+}
+
+.mars-pixel-goto__total {
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  font: inherit;
+  text-align: inherit;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.mars-pixel-goto__total:hover {
+  border-color: rgba(99, 245, 255, 0.58);
+}
+
+.mars-pixel-goto__total:active {
+  transform: scale(0.98);
+}
+
+.mars-pixel-goto__total.is-active {
+  border-color: rgba(99, 245, 255, 0.92);
+  background:
+    linear-gradient(
+      135deg,
+      rgba(99, 245, 255, 0.15),
+      rgba(105, 72, 255, 0.12)
+    );
+  box-shadow:
+    0 0 0 1px rgba(99, 245, 255, 0.18),
+    0 0 24px rgba(99, 245, 255, 0.2);
+}
+
+.mars-pixel-goto__total.is-active::after {
+  content: "SELECT MODE";
+  display: block;
+  margin-top: 3px;
+  color: rgba(99, 245, 255, 0.92);
+  font-size: 6px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+}
