@@ -830,3 +830,36 @@ main:has(
     overflow: visible;
   }
 }
+
+/* BOBU NATIVE MARS — LANDSCAPE VIEWPORT FIT */
+@media (max-width: 900px) and (orientation: landscape) {
+  .mars-page {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-x: hidden !important;
+  }
+
+  .mars-sector-network.is-orbit-mode {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: calc(100dvh - 72px) !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+  }
+
+  .mars-sector-network.is-orbit-mode .mars-planet-map-section {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+  }
+}
