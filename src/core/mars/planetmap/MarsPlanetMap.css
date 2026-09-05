@@ -4591,3 +4591,198 @@
     overflow-y: auto !important;
   }
 }
+
+/* BOBU MARS PIXEL — PURCHASE FLOW V1 */
+
+.mars-purchase-flow {
+  display: grid;
+  margin-top: 10px;
+  gap: 7px;
+}
+
+.mars-purchase-flow__section {
+  padding: 9px;
+  border: 1px solid rgba(99, 245, 255, 0.1);
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.018);
+}
+
+.mars-purchase-flow__heading {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+}
+
+.mars-purchase-flow__heading > span {
+  display: grid;
+  width: 24px;
+  height: 24px;
+  place-items: center;
+  border: 1px solid rgba(99, 245, 255, 0.24);
+  border-radius: 7px;
+  background: rgba(99, 245, 255, 0.06);
+  color: #63f5ff;
+  font-size: 7px;
+  font-weight: 900;
+}
+
+.mars-purchase-flow__heading > div {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+
+.mars-purchase-flow__heading small {
+  color: rgba(255, 255, 255, 0.38);
+  font-size: 6px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+}
+
+.mars-purchase-flow__heading strong {
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+}
+
+.mars-purchase-flow__facts,
+.mars-purchase-flow__features {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 7px;
+  gap: 4px;
+}
+
+.mars-purchase-flow__facts span,
+.mars-purchase-flow__features span {
+  padding: 4px 6px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.025);
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 6px;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+}
+
+.mars-purchase-flow__upgrade {
+  margin-top: 7px;
+  color: #ffd66b;
+  font-size: 6px;
+  font-weight: 900;
+  letter-spacing: 0.07em;
+}
+
+.mars-purchase-flow__error {
+  margin-top: 7px;
+  color: #ff8a78;
+  font-size: 6px;
+  font-weight: 900;
+}
+
+.mars-purchase-flow__purchase {
+  width: 100%;
+  min-height: 34px;
+  margin-top: 9px;
+  border: 1px solid rgba(99, 245, 255, 0.42);
+  border-radius: 8px;
+  background: rgba(99, 245, 255, 0.11);
+  color: #8ff9ff;
+  font: inherit;
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+}
+
+.mars-purchase-flow__purchase:disabled {
+  border-color: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.025);
+  color: rgba(255, 255, 255, 0.28);
+  cursor: not-allowed;
+}
+
+.mars-purchase-flow__notice {
+  margin-top: 6px;
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 5px;
+  font-weight: 900;
+  line-height: 1.45;
+  letter-spacing: 0.06em;
+}
+
+.mars-pixel-detail:has(.mars-purchase-flow) {
+  width: min(360px, calc(100% - 36px));
+  max-height: min(82vh, 720px);
+  overflow-y: auto;
+}
+
+@media (max-width: 900px) and (orientation: landscape) {
+  .mars-purchase-flow {
+    margin-top: 4px;
+    gap: 3px;
+  }
+
+  .mars-purchase-flow__section {
+    padding: 4px;
+    border-radius: 5px;
+  }
+
+  .mars-purchase-flow__heading {
+    grid-template-columns: 15px minmax(0, 1fr);
+    gap: 4px;
+  }
+
+  .mars-purchase-flow__heading > span {
+    width: 15px;
+    height: 15px;
+    border-radius: 4px;
+    font-size: 4px;
+  }
+
+  .mars-purchase-flow__heading small {
+    font-size: 4px;
+  }
+
+  .mars-purchase-flow__heading strong {
+    font-size: 5px;
+  }
+
+  .mars-purchase-flow__facts,
+  .mars-purchase-flow__features {
+    margin-top: 3px;
+    gap: 2px;
+  }
+
+  .mars-purchase-flow__facts span,
+  .mars-purchase-flow__features span {
+    padding: 2px 3px;
+    border-radius: 3px;
+    font-size: 4px;
+  }
+
+  .mars-purchase-flow__upgrade,
+  .mars-purchase-flow__error {
+    margin-top: 3px;
+    font-size: 4px;
+  }
+
+  .mars-purchase-flow__purchase {
+    min-height: 20px;
+    margin-top: 4px;
+    border-radius: 4px;
+    font-size: 4px;
+  }
+
+  .mars-purchase-flow__notice {
+    margin-top: 3px;
+    font-size: 3.5px;
+  }
+
+  .mars-pixel-detail:has(.mars-purchase-flow) {
+    max-height: min(76vh, 240px);
+    overflow-y: auto;
+  }
+}

@@ -41,6 +41,7 @@ import {
   getMarsPixelSelectionDetail,
   getMarsPixelSelectionValuation,
   getMarsPixelTerritoryColorOptions,
+  getMarsPixelContentTier,
 } from "../MarsPixelNetworkService";
 
 import type {
@@ -51,6 +52,7 @@ import type {
   MarsPixelSelectionDetail,
   MarsPixelSelectionValuation,
   MarsPixelTerritoryColorOption,
+  MarsPixelContentTier,
 } from "../MarsPixelNetworkService";
 
 import {
@@ -1292,6 +1294,70 @@ export function MarsPlanetMap({
     );
   };
 
+  const [selectedPixelContentTier, setSelectedPixelContentTier] =
+    useState<MarsPixelContentTier | null>(null);
+  const [selectedPixelContentTierLoading, setSelectedPixelContentTierLoading] =
+    useState(false);
+  const [selectedPixelContentTierError, setSelectedPixelContentTierError] =
+    useState<string | null>(null);
+
+  useEffect(() => {
+    const pixelCount =
+      selectedPixelSelection?.selection_status === "available"
+        ? selectedPixelSelection.pixel_count
+        : null;
+
+    if (!pixelCount || pixelCount < 50) {
+      setSelectedPixelContentTier(null);
+      setSelectedPixelContentTierLoading(false);
+      setSelectedPixelContentTierError(null);
+      return;
+    }
+
+    let active = true;
+
+    setSelectedPixelContentTier(null);
+    setSelectedPixelContentTierLoading(true);
+    setSelectedPixelContentTierError(null);
+
+    void getMarsPixelContentTier(pixelCount)
+      .then((tier) => {
+        if (!active) {
+          return;
+        }
+
+        setSelectedPixelContentTier(tier);
+      })
+      .catch((error) => {
+        if (!active) {
+          return;
+        }
+
+        console.error(
+          "Mars Pixel content tier lookup failed.",
+          error,
+        );
+
+        setSelectedPixelContentTierError(
+          "TIER DATA UNAVAILABLE",
+        );
+      })
+      .finally(() => {
+        if (!active) {
+          return;
+        }
+
+        setSelectedPixelContentTierLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [
+    selectedPixelSelection?.pixel_count,
+    selectedPixelSelection?.selection_status,
+  ]);
+
   const territorySelectionLocked =
     selectedPixel !== null &&
     lockedSelectionTarget !== null;
@@ -2110,6 +2176,105 @@ export function MarsPlanetMap({
                         )}
 
                         {selectedPixelSelection?.selection_status === "available" && (
+                          <div className="mars-purchase-flow">
+                            <section className="mars-purchase-flow__section">
+                              <div className="mars-purchase-flow__heading">
+                                <span>01</span>
+                                <div>
+                                  <small>01 TERRITORY</small>
+                                  <strong>
+                                    {selectedPixelSelection.width} × {selectedPixelSelection.height}
+                                  </strong>
+                                </div>
+                              </div>
+
+                              <div className="mars-purchase-flow__facts">
+                                <span>
+                                  {selectedPixelSelection.pixel_count.toLocaleString("en-US")} PIXELS
+                                </span>
+                                <span>
+                                  {selectedPixelSelection.selection_status.toUpperCase()}
+                                </span>
+                              </div>
+                            </section>
+
+                            <section className="mars-purchase-flow__section">
+                              <div className="mars-purchase-flow__heading">
+                                <span>02</span>
+                                <div>
+                                  <small>YOUR TIER</small>
+                                  <strong>
+                                    {selectedPixelContentTierLoading
+                                      ? "CALCULATING..."
+                                      : selectedPixelContentTier?.tier_key ?? "—"}
+                                  </strong>
+                                </div>
+                              </div>
+
+                              {selectedPixelContentTierError && (
+                                <div className="mars-purchase-flow__error">
+                                  {selectedPixelContentTierError}
+                                </div>
+                              )}
+
+                              {selectedPixelContentTier && (
+                                <>
+                                  <div className="mars-purchase-flow__features">
+                                    <span>
+                                      {selectedPixelContentTier.description_max_chars} CHAR DESCRIPTION
+                                    </span>
+                                    <span>
+                                      {selectedPixelContentTier.image_allowed
+                                        ? "IMAGE"
+                                        : "NO IMAGE"}
+                                    </span>
+                                    <span>
+                                      {selectedPixelContentTier.max_links} LINK
+                                      {selectedPixelContentTier.max_links === 1 ? "" : "S"}
+                                    </span>
+                                    <span>
+                                      {selectedPixelContentTier.cta_allowed
+                                        ? "CTA"
+                                        : "CTA LOCKED"}
+                                    </span>
+                                    <span>
+                                      {selectedPixelContentTier.socials_allowed
+                                        ? "SOCIAL LINKS"
+                                        : "SOCIALS LOCKED"}
+                                    </span>
+                                    {selectedPixelContentTier.analytics_allowed && (
+                                      <span>ANALYTICS</span>
+                                    )}
+                                    {selectedPixelContentTier.premium && (
+                                      <span>PREMIUM</span>
+                                    )}
+                                  </div>
+
+                                  {selectedPixelContentTier.max_pixels !== null && (
+                                    <div className="mars-purchase-flow__upgrade">
+                                      NEXT TIER STARTS AT{" "}
+                                      {(selectedPixelContentTier.max_pixels + 1).toLocaleString("en-US")} PIXELS
+                                    </div>
+                                  )}
+                                </>
+                              )}
+                            </section>
+
+                            <section className="mars-purchase-flow__section">
+                              <div className="mars-purchase-flow__heading">
+                                <span>03</span>
+                                <div>
+                                  <small>TERRITORY COLOR</small>
+                                  <strong>
+                                    {selectedPixelColorKey ?? "AUTO"}
+                                  </strong>
+                                </div>
+                              </div>
+                            </section>
+                          </div>
+                        )}
+
+                        {selectedPixelSelection?.selection_status === "available" && (
                 <div className="mars-pixel-color">
                   <div className="mars-pixel-color__current">
                     <span
@@ -2217,7 +2382,111 @@ export function MarsPlanetMap({
                 </div>
               )}
 
-              <div className="mars-pixel-detail__grid">
+                                      {selectedPixelSelection?.selection_status === "available" && (
+                          <div className="mars-purchase-flow mars-purchase-flow--final">
+                            <section className="mars-purchase-flow__section">
+                              <div className="mars-purchase-flow__heading">
+                                <span>04</span>
+                                <div>
+                                  <small>04 CONTENT & BRANDING</small>
+                                  <strong>
+                                    {selectedPixelContentTier
+                                      ? `${selectedPixelContentTier.territory_name_max_chars} CHAR NAME`
+                                      : "TIER REQUIRED"}
+                                  </strong>
+                                </div>
+                              </div>
+
+                              {selectedPixelContentTier && (
+                                <div className="mars-purchase-flow__features">
+                                  <span>
+                                    DESCRIPTION {selectedPixelContentTier.description_max_chars}
+                                  </span>
+                                  <span>
+                                    {selectedPixelContentTier.image_allowed
+                                      ? "IMAGE UNLOCKED"
+                                      : "IMAGE LOCKED"}
+                                  </span>
+                                  <span>
+                                    {selectedPixelContentTier.max_links} LINK
+                                    {selectedPixelContentTier.max_links === 1 ? "" : "S"}
+                                  </span>
+                                  <span>
+                                    {selectedPixelContentTier.cta_allowed
+                                      ? "CTA UNLOCKED"
+                                      : "CTA LOCKED"}
+                                  </span>
+                                </div>
+                              )}
+                            </section>
+
+                            <section className="mars-purchase-flow__section">
+                              <div className="mars-purchase-flow__heading">
+                                <span>05</span>
+                                <div>
+                                  <small>PRICE</small>
+                                  <strong>
+                                    {selectedPixelValuation
+                                      ? new Intl.NumberFormat(
+                                          "en-US",
+                                          {
+                                            style: "currency",
+                                            currency:
+                                              selectedPixelValuation.reference_currency_code,
+                                            minimumFractionDigits: 2,
+                                            maximumFractionDigits: 2,
+                                          },
+                                        ).format(
+                                          selectedPixelValuation.total_reference_value_minor / 100,
+                                        )
+                                      : "—"}
+                                  </strong>
+                                </div>
+                              </div>
+
+                              {selectedPixelValuation && (
+                                <div className="mars-purchase-flow__facts">
+                                  <span>
+                                    {selectedPixelValuation.pixel_count.toLocaleString("en-US")} PIXELS
+                                  </span>
+                                  <span>
+                                    MIN {selectedPixelValuation.minimum_purchase_pixels} PIXELS
+                                  </span>
+                                </div>
+                              )}
+                            </section>
+
+                            <section className="mars-purchase-flow__section">
+                              <div className="mars-purchase-flow__heading">
+                                <span>06</span>
+                                <div>
+                                  <small>PURCHASE</small>
+                                  <strong>
+                                    {purchasable
+                                      ? "COMMERCIAL ACCESS ACTIVE"
+                                      : "SALES CURRENTLY LOCKED"}
+                                  </strong>
+                                </div>
+                              </div>
+
+                              <button
+                                type="button"
+                                className="mars-purchase-flow__purchase"
+                                disabled={!purchasable}
+                              >
+                                {purchasable
+                                  ? `CLAIM ${selectedPixelSelection.pixel_count.toLocaleString("en-US")} MARS PIXELS`
+                                  : "PURCHASE LOCKED"}
+                              </button>
+
+                              <div className="mars-purchase-flow__notice">
+                                TERRITORY AVAILABILITY, PRICE AND TIER ARE SERVER VERIFIED.
+                              </div>
+                            </section>
+                          </div>
+                        )}
+
+<div className="mars-pixel-detail__grid">
                           GRID V
                           {selectionLocked
                             ? selectedPixelSelection?.grid_version

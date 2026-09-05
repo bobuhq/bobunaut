@@ -491,3 +491,67 @@ export async function getMarsPixelTerritoryColorOptions(
     ) ?? []
   );
 }
+
+export type MarsPixelContentTier = {
+  tier_key: string;
+  min_pixels: number;
+  max_pixels: number | null;
+  territory_name_max_chars: number;
+  description_max_chars: number;
+  image_allowed: boolean;
+  max_links: number;
+  cta_allowed: boolean;
+  socials_allowed: boolean;
+  analytics_allowed: boolean;
+  premium: boolean;
+};
+
+export async function getMarsPixelContentTier(
+  pixelCount: number,
+): Promise<MarsPixelContentTier> {
+  if (!Number.isInteger(pixelCount) || pixelCount < 50) {
+    throw new Error(
+      "Mars Pixel content tier requires at least 50 pixels.",
+    );
+  }
+
+  const { data, error } = await supabase.rpc(
+    "get_mars_pixel_content_tier_v1",
+    {
+      p_pixel_count: pixelCount,
+    },
+  );
+
+  if (error) {
+    throw error;
+  }
+
+  const row = Array.isArray(data) ? data[0] : data;
+
+  if (!row) {
+    throw new Error(
+      "Mars Pixel content tier returned no result.",
+    );
+  }
+
+  const tier = row as MarsPixelContentTier;
+
+  return {
+    ...tier,
+    min_pixels: Number(tier.min_pixels),
+    max_pixels:
+      tier.max_pixels === null
+        ? null
+        : Number(tier.max_pixels),
+    territory_name_max_chars:
+      Number(tier.territory_name_max_chars),
+    description_max_chars:
+      Number(tier.description_max_chars),
+    image_allowed: tier.image_allowed === true,
+    max_links: Number(tier.max_links),
+    cta_allowed: tier.cta_allowed === true,
+    socials_allowed: tier.socials_allowed === true,
+    analytics_allowed: tier.analytics_allowed === true,
+    premium: tier.premium === true,
+  };
+}
