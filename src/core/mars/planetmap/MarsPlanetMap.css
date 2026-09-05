@@ -4463,16 +4463,10 @@
     border-radius: 0;
   }
 
-  .mars-planet-map__canvas {
-    top: 80px !important;
-    bottom: 182px !important;
-  }
-
   .mars-planet-map__focus-panel {
     left: 12px;
     right: auto;
-    top: 12px;
-    bottom: auto;
+    bottom: 12px;
     width: min(286px, 35vw);
     max-height: calc(100vh - 24px);
     padding: 12px;
@@ -4495,8 +4489,7 @@
   .mars-pixel-detail {
     right: 12px;
     left: auto;
-    top: 12px;
-    bottom: auto;
+    bottom: 12px;
     width: min(286px, 35vw);
     max-height: calc(100vh - 24px);
     padding: 12px;
