@@ -1229,14 +1229,14 @@ export function MarsPixelOverlay({
               );
 
             float territoryPulse =
-              0.78 +
-              sin(time * 3.2) * 0.22;
+              0.90 +
+              sin(time * 1.55) * 0.10;
 
             vec3 territoryEdgeColor =
               min(
                 vec3(1.0),
-                allocation.rgb * 1.82 +
-                vec3(0.28)
+                allocation.rgb * 2.05 +
+                vec3(0.34)
               );
 
             vec4 allocationLeft4 =
@@ -1381,30 +1381,30 @@ export function MarsPixelOverlay({
             glowColor =
               min(
                 vec3(1.0),
-                glowColor * 1.95 +
-                vec3(0.24)
+                glowColor * 2.10 +
+                vec3(0.28)
               );
 
             float territoryGlowAlpha =
               glowNear *
                 (
-                  0.46 +
-                  territoryPulse * 0.34
+                  0.52 +
+                  territoryPulse * 0.32
                 ) +
               glowMid *
                 (
-                  0.28 +
-                  territoryPulse * 0.24
+                  0.32 +
+                  territoryPulse * 0.22
                 ) +
               glowFar *
                 (
-                  0.16 +
-                  territoryPulse * 0.16
+                  0.18 +
+                  territoryPulse * 0.14
                 ) +
               glowWide *
                 (
-                  0.07 +
-                  territoryPulse * 0.10
+                  0.08 +
+                  territoryPulse * 0.08
                 );
 
             finalColor =
@@ -1424,8 +1424,8 @@ export function MarsPixelOverlay({
                 territoryEdgeColor,
                 allocationGlow *
                   (
-                    0.52 +
-                    territoryPulse * 0.34
+                    0.60 +
+                    territoryPulse * 0.28
                   )
               );
 
@@ -1435,8 +1435,8 @@ export function MarsPixelOverlay({
                 territoryEdgeColor,
                 allocationEdge *
                   (
-                    0.84 +
-                    territoryPulse * 0.16
+                    0.90 +
+                    territoryPulse * 0.10
                   )
               );
 
