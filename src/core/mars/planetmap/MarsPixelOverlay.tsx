@@ -39,6 +39,10 @@ import type {
   MarsPixelCoordinate,
 } from "./MarsPixelGridMapper";
 
+import {
+  marsPixelTerritoryColorRgb,
+} from "./MarsPixelTerritoryColors";
+
 type MarsPixelOverlayProps = {
   radius: number;
   gridWidth: number;
@@ -78,18 +82,44 @@ type MarsPixelOverlayProps = {
 };
 
 function allocationColor(
-  allocationId: string,
+  allocation: MarsPixelPublicAllocation,
 ): [number, number, number, number] {
-  let hash = 2166136261;
+  const persistedColor =
+    marsPixelTerritoryColorRgb(
+      allocation.color_key,
+    );
 
-  for (let index = 0; index < allocationId.length; index += 1) {
-    hash ^= allocationId.charCodeAt(index);
-    hash = Math.imul(hash, 16777619);
+  if (persistedColor) {
+    return [
+      persistedColor[0],
+      persistedColor[1],
+      persistedColor[2],
+      196,
+    ];
   }
 
-  const red = 110 + ((hash >>> 16) & 0x5f);
-  const green = 70 + ((hash >>> 8) & 0x6f);
-  const blue = 150 + (hash & 0x69);
+  let hash = 2166136261;
+
+  for (
+    let index = 0;
+    index < allocation.allocation_id.length;
+    index += 1
+  ) {
+    hash ^=
+      allocation.allocation_id.charCodeAt(index);
+
+    hash =
+      Math.imul(hash, 16777619);
+  }
+
+  const red =
+    110 + ((hash >>> 16) & 0x5f);
+
+  const green =
+    70 + ((hash >>> 8) & 0x6f);
+
+  const blue =
+    150 + (hash & 0x69);
 
   return [
     Math.min(255, red),
@@ -145,7 +175,7 @@ export function MarsPixelOverlay({
         blue,
         alpha,
       ] = allocationColor(
-        allocation.allocation_id,
+        allocation,
       );
 
       const xEnd = Math.min(
@@ -1085,14 +1115,65 @@ export function MarsPixelOverlay({
               );
 
             float territoryPulse =
-              0.62 +
-              sin(time * 2.65) * 0.38;
+              0.50 +
+              sin(time * 2.85) * 0.50;
 
             vec3 territoryEdgeColor =
               min(
                 vec3(1.0),
-                allocation.rgb * 1.42 +
-                vec3(0.10)
+                allocation.rgb * 1.75 +
+                vec3(0.18)
+              );
+
+            float neighborWeight =
+              allocationLeft.a +
+              allocationRight.a +
+              allocationUp.a +
+              allocationDown.a +
+              allocationLeft2.a * 0.55 +
+              allocationRight2.a * 0.55 +
+              allocationUp2.a * 0.55 +
+              allocationDown2.a * 0.55;
+
+            vec3 neighborColor =
+              (
+                allocationLeft.rgb * allocationLeft.a +
+                allocationRight.rgb * allocationRight.a +
+                allocationUp.rgb * allocationUp.a +
+                allocationDown.rgb * allocationDown.a +
+                allocationLeft2.rgb * allocationLeft2.a * 0.55 +
+                allocationRight2.rgb * allocationRight2.a * 0.55 +
+                allocationUp2.rgb * allocationUp2.a * 0.55 +
+                allocationDown2.rgb * allocationDown2.a * 0.55
+              ) /
+              max(neighborWeight, 0.001);
+
+            float outerAllocationGlow =
+              (1.0 - hasAllocation) *
+              step(
+                0.01,
+                neighborWeight
+              );
+
+            vec3 outerTerritoryColor =
+              min(
+                vec3(1.0),
+                neighborColor * 1.85 +
+                vec3(0.22)
+              );
+
+            float territoryGlowAlpha =
+              outerAllocationGlow *
+              (
+                0.16 +
+                territoryPulse * 0.34
+              );
+
+            finalColor =
+              mix(
+                finalColor,
+                outerTerritoryColor,
+                territoryGlowAlpha
               );
 
             finalColor =
@@ -1100,8 +1181,10 @@ export function MarsPixelOverlay({
                 finalColor,
                 territoryEdgeColor,
                 allocationGlow *
-                  territoryPulse *
-                  0.24
+                  (
+                    0.28 +
+                    territoryPulse * 0.30
+                  )
               );
 
             finalColor =
@@ -1110,8 +1193,8 @@ export function MarsPixelOverlay({
                 territoryEdgeColor,
                 allocationEdge *
                   (
-                    0.52 +
-                    territoryPulse * 0.42
+                    0.68 +
+                    territoryPulse * 0.30
                   )
               );
 
@@ -1485,7 +1568,10 @@ export function MarsPixelOverlay({
                   ),
                   isAresCell * 0.58
                 ),
-                interactionAlpha
+                max(
+                  interactionAlpha,
+                  territoryGlowAlpha
+                )
               );
 
             if (
