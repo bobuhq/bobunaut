@@ -2,6 +2,7 @@ import {
   useEffect,
   useMemo,
   useRef,
+  useState,
 } from "react";
 import {
   ClampToEdgeWrapping,
@@ -13,7 +14,9 @@ import {
   SRGBColorSpace,
   UnsignedByteType,
   ShaderMaterial,
+  Group,
   Vector2,
+  Vector3,
   Vector4,
 } from "three";
 import {
@@ -42,6 +45,7 @@ import type {
 import {
   marsPixelTerritoryColorRgb,
 } from "./MarsPixelTerritoryColors";
+import { Html } from "@react-three/drei";
 
 type MarsPixelOverlayProps = {
   radius: number;
@@ -507,6 +511,17 @@ export function MarsPixelOverlay({
       territorySelectionColor ? 1 : 0;
   }, [territorySelectionColor]);
 
+  const [
+    cameraDistanceForLabels,
+    setCameraDistanceForLabels,
+  ] = useState(8.4);
+
+  const labelDistanceRef =
+    useRef(8.4);
+
+  const territoryLabelsRef =
+    useRef<Group | null>(null);
+
   useFrame(({ camera }) => {
     const material =
       materialRef.current;
@@ -523,7 +538,105 @@ export function MarsPixelOverlay({
 
     material.uniforms.time.value =
       performance.now() * 0.001;
+
+    const labelGroup =
+      territoryLabelsRef.current;
+
+    if (labelGroup) {
+      const cameraDirection =
+        camera.position
+          .clone()
+          .normalize();
+
+      for (const child of labelGroup.children) {
+        const worldPosition =
+          child.getWorldPosition(
+            new Vector3(),
+          );
+
+        const worldNormal =
+          worldPosition
+            .clone()
+            .normalize();
+
+        child.visible =
+          worldNormal.dot(
+            cameraDirection,
+          ) > 0.16;
+      }
+    }
+
+    if (
+      Math.abs(
+        distance -
+          labelDistanceRef.current,
+      ) >= 0.12
+    ) {
+      labelDistanceRef.current =
+        distance;
+
+      setCameraDistanceForLabels(
+        distance,
+      );
+    }
   });
+
+  const visibleTerritoryLabels =
+    useMemo(() => {
+      const maxDistanceForPixels = (
+        pixels: number,
+      ) => {
+        if (pixels >= 5000) {
+          return 8.4;
+        }
+
+        if (pixels >= 1000) {
+          return 7.2;
+        }
+
+        if (pixels >= 500) {
+          return 6.2;
+        }
+
+        if (pixels >= 200) {
+          return 5.35;
+        }
+
+        if (pixels >= 100) {
+          return 4.65;
+        }
+
+        return 3.95;
+      };
+
+      return allocations
+        .filter((allocation) => {
+          const pixels =
+            allocation.width *
+            allocation.height;
+
+          return (
+            pixels >= 50 &&
+            cameraDistanceForLabels <=
+              maxDistanceForPixels(
+                pixels,
+              ) &&
+            Boolean(
+              allocation.creative_title?.trim() ||
+                allocation.advertiser_name?.trim(),
+            )
+          );
+        })
+        .sort(
+          (left, right) =>
+            right.width * right.height -
+            left.width * left.height,
+        )
+        .slice(0, 40);
+    }, [
+      allocations,
+      cameraDistanceForLabels,
+    ]);
 
   if (
     !visible ||
@@ -533,7 +646,8 @@ export function MarsPixelOverlay({
   }
 
   return (
-    <mesh
+    <>
+      <mesh
       onPointerMove={(
         event: ThreeEvent<PointerEvent>,
       ) => {
@@ -1720,5 +1834,102 @@ export function MarsPixelOverlay({
         toneMapped={false}
       />
     </mesh>
+
+      <group
+        ref={territoryLabelsRef}
+        name="mars-pixel-territory-labels"
+      >
+      {visibleTerritoryLabels.map(
+        (allocation) => {
+          const centerX =
+            allocation.x_start +
+            allocation.width / 2;
+
+          const centerY =
+            allocation.y_start +
+            allocation.height / 2;
+
+          const u =
+            centerX / gridWidth;
+
+          const v =
+            1 -
+            centerY / gridHeight;
+
+          const longitude =
+            (u - 0.5) *
+            Math.PI *
+            2;
+
+          const latitude =
+            (v - 0.5) *
+            Math.PI;
+
+          const labelRadius =
+            radius * 1.014;
+
+          const x =
+            labelRadius *
+            Math.cos(latitude) *
+            Math.sin(longitude);
+
+          const y =
+            labelRadius *
+            Math.sin(latitude);
+
+          const z =
+            labelRadius *
+            Math.cos(latitude) *
+            Math.cos(longitude);
+
+          const pixels =
+            allocation.width *
+            allocation.height;
+
+          const label =
+            allocation.creative_title?.trim() ||
+            allocation.advertiser_name?.trim();
+
+          return (
+            <Html
+              key={`territory-label-${allocation.allocation_id}`}
+              position={[x, y, z]}
+              center
+              transform
+              sprite
+              distanceFactor={
+                pixels >= 5000
+                  ? 3.7
+                  : pixels >= 1000
+                    ? 4.1
+                    : pixels >= 500
+                      ? 4.45
+                      : pixels >= 200
+                        ? 4.8
+                        : 5.1
+              }
+              zIndexRange={[8, 0]}
+              className="mars-pixel-territory-label-anchor"
+            >
+              <div
+                className={[
+                  "mars-pixel-territory-label",
+                  pixels >= 5000
+                    ? "mars-pixel-territory-label--xl"
+                    : pixels >= 1000
+                      ? "mars-pixel-territory-label--lg"
+                      : pixels >= 500
+                        ? "mars-pixel-territory-label--md"
+                        : "mars-pixel-territory-label--sm",
+                ].join(" ")}
+              >
+                {label}
+              </div>
+            </Html>
+          );
+        },
+      )}
+      </group>
+    </>
   );
 }

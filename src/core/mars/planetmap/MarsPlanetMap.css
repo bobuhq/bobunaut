@@ -4929,3 +4929,62 @@
     max-height: 72px;
   }
 }
+
+
+.mars-pixel-territory-label-anchor {
+  pointer-events: none;
+}
+
+.mars-pixel-territory-label {
+  max-width: 180px;
+  overflow: hidden;
+  padding: 3px 7px;
+  border: 1px solid rgba(255, 255, 255, 0.34);
+  border-radius: 999px;
+  background: rgba(3, 5, 12, 0.68);
+  box-shadow:
+    0 0 10px rgba(255, 255, 255, 0.12),
+    0 0 18px rgba(0, 0, 0, 0.34);
+  color: rgba(255, 255, 255, 0.96);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.055em;
+  line-height: 1.15;
+  text-align: center;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.92);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.mars-pixel-territory-label--md {
+  font-size: 10px;
+}
+
+.mars-pixel-territory-label--lg {
+  padding: 4px 9px;
+  font-size: 11px;
+}
+
+.mars-pixel-territory-label--xl {
+  padding: 5px 11px;
+  font-size: 12px;
+  letter-spacing: 0.07em;
+}
+
+@media (max-width: 900px) and (orientation: landscape) {
+  .mars-pixel-territory-label {
+    max-width: 130px;
+    padding: 2px 5px;
+    font-size: 8px;
+  }
+
+  .mars-pixel-territory-label--lg {
+    font-size: 9px;
+  }
+
+  .mars-pixel-territory-label--xl {
+    padding: 3px 7px;
+    font-size: 10px;
+  }
+}
