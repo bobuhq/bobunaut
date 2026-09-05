@@ -635,7 +635,50 @@ export async function purchaseMarsPixelTerritory(input: {
   );
 
   if (error) {
-    throw error;
+    let message = error.message || "Mars Pixel purchase failed.";
+
+    const context = (error as {
+      context?: {
+        json?: () => Promise<unknown>;
+        text?: () => Promise<string>;
+      };
+    }).context;
+
+    if (context?.json) {
+      try {
+        const payload = await context.json();
+
+        if (payload && typeof payload === "object") {
+          const body = payload as Record<string, unknown>;
+          const detail =
+            typeof body.error === "string"
+              ? body.error
+              : typeof body.message === "string"
+                ? body.message
+                : typeof body.detail === "string"
+                  ? body.detail
+                  : typeof body.code === "string"
+                    ? body.code
+                    : null;
+
+          if (detail) {
+            message = detail;
+          }
+        }
+      } catch {
+        if (context?.text) {
+          try {
+            const text = await context.text();
+            if (text.trim()) {
+              message = text.trim();
+            }
+          } catch {
+          }
+        }
+      }
+    }
+
+    throw new Error(message);
   }
 
   if (!data || data.success !== true) {
