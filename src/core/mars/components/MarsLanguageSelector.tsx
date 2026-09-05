@@ -20,7 +20,20 @@ export default function MarsLanguageSelector({
     t,
   } = useLanguage();
 
-  if (typeof document === "undefined") {
+  const isNativeMars =
+    typeof window !== "undefined" &&
+    (
+      new URLSearchParams(window.location.search).get("nativeBridge") === "1" ||
+      (
+        typeof navigator !== "undefined" &&
+        navigator.userAgent.includes("BOBU-Mobile")
+      )
+    );
+
+  if (
+    typeof document === "undefined" ||
+    isNativeMars
+  ) {
     return null;
   }
 

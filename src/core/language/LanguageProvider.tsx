@@ -105,6 +105,35 @@ export function LanguageProvider({
   );
 
   useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+
+    if (params.get("nativeBridge") !== "1") {
+      return;
+    }
+
+    const nativeBridgeLanguageSync = params.get("lang");
+
+    const supported = languageOptions.some(
+      (option) => option.code === nativeBridgeLanguageSync,
+    );
+
+    if (
+      !supported ||
+      nativeBridgeLanguageSync === language
+    ) {
+      return;
+    }
+
+    void setLanguage(
+      nativeBridgeLanguageSync as SupportedLanguage,
+    );
+  }, [language, setLanguage]);
+
+  useEffect(() => {
     let active = true;
 
     void LanguageService
