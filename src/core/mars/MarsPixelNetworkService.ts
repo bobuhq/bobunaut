@@ -555,3 +555,96 @@ export async function getMarsPixelContentTier(
     premium: tier.premium === true,
   };
 }
+
+export type MarsPixelPurchaseResult = {
+  success: true;
+  reservation: {
+    reservation_id: string;
+    reservation_status: string;
+    expires_at: string;
+    x_start: number;
+    y_start: number;
+    width: number;
+    height: number;
+    block_count: number;
+    pixel_count: number;
+    grid_version: number;
+  };
+  purchase: {
+    purchase_intent_id: string;
+    purchase_status: string;
+    reservation_id: string;
+    pixel_count: number;
+    currency_code: string;
+    total_price: number;
+  };
+  allocation: {
+    purchase_intent_id: string;
+    purchase_status: string;
+    allocation_id: string;
+    gp_ledger_id: string;
+    total_price: number;
+    personal_gp_spent: number;
+    eligible_network_gp_spent: number;
+    remaining_personal_gp: number;
+    remaining_eligible_network_gp: number;
+    remaining_total_gp: number;
+  } | null;
+};
+
+export async function purchaseMarsPixelTerritory(input: {
+  anchorX: number;
+  anchorY: number;
+  targetX: number;
+  targetY: number;
+  colorKey: string | null;
+  idempotencyKey: string;
+}): Promise<MarsPixelPurchaseResult> {
+  const coordinates = [
+    input.anchorX,
+    input.anchorY,
+    input.targetX,
+    input.targetY,
+  ];
+
+  if (
+    coordinates.some(
+      (value) =>
+        !Number.isInteger(value) ||
+        value < 0 ||
+        value > 999,
+    )
+  ) {
+    throw new Error(
+      "Mars Pixel purchase requires valid canonical coordinates.",
+    );
+  }
+
+  const { data, error } = await supabase.functions.invoke(
+    "mars-pixel-purchase",
+    {
+      body: {
+        anchorX: input.anchorX,
+        anchorY: input.anchorY,
+        targetX: input.targetX,
+        targetY: input.targetY,
+        colorKey: input.colorKey ?? "AUTO",
+        idempotencyKey: input.idempotencyKey,
+      },
+    },
+  );
+
+  if (error) {
+    throw error;
+  }
+
+  if (!data || data.success !== true) {
+    throw new Error(
+      typeof data?.error === "string"
+        ? data.error
+        : "Mars Pixel purchase failed.",
+    );
+  }
+
+  return data as MarsPixelPurchaseResult;
+}

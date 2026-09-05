@@ -4786,3 +4786,15 @@
     overflow-y: auto;
   }
 }
+
+.mars-purchase-flow__success {
+  margin-top: 8px;
+  padding: 8px 10px;
+  border: 1px solid rgba(94, 255, 170, 0.34);
+  border-radius: 8px;
+  background: rgba(24, 116, 72, 0.14);
+  font-size: 10px;
+  line-height: 1.4;
+  letter-spacing: 0.05em;
+  word-break: break-word;
+}

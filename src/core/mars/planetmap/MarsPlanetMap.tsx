@@ -42,6 +42,7 @@ import {
   getMarsPixelSelectionValuation,
   getMarsPixelTerritoryColorOptions,
   getMarsPixelContentTier,
+  purchaseMarsPixelTerritory,
 } from "../MarsPixelNetworkService";
 
 import type {
@@ -1358,9 +1359,98 @@ export function MarsPlanetMap({
     selectedPixelSelection?.selection_status,
   ]);
 
+  const [
+    marsPixelPurchaseLoading,
+    setMarsPixelPurchaseLoading,
+  ] = useState(false);
+
+  const [
+    marsPixelPurchaseError,
+    setMarsPixelPurchaseError,
+  ] = useState<string | null>(null);
+
+  const [
+    marsPixelPurchaseSuccess,
+    setMarsPixelPurchaseSuccess,
+  ] = useState<string | null>(null);
+
   const territorySelectionLocked =
     selectedPixel !== null &&
     lockedSelectionTarget !== null;
+
+  const handleMarsPixelPurchase = async () => {
+    if (
+      marsPixelPurchaseLoading ||
+      !selectedPixel ||
+      !lockedSelectionTarget ||
+      !selectedPixelSelection ||
+      selectedPixelSelection.selection_status !== "available" ||
+      !selectedPixelSelection.purchasable
+    ) {
+      return;
+    }
+
+    setMarsPixelPurchaseLoading(true);
+    setMarsPixelPurchaseError(null);
+    setMarsPixelPurchaseSuccess(null);
+
+    try {
+      const idempotencyKey =
+        typeof crypto !== "undefined" &&
+        typeof crypto.randomUUID === "function"
+          ? `mars-pixel:${crypto.randomUUID()}`
+          : `mars-pixel:${Date.now()}:${Math.random()
+              .toString(36)
+              .slice(2)}`;
+
+      const result = await purchaseMarsPixelTerritory({
+        anchorX: selectedPixel.x_start,
+        anchorY: selectedPixel.y_start,
+        targetX: lockedSelectionTarget.x,
+        targetY: lockedSelectionTarget.y,
+        colorKey: selectedPixelColorKey,
+        idempotencyKey,
+      });
+
+      if (!result.allocation?.allocation_id) {
+        throw new Error(
+          "Mars Pixel purchase completed without an allocation.",
+        );
+      }
+
+      setMarsPixelPurchaseSuccess(
+        `TERRITORY CLAIMED · ${result.allocation.allocation_id}`,
+      );
+
+      const [refreshedDetail, refreshedValuation] =
+        await Promise.all([
+          getMarsPixelSelectionDetail(
+            selectedPixel.x_start,
+            selectedPixel.y_start,
+            lockedSelectionTarget.x,
+            lockedSelectionTarget.y,
+          ),
+          getMarsPixelSelectionValuation(
+            selectedPixel.x_start,
+            selectedPixel.y_start,
+            lockedSelectionTarget.x,
+            lockedSelectionTarget.y,
+          ),
+        ]);
+
+      setSelectedPixelSelection(refreshedDetail);
+      setSelectedPixelValuation(refreshedValuation);
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Mars Pixel purchase failed.";
+
+      setMarsPixelPurchaseError(message);
+    } finally {
+      setMarsPixelPurchaseLoading(false);
+    }
+  };
 
   const mobileTouchMode =
     typeof window !== "undefined" &&
@@ -2472,12 +2562,32 @@ export function MarsPlanetMap({
                               <button
                                 type="button"
                                 className="mars-purchase-flow__purchase"
-                                disabled={!purchasable}
+                                disabled={
+                                  !purchasable ||
+                                  marsPixelPurchaseLoading
+                                }
+                                onClick={() => {
+                                  void handleMarsPixelPurchase();
+                                }}
                               >
-                                {purchasable
-                                  ? `CLAIM ${selectedPixelSelection.pixel_count.toLocaleString("en-US")} MARS PIXELS`
-                                  : "PURCHASE LOCKED"}
+                                {marsPixelPurchaseLoading
+                                  ? "PROCESSING..."
+                                  : purchasable
+                                    ? `CLAIM ${selectedPixelSelection.pixel_count.toLocaleString("en-US")} MARS PIXELS`
+                                    : "PURCHASE LOCKED"}
                               </button>
+
+                              {marsPixelPurchaseError && (
+                                <div className="mars-purchase-flow__error">
+                                  {marsPixelPurchaseError}
+                                </div>
+                              )}
+
+                              {marsPixelPurchaseSuccess && (
+                                <div className="mars-purchase-flow__success">
+                                  {marsPixelPurchaseSuccess}
+                                </div>
+                              )}
 
                               <div className="mars-purchase-flow__notice">
                                 TERRITORY AVAILABILITY, PRICE AND TIER ARE SERVER VERIFIED.

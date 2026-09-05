@@ -472,3 +472,9 @@ verify_jwt = false
 
 [functions.mining-security-gateway]
 verify_jwt = false
+
+[functions.mars-pixel-purchase]
+enabled = true
+verify_jwt = false
+import_map = "./functions/mars-pixel-purchase/deno.json"
+entrypoint = "./functions/mars-pixel-purchase/index.ts"
