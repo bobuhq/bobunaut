@@ -22,7 +22,7 @@ export type MarsPixelPublicAllocation = {
   y_start: number;
   width: number;
   height: number;
-  advertiser_name: string;
+  advertiser_name: string | null;
   creative_title: string | null;
   creative_image_url: string | null;
   color_key: string | null;

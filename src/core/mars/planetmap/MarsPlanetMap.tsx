@@ -2037,19 +2037,9 @@ export function MarsPlanetMap({
           const reservedZones =
             await getMarsPixelPublicReservedZones();
 
-          let allocations:
+          const allocations:
             MarsPixelPublicAllocation[] =
-              [];
-
-          if (
-            status.commercial_status ===
-              "preview" ||
-            status.commercial_status ===
-              "active"
-          ) {
-            allocations =
               await getMarsPixelPublicAllocations();
-          }
 
           if (!active) {
             return;
