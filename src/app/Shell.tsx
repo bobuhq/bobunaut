@@ -20,10 +20,17 @@ export function Shell() {
   const isMarsExplore =
     location.pathname === "/mars/explore";
 
+  const isNativeMarsBridge =
+    isMarsGame &&
+    new URLSearchParams(
+      location.search,
+    ).get("nativeBridge") === "1";
+
   return (
     <div className="app">
       {!isMarsExplore && <Stars />}
-      {!isMarsExplore && <Nav />}
+      {!isMarsExplore &&
+        !isNativeMarsBridge && <Nav />}
 
       <main
         className={
