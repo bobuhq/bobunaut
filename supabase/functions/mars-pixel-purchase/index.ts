@@ -184,6 +184,65 @@ Deno.serve(async (req) => {
     );
   }
 
+  const {
+    data: testAccessData,
+    error: testAccessError,
+  } = await userClient.rpc(
+    "get_my_mars_pixel_test_access_v1",
+  );
+
+  if (testAccessError) {
+    console.error(
+      "Mars Pixel test access lookup failed:",
+      testAccessError.message,
+    );
+  }
+
+  if (testAccessData === true) {
+    const {
+      data: testPurchaseData,
+      error: testPurchaseError,
+    } = await userClient.rpc(
+      "execute_mars_pixel_admin_test_purchase_v1",
+      {
+        p_anchor_x: body.anchorX,
+        p_anchor_y: body.anchorY,
+        p_target_x: body.targetX,
+        p_target_y: body.targetY,
+        p_requested_color_key: colorKey,
+        p_idempotency_key: idempotencyKey,
+      },
+    );
+
+    if (testPurchaseError) {
+      console.error(
+        "Mars Pixel admin test purchase failed:",
+        testPurchaseError.message,
+      );
+
+      return jsonResponse(
+        { error: testPurchaseError.message },
+        testPurchaseError.message.includes(
+          "MARS_PIXEL_COMMERCIAL_LOCKED",
+        )
+          ? 423
+          : 409,
+      );
+    }
+
+    if (
+      !testPurchaseData ||
+      testPurchaseData.success !== true
+    ) {
+      return jsonResponse(
+        { error: "Admin test purchase returned no result." },
+        500,
+      );
+    }
+
+    return jsonResponse(testPurchaseData);
+  }
+
   const adminClient = createClient(
     supabaseUrl,
     serviceRoleKey,
