@@ -2231,9 +2231,16 @@ export function MarsPlanetMap({
             0,
             0,
             typeof window !== "undefined" &&
-            window.matchMedia("(max-width: 900px)").matches
-              ? 7.15
-              : 6.45,
+            window.matchMedia(
+              "(max-width: 680px) and (pointer: coarse)",
+            ).matches
+              ? 9.0
+              : typeof window !== "undefined" &&
+                  window.matchMedia(
+                    "(max-width: 900px)",
+                  ).matches
+                ? 7.15
+                : 6.45,
           ],
           fov:
             typeof window !== "undefined" &&
