@@ -1787,6 +1787,10 @@ export function MarsPlanetMap({
 
       setSelectedPixelSelection(refreshedDetail);
       setSelectedPixelValuation(refreshedValuation);
+      setPixelSelectionMode(false);
+      setPixelDragActive(false);
+      setPixelDragAnchor(null);
+      setHoveredPixelCoordinate(null);
     } catch (error) {
       const message =
         error instanceof Error
@@ -2889,484 +2893,614 @@ export function MarsPlanetMap({
                         )}
 
                         {selectedPixelSelection?.selection_status === "available" && (
-                          <div className="mars-purchase-flow">
-                            <section className="mars-purchase-flow__section">
-                              <div className="mars-purchase-flow__heading">
-                                <span>01</span>
-                                <div>
-                                  <small>01 {t("mars.pixel.territory")}</small>
-                                  <strong>
-                                    {selectedPixelSelection.width} × {selectedPixelSelection.height}
-                                  </strong>
-                                </div>
-                              </div>
+                          <div className="mars-purchase-flow mars-purchase-flow--journey">
+                            <div className="mars-checkout-journey">
+                              <div className="mars-checkout-journey__steps">
+                                {[
+                                  [1, "SIZE"],
+                                  [2, "LOCATION"],
+                                  [3, "CUSTOMIZE"],
+                                  [4, "REVIEW"],
+                                  [5, "AGREEMENT"],
+                                ].map(([step, label]) => {
+                                  const stepNumber = step as number;
+                                  const complete =
+                                    marsPurchaseStep > stepNumber;
+                                  const active =
+                                    marsPurchaseStep === stepNumber;
 
-                              <div className="mars-purchase-flow__facts">
-                                <span>
-                                  {selectedPixelSelection.pixel_count.toLocaleString("en-US")} PIXELS
-                                </span>
-                                <span>
-                                  {selectedPixelSelection.selection_status.toUpperCase()}
-                                </span>
-                              </div>
-                            </section>
-
-                            <section className="mars-purchase-flow__section">
-                              <div className="mars-purchase-flow__heading">
-                                <span>02</span>
-                                <div>
-                                  <small>{t("mars.pixel.yourTier")}</small>
-                                  <strong>
-                                    {selectedPixelContentTierLoading
-                                      ? "CALCULATING..."
-                                      : selectedPixelContentTier?.tier_key ?? "—"}
-                                  </strong>
-                                </div>
-                              </div>
-
-                              {selectedPixelContentTierError && (
-                                <div className="mars-purchase-flow__error">
-                                  {selectedPixelContentTierError}
-                                </div>
-                              )}
-
-                              {selectedPixelContentTier && (
-                                <>
-                                  <div className="mars-purchase-flow__features">
-                                    <span>
-                                      {t("mars.pixel.charDescription", {
-                                        count: selectedPixelContentTier.description_max_chars,
-                                      })}
-                                    </span>
-                                    <span>
-                                      {selectedPixelContentTier.image_allowed
-                                        ? "IMAGE"
-                                        : "NO IMAGE"}
-                                    </span>
-                                    <span>
-                                      {selectedPixelContentTier.max_links} LINK
-                                      {selectedPixelContentTier.max_links === 1 ? "" : "S"}
-                                    </span>
-                                    <span>
-                                      {selectedPixelContentTier.cta_allowed
-                                        ? "CTA"
-                                        : "CTA LOCKED"}
-                                    </span>
-                                    <span>
-                                      {selectedPixelContentTier.socials_allowed
-                                        ? t("mars.pixel.socialLinks")
-                                        : "SOCIALS LOCKED"}
-                                    </span>
-                                    {selectedPixelContentTier.analytics_allowed && (
-                                      <span>{t("mars.pixel.analytics")}</span>
-                                    )}
-                                    {selectedPixelContentTier.premium && (
-                                      <span>{t("mars.pixel.premium")}</span>
-                                    )}
-                                  </div>
-
-                                  {selectedPixelContentTier.max_pixels !== null && (
-                                    <div className="mars-purchase-flow__upgrade">
-                                      {t("mars.pixel.nextTierStarts", {
-                                      count: (
-                                        selectedPixelContentTier.max_pixels + 1
-                                      ).toLocaleString("en-US"),
-                                    })}
-                                    </div>
-                                  )}
-                                </>
-                              )}
-                            </section>
-
-                            <section className="mars-purchase-flow__section">
-                              <div className="mars-purchase-flow__heading">
-                                <span>03</span>
-                                <div>
-                                  <small>{t("mars.pixel.territoryColor")}</small>
-                                  <strong>
-                                    {selectedPixelColorKey ?? "AUTO"}
-                                  </strong>
-                                </div>
-                              </div>
-                            </section>
-                          </div>
-                        )}
-
-                        {selectedPixelSelection?.selection_status === "available" && (
-                <div className="mars-pixel-color">
-                  <div className="mars-pixel-color__current">
-                    <span
-                      className="mars-pixel-color__swatch"
-                      style={{
-                        background: selectedPixelColor,
-                      }}
-                    />
-                    <div>
-                      <small>{t("mars.pixel.territoryColor")}</small>
-                      <strong>
-                        {pixelColorLoading
-                          ? "SELECTING..."
-                          : selectedPixelColorKey ?? "UNAVAILABLE"}
-                      </strong>
-                      <em>
-                        {pixelColorMode === "auto"
-                          ? "AUTO SELECTED"
-                          : "MANUAL SELECTION"}
-                      </em>
-                    </div>
-
-                    <button
-                      type="button"
-                      disabled={
-                        pixelColorLoading ||
-                        pixelColorOptions.length === 0
-                      }
-                      onClick={() =>
-                        setPixelColorPickerOpen(
-                          (open) => !open,
-                        )
-                      }
-                    >
-                      {pixelColorPickerOpen
-                        ? "CLOSE"
-                        : "CHANGE COLOR"}
-                    </button>
-                  </div>
-
-                  {pixelColorError && (
-                    <div className="mars-pixel-color__error">
-                      {pixelColorError}
-                    </div>
-                  )}
-
-                  {pixelColorPickerOpen && (
-                    <div className="mars-pixel-color__palette">
-                      {pixelColorOptions.map((option) => {
-                        const color =
-                          MARS_PIXEL_TERRITORY_COLORS[
-                            option.color_key
-                          ] ?? "#63f5ff";
-
-                        const active =
-                          selectedPixelColorKey ===
-                          option.color_key;
-
-                        return (
-                          <button
-                            key={option.color_key}
-                            type="button"
-                            className={[
-                              "mars-pixel-color__option",
-                              active ? "is-active" : "",
-                              !option.allowed
-                                ? "is-disabled"
-                                : "",
-                            ]
-                              .filter(Boolean)
-                              .join(" ")}
-                            disabled={!option.allowed}
-                            title={
-                              option.allowed
-                                ? option.color_key
-                                : `${option.color_key} · adjacent color unavailable`
-                            }
-                            aria-label={
-                              option.allowed
-                                ? `Select ${option.color_key}`
-                                : `${option.color_key} unavailable because of edge adjacency`
-                            }
-                            onClick={() => {
-                              if (!option.allowed) {
-                                return;
-                              }
-
-                              setSelectedPixelColorKey(
-                                option.color_key,
-                              );
-                              setPixelColorMode("manual");
-                              setPixelColorPickerOpen(false);
-                            }}
-                          >
-                            <span
-                              style={{
-                                background: color,
-                              }}
-                            />
-                          </button>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              )}
-
-                                      {selectedPixelSelection?.selection_status === "available" && (
-                          <div className="mars-purchase-flow mars-purchase-flow--final">
-                            <section className="mars-purchase-flow__section">
-                              <div className="mars-purchase-flow__heading">
-                                <span>04</span>
-                                <div>
-                                  <small>04 {t("mars.pixel.contentBranding")}</small>
-                                  <strong>
-                                    {selectedPixelContentTier
-                                      ? t("mars.pixel.charName", {
-                                          count:
-                                            selectedPixelContentTier.territory_name_max_chars,
-                                        })
-                                      : "TIER REQUIRED"}
-                                  </strong>
-                                </div>
-                              </div>
-
-                              {selectedPixelContentTier && (
-                                <div className="mars-purchase-flow__features">
-                                  <span>
-                                    DESCRIPTION {selectedPixelContentTier.description_max_chars}
-                                  </span>
-                                  <span>
-                                    {selectedPixelContentTier.image_allowed
-                                      ? t("mars.pixel.imageUnlocked")
-                                      : "IMAGE LOCKED"}
-                                  </span>
-                                  <span>
-                                    {selectedPixelContentTier.max_links} LINK
-                                    {selectedPixelContentTier.max_links === 1 ? "" : "S"}
-                                  </span>
-                                  <span>
-                                    {selectedPixelContentTier.cta_allowed
-                                      ? t("mars.pixel.ctaUnlocked")
-                                      : "CTA LOCKED"}
-                                  </span>
-                                </div>
-                              )}
-                            </section>
-
-                            <section className="mars-purchase-flow__section">
-                              <div className="mars-purchase-flow__heading">
-                                <span>05</span>
-                                <div>
-                                  <small>{t("mars.pixel.price")}</small>
-                                  <strong>
-                                    {selectedPixelValuation
-                                      ? new Intl.NumberFormat(
-                                          "en-US",
-                                          {
-                                            style: "currency",
-                                            currency:
-                                              selectedPixelValuation.reference_currency_code,
-                                            minimumFractionDigits: 2,
-                                            maximumFractionDigits: 2,
-                                          },
-                                        ).format(
-                                          selectedPixelValuation.total_reference_value_minor / 100,
-                                        )
-                                      : "—"}
-                                  </strong>
-                                </div>
-                              </div>
-
-                              {selectedPixelValuation && (
-                                <div className="mars-purchase-flow__facts">
-                                  <span>
-                                    {selectedPixelValuation.pixel_count.toLocaleString("en-US")} PIXELS
-                                  </span>
-                                  <span>
-                                    {t("mars.pixel.minPixels", {
-                                      count:
-                                        selectedPixelValuation.minimum_purchase_pixels,
-                                    })}
-                                  </span>
-                                </div>
-                              )}
-                            </section>
-
-                            <section className="mars-purchase-flow__section">
-                              <div className="mars-purchase-flow__heading">
-                                <span>06</span>
-                                <div>
-                                  <small>{t("mars.pixel.purchase")}</small>
-                                  <strong>
-                                    {purchasable
-                                      ? t("mars.pixel.commercialAccessActive")
-                                      : t("mars.pixel.salesCurrentlyLocked")}
-                                  </strong>
-                                </div>
-                              </div>
-
-                              <div className="mars-checkout-journey">
-                                <div className="mars-checkout-journey__steps">
-                                  {[
-                                    [1, "SIZE"],
-                                    [2, "LOCATION"],
-                                    [3, "CUSTOMIZE"],
-                                    [4, "REVIEW"],
-                                    [5, "AGREEMENT"],
-                                  ].map(([step, label]) => {
-                                    const stepNumber = step as number;
-                                    const complete = marsPurchaseStep > stepNumber;
-                                    const active = marsPurchaseStep === stepNumber;
-
-                                    return (
-                                      <button
-                                        key={label}
-                                        type="button"
-                                        className={[
-                                          "mars-checkout-step",
-                                          active ? "is-active" : "",
-                                          complete ? "is-complete" : "",
-                                        ].filter(Boolean).join(" ")}
-                                        disabled={stepNumber > marsPurchaseStep}
-                                        onClick={() => {
-                                          if (stepNumber <= marsPurchaseStep) {
-                                            setMarsPurchaseStep(
-                                              stepNumber as 1 | 2 | 3 | 4 | 5,
-                                            );
-                                          }
-                                        }}
-                                      >
-                                        <span>
-                                          {complete ? "✓" : stepNumber}
-                                        </span>
-                                        <strong>{label}</strong>
-                                      </button>
-                                    );
-                                  })}
-                                </div>
-
-                                <div className="mars-checkout-journey__body">
-                                  {marsPurchaseStep === 1 && (
-                                    <div className="mars-checkout-card is-selected">
-                                      <small>01 · TERRITORY SIZE</small>
-                                      <strong>
-                                        {selectedPixelSelection.pixel_count.toLocaleString("en-US")} PIXELS
-                                      </strong>
-                                      <p>
-                                        {selectedPixelSelection.width} × {selectedPixelSelection.height} MARS TERRITORY
-                                      </p>
-                                    </div>
-                                  )}
-
-                                  {marsPurchaseStep === 2 && (
-                                    <div className="mars-checkout-card is-selected">
-                                      <small>02 · LOCATION</small>
-                                      <strong>
-                                        X {selectedPixelSelection.x_start}–{selectedPixelSelection.x_end}
-                                      </strong>
-                                      <p>
-                                        Y {selectedPixelSelection.y_start}–{selectedPixelSelection.y_end}
-                                      </p>
-                                    </div>
-                                  )}
-
-                                  {marsPurchaseStep === 3 && (
-                                    <div className="mars-checkout-card is-selected">
-                                      <small>03 · CUSTOMIZE</small>
-                                      <strong>
-                                        {selectedPixelContentTier?.tier_key ?? "TIER"}
-                                      </strong>
-                                      <p>
-                                        COLOR · {selectedPixelColorKey ?? "AUTO"}
-                                      </p>
-                                    </div>
-                                  )}
-
-                                  {marsPurchaseStep === 4 && (
-                                    <div className="mars-checkout-card is-selected">
-                                      <small>04 · REVIEW</small>
-                                      <strong>
-                                        {selectedPixelSelection.pixel_count.toLocaleString("en-US")} PIXELS
-                                      </strong>
-                                      <p>
-                                        {selectedPixelValuation
-                                          ? new Intl.NumberFormat("en-US", {
-                                              style: "currency",
-                                              currency:
-                                                selectedPixelValuation.reference_currency_code,
-                                              minimumFractionDigits: 2,
-                                              maximumFractionDigits: 2,
-                                            }).format(
-                                              selectedPixelValuation.total_reference_value_minor /
-                                                100,
-                                            )
-                                          : "—"}
-                                      </p>
-                                    </div>
-                                  )}
-
-                                  {marsPurchaseStep === 5 && (
+                                  return (
                                     <button
+                                      key={label}
                                       type="button"
                                       className={[
-                                        "mars-checkout-agreement",
-                                        marsPurchaseAgreementAccepted
-                                          ? "is-accepted"
-                                          : "",
-                                      ].filter(Boolean).join(" ")}
-                                      aria-pressed={marsPurchaseAgreementAccepted}
-                                      onClick={() =>
-                                        setMarsPurchaseAgreementAccepted(
-                                          (accepted) => !accepted,
-                                        )
+                                        "mars-checkout-step",
+                                        active ? "is-active" : "",
+                                        complete ? "is-complete" : "",
+                                      ]
+                                        .filter(Boolean)
+                                        .join(" ")}
+                                      disabled={
+                                        stepNumber > marsPurchaseStep
                                       }
+                                      onClick={() => {
+                                        if (
+                                          stepNumber <= marsPurchaseStep
+                                        ) {
+                                          setMarsPurchaseStep(
+                                            stepNumber as
+                                              | 1
+                                              | 2
+                                              | 3
+                                              | 4
+                                              | 5,
+                                          );
+                                        }
+                                      }}
                                     >
-                                      <span className="mars-checkout-agreement__check">
-                                        {marsPurchaseAgreementAccepted ? "✓" : ""}
-                                      </span>
                                       <span>
-                                        <small>05 · USER AGREEMENT</small>
-                                        <strong>
-                                          I HAVE READ AND ACCEPT THE USER AGREEMENT
-                                        </strong>
-                                        <em>
-                                          Agreement text will be connected before commercial launch.
-                                        </em>
+                                        {complete ? "✓" : stepNumber}
                                       </span>
+                                      <strong>{label}</strong>
                                     </button>
-                                  )}
-                                </div>
+                                  );
+                                })}
+                              </div>
 
-                                {marsPurchaseStep < 5 ? (
+                              <div className="mars-checkout-journey__body">
+                                {marsPurchaseStep === 1 && (
+                                  <section className="mars-checkout-card is-selected">
+                                    <small>
+                                      01 · TERRITORY SIZE
+                                    </small>
+
+                                    <strong>
+                                      {selectedPixelSelection.pixel_count.toLocaleString(
+                                        "en-US",
+                                      )}{" "}
+                                      PIXELS
+                                    </strong>
+
+                                    <p>
+                                      {selectedPixelSelection.width} ×{" "}
+                                      {selectedPixelSelection.height}{" "}
+                                      MARS TERRITORY
+                                    </p>
+
+                                    {selectedPixelContentTier && (
+                                      <>
+                                        <div className="mars-checkout-feature-grid">
+                                          <span className="is-unlocked">
+                                            {
+                                              selectedPixelContentTier.tier_key
+                                            }
+                                          </span>
+
+                                          <span className="is-unlocked">
+                                            NAME ·{" "}
+                                            {
+                                              selectedPixelContentTier.territory_name_max_chars
+                                            }
+                                          </span>
+
+                                          <span className="is-unlocked">
+                                            DESCRIPTION ·{" "}
+                                            {
+                                              selectedPixelContentTier.description_max_chars
+                                            }
+                                          </span>
+
+                                          <span
+                                            className={
+                                              selectedPixelContentTier.image_allowed
+                                                ? "is-unlocked"
+                                                : "is-locked"
+                                            }
+                                          >
+                                            IMAGE ·{" "}
+                                            {selectedPixelContentTier.image_allowed
+                                              ? "UNLOCKED"
+                                              : "LOCKED"}
+                                          </span>
+
+                                          <span className="is-unlocked">
+                                            LINKS ·{" "}
+                                            {
+                                              selectedPixelContentTier.max_links
+                                            }
+                                          </span>
+
+                                          <span
+                                            className={
+                                              selectedPixelContentTier.cta_allowed
+                                                ? "is-unlocked"
+                                                : "is-locked"
+                                            }
+                                          >
+                                            CTA ·{" "}
+                                            {selectedPixelContentTier.cta_allowed
+                                              ? "UNLOCKED"
+                                              : "LOCKED"}
+                                          </span>
+                                        </div>
+
+                                        {selectedPixelContentTier.max_pixels !==
+                                          null && (
+                                          <div className="mars-checkout-hint">
+                                            {t(
+                                              "mars.pixel.nextTierStarts",
+                                              {
+                                                count: (
+                                                  selectedPixelContentTier.max_pixels +
+                                                  1
+                                                ).toLocaleString(
+                                                  "en-US",
+                                                ),
+                                              },
+                                            )}
+                                          </div>
+                                        )}
+                                      </>
+                                    )}
+                                  </section>
+                                )}
+
+                                {marsPurchaseStep === 2 && (
+                                  <section className="mars-checkout-card is-selected">
+                                    <small>02 · LOCATION</small>
+
+                                    <strong>
+                                      X{" "}
+                                      {
+                                        selectedPixelSelection.x_start
+                                      }
+                                      –
+                                      {
+                                        selectedPixelSelection.x_end
+                                      }
+                                    </strong>
+
+                                    <p>
+                                      Y{" "}
+                                      {
+                                        selectedPixelSelection.y_start
+                                      }
+                                      –
+                                      {
+                                        selectedPixelSelection.y_end
+                                      }
+                                    </p>
+
+                                    <div className="mars-checkout-feature-grid">
+                                      <span className="is-unlocked">
+                                        AVAILABLE
+                                      </span>
+
+                                      <span className="is-unlocked">
+                                        {
+                                          selectedPixelSelection.width
+                                        }{" "}
+                                        ×{" "}
+                                        {
+                                          selectedPixelSelection.height
+                                        }
+                                      </span>
+
+                                      <span className="is-unlocked">
+                                        {selectedPixelSelection.pixel_count.toLocaleString(
+                                          "en-US",
+                                        )}{" "}
+                                        PIXELS
+                                      </span>
+                                    </div>
+                                  </section>
+                                )}
+
+                                {marsPurchaseStep === 3 && (
+                                  <section className="mars-checkout-card is-selected">
+                                    <small>03 · CUSTOMIZE</small>
+
+                                    <strong>
+                                      {selectedPixelContentTier?.tier_key ??
+                                        "TIER"}
+                                    </strong>
+
+                                    {selectedPixelContentTierLoading && (
+                                      <p>CALCULATING...</p>
+                                    )}
+
+                                    {selectedPixelContentTierError && (
+                                      <div className="mars-purchase-flow__error">
+                                        {
+                                          selectedPixelContentTierError
+                                        }
+                                      </div>
+                                    )}
+
+                                    {selectedPixelContentTier && (
+                                      <div className="mars-checkout-feature-grid">
+                                        <span className="is-unlocked">
+                                          DESCRIPTION ·{" "}
+                                          {
+                                            selectedPixelContentTier.description_max_chars
+                                          }
+                                        </span>
+
+                                        <span
+                                          className={
+                                            selectedPixelContentTier.image_allowed
+                                              ? "is-unlocked"
+                                              : "is-locked"
+                                          }
+                                        >
+                                          IMAGE ·{" "}
+                                          {selectedPixelContentTier.image_allowed
+                                            ? "UNLOCKED"
+                                            : "LOCKED"}
+                                        </span>
+
+                                        <span className="is-unlocked">
+                                          LINKS ·{" "}
+                                          {
+                                            selectedPixelContentTier.max_links
+                                          }
+                                        </span>
+
+                                        <span
+                                          className={
+                                            selectedPixelContentTier.cta_allowed
+                                              ? "is-unlocked"
+                                              : "is-locked"
+                                          }
+                                        >
+                                          CTA ·{" "}
+                                          {selectedPixelContentTier.cta_allowed
+                                            ? "UNLOCKED"
+                                            : "LOCKED"}
+                                        </span>
+
+                                        <span
+                                          className={
+                                            selectedPixelContentTier.socials_allowed
+                                              ? "is-unlocked"
+                                              : "is-locked"
+                                          }
+                                        >
+                                          SOCIAL ·{" "}
+                                          {selectedPixelContentTier.socials_allowed
+                                            ? "UNLOCKED"
+                                            : "LOCKED"}
+                                        </span>
+
+                                        <span
+                                          className={
+                                            selectedPixelContentTier.analytics_allowed
+                                              ? "is-unlocked"
+                                              : "is-locked"
+                                          }
+                                        >
+                                          ANALYTICS ·{" "}
+                                          {selectedPixelContentTier.analytics_allowed
+                                            ? "UNLOCKED"
+                                            : "LOCKED"}
+                                        </span>
+
+                                        <span
+                                          className={
+                                            selectedPixelContentTier.premium
+                                              ? "is-unlocked"
+                                              : "is-locked"
+                                          }
+                                        >
+                                          PREMIUM ·{" "}
+                                          {selectedPixelContentTier.premium
+                                            ? "UNLOCKED"
+                                            : "LOCKED"}
+                                        </span>
+                                      </div>
+                                    )}
+
+                                    <div className="mars-pixel-color mars-pixel-color--checkout">
+                                      <div className="mars-pixel-color__current">
+                                        <span
+                                          className="mars-pixel-color__swatch"
+                                          style={{
+                                            background:
+                                              selectedPixelColor,
+                                          }}
+                                        />
+
+                                        <div>
+                                          <small>
+                                            {t(
+                                              "mars.pixel.territoryColor",
+                                            )}
+                                          </small>
+
+                                          <strong>
+                                            {pixelColorLoading
+                                              ? "SELECTING..."
+                                              : selectedPixelColorKey ??
+                                                "UNAVAILABLE"}
+                                          </strong>
+
+                                          <em>
+                                            {pixelColorMode === "auto"
+                                              ? "AUTO SELECTED"
+                                              : "MANUAL SELECTION"}
+                                          </em>
+                                        </div>
+
+                                        <button
+                                          type="button"
+                                          disabled={
+                                            pixelColorLoading ||
+                                            pixelColorOptions.length ===
+                                              0
+                                          }
+                                          onClick={() =>
+                                            setPixelColorPickerOpen(
+                                              (open) => !open,
+                                            )
+                                          }
+                                        >
+                                          {pixelColorPickerOpen
+                                            ? "CLOSE"
+                                            : "CHANGE COLOR"}
+                                        </button>
+                                      </div>
+
+                                      {pixelColorError && (
+                                        <div className="mars-pixel-color__error">
+                                          {pixelColorError}
+                                        </div>
+                                      )}
+
+                                      {pixelColorPickerOpen && (
+                                        <div className="mars-pixel-color__palette">
+                                          {pixelColorOptions.map(
+                                            (option) => {
+                                              const color =
+                                                MARS_PIXEL_TERRITORY_COLORS[
+                                                  option.color_key
+                                                ] ?? "#63f5ff";
+
+                                              const active =
+                                                selectedPixelColorKey ===
+                                                option.color_key;
+
+                                              return (
+                                                <button
+                                                  key={
+                                                    option.color_key
+                                                  }
+                                                  type="button"
+                                                  className={[
+                                                    "mars-pixel-color__option",
+                                                    active
+                                                      ? "is-active"
+                                                      : "",
+                                                    !option.allowed
+                                                      ? "is-disabled"
+                                                      : "",
+                                                  ]
+                                                    .filter(Boolean)
+                                                    .join(" ")}
+                                                  disabled={
+                                                    !option.allowed
+                                                  }
+                                                  onClick={() => {
+                                                    if (
+                                                      !option.allowed
+                                                    ) {
+                                                      return;
+                                                    }
+
+                                                    setSelectedPixelColorKey(
+                                                      option.color_key,
+                                                    );
+                                                    setPixelColorMode(
+                                                      "manual",
+                                                    );
+                                                    setPixelColorPickerOpen(
+                                                      false,
+                                                    );
+                                                  }}
+                                                >
+                                                  <span
+                                                    style={{
+                                                      background:
+                                                        color,
+                                                    }}
+                                                  />
+                                                </button>
+                                              );
+                                            },
+                                          )}
+                                        </div>
+                                      )}
+                                    </div>
+                                  </section>
+                                )}
+
+                                {marsPurchaseStep === 4 && (
+                                  <section className="mars-checkout-card is-selected">
+                                    <small>
+                                      04 · ORDER REVIEW
+                                    </small>
+
+                                    <strong>
+                                      {selectedPixelSelection.pixel_count.toLocaleString(
+                                        "en-US",
+                                      )}{" "}
+                                      PIXELS
+                                    </strong>
+
+                                    <div className="mars-checkout-review">
+                                      <div>
+                                        <span>TERRITORY</span>
+                                        <strong>
+                                          {
+                                            selectedPixelSelection.width
+                                          }{" "}
+                                          ×{" "}
+                                          {
+                                            selectedPixelSelection.height
+                                          }
+                                        </strong>
+                                      </div>
+
+                                      <div>
+                                        <span>TIER</span>
+                                        <strong>
+                                          {selectedPixelContentTier?.tier_key ??
+                                            "—"}
+                                        </strong>
+                                      </div>
+
+                                      <div>
+                                        <span>COLOR</span>
+                                        <strong>
+                                          {selectedPixelColorKey ??
+                                            "AUTO"}
+                                        </strong>
+                                      </div>
+
+                                      <div>
+                                        <span>TOTAL</span>
+                                        <strong>
+                                          {selectedPixelValuation
+                                            ? new Intl.NumberFormat(
+                                                "en-US",
+                                                {
+                                                  style: "currency",
+                                                  currency:
+                                                    selectedPixelValuation.reference_currency_code,
+                                                  minimumFractionDigits: 2,
+                                                  maximumFractionDigits: 2,
+                                                },
+                                              ).format(
+                                                selectedPixelValuation.total_reference_value_minor /
+                                                  100,
+                                              )
+                                            : "—"}
+                                        </strong>
+                                      </div>
+                                    </div>
+
+                                    {selectedPixelValuation && (
+                                      <div className="mars-checkout-hint">
+                                        {selectedPixelValuation.pixel_count.toLocaleString(
+                                          "en-US",
+                                        )}{" "}
+                                        PIXELS ·{" "}
+                                        {t(
+                                          "mars.pixel.minPixels",
+                                          {
+                                            count:
+                                              selectedPixelValuation.minimum_purchase_pixels,
+                                          },
+                                        )}
+                                      </div>
+                                    )}
+                                  </section>
+                                )}
+
+                                {marsPurchaseStep === 5 && (
                                   <button
                                     type="button"
-                                    className="mars-checkout-continue"
+                                    className={[
+                                      "mars-checkout-agreement",
+                                      marsPurchaseAgreementAccepted
+                                        ? "is-accepted"
+                                        : "",
+                                    ]
+                                      .filter(Boolean)
+                                      .join(" ")}
+                                    aria-pressed={
+                                      marsPurchaseAgreementAccepted
+                                    }
                                     onClick={() =>
-                                      setMarsPurchaseStep(
-                                        Math.min(
-                                          5,
-                                          marsPurchaseStep + 1,
-                                        ) as 1 | 2 | 3 | 4 | 5,
+                                      setMarsPurchaseAgreementAccepted(
+                                        (accepted) => !accepted,
                                       )
                                     }
                                   >
-                                    CONTINUE →
+                                    <span className="mars-checkout-agreement__check">
+                                      {marsPurchaseAgreementAccepted
+                                        ? "✓"
+                                        : ""}
+                                    </span>
+
+                                    <span>
+                                      <small>
+                                        05 · USER AGREEMENT
+                                      </small>
+
+                                      <strong>
+                                        I HAVE READ AND ACCEPT THE
+                                        USER AGREEMENT
+                                      </strong>
+
+                                      <em>
+                                        Agreement text will be
+                                        connected before commercial
+                                        launch.
+                                      </em>
+                                    </span>
                                   </button>
-                                ) : (
-                                  <button
-                                    type="button"
-                                    className="mars-purchase-flow__purchase"
-                                    disabled={
-                                      !purchasable ||
-                                      !marsPurchaseAgreementAccepted ||
-                                      marsPixelPurchaseLoading
-                                    }
-                                    onClick={() => {
-                                      void handleMarsPixelPurchase();
-                                    }}
-                                  >
-                                    {marsPixelPurchaseLoading
-                                      ? t("mars.pixel.processing")
-                                      : marsPurchaseAgreementAccepted &&
-                                          purchasable
-                                        ? t("mars.pixel.claimPixels", {
+                                )}
+                              </div>
+
+                              {marsPurchaseStep < 5 ? (
+                                <button
+                                  type="button"
+                                  className="mars-checkout-continue"
+                                  onClick={() =>
+                                    setMarsPurchaseStep(
+                                      Math.min(
+                                        5,
+                                        marsPurchaseStep + 1,
+                                      ) as
+                                        | 1
+                                        | 2
+                                        | 3
+                                        | 4
+                                        | 5,
+                                    )
+                                  }
+                                >
+                                  CONTINUE →
+                                </button>
+                              ) : (
+                                <button
+                                  type="button"
+                                  className="mars-purchase-flow__purchase"
+                                  disabled={
+                                    !purchasable ||
+                                    !marsPurchaseAgreementAccepted ||
+                                    marsPixelPurchaseLoading
+                                  }
+                                  onClick={() => {
+                                    void handleMarsPixelPurchase();
+                                  }}
+                                >
+                                  {marsPixelPurchaseLoading
+                                    ? t("mars.pixel.processing")
+                                    : marsPurchaseAgreementAccepted &&
+                                        purchasable
+                                      ? t(
+                                          "mars.pixel.claimPixels",
+                                          {
                                             count:
                                               selectedPixelSelection.pixel_count.toLocaleString(
                                                 "en-US",
                                               ),
-                                          })
-                                        : "ACCEPT AGREEMENT TO CONTINUE"}
-                                  </button>
-                                )}
-                              </div>
+                                          },
+                                        )
+                                      : "ACCEPT AGREEMENT TO CONTINUE"}
+                                </button>
+                              )}
 
                               {marsPixelPurchaseError && (
                                 <div className="mars-purchase-flow__error">
@@ -3383,7 +3517,7 @@ export function MarsPlanetMap({
                               <div className="mars-purchase-flow__notice">
                                 {t("mars.pixel.serverVerified")}
                               </div>
-                            </section>
+                            </div>
                           </div>
                         )}
 
