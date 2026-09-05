@@ -47,6 +47,7 @@ import {
   uploadMarsPixelCreativeImage,
   deleteMarsPixelCreativeImage,
   getMyMarsPixelCreative,
+  getMyMarsPixelTestAccess,
 } from "../MarsPixelNetworkService";
 
 import type {
@@ -881,6 +882,11 @@ export function MarsPlanetMap({
 
   const [pixelSelectionMode, setPixelSelectionMode] =
     useState(false);
+
+  const [
+    marsPixelTestAccess,
+    setMarsPixelTestAccess,
+  ] = useState(false);
 
   const [
     selectedPixelLoading,
@@ -1723,6 +1729,35 @@ export function MarsPlanetMap({
     resetMarsPurchaseJourney();
   };
 
+  useEffect(() => {
+    let cancelled = false;
+
+    void getMyMarsPixelTestAccess()
+      .then((allowed) => {
+        if (cancelled) {
+          return;
+        }
+
+        setMarsPixelTestAccess(allowed);
+
+        if (!allowed) {
+          closePixelPurchaseFlow();
+        }
+      })
+      .catch(() => {
+        if (cancelled) {
+          return;
+        }
+
+        setMarsPixelTestAccess(false);
+        closePixelPurchaseFlow();
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const handleMarsPixelPurchase = async () => {
     if (
       !marsPurchaseAgreementAccepted ||
@@ -2133,7 +2168,8 @@ export function MarsPlanetMap({
       </div>
 
       {!diving && pixelNetworkStatus && (
-        <div className="mars-pixel-goto">
+        <div className="mars-pixel-goto"
+          hidden={!marsPixelTestAccess}>
           <span className="mars-pixel-goto__eyebrow">
             {t("mars.pixel.selectTerritorySize")}
           </span>
@@ -2184,7 +2220,11 @@ export function MarsPlanetMap({
                 .filter(Boolean)
                 .join(" ")}
               aria-pressed={pixelSelectionMode}
+              disabled={!marsPixelTestAccess}
               onClick={() => {
+                if (!marsPixelTestAccess) {
+                  return;
+                }
                 if (pixelSelectionMode) {
                   closePixelPurchaseFlow();
                   return;
@@ -2239,6 +2279,7 @@ export function MarsPlanetMap({
       )}
 
       {!diving &&
+        marsPixelTestAccess &&
         pixelSelectionMode &&
         (
           pixelDragAnchor !== null ||
@@ -3577,6 +3618,7 @@ export function MarsPlanetMap({
           onDragStateChange={handlePixelDragStateChange}
           onPixelDragStart={(coordinate) => {
             if (
+              !marsPixelTestAccess ||
               !pixelSelectionMode ||
               mobileTouchMode ||
               territorySelectionLocked
@@ -3596,6 +3638,7 @@ export function MarsPlanetMap({
           }}
           onPixelDragSelect={(anchor) => {
             if (
+              !marsPixelTestAccess ||
               !pixelSelectionMode ||
               mobileTouchMode
             ) {
@@ -3624,7 +3667,7 @@ export function MarsPlanetMap({
               : territorySelectionColor
           }
           onPixelSelect={(coordinate) => {
-            if (!pixelSelectionMode) {
+            if (!marsPixelTestAccess || !pixelSelectionMode) {
               return;
             }
 
@@ -3653,7 +3696,7 @@ export function MarsPlanetMap({
             );
           }}
           onPixelHover={(coordinate) => {
-            if (!pixelSelectionMode) {
+            if (!marsPixelTestAccess || !pixelSelectionMode) {
               setHoveredPixelCoordinate(null);
               return;
             }

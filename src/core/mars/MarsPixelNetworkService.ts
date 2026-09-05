@@ -592,6 +592,18 @@ export type MarsPixelPurchaseResult = {
   } | null;
 };
 
+export async function getMyMarsPixelTestAccess(): Promise<boolean> {
+  const { data, error } = await supabase.rpc(
+    "get_my_mars_pixel_test_access_v1",
+  );
+
+  if (error) {
+    return false;
+  }
+
+  return data === true;
+}
+
 export async function purchaseMarsPixelTerritory(input: {
   anchorX: number;
   anchorY: number;
