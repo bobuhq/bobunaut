@@ -4409,3 +4409,26 @@
     animation: none !important;
   }
 }
+
+/* =========================================================
+   BOBU MARS PIXEL — MOBILE SPACE TRANSPARENCY RESTORE
+   Restore seamless mobile space background
+   ========================================================= */
+
+@media (max-width: 900px) and (pointer: coarse) {
+  .mars-planet-map {
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+
+  .mars-planet-map__canvas {
+    background: transparent !important;
+  }
+
+  .mars-planet-map::before,
+  .mars-planet-map::after {
+    display: none !important;
+  }
+}
