@@ -4432,3 +4432,26 @@
     display: none !important;
   }
 }
+
+/* =========================================================
+   BOBU MARS PIXEL — WEBVIEW MOBILE TRANSPARENCY FIX
+   iOS/Android WebView safe mobile rule
+   ========================================================= */
+
+@media (max-width: 900px) {
+  .mars-planet-map {
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+
+  .mars-planet-map__canvas {
+    background: transparent !important;
+  }
+
+  .mars-planet-map::before,
+  .mars-planet-map::after {
+    display: none !important;
+  }
+}
