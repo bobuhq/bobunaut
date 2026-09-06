@@ -55,6 +55,7 @@ type MarsPixelOverlayProps = {
   allocations: MarsPixelPublicAllocation[];
   reservedZones: MarsPixelPublicReservedZone[];
   visible: boolean;
+  selectionEnabled?: boolean;
   aresMapX?: number | null;
   aresMapY?: number | null;
   onAresSelect?: () => void;
@@ -155,6 +156,7 @@ export function MarsPixelOverlay({
   allocations,
   reservedZones,
   visible,
+  selectionEnabled = false,
   aresMapX = null,
   aresMapY = null,
   onAresSelect,
@@ -445,13 +447,13 @@ export function MarsPixelOverlay({
 
   const selectedBlock = useMemo(
     () =>
-      selectedPixel
+      selectionEnabled && selectedPixel
         ? marsPixelToBlockCoordinateV1(
             selectedPixel.x,
             selectedPixel.y,
           )
         : null,
-    [selectedPixel],
+    [selectedPixel, selectionEnabled],
   );
 
   const lockedSelectionBlock = useMemo(
@@ -678,10 +680,17 @@ export function MarsPixelOverlay({
           block.blockY,
         );
 
-        materialRef.current?.uniforms.selectionHoverBlock.value.set(
-          block.blockX,
-          block.blockY,
-        );
+        if (selectionEnabled) {
+          materialRef.current?.uniforms.selectionHoverBlock.value.set(
+            block.blockX,
+            block.blockY,
+          );
+        } else {
+          materialRef.current?.uniforms.selectionHoverBlock.value.set(
+            -1,
+            -1,
+          );
+        }
 
         if (
           dragStartRef.current &&

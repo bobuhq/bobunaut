@@ -115,6 +115,7 @@ type MarsPlanetSceneProps = Omit<
     x: number;
     y: number;
   } | null;
+  pixelSelectionMode: boolean;
   pixelDragActive: boolean;
   onDragStateChange: (
     dragging: boolean,
@@ -422,6 +423,7 @@ function MarsPlanet({
   pixelAllocations,
   pixelReservedZones,
   selectedPixelCoordinate,
+  pixelSelectionMode,
   lockedSelectionCoordinate,
   territorySelectionColor,
   onPixelSelect,
@@ -638,6 +640,7 @@ function MarsPlanet({
             pixelReservedZones ?? []
           }
           visible={!diving}
+          selectionEnabled={pixelSelectionMode}
           selectedPixel={selectedPixelCoordinate}
           lockedSelectionPixel={lockedSelectionCoordinate}
           territorySelectionColor={territorySelectionColor}
@@ -3734,6 +3737,7 @@ export function MarsPlanetMap({
 
             void handleTerritorySizeSelect(anchor);
           }}
+          pixelSelectionMode={pixelSelectionMode}
           selectedPixelCoordinate={
             pixelDragAnchor ??
             (
