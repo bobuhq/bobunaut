@@ -3824,8 +3824,10 @@ export function MarsPlanetMap({
               return;
             }
 
+            // Hover is preview-only. Do not lock a territory
+            // until the user actually clicks or drags.
             setPixelDragAnchor(preview.anchor);
-            setLockedSelectionTarget(preview.target);
+            setLockedSelectionTarget(null);
           }}
           sectors={sectors}
           currentSectorId={
