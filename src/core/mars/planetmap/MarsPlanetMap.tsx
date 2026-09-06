@@ -1882,6 +1882,68 @@ export function MarsPlanetMap({
     ]);
 
 
+  const handleOwnedPixelAllocationSelect = (
+    coordinate: {
+      x: number;
+      y: number;
+    },
+    allocation: MarsPixelPublicAllocation,
+  ) => {
+    const requestId =
+      pixelRequestRef.current + 1;
+
+    pixelRequestRef.current = requestId;
+
+    // Owned territory is not a new-purchase selection.
+    setPixelDragActive(false);
+    setPixelDragAnchor(null);
+    setHoveredPixelCoordinate(null);
+    setLockedSelectionTarget(null);
+
+    setSelectedPixelSelection(null);
+    setSelectedPixelValuation(null);
+    setSelectedPixelSelectionError(null);
+    setSelectedPixelSelectionLoading(false);
+    setSelectedPixelError(null);
+    setSelectedPixelLoading(false);
+
+    setSelectedPixel({
+      block_x: coordinate.x,
+      block_y: coordinate.y,
+      x_start: allocation.x_start,
+      y_start: allocation.y_start,
+      x_end:
+        allocation.x_start +
+        allocation.width -
+        1,
+      y_end:
+        allocation.y_start +
+        allocation.height -
+        1,
+      width: allocation.width,
+      height: allocation.height,
+      pixel_count:
+        allocation.width *
+        allocation.height,
+      grid_version:
+        pixelNetworkStatus?.grid_version ??
+        1,
+      block_status: "owned",
+      purchasable: false,
+      reserved_zone_code: null,
+      reserved_zone_name: null,
+      allocation_id:
+        allocation.allocation_id,
+      advertiser_name:
+        allocation.advertiser_name,
+      creative_title:
+        allocation.creative_title,
+      creative_image_url:
+        allocation.creative_image_url,
+      destination_url: null,
+    });
+  };
+
   const handlePixelSelect = async (
     coordinate: {
       x: number;
@@ -3695,7 +3757,10 @@ export function MarsPlanetMap({
             // Existing owned territory always takes priority over
             // the new-territory purchase selection flow.
             if (allocation) {
-              void handlePixelSelect(coordinate);
+              handleOwnedPixelAllocationSelect(
+                coordinate,
+                allocation,
+              );
               return;
             }
 
