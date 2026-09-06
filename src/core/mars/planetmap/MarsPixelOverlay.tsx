@@ -816,18 +816,6 @@ export function MarsPixelOverlay({
           return;
         }
 
-        if (
-          !moved &&
-          onAresSelect &&
-          start.x >= aresPixelRegion.xStart &&
-          start.x <= aresPixelRegion.xEnd &&
-          start.y >= aresPixelRegion.yStart &&
-          start.y <= aresPixelRegion.yEnd
-        ) {
-          onAresSelect();
-          return;
-        }
-
         if (!moved) {
           const allocation =
             allocations.find((candidate) =>
@@ -837,9 +825,29 @@ export function MarsPixelOverlay({
               ),
             ) ?? null;
 
+          // Existing Mars Pixel ownership has click priority.
+          if (allocation) {
+            onPixelSelect(
+              start,
+              allocation,
+            );
+            return;
+          }
+
+          if (
+            onAresSelect &&
+            start.x >= aresPixelRegion.xStart &&
+            start.x <= aresPixelRegion.xEnd &&
+            start.y >= aresPixelRegion.yStart &&
+            start.y <= aresPixelRegion.yEnd
+          ) {
+            onAresSelect();
+            return;
+          }
+
           onPixelSelect(
             start,
-            allocation,
+            null,
           );
 
           return;
