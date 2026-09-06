@@ -140,10 +140,13 @@ type MarsPlanetSceneProps = Omit<
     y: number;
   } | null;
   territorySelectionColor: [number, number, number] | null;
-  onPixelSelect: (coordinate: {
-    x: number;
-    y: number;
-  }) => void;
+  onPixelSelect: (
+    coordinate: {
+      x: number;
+      y: number;
+    },
+    allocation: MarsPixelPublicAllocation | null,
+  ) => void;
   onPixelHover: (
     coordinate: {
       x: number;
@@ -3688,7 +3691,14 @@ export function MarsPlanetMap({
               ? selectedPixelColorRgb
               : territorySelectionColor
           }
-          onPixelSelect={(coordinate) => {
+          onPixelSelect={(coordinate, allocation) => {
+            // Existing owned territory always takes priority over
+            // the new-territory purchase selection flow.
+            if (allocation) {
+              void handlePixelSelect(coordinate);
+              return;
+            }
+
             if (!marsPixelTestAccess || !pixelSelectionMode) {
               return;
             }
