@@ -3824,9 +3824,10 @@ export function MarsPlanetMap({
               return;
             }
 
-            // Hover is preview-only. Do not lock a territory
-            // until the user actually clicks or drags.
-            setPixelDragAnchor(preview.anchor);
+            // Passive hover must never create a territory
+            // selection. The selection anchor is created only
+            // after an explicit click / drag interaction.
+            setPixelDragAnchor(null);
             setLockedSelectionTarget(null);
           }}
           sectors={sectors}
