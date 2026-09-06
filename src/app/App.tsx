@@ -1,5 +1,4 @@
 import {
-  lazy,
   Suspense,
 } from "react";
 import { AnimatePresence } from "framer-motion";
@@ -14,43 +13,44 @@ import { Shell } from "./Shell";
 import { useLanguage } from "../core/language";
 import { LanguageSetupGuard } from "../core/preferences";
 import { AdminRoute } from "../core/admin/AdminRoute";
-const Genesis = lazy(() =>
+import { lazyWithRecovery } from "../core/runtime/lazyWithRecovery";
+const Genesis = lazyWithRecovery(() =>
   import("../features/Genesis").then((module) => ({
     default: module.Genesis,
   })),
 );
 
-const Home = lazy(() =>
+const Home = lazyWithRecovery(() =>
   import("../features/Home").then((module) => ({
     default: module.Home,
   })),
 );
 
-const Missions = lazy(() =>
+const Missions = lazyWithRecovery(() =>
   import("../features/Missions").then((module) => ({
     default: module.Missions,
   })),
 );
-const Galaxy = lazy(() =>
+const Galaxy = lazyWithRecovery(() =>
   import("../features/Galaxy").then((module) => ({
     default: module.Galaxy,
   })),
 );
 
-const BuildMars = lazy(() =>
+const BuildMars = lazyWithRecovery(() =>
   import("../features/BuildMars").then((module) => ({
     default: module.BuildMars,
   })),
 );
 
-const MarsExploreWorld = lazy(() =>
+const MarsExploreWorld = lazyWithRecovery(() =>
   import("../core/mars/exploration/MarsExploreWorld").then((module) => ({
     default: module.MarsExploreWorld,
   })),
 );
 
 
-const BuilderPassport = lazy(() =>
+const BuilderPassport = lazyWithRecovery(() =>
   import(
     "../features/passport/BuilderPassport"
   ).then((module) => ({
@@ -58,78 +58,78 @@ const BuilderPassport = lazy(() =>
   })),
 );
 
-const BuilderMining = lazy(
+const BuilderMining = lazyWithRecovery(
   () => import("../features/mining/BuilderMining"),
 );
-const BuilderIdentity = lazy(
+const BuilderIdentity = lazyWithRecovery(
   () => import("../features/identity/BuilderIdentity"),
 );
 
-const BuilderWallet = lazy(
+const BuilderWallet = lazyWithRecovery(
   () => import("../features/wallet/BuilderWallet"),
 );
 
-const Leaderboard = lazy(
+const Leaderboard = lazyWithRecovery(
   () => import("../features/leaderboard/Leaderboard"),
 );
 
-const AdminDashboard = lazy(
+const AdminDashboard = lazyWithRecovery(
   () => import("../features/admin/AdminDashboard"),
 );
 
-const AdminBuilders = lazy(
+const AdminBuilders = lazyWithRecovery(
   () => import("../features/admin/AdminBuilders"),
 );
 
-const AdminRewardLedger = lazy(
+const AdminRewardLedger = lazyWithRecovery(
   () => import("../features/admin/AdminRewardLedger"),
 );
 
-const AdminMiningSessions = lazy(
+const AdminMiningSessions = lazyWithRecovery(
   () => import("../features/admin/AdminMiningSessions"),
 );
 
-const AdminSecurityCenter = lazy(
+const AdminSecurityCenter = lazyWithRecovery(
   () => import("../features/admin/AdminSecurityCenter"),
 );
 
-const AdminAuditLogs = lazy(
+const AdminAuditLogs = lazyWithRecovery(
   () => import("../features/admin/AdminAuditLogs"),
 );
 
-const AdminAnalytics = lazy(
+const AdminAnalytics = lazyWithRecovery(
   () => import("../features/admin/AdminAnalytics"),
 );
 
-const AdminLogin = lazy(
+const AdminLogin = lazyWithRecovery(
   () => import("../features/admin/AdminLogin"),
 );
 
-const LanguageSetup = lazy(
+const LanguageSetup = lazyWithRecovery(
   () => import("../features/onboarding/LanguageSetup"),
 );
 
-const PrivacyPolicy = lazy(
+const PrivacyPolicy = lazyWithRecovery(
   () => import("../features/legal/PrivacyPolicy"),
 );
 
-const DeleteAccount = lazy(
+const DeleteAccount = lazyWithRecovery(
   () => import("../features/legal/DeleteAccount"),
 );
 
-const TermsOfService = lazy(
+const TermsOfService = lazyWithRecovery(
   () => import("../features/legal/TermsOfService"),
 );
 
-const Support = lazy(
+const Support = lazyWithRecovery(
   () => import("../features/legal/Support"),
 );
 
-const ChildSafety = lazy(
+const ChildSafety = lazyWithRecovery(
   () => import("../features/legal/ChildSafety"),
 );
 
-const GettingStarted = lazy(
+const GettingStarted = lazyWithRecovery(
   () => import("../features/legal/GettingStarted"),
 );
 import { BuilderInviteEntry } from "../features/invite/BuilderInviteEntry";

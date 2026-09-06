@@ -1,5 +1,4 @@
 import {
-  lazy,
   Suspense,
   useEffect,
   useMemo,
@@ -7,6 +6,7 @@ import {
 } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../core/language";
+import { lazyWithRecovery } from "../core/runtime/lazyWithRecovery";
 import {
   Atom,
   Droplets,
@@ -39,7 +39,7 @@ import {
 import "./BuildMars.css";
 
 
-const MarsPlanetMap = lazy(() =>
+const MarsPlanetMap = lazyWithRecovery(() =>
   import("../core/mars/planetmap/MarsPlanetMap").then(
     (module) => ({
       default: module.MarsPlanetMap,
