@@ -1116,19 +1116,10 @@ export function MarsPixelOverlay({
                 allocation.a
               );
 
-            vec3 aresColor =
-              vec3(
-                0.05,
-                0.72,
-                1.0
-              );
-
-            finalColor =
-              mix(
-                finalColor,
-                aresColor,
-                isAresCell
-              );
+            // Ares remains an interactive navigation region,
+            // but it must not paint a cyan territory over Mars.
+            // Ownership and Mars Pixel territory colors are rendered
+            // independently below.
 
             vec2 allocationTexel =
               vec2(
