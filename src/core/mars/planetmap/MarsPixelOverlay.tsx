@@ -826,18 +826,23 @@ export function MarsPixelOverlay({
         }
 
         if (!moved) {
+          // Use the actual pointer-up coordinate for click hit testing.
+          // Pointer capture can make the pointer-down coordinate stale,
+          // especially on small owned Mars Pixel territories.
+          const clickCoordinate = end;
+
           const allocation =
             allocations.find((candidate) =>
               containsCoordinate(
                 candidate,
-                start,
+                clickCoordinate,
               ),
             ) ?? null;
 
           // Existing Mars Pixel ownership has click priority.
           if (allocation) {
             onPixelSelect(
-              start,
+              clickCoordinate,
               allocation,
             );
             return;
@@ -845,17 +850,17 @@ export function MarsPixelOverlay({
 
           if (
             onAresSelect &&
-            start.x >= aresPixelRegion.xStart &&
-            start.x <= aresPixelRegion.xEnd &&
-            start.y >= aresPixelRegion.yStart &&
-            start.y <= aresPixelRegion.yEnd
+            clickCoordinate.x >= aresPixelRegion.xStart &&
+            clickCoordinate.x <= aresPixelRegion.xEnd &&
+            clickCoordinate.y >= aresPixelRegion.yStart &&
+            clickCoordinate.y <= aresPixelRegion.yEnd
           ) {
             onAresSelect();
             return;
           }
 
           onPixelSelect(
-            start,
+            clickCoordinate,
             null,
           );
 
