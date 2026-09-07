@@ -35,6 +35,8 @@ import {
   type MarsSector,
 } from "../core/mars/MarsSectorService";
 
+import MobileMarsTerritory from "./MobileMarsTerritory";
+
 
 import "./BuildMars.css";
 
@@ -83,6 +85,9 @@ export function BuildMars() {
     useState(false);
 
   const [sectorActionError, setSectorActionError] =
+    useState<string | null>(null);
+
+  const [mobileTerritorySectorId, setMobileTerritorySectorId] =
     useState<string | null>(null);
 
   useEffect(() => {
@@ -245,13 +250,10 @@ export function BuildMars() {
       );
 
     if (mobileDirectEntry) {
-      // Mobile enters Ares directly.
-      // Do not run the desktop orbital dive transition.
-      navigate(
-        nativeBridge
-          ? "/mars/explore?sector=ares&nativeBridge=1"
-          : "/mars/explore?sector=ares",
-      );
+      // Native/mobile Ares opens the production Colony workspace.
+      // Desktop/web exploration remains unchanged.
+      setSelectedSectorId(null);
+      setMobileTerritorySectorId(sectorId);
       return;
     }
 
@@ -325,6 +327,26 @@ export function BuildMars() {
     [t("mars.metric.exploration"), overview.exploration, Rocket],
     [t("mars.metric.security"), overview.security, Shield],
   ] as const;
+
+  if (mobileTerritorySectorId !== null) {
+    const territorySector =
+      sectors.find(
+        (sector) =>
+          sector.sector_id === mobileTerritorySectorId,
+      ) ?? null;
+
+    if (territorySector) {
+      return (
+        <MobileMarsTerritory
+          sector={territorySector}
+          onBack={() => {
+            setMobileTerritorySectorId(null);
+            setSelectedSectorId(null);
+          }}
+        />
+      );
+    }
+  }
 
   return (
     <main className="mars-page">
