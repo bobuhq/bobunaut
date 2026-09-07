@@ -709,8 +709,8 @@ export function MarsPixelOverlay({
          * purchased territory jump around.
          */
         const scale =
-          0.985 +
-          wave * 0.075;
+          0.965 +
+          wave * 0.14;
 
         plate.scale.set(
           scale,
@@ -730,8 +730,8 @@ export function MarsPixelOverlay({
          * halo fades from subtle to bright.
          */
         haloMaterial.opacity =
-          0.08 +
-          wave * 0.30;
+          0.05 +
+          wave * 0.55;
       }
     }
   });
