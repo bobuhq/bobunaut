@@ -445,6 +445,9 @@ export function MarsPixelOverlay({
   const dragMovedRef =
     useRef(false);
 
+  const dragPointerStartRef =
+    useRef<{ x: number; y: number } | null>(null);
+
   const selectedBlock = useMemo(
     () =>
       selectionEnabled && selectedPixel
@@ -698,11 +701,26 @@ export function MarsPixelOverlay({
         ) {
           dragCurrentRef.current = coordinate;
 
-          if (
-            coordinate.x !== dragStartRef.current.x ||
-            coordinate.y !== dragStartRef.current.y
-          ) {
-            dragMovedRef.current = true;
+          const pointerStart =
+            dragPointerStartRef.current;
+
+          if (pointerStart) {
+            const deltaX =
+              event.clientX - pointerStart.x;
+
+            const deltaY =
+              event.clientY - pointerStart.y;
+
+            // A tiny hand/mouse movement must still count as a click.
+            // The 1000x1000 Mars grid is far too sensitive to use
+            // territory-coordinate changes as the drag threshold.
+            if (
+              deltaX * deltaX +
+                deltaY * deltaY >=
+              36
+            ) {
+              dragMovedRef.current = true;
+            }
           }
         }
 
@@ -756,6 +774,10 @@ export function MarsPixelOverlay({
         dragCurrentRef.current = coordinate;
         dragPointerIdRef.current = event.pointerId;
         dragMovedRef.current = false;
+        dragPointerStartRef.current = {
+          x: event.clientX,
+          y: event.clientY,
+        };
 
         onPixelDragStart?.(coordinate);
         onDragStateChange?.(true);
@@ -807,6 +829,7 @@ export function MarsPixelOverlay({
         dragCurrentRef.current = null;
         dragPointerIdRef.current = null;
         dragMovedRef.current = false;
+        dragPointerStartRef.current = null;
 
         onDragStateChange?.(false);
 
@@ -886,6 +909,7 @@ export function MarsPixelOverlay({
         dragCurrentRef.current = null;
         dragPointerIdRef.current = null;
         dragMovedRef.current = false;
+        dragPointerStartRef.current = null;
 
         onDragStateChange?.(false);
       }}
@@ -1405,37 +1429,46 @@ export function MarsPixelOverlay({
               step(0.01, farWeight);
 
             float glowWide =
-              0.0;
+              outsideAllocation *
+              (1.0 - glowNear) *
+              (1.0 - glowMid) *
+              (1.0 - glowFar) *
+              step(0.01, wideWeight);
 
             vec3 glowColor =
               nearColor * glowNear +
               midColor * glowMid +
-              farColor * glowFar;
+              farColor * glowFar +
+              wideColor * glowWide;
 
             glowColor =
               min(
                 vec3(1.0),
-                glowColor * 1.82 +
-                vec3(0.20)
+                glowColor * 2.35 +
+                glowColor * glowColor * 0.55
               );
 
             float territoryGlowAlpha =
               glowNear *
                 (
-                  0.44 +
-                  territoryPulse * 0.24
+                  0.62 +
+                  territoryPulse * 0.28
                 ) +
               glowMid *
                 (
-                  0.20 +
-                  territoryPulse * 0.14
+                  0.34 +
+                  territoryPulse * 0.18
                 ) +
               glowFar *
                 (
-                  0.06 +
-                  territoryPulse * 0.05
+                  0.16 +
+                  territoryPulse * 0.09
                 ) +
-              glowWide;
+              glowWide *
+                (
+                  0.07 +
+                  territoryPulse * 0.05
+                );
 
             finalColor =
               mix(
@@ -1444,7 +1477,7 @@ export function MarsPixelOverlay({
                 clamp(
                   territoryGlowAlpha,
                   0.0,
-                  0.94
+                  0.98
                 )
               );
 
