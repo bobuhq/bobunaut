@@ -766,6 +766,224 @@ export async function purchaseMarsPixelTerritory(input: {
   return data as MarsPixelPurchaseResult;
 }
 
+
+export type MarsPixelSolanaCheckoutResult = {
+  success: true;
+  paymentOrderId: string;
+  paymentStatus: string;
+  reservationId: string;
+  gridVersion: number;
+  xStart: number;
+  yStart: number;
+  width: number;
+  height: number;
+  pixelCount: number;
+  pricingVersion: number;
+  lamportsPerPixel: number;
+  amountLamports: number;
+  network: string;
+  treasuryAddress: string;
+  buyerWallet: string;
+  paymentReference: string;
+  expiresAt: string;
+};
+
+export type MarsPixelSolanaVerifyResult = {
+  success: true;
+  paymentOrderId: string;
+  paymentStatus: string;
+  reservationId: string;
+  allocationId: string | null;
+  transactionSignature: string;
+  transactionSlot: number;
+  transactionBlockTime: string;
+  verifiedAt: string | null;
+};
+
+async function getMarsPixelEdgeFunctionError(
+  error: {
+    message?: string;
+    context?: unknown;
+  },
+  fallback: string,
+): Promise<string> {
+  let message = error.message || fallback;
+  const context = error.context;
+
+  if (
+    typeof Response !== "undefined" &&
+    context instanceof Response
+  ) {
+    const response = context as Response;
+
+    try {
+      const payload = await response.clone().json();
+
+      if (payload && typeof payload === "object") {
+        const body = payload as Record<string, unknown>;
+
+        const detail =
+          typeof body.error === "string"
+            ? body.error
+            : typeof body.message === "string"
+              ? body.message
+              : typeof body.detail === "string"
+                ? body.detail
+                : typeof body.code === "string"
+                  ? body.code
+                  : null;
+
+        if (detail) {
+          message = detail;
+        }
+      }
+    } catch {
+      try {
+        const body = await response.clone().text();
+
+        if (body.trim()) {
+          message = body.trim();
+        }
+      } catch {
+      }
+    }
+  }
+
+  return message;
+}
+
+export async function checkoutMarsPixelSolanaPayment(input: {
+  anchorX: number;
+  anchorY: number;
+  targetX: number;
+  targetY: number;
+  buyerWallet: string;
+  idempotencyKey: string;
+}): Promise<MarsPixelSolanaCheckoutResult> {
+  const coordinates = [
+    input.anchorX,
+    input.anchorY,
+    input.targetX,
+    input.targetY,
+  ];
+
+  if (
+    coordinates.some(
+      (value) =>
+        !Number.isInteger(value) ||
+        value < 0 ||
+        value > 999,
+    )
+  ) {
+    throw new Error(
+      "Mars Pixel Solana checkout requires valid canonical coordinates.",
+    );
+  }
+
+  if (
+    typeof input.buyerWallet !== "string" ||
+    input.buyerWallet.length < 32 ||
+    input.buyerWallet.length > 44
+  ) {
+    throw new Error("A valid Solana buyer wallet is required.");
+  }
+
+  if (
+    typeof input.idempotencyKey !== "string" ||
+    input.idempotencyKey.length < 8 ||
+    input.idempotencyKey.length > 160
+  ) {
+    throw new Error(
+      "A valid Mars Pixel checkout idempotency key is required.",
+    );
+  }
+
+  const { data, error } = await supabase.functions.invoke(
+    "mars-pixel-solana-checkout",
+    {
+      body: {
+        anchorX: input.anchorX,
+        anchorY: input.anchorY,
+        targetX: input.targetX,
+        targetY: input.targetY,
+        buyerWallet: input.buyerWallet,
+        idempotencyKey: input.idempotencyKey,
+      },
+    },
+  );
+
+  if (error) {
+    throw new Error(
+      await getMarsPixelEdgeFunctionError(
+        error,
+        "Mars Pixel Solana checkout failed.",
+      ),
+    );
+  }
+
+  if (!data || data.success !== true) {
+    throw new Error(
+      typeof data?.error === "string"
+        ? data.error
+        : "Mars Pixel Solana checkout failed.",
+    );
+  }
+
+  return data as MarsPixelSolanaCheckoutResult;
+}
+
+export async function verifyMarsPixelSolanaPayment(input: {
+  paymentOrderId: string;
+  transactionSignature: string;
+  colorKey: string | null;
+}): Promise<MarsPixelSolanaVerifyResult> {
+  if (
+    typeof input.paymentOrderId !== "string" ||
+    input.paymentOrderId.length < 30
+  ) {
+    throw new Error("A valid Mars Pixel payment order is required.");
+  }
+
+  if (
+    typeof input.transactionSignature !== "string" ||
+    input.transactionSignature.length < 80
+  ) {
+    throw new Error(
+      "A valid Solana transaction signature is required.",
+    );
+  }
+
+  const { data, error } = await supabase.functions.invoke(
+    "mars-pixel-solana-verify",
+    {
+      body: {
+        paymentOrderId: input.paymentOrderId,
+        transactionSignature: input.transactionSignature,
+        colorKey: input.colorKey ?? null,
+      },
+    },
+  );
+
+  if (error) {
+    throw new Error(
+      await getMarsPixelEdgeFunctionError(
+        error,
+        "Mars Pixel Solana verification failed.",
+      ),
+    );
+  }
+
+  if (!data || data.success !== true) {
+    throw new Error(
+      typeof data?.error === "string"
+        ? data.error
+        : "Mars Pixel Solana verification failed.",
+    );
+  }
+
+  return data as MarsPixelSolanaVerifyResult;
+}
+
 export type MarsPixelCreativeLink = {
   type:
     | "website"

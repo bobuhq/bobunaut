@@ -43,6 +43,8 @@ import {
   getMarsPixelTerritoryColorOptions,
   getMarsPixelContentTier,
   purchaseMarsPixelTerritory,
+  checkoutMarsPixelSolanaPayment,
+  verifyMarsPixelSolanaPayment,
   saveMarsPixelCreative,
   uploadMarsPixelCreativeImage,
   deleteMarsPixelCreativeImage,
@@ -66,6 +68,32 @@ import type {
 import {
   MarsPixelOverlay,
 } from "./MarsPixelOverlay";
+
+import {
+  connectMarsSolanaWallet,
+  getMarsSolanaWalletSnapshot,
+  isMarsSolanaWalletAvailable,
+} from "../solana/MarsSolanaWalletService";
+
+import type {
+  MarsSolanaWalletSnapshot,
+} from "../solana/MarsSolanaWalletService";
+
+import type {
+  MarsPixelSolanaCheckoutResult,
+} from "../MarsPixelNetworkService";
+
+import {
+  prepareMarsPixelSolanaPaymentTransaction,
+} from "../solana/MarsSolanaPaymentTransaction";
+
+import {
+  signAndBroadcastMarsSolanaPayment,
+} from "../solana/MarsSolanaPaymentSender";
+
+import {
+  confirmMarsSolanaPaymentFinalized,
+} from "../solana/MarsSolanaPaymentConfirmation";
 
 import {
   createMarsPixelBlockSelectionV1,
@@ -1394,6 +1422,14 @@ export function MarsPlanetMap({
   const resetMarsPurchaseJourney = () => {
     setMarsPurchaseStep(1);
     setMarsPurchaseAgreementAccepted(false);
+    setMarsSolanaCheckout(null);
+    setMarsSolanaTransactionSignature(null);
+    marsSolanaCheckoutIdempotencyKeyRef.current = null;
+    setMarsSolanaPaymentStage(
+      marsSolanaWallet?.connected
+        ? "wallet_connected"
+        : "idle",
+    );
   };
 
   const [
@@ -1405,6 +1441,91 @@ export function MarsPlanetMap({
     marsPixelPurchaseSuccess,
     setMarsPixelPurchaseSuccess,
   ] = useState<string | null>(null);
+
+  const marsSolanaCheckoutIdempotencyKeyRef =
+    useRef<string | null>(null);
+
+  const [
+    marsSolanaWallet,
+    setMarsSolanaWallet,
+  ] = useState<MarsSolanaWalletSnapshot | null>(
+    () => getMarsSolanaWalletSnapshot(),
+  );
+
+  const [
+    marsSolanaWalletAvailable,
+    setMarsSolanaWalletAvailable,
+  ] = useState(
+    () => isMarsSolanaWalletAvailable(),
+  );
+
+  const [
+    marsSolanaWalletConnecting,
+    setMarsSolanaWalletConnecting,
+  ] = useState(false);
+
+  const [
+    marsSolanaCheckout,
+    setMarsSolanaCheckout,
+  ] = useState<MarsPixelSolanaCheckoutResult | null>(
+    null,
+  );
+
+  const [
+    marsSolanaTransactionSignature,
+    setMarsSolanaTransactionSignature,
+  ] = useState<string | null>(null);
+
+  const [
+    marsSolanaPaymentStage,
+    setMarsSolanaPaymentStage,
+  ] = useState<
+    | "idle"
+    | "wallet_connected"
+    | "checkout_ready"
+    | "awaiting_signature"
+    | "broadcast"
+    | "verifying"
+    | "verified"
+    | "failed"
+  >("idle");
+
+  const handleMarsSolanaWalletConnect = async () => {
+    if (marsSolanaWalletConnecting) {
+      return;
+    }
+
+    setMarsSolanaWalletConnecting(true);
+    setMarsPixelPurchaseError(null);
+    setMarsPixelPurchaseSuccess(null);
+
+    try {
+      const wallet =
+        await connectMarsSolanaWallet();
+
+      setMarsSolanaWallet(wallet);
+      setMarsSolanaWalletAvailable(true);
+      setMarsSolanaCheckout(null);
+      setMarsSolanaTransactionSignature(null);
+      setMarsSolanaPaymentStage(
+        "wallet_connected",
+      );
+    } catch (error) {
+      console.error(
+        "Mars Solana wallet connection failed.",
+        error,
+      );
+
+      setMarsSolanaPaymentStage("failed");
+      setMarsPixelPurchaseError(
+        error instanceof Error
+          ? error.message
+          : "Unable to connect Solana wallet.",
+      );
+    } finally {
+      setMarsSolanaWalletConnecting(false);
+    }
+  };
 
   const [creativeEditorOpen, setCreativeEditorOpen] =
     useState(false);
@@ -1763,6 +1884,247 @@ export function MarsPlanetMap({
       cancelled = true;
     };
   }, []);
+
+  const handleMarsSolanaCheckout = async () => {
+    if (
+      !marsPurchaseAgreementAccepted ||
+      marsPurchaseStep !== 5 ||
+      marsPixelPurchaseLoading ||
+      !selectedPixel ||
+      !lockedSelectionTarget ||
+      !selectedPixelSelection ||
+      selectedPixelSelection.selection_status !== "available" ||
+      !selectedPixelSelection.purchasable
+    ) {
+      return;
+    }
+
+    if (
+      !marsSolanaWallet?.connected ||
+      !marsSolanaWallet.publicKey
+    ) {
+      setMarsPixelPurchaseError(
+        "Connect your Solana wallet before checkout.",
+      );
+      return;
+    }
+
+    setMarsPixelPurchaseLoading(true);
+    setMarsPixelPurchaseError(null);
+    setMarsPixelPurchaseSuccess(null);
+    setMarsSolanaCheckout(null);
+    setMarsSolanaTransactionSignature(null);
+
+    try {
+      if (
+        !marsSolanaCheckoutIdempotencyKeyRef.current
+      ) {
+        marsSolanaCheckoutIdempotencyKeyRef.current =
+          typeof crypto !== "undefined" &&
+          typeof crypto.randomUUID === "function"
+            ? `mars-solana:${crypto.randomUUID()}`
+            : `mars-solana:${Date.now()}:${Math.random()
+                .toString(36)
+                .slice(2)}`;
+      }
+
+      const idempotencyKey =
+        marsSolanaCheckoutIdempotencyKeyRef.current;
+
+      const checkout =
+        await checkoutMarsPixelSolanaPayment({
+          anchorX: selectedPixel.x_start,
+          anchorY: selectedPixel.y_start,
+          targetX: lockedSelectionTarget.x,
+          targetY: lockedSelectionTarget.y,
+          buyerWallet: marsSolanaWallet.publicKey,
+          idempotencyKey,
+        });
+
+      if (
+        checkout.buyerWallet !==
+        marsSolanaWallet.publicKey
+      ) {
+        throw new Error(
+          "Connected wallet does not match the checkout wallet.",
+        );
+      }
+
+      if (checkout.network !== "devnet") {
+        throw new Error(
+          `Unsupported Solana network: ${checkout.network}`,
+        );
+      }
+
+      setMarsSolanaCheckout(checkout);
+      setMarsSolanaPaymentStage(
+        "checkout_ready",
+      );
+
+      setMarsPixelPurchaseSuccess(
+        `SOLANA DEVNET CHECKOUT READY · ${(
+          checkout.amountLamports / 1_000_000_000
+        ).toLocaleString("en-US", {
+          maximumFractionDigits: 9,
+        })} SOL`,
+      );
+    } catch (error) {
+      console.error(
+        "Mars Solana checkout failed.",
+        error,
+      );
+
+      setMarsSolanaPaymentStage("failed");
+      setMarsPixelPurchaseError(
+        error instanceof Error
+          ? error.message
+          : "Unable to prepare Solana checkout.",
+      );
+    } finally {
+      setMarsPixelPurchaseLoading(false);
+    }
+  };
+
+  const handleMarsSolanaPayment = async () => {
+    if (
+      !marsPurchaseAgreementAccepted ||
+      marsPurchaseStep !== 5 ||
+      marsPixelPurchaseLoading ||
+      !marsSolanaWallet?.connected ||
+      !marsSolanaWallet.publicKey ||
+      !marsSolanaCheckout ||
+      !selectedPixel ||
+      !lockedSelectionTarget
+    ) {
+      return;
+    }
+
+    if (
+      marsSolanaCheckout.buyerWallet !==
+      marsSolanaWallet.publicKey
+    ) {
+      setMarsSolanaPaymentStage("failed");
+      setMarsPixelPurchaseError(
+        "Connected wallet does not match the prepared checkout.",
+      );
+      return;
+    }
+
+    if (marsSolanaCheckout.network !== "devnet") {
+      setMarsSolanaPaymentStage("failed");
+      setMarsPixelPurchaseError(
+        "Only Solana Devnet payments are enabled.",
+      );
+      return;
+    }
+
+    setMarsPixelPurchaseLoading(true);
+    setMarsPixelPurchaseError(null);
+    setMarsPixelPurchaseSuccess(null);
+
+    try {
+      const prepared =
+        await prepareMarsPixelSolanaPaymentTransaction(
+          marsSolanaCheckout,
+        );
+
+      setMarsSolanaPaymentStage(
+        "awaiting_signature",
+      );
+
+      const broadcast =
+        await signAndBroadcastMarsSolanaPayment(
+          prepared.transaction,
+        );
+
+      setMarsSolanaTransactionSignature(
+        broadcast.transactionSignature,
+      );
+
+      setMarsSolanaPaymentStage("broadcast");
+
+      await confirmMarsSolanaPaymentFinalized({
+        transactionSignature:
+          broadcast.transactionSignature,
+        latestBlockhash:
+          prepared.latestBlockhash,
+        lastValidBlockHeight:
+          prepared.lastValidBlockHeight,
+      });
+
+      setMarsSolanaPaymentStage("verifying");
+
+      const verification =
+        await verifyMarsPixelSolanaPayment({
+          paymentOrderId:
+            marsSolanaCheckout.paymentOrderId,
+          transactionSignature:
+            broadcast.transactionSignature,
+          colorKey:
+            selectedPixelColorKey ?? null,
+        });
+
+      if (
+        verification.paymentStatus !== "verified" ||
+        !verification.allocationId
+      ) {
+        throw new Error(
+          `Mars Pixel payment verification returned status: ${verification.paymentStatus}`,
+        );
+      }
+
+      setMarsSolanaPaymentStage("verified");
+
+      setMarsPixelPurchaseSuccess(
+        t("mars.pixel.territoryClaimed", {
+          id: verification.allocationId,
+        }),
+      );
+
+      const [
+        refreshedDetail,
+        refreshedValuation,
+      ] = await Promise.all([
+        getMarsPixelSelectionDetail(
+          selectedPixel.x_start,
+          selectedPixel.y_start,
+          lockedSelectionTarget.x,
+          lockedSelectionTarget.y,
+        ),
+        getMarsPixelSelectionValuation(
+          selectedPixel.x_start,
+          selectedPixel.y_start,
+          lockedSelectionTarget.x,
+          lockedSelectionTarget.y,
+        ),
+      ]);
+
+      setSelectedPixelSelection(
+        refreshedDetail,
+      );
+      setSelectedPixelValuation(
+        refreshedValuation,
+      );
+      setPixelSelectionMode(false);
+      setPixelDragActive(false);
+      setPixelDragAnchor(null);
+      setHoveredPixelCoordinate(null);
+    } catch (error) {
+      console.error(
+        "Mars Solana payment failed.",
+        error,
+      );
+
+      setMarsSolanaPaymentStage("failed");
+      setMarsPixelPurchaseError(
+        error instanceof Error
+          ? error.message
+          : "Mars Solana payment failed.",
+      );
+    } finally {
+      setMarsPixelPurchaseLoading(false);
+    }
+  };
 
   const handleMarsPixelPurchase = async () => {
     if (
@@ -3603,6 +3965,60 @@ export function MarsPlanetMap({
                                 >
                                   CONTINUE →
                                 </button>
+                              ) : !marsSolanaWallet?.connected ? (
+                                <button
+                                  type="button"
+                                  className="mars-purchase-flow__purchase"
+                                  disabled={
+                                    !purchasable ||
+                                    !marsPurchaseAgreementAccepted ||
+                                    marsSolanaWalletConnecting ||
+                                    !marsSolanaWalletAvailable
+                                  }
+                                  onClick={() => {
+                                    void handleMarsSolanaWalletConnect();
+                                  }}
+                                >
+                                  {marsSolanaWalletConnecting
+                                    ? "CONNECTING SOLANA WALLET..."
+                                    : !marsSolanaWalletAvailable
+                                      ? "SOLANA WALLET NOT FOUND"
+                                      : marsPurchaseAgreementAccepted &&
+                                          purchasable
+                                        ? "CONNECT SOLANA WALLET"
+                                        : "ACCEPT AGREEMENT TO CONTINUE"}
+                                </button>
+                              ) : marsSolanaCheckout ? (
+                                <button
+                                  type="button"
+                                  className="mars-purchase-flow__purchase"
+                                  disabled={
+                                    !purchasable ||
+                                    !marsPurchaseAgreementAccepted ||
+                                    marsPixelPurchaseLoading ||
+                                    marsSolanaPaymentStage === "verified"
+                                  }
+                                  onClick={() => {
+                                    void handleMarsSolanaPayment();
+                                  }}
+                                >
+                                  {marsPixelPurchaseLoading
+                                    ? marsSolanaPaymentStage === "awaiting_signature"
+                                      ? "AWAITING WALLET SIGNATURE..."
+                                      : marsSolanaPaymentStage === "broadcast"
+                                        ? "WAITING FOR SOLANA FINALITY..."
+                                        : marsSolanaPaymentStage === "verifying"
+                                          ? "VERIFYING PAYMENT..."
+                                          : "PROCESSING DEVNET PAYMENT..."
+                                    : marsSolanaPaymentStage === "verified"
+                                      ? "PAYMENT VERIFIED"
+                                      : `PAY WITH SOL — DEVNET · ${(
+                                          marsSolanaCheckout.amountLamports /
+                                          1_000_000_000
+                                        ).toLocaleString("en-US", {
+                                          maximumFractionDigits: 9,
+                                        })} SOL`}
+                                </button>
                               ) : (
                                 <button
                                   type="button"
@@ -3613,23 +4029,12 @@ export function MarsPlanetMap({
                                     marsPixelPurchaseLoading
                                   }
                                   onClick={() => {
-                                    void handleMarsPixelPurchase();
+                                    void handleMarsSolanaCheckout();
                                   }}
                                 >
                                   {marsPixelPurchaseLoading
-                                    ? t("mars.pixel.processing")
-                                    : marsPurchaseAgreementAccepted &&
-                                        purchasable
-                                      ? t(
-                                          "mars.pixel.claimPixels",
-                                          {
-                                            count:
-                                              selectedPixelSelection.pixel_count.toLocaleString(
-                                                "en-US",
-                                              ),
-                                          },
-                                        )
-                                      : "ACCEPT AGREEMENT TO CONTINUE"}
+                                    ? "PREPARING SOLANA CHECKOUT..."
+                                    : "PREPARE SOLANA CHECKOUT"}
                                 </button>
                               )}
 
