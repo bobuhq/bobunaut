@@ -237,13 +237,6 @@ function SectorMarker({
       .toLowerCase()
       .includes("ares") === true;
 
-  const hideLegacyAresForNativeApp =
-    isAres &&
-    typeof window !== "undefined" &&
-    new URLSearchParams(
-      window.location.search,
-    ).get("nativeBridge") === "1";
-
   const position = useMemo(
     () => {
       const mapX =
@@ -321,10 +314,6 @@ function SectorMarker({
     aresPulseRef.current.rotation.z =
       time * 0.18;
   });
-
-  if (hideLegacyAresForNativeApp) {
-    return null;
-  }
 
   return (
     <group
