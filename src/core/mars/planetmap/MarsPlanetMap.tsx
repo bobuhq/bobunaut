@@ -2746,7 +2746,10 @@ export function MarsPlanetMap({
 
       {!diving &&
         marsPixelTestAccess &&
-        pixelSelectionMode &&
+        (
+          pixelSelectionMode ||
+          selectedPixel?.block_status === "owned"
+        ) &&
         (
           pixelDragAnchor !== null ||
           pixelDragActive ||
