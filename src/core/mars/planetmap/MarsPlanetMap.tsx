@@ -67,6 +67,7 @@ import type {
 
 import {
   MarsPixelOverlay,
+  type MarsPixelOwnerHoverPreview,
 } from "./MarsPixelOverlay";
 
 import {
@@ -183,6 +184,10 @@ type MarsPlanetSceneProps = Omit<
       blockX: number;
       blockY: number;
     } | null,
+  ) => void;
+  ownerHoverPreview: MarsPixelOwnerHoverPreview | null;
+  onOwnedTerritoryHover: (
+    allocationId: string | null,
   ) => void;
 };
 
@@ -459,6 +464,8 @@ function MarsPlanet({
   onPixelDragSelect,
   onDragStateChange,
   onPixelHover,
+  ownerHoverPreview,
+  onOwnedTerritoryHover,
 }: MarsPlanetSceneProps) {
   const groupRef =
     useRef<Group | null>(null);
@@ -677,6 +684,10 @@ function MarsPlanet({
           onPixelDragSelect={onPixelDragSelect}
           onDragStateChange={onDragStateChange}
           onPixelHover={onPixelHover}
+          ownerHoverPreview={ownerHoverPreview}
+          onOwnedTerritoryHover={
+            onOwnedTerritoryHover
+          }
           aresMapX={
             aresSector?.map_x ?? null
           }
@@ -1525,6 +1536,59 @@ export function MarsPlanetMap({
     } finally {
       setMarsSolanaWalletConnecting(false);
     }
+  };
+
+  const [
+    ownerHoverPreview,
+    setOwnerHoverPreview,
+  ] = useState<MarsPixelOwnerHoverPreview | null>(null);
+
+  const ownerHoverRequestRef = useRef(0);
+
+  const handleOwnedTerritoryHover = (
+    allocationId: string | null,
+  ) => {
+    const requestId =
+      ++ownerHoverRequestRef.current;
+
+    if (!allocationId) {
+      setOwnerHoverPreview(null);
+      return;
+    }
+
+    setOwnerHoverPreview(null);
+
+    void getMyMarsPixelCreative(allocationId)
+      .then((detail) => {
+        if (
+          requestId !== ownerHoverRequestRef.current ||
+          !detail
+        ) {
+          return;
+        }
+
+        setOwnerHoverPreview({
+          allocation_id: detail.allocation_id,
+          pixel_count: detail.pixel_count,
+          creative_status: detail.creative_status,
+          title: detail.title,
+          image_url: detail.image_url,
+        });
+      })
+      .catch((error) => {
+        if (
+          requestId !== ownerHoverRequestRef.current
+        ) {
+          return;
+        }
+
+        console.error(
+          "Mars Pixel owner hover preview lookup failed.",
+          error,
+        );
+
+        setOwnerHoverPreview(null);
+      });
   };
 
   const [creativeEditorOpen, setCreativeEditorOpen] =
@@ -4312,6 +4376,12 @@ export function MarsPlanetMap({
           }
           pixelReservedZones={
             pixelReservedZones
+          }
+          ownerHoverPreview={
+            ownerHoverPreview
+          }
+          onOwnedTerritoryHover={
+            handleOwnedTerritoryHover
           }
         />
       </Canvas>

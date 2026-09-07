@@ -49,6 +49,14 @@ import {
 } from "./MarsPixelTerritoryColors";
 import { Html } from "@react-three/drei";
 
+export type MarsPixelOwnerHoverPreview = {
+  allocation_id: string;
+  pixel_count: number;
+  creative_status: string | null;
+  title: string | null;
+  image_url: string | null;
+};
+
 type MarsPixelOverlayProps = {
   radius: number;
   gridWidth: number;
@@ -85,6 +93,10 @@ type MarsPixelOverlayProps = {
       blockX: number;
       blockY: number;
     } | null,
+  ) => void;
+  ownerHoverPreview?: MarsPixelOwnerHoverPreview | null;
+  onOwnedTerritoryHover?: (
+    allocationId: string | null,
   ) => void;
 };
 
@@ -170,6 +182,8 @@ export function MarsPixelOverlay({
   onPixelDragSelect,
   onDragStateChange,
   onPixelHover,
+  ownerHoverPreview = null,
+  onOwnedTerritoryHover,
 }: MarsPixelOverlayProps) {
   const texture = useMemo(() => {
     const data = new Uint8Array(
@@ -644,6 +658,9 @@ export function MarsPixelOverlay({
       allocations,
       cameraDistanceForLabels,
     ]);
+
+  const [hoveredTerritoryId, setHoveredTerritoryId] =
+    useState<string | null>(null);
 
   const territoryPulseRefs =
     useRef<Record<string, Group | null>>({});
@@ -2265,9 +2282,21 @@ export function MarsPixelOverlay({
                   event.stopPropagation();
                   document.body.style.cursor =
                     "pointer";
+                  setHoveredTerritoryId(
+                    allocation.allocation_id,
+                  );
+                  onOwnedTerritoryHover?.(
+                    allocation.allocation_id,
+                  );
                 }}
                 onPointerOut={() => {
                   document.body.style.cursor = "";
+                  setHoveredTerritoryId((current) =>
+                    current === allocation.allocation_id
+                      ? null
+                      : current,
+                  );
+                  onOwnedTerritoryHover?.(null);
                 }}
               >
                 <planeGeometry
@@ -2317,6 +2346,97 @@ export function MarsPixelOverlay({
           ),
         )}
       </group>
+
+      {territoryPlates.map(
+        ({
+          allocation,
+          position,
+        }) => {
+          if (
+            hoveredTerritoryId !==
+              allocation.allocation_id
+          ) {
+            return null;
+          }
+
+          const ownerPreview =
+            ownerHoverPreview?.allocation_id ===
+            allocation.allocation_id
+              ? ownerHoverPreview
+              : null;
+
+          const title =
+            allocation.creative_title?.trim() ||
+            allocation.advertiser_name?.trim() ||
+            ownerPreview?.title?.trim() ||
+            null;
+
+          if (!title) {
+            return null;
+          }
+
+          const imageUrl =
+            allocation.creative_image_url ||
+            ownerPreview?.image_url ||
+            null;
+
+          const pixels =
+            allocation.width * allocation.height;
+
+          const reviewStatus =
+            !allocation.creative_title &&
+            ownerPreview?.creative_status
+              ? ownerPreview.creative_status
+              : null;
+
+          const cardPosition =
+            position
+              .clone()
+              .normalize()
+              .multiplyScalar(radius * 1.085);
+
+          return (
+            <Html
+              key={`territory-hover-${allocation.allocation_id}`}
+              position={cardPosition}
+              center
+              sprite
+              distanceFactor={4.1}
+              zIndexRange={[30, 20]}
+              className="mars-pixel-territory-hover-anchor"
+            >
+              <div className="mars-pixel-territory-hover-card">
+                {imageUrl ? (
+                  <div className="mars-pixel-territory-hover-card__media">
+                    <img
+                      src={imageUrl}
+                      alt=""
+                      draggable={false}
+                    />
+                  </div>
+                ) : null}
+
+                <div className="mars-pixel-territory-hover-card__body">
+                  <span className="mars-pixel-territory-hover-card__eyebrow">
+                    MARS PIXEL
+                  </span>
+
+                  <strong>{title}</strong>
+
+                  <span className="mars-pixel-territory-hover-card__meta">
+                    {pixels.toLocaleString()} PIXELS
+                    {reviewStatus
+                      ? ` · ${reviewStatus
+                          .replaceAll("_", " ")
+                          .toUpperCase()}`
+                      : ""}
+                  </span>
+                </div>
+              </div>
+            </Html>
+          );
+        },
+      )}
 
       <group
         ref={territoryLabelsRef}
