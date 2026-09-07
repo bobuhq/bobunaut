@@ -15,6 +15,7 @@ import {
   UnsignedByteType,
   ShaderMaterial,
   Group,
+  MeshBasicMaterial,
   Quaternion,
   Vector2,
   Vector3,
@@ -643,6 +644,97 @@ export function MarsPixelOverlay({
       allocations,
       cameraDistanceForLabels,
     ]);
+
+  const territoryPulseRefs =
+    useRef<Record<string, Group | null>>({});
+
+  const territoryHaloMaterialRefs =
+    useRef<
+      Record<
+        string,
+        MeshBasicMaterial | null
+      >
+    >({});
+
+  /*
+   * Premium owned-territory pulse.
+   *
+   * The solid territory remains readable while the complete
+   * plate gently breathes and its same-color outer halo
+   * brightens/fades like the Ares exploration marker.
+   *
+   * Each allocation gets a deterministic phase offset so
+   * multiple territories do not flash in perfect sync.
+   */
+  useFrame((state) => {
+    const time =
+      state.clock.elapsedTime;
+
+    for (const allocation of allocations) {
+      const allocationId =
+        allocation.allocation_id;
+
+      let seed = 0;
+
+      for (
+        let index = 0;
+        index < allocationId.length;
+        index += 1
+      ) {
+        seed +=
+          allocationId.charCodeAt(index);
+      }
+
+      const phase =
+        (seed % 23) * 0.19;
+
+      const wave =
+        (
+          Math.sin(
+            time * 2.65 + phase,
+          ) +
+          1
+        ) /
+        2;
+
+      const plate =
+        territoryPulseRefs.current[
+          allocationId
+        ];
+
+      if (plate) {
+        /*
+         * Very small physical pulse:
+         * enough to feel alive without making the
+         * purchased territory jump around.
+         */
+        const scale =
+          0.985 +
+          wave * 0.075;
+
+        plate.scale.set(
+          scale,
+          scale,
+          1,
+        );
+      }
+
+      const haloMaterial =
+        territoryHaloMaterialRefs.current[
+          allocationId
+        ];
+
+      if (haloMaterial) {
+        /*
+         * Main visible blink:
+         * halo fades from subtle to bright.
+         */
+        haloMaterial.opacity =
+          0.08 +
+          wave * 0.30;
+      }
+    }
+  });
 
   const territoryPlates = allocations.map(
     (allocation) => {
@@ -2110,6 +2202,11 @@ export function MarsPixelOverlay({
             plateHeight,
           }) => (
             <group
+              ref={(group) => {
+                territoryPulseRefs.current[
+                  allocation.allocation_id
+                ] = group;
+              }}
               key={`territory-plate-${allocation.allocation_id}`}
               position={position}
               quaternion={quaternion}
@@ -2127,6 +2224,11 @@ export function MarsPixelOverlay({
                 />
 
                 <meshBasicMaterial
+                  ref={(material) => {
+                    territoryHaloMaterialRefs.current[
+                      allocation.allocation_id
+                    ] = material;
+                  }}
                   color={color}
                   transparent
                   opacity={0.16}
