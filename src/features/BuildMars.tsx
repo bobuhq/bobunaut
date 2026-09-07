@@ -228,15 +228,34 @@ export function BuildMars() {
     }
 
     setSectorActionError(null);
+
+    const nativeBridge =
+      typeof window !== "undefined" &&
+      new URLSearchParams(
+        window.location.search,
+      ).get("nativeBridge") === "1";
+
+    const mobileDirectEntry =
+      typeof window !== "undefined" &&
+      window.matchMedia(
+        "(max-width: 680px) and (pointer: coarse)",
+      ).matches;
+
+    if (mobileDirectEntry) {
+      // Mobile enters Ares directly.
+      // Do not run the desktop orbital dive transition.
+      navigate(
+        nativeBridge
+          ? "/mars/explore?sector=ares&nativeBridge=1"
+          : "/mars/explore?sector=ares",
+      );
+      return;
+    }
+
+    // Desktop/web keeps the existing cinematic orbital descent.
     setSectorDiveActive(true);
 
     window.setTimeout(() => {
-      const nativeBridge =
-        typeof window !== "undefined" &&
-        new URLSearchParams(
-          window.location.search,
-        ).get("nativeBridge") === "1";
-
       navigate(
         nativeBridge
           ? "/mars/explore?sector=ares&nativeBridge=1"

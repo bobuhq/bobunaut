@@ -660,6 +660,20 @@ function MarsPlanet({
               return;
             }
 
+            const mobileAresDirectEntry =
+              typeof window !== "undefined" &&
+              window.matchMedia(
+                "(max-width: 680px) and (pointer: coarse)",
+              ).matches;
+
+            if (mobileAresDirectEntry) {
+              onEnterSector(
+                aresSector.sector_id,
+              );
+              return;
+            }
+
+            // Desktop/web keeps the existing sector-selection flow.
             onSelectSector(
               aresSector.sector_id,
             );
