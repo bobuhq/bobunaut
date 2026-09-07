@@ -237,6 +237,13 @@ function SectorMarker({
       .toLowerCase()
       .includes("ares") === true;
 
+  const hideLegacyAresOnMobile =
+    isAres &&
+    typeof window !== "undefined" &&
+    window.matchMedia(
+      "(max-width: 680px) and (pointer: coarse)",
+    ).matches;
+
   const position = useMemo(
     () => {
       const mapX =
@@ -314,6 +321,10 @@ function SectorMarker({
     aresPulseRef.current.rotation.z =
       time * 0.18;
   });
+
+  if (hideLegacyAresOnMobile) {
+    return null;
+  }
 
   return (
     <group
