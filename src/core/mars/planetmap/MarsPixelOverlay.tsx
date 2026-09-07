@@ -1367,23 +1367,32 @@ export function MarsPixelOverlay({
                 allocation.rgb * 0.35
               );
 
-            // Keep the whole owned territory luminous in its purchased
-            // color instead of only lighting the outer edge.
+            // Owned territory behaves visually as one luminous plate.
+            // Preserve the purchased color while giving the entire area
+            // a bright raised-energy appearance.
             vec3 territoryCoreColor =
               min(
                 vec3(1.0),
                 vividAllocationColor *
                   (
-                    1.08 +
-                    territoryPulse * 0.20
+                    1.18 +
+                    territoryPulse * 0.24
                   )
+              );
+
+            vec3 territoryPlateColor =
+              min(
+                vec3(1.0),
+                territoryCoreColor * 1.08 +
+                vividAllocationColor *
+                  vividAllocationColor * 0.18
               );
 
             finalColor =
               mix(
                 finalColor,
-                territoryCoreColor,
-                hasAllocation * 0.88
+                territoryPlateColor,
+                hasAllocation * 0.97
               );
 
             vec4 allocationLeft4 =
@@ -1528,30 +1537,33 @@ export function MarsPixelOverlay({
             glowColor =
               min(
                 vec3(1.0),
-                glowColor * 2.35 +
-                glowColor * glowColor * 0.55
+                glowColor * 2.75 +
+                glowColor * glowColor * 0.72
               );
 
+            // Four-stage same-color halo. The strong near band creates
+            // separation from the Mars surface while the wide band gives
+            // the territory the Ares-style energy presence.
             float territoryGlowAlpha =
               glowNear *
                 (
-                  0.62 +
-                  territoryPulse * 0.28
+                  0.78 +
+                  territoryPulse * 0.18
                 ) +
               glowMid *
                 (
-                  0.34 +
-                  territoryPulse * 0.18
+                  0.48 +
+                  territoryPulse * 0.16
                 ) +
               glowFar *
                 (
-                  0.16 +
-                  territoryPulse * 0.09
+                  0.25 +
+                  territoryPulse * 0.10
                 ) +
               glowWide *
                 (
-                  0.07 +
-                  territoryPulse * 0.05
+                  0.12 +
+                  territoryPulse * 0.06
                 );
 
             finalColor =
@@ -1571,8 +1583,8 @@ export function MarsPixelOverlay({
                 territoryEdgeColor,
                 allocationGlow *
                   (
-                    0.60 +
-                    territoryPulse * 0.28
+                    0.78 +
+                    territoryPulse * 0.20
                   )
               );
 
@@ -1582,8 +1594,8 @@ export function MarsPixelOverlay({
                 territoryEdgeColor,
                 allocationEdge *
                   (
-                    0.90 +
-                    territoryPulse * 0.10
+                    0.96 +
+                    territoryPulse * 0.04
                   )
               );
 
