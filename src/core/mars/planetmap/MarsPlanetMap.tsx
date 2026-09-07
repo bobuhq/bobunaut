@@ -2113,6 +2113,14 @@ export function MarsPlanetMap({
 
       setMarsSolanaPaymentStage("verified");
 
+      // Payment commit creates the owned allocation on the backend.
+      // Refresh the public allocation layer immediately so the newly
+      // purchased territory remains visible on Mars without a page reload.
+      const refreshedAllocations =
+        await getMarsPixelPublicAllocations();
+
+      setPixelAllocations(refreshedAllocations);
+
       setMarsPixelPurchaseSuccess(
         t("mars.pixel.territoryClaimed", {
           id: verification.allocationId,
