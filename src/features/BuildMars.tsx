@@ -35,6 +35,7 @@ import {
   type MarsSector,
 } from "../core/mars/MarsSectorService";
 
+import MobileMarsTerritory from "./MobileMarsTerritory";
 
 import "./BuildMars.css";
 
@@ -83,6 +84,9 @@ export function BuildMars() {
     useState(false);
 
   const [sectorActionError, setSectorActionError] =
+    useState<string | null>(null);
+
+  const [mobileTerritorySectorId, setMobileTerritorySectorId] =
     useState<string | null>(null);
 
   useEffect(() => {
@@ -237,11 +241,14 @@ export function BuildMars() {
           window.location.search,
         ).get("nativeBridge") === "1";
 
-      navigate(
-        nativeBridge
-          ? "/mars/explore?sector=ares&nativeBridge=1"
-          : "/mars/explore?sector=ares",
-      );
+      if (nativeBridge) {
+        setSectorDiveActive(false);
+        setSelectedSectorId(null);
+        setMobileTerritorySectorId(sectorId);
+        return;
+      }
+
+      navigate("/mars/explore?sector=ares");
     }, 5550);
   };
 
@@ -303,6 +310,27 @@ export function BuildMars() {
     [t("mars.metric.exploration"), overview.exploration, Rocket],
     [t("mars.metric.security"), overview.security, Shield],
   ] as const;
+
+  if (mobileTerritorySectorId !== null) {
+    const territorySector =
+      sectors.find(
+        (sector) =>
+          sector.sector_id === mobileTerritorySectorId,
+      ) ?? null;
+
+    if (territorySector) {
+      return (
+        <MobileMarsTerritory
+          sector={territorySector}
+          onBack={() => {
+            setMobileTerritorySectorId(null);
+            setSelectedSectorId(null);
+            setSectorDiveActive(false);
+          }}
+        />
+      );
+    }
+  }
 
   return (
     <main className="mars-page">

@@ -3862,7 +3862,14 @@ export function MarsPlanetMap({
 
       {selectedSector && (
         <aside
-          className="mars-planet-map__focus-panel"
+          className={[
+            "mars-planet-map__focus-panel",
+            selectedSectorIsAres &&
+            typeof window !== "undefined" &&
+            new URLSearchParams(window.location.search).get("nativeBridge") === "1"
+              ? "is-native-ares"
+              : "",
+          ].filter(Boolean).join(" ")}
         >
           <button
             type="button"
