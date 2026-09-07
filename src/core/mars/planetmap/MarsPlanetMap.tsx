@@ -2018,39 +2018,78 @@ export function MarsPlanetMap({
       return;
     }
 
+    /*
+     * Do not create/sign a new transaction for an expired checkout.
+     * If a signature already exists, recovery must still be allowed
+     * because that exact transaction may already be on-chain.
+     */
+    if (!marsSolanaTransactionSignature) {
+      const checkoutExpiresAt =
+        Date.parse(marsSolanaCheckout.expiresAt);
+
+      if (
+        !Number.isFinite(checkoutExpiresAt) ||
+        checkoutExpiresAt <= Date.now()
+      ) {
+        setMarsSolanaPaymentStage("failed");
+        setMarsPixelPurchaseError(
+          "Solana checkout expired. Prepare a new checkout before signing.",
+        );
+        return;
+      }
+    }
+
     setMarsPixelPurchaseLoading(true);
     setMarsPixelPurchaseError(null);
     setMarsPixelPurchaseSuccess(null);
 
     try {
-      const prepared =
-        await prepareMarsPixelSolanaPaymentTransaction(
-          marsSolanaCheckout,
+      /*
+       * CRITICAL PAYMENT SAFETY:
+       * Once a transaction signature exists for this checkout,
+       * never sign or broadcast another payment for the same order.
+       * Recovery retries only the trusted backend verifier.
+       */
+      let transactionSignature =
+        marsSolanaTransactionSignature;
+
+      if (!transactionSignature) {
+        const prepared =
+          await prepareMarsPixelSolanaPaymentTransaction(
+            marsSolanaCheckout,
+          );
+
+        setMarsSolanaPaymentStage(
+          "awaiting_signature",
         );
 
-      setMarsSolanaPaymentStage(
-        "awaiting_signature",
-      );
+        const broadcast =
+          await signAndBroadcastMarsSolanaPayment(
+            prepared.transaction,
+          );
 
-      const broadcast =
-        await signAndBroadcastMarsSolanaPayment(
-          prepared.transaction,
+        transactionSignature =
+          broadcast.transactionSignature;
+
+        /*
+         * Persist the signature immediately after broadcast.
+         * Any later retry must reuse this signature and must
+         * never send a second transfer for this checkout.
+         */
+        setMarsSolanaTransactionSignature(
+          transactionSignature,
         );
 
-      setMarsSolanaTransactionSignature(
-        broadcast.transactionSignature,
-      );
+        setMarsSolanaPaymentStage("broadcast");
 
-      setMarsSolanaPaymentStage("broadcast");
-
-      await confirmMarsSolanaPaymentFinalized({
-        transactionSignature:
-          broadcast.transactionSignature,
-        latestBlockhash:
-          prepared.latestBlockhash,
-        lastValidBlockHeight:
-          prepared.lastValidBlockHeight,
-      });
+        await confirmMarsSolanaPaymentFinalized({
+          transactionSignature,
+          latestBlockhash:
+            prepared.latestBlockhash,
+          lastValidBlockHeight:
+            prepared.lastValidBlockHeight,
+        });
+      }
 
       setMarsSolanaPaymentStage("verifying");
 
@@ -2058,8 +2097,7 @@ export function MarsPlanetMap({
         await verifyMarsPixelSolanaPayment({
           paymentOrderId:
             marsSolanaCheckout.paymentOrderId,
-          transactionSignature:
-            broadcast.transactionSignature,
+          transactionSignature,
           colorKey:
             selectedPixelColorKey ?? null,
         });
@@ -4012,12 +4050,14 @@ export function MarsPlanetMap({
                                           : "PROCESSING DEVNET PAYMENT..."
                                     : marsSolanaPaymentStage === "verified"
                                       ? "PAYMENT VERIFIED"
-                                      : `PAY WITH SOL — DEVNET · ${(
-                                          marsSolanaCheckout.amountLamports /
-                                          1_000_000_000
-                                        ).toLocaleString("en-US", {
-                                          maximumFractionDigits: 9,
-                                        })} SOL`}
+                                      : marsSolanaTransactionSignature
+                                        ? "RETRY PAYMENT VERIFICATION"
+                                        : `PAY WITH SOL — DEVNET · ${(
+                                            marsSolanaCheckout.amountLamports /
+                                            1_000_000_000
+                                          ).toLocaleString("en-US", {
+                                            maximumFractionDigits: 9,
+                                          })} SOL`}
                                 </button>
                               ) : (
                                 <button

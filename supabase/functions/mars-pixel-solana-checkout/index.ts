@@ -176,7 +176,7 @@ Deno.serve(async (req) => {
     data: reservationData,
     error: reservationError,
   } = await userClient.rpc(
-    "reserve_mars_pixel_selection_v2",
+    "reserve_mars_pixel_selection_solana_devnet_v1",
     {
       p_anchor_x: body.anchorX,
       p_anchor_y: body.anchorY,
@@ -194,6 +194,12 @@ Deno.serve(async (req) => {
     const commercialLocked =
       reservationError.message.includes(
         "MARS_PIXEL_COMMERCIAL_LOCKED",
+      ) ||
+      reservationError.message.includes(
+        "MARS_PIXEL_COMMERCIAL_NETWORK_LOCKED",
+      ) ||
+      reservationError.message.includes(
+        "MARS_PIXEL_SOLANA_DEVNET_LOCKED",
       );
 
     return jsonResponse(
