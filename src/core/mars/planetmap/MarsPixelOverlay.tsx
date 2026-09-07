@@ -653,6 +653,75 @@ export function MarsPixelOverlay({
   return (
     <>
       <mesh
+      onClick={(event) => {
+        if (!onPixelSelect) {
+          return;
+        }
+
+        const uv = event.uv;
+
+        if (!uv) {
+          return;
+        }
+
+        const coordinate =
+          marsUvToPixelCoordinateV1(
+            uv.x,
+            uv.y,
+            gridWidth,
+            gridHeight,
+          );
+
+        const allocation =
+          allocations.find((candidate) =>
+            containsCoordinate(
+              candidate,
+              coordinate,
+            ),
+          ) ?? null;
+
+        /*
+         * Owned Mars Pixel territories use the same direct
+         * click principle as the Ares marker. They do not
+         * depend on the purchase-selection drag lifecycle.
+         */
+        if (allocation) {
+          event.stopPropagation();
+
+          onPixelSelect(
+            coordinate,
+            allocation,
+          );
+        }
+      }}
+      onPointerOver={(event) => {
+        const uv = event.uv;
+
+        if (!uv) {
+          return;
+        }
+
+        const coordinate =
+          marsUvToPixelCoordinateV1(
+            uv.x,
+            uv.y,
+            gridWidth,
+            gridHeight,
+          );
+
+        const allocation =
+          allocations.find((candidate) =>
+            containsCoordinate(
+              candidate,
+              coordinate,
+            ),
+          );
+
+        if (allocation) {
+          document.body.style.cursor =
+            "pointer";
+        }
+      }}
       onPointerMove={(
         event: ThreeEvent<PointerEvent>,
       ) => {
@@ -671,6 +740,19 @@ export function MarsPixelOverlay({
             gridWidth,
             gridHeight,
           );
+
+        const hoveredAllocation =
+          allocations.find((candidate) =>
+            containsCoordinate(
+              candidate,
+              coordinate,
+            ),
+          );
+
+        document.body.style.cursor =
+          hoveredAllocation
+            ? "pointer"
+            : "";
 
         const block =
           marsPixelToBlockCoordinateV1(
@@ -732,6 +814,8 @@ export function MarsPixelOverlay({
         });
       }}
       onPointerOut={() => {
+        document.body.style.cursor = "";
+
         materialRef.current?.uniforms.hoveredBlock.value.set(
           -1,
           -1,
