@@ -15,6 +15,7 @@ import {
   UnsignedByteType,
   ShaderMaterial,
   Group,
+  Quaternion,
   Vector2,
   Vector3,
   Vector4,
@@ -642,6 +643,112 @@ export function MarsPixelOverlay({
       allocations,
       cameraDistanceForLabels,
     ]);
+
+  const territoryPlates = allocations.map(
+    (allocation) => {
+      const centerX =
+        allocation.x_start +
+        allocation.width / 2;
+
+      const centerY =
+        allocation.y_start +
+        allocation.height / 2;
+
+      const u = centerX / gridWidth;
+      const v = 1 - centerY / gridHeight;
+
+      const longitude =
+        (u - 0.5) * Math.PI * 2;
+
+      const latitude =
+        (v - 0.5) * Math.PI;
+
+      /*
+       * Keep the plate above both the Mars surface and the
+       * legacy allocation overlay. This creates a physically
+       * separated territory layer without changing ownership.
+       */
+      const plateRadius = radius * 1.016;
+
+      const normal = new Vector3(
+        Math.cos(latitude) * Math.sin(longitude),
+        Math.sin(latitude),
+        Math.cos(latitude) * Math.cos(longitude),
+      ).normalize();
+
+      const position =
+        normal.clone().multiplyScalar(plateRadius);
+
+      /*
+       * PlaneGeometry faces +Z. Rotate it so its face follows
+       * the outward normal of the Mars sphere.
+       */
+      const quaternion =
+        new Quaternion().setFromUnitVectors(
+          new Vector3(0, 0, 1),
+          normal,
+        );
+
+      const persistedColor =
+        marsPixelTerritoryColorRgb(
+          allocation.color_key,
+        );
+
+      const color = persistedColor
+        ? new Color(
+            persistedColor[0] / 255,
+            persistedColor[1] / 255,
+            persistedColor[2] / 255,
+          )
+        : new Color(
+            allocationColor(allocation)[0] / 255,
+            allocationColor(allocation)[1] / 255,
+            allocationColor(allocation)[2] / 255,
+          );
+
+      /*
+       * Preserve the purchased aspect ratio. A minimum visual
+       * footprint keeps 50 px territories readable from the
+       * normal Mars overview without pretending they own more
+       * pixels than they actually do.
+       */
+      const aspect =
+        allocation.width /
+        Math.max(allocation.height, 1);
+
+      const pixelCount =
+        allocation.width * allocation.height;
+
+      const areaScale =
+        Math.max(
+          1,
+          Math.sqrt(pixelCount / 50),
+        );
+
+      const baseHeight =
+        Math.min(
+          0.105 * areaScale,
+          0.30,
+        );
+
+      const plateHeight = baseHeight;
+
+      const plateWidth =
+        Math.min(
+          plateHeight * aspect,
+          0.48,
+        );
+
+      return {
+        allocation,
+        position,
+        quaternion,
+        color,
+        plateWidth,
+        plateHeight,
+      };
+    },
+  );
 
   if (
     !visible ||
@@ -1991,6 +2098,123 @@ export function MarsPixelOverlay({
         toneMapped={false}
       />
     </mesh>
+
+      <group name="mars-pixel-owned-territory-plates">
+        {territoryPlates.map(
+          ({
+            allocation,
+            position,
+            quaternion,
+            color,
+            plateWidth,
+            plateHeight,
+          }) => (
+            <group
+              key={`territory-plate-${allocation.allocation_id}`}
+              position={position}
+              quaternion={quaternion}
+            >
+              {/* Wide same-color energy halo. */}
+              <mesh
+                position={[0, 0, -0.004]}
+                renderOrder={20}
+              >
+                <planeGeometry
+                  args={[
+                    plateWidth * 1.72,
+                    plateHeight * 1.72,
+                  ]}
+                />
+
+                <meshBasicMaterial
+                  color={color}
+                  transparent
+                  opacity={0.16}
+                  depthWrite={false}
+                  toneMapped={false}
+                />
+              </mesh>
+
+              {/* Bright outer territory frame. */}
+              <mesh
+                position={[0, 0, -0.001]}
+                renderOrder={21}
+              >
+                <planeGeometry
+                  args={[
+                    plateWidth * 1.18,
+                    plateHeight * 1.18,
+                  ]}
+                />
+
+                <meshBasicMaterial
+                  color={color}
+                  transparent
+                  opacity={0.54}
+                  depthWrite={false}
+                  toneMapped={false}
+                />
+              </mesh>
+
+              {/* Solid purchased territory surface. */}
+              <mesh
+                renderOrder={22}
+                onPointerOver={(event) => {
+                  event.stopPropagation();
+                  document.body.style.cursor =
+                    "pointer";
+                }}
+                onPointerOut={() => {
+                  document.body.style.cursor = "";
+                }}
+              >
+                <planeGeometry
+                  args={[
+                    plateWidth,
+                    plateHeight,
+                  ]}
+                />
+
+                <meshBasicMaterial
+                  color={color}
+                  transparent
+                  opacity={0.94}
+                  depthWrite={false}
+                  toneMapped={false}
+                />
+              </mesh>
+
+              {/* Small luminous inner face gives raised depth. */}
+              <mesh
+                position={[0, 0, 0.004]}
+                renderOrder={23}
+              >
+                <planeGeometry
+                  args={[
+                    plateWidth * 0.82,
+                    plateHeight * 0.72,
+                  ]}
+                />
+
+                <meshBasicMaterial
+                  color={color}
+                  transparent
+                  opacity={0.72}
+                  depthWrite={false}
+                  toneMapped={false}
+                />
+              </mesh>
+
+              <pointLight
+                color={color}
+                intensity={0.72}
+                distance={0.72}
+                decay={2}
+              />
+            </group>
+          ),
+        )}
+      </group>
 
       <group
         ref={territoryLabelsRef}
