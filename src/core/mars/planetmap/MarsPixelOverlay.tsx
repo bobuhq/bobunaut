@@ -99,7 +99,7 @@ function allocationColor(
       persistedColor[0],
       persistedColor[1],
       persistedColor[2],
-      196,
+      255,
     ];
   }
 
@@ -130,7 +130,7 @@ function allocationColor(
     Math.min(255, red),
     Math.min(255, green),
     Math.min(255, blue),
-    176,
+    255,
   ];
 }
 
@@ -1114,11 +1114,18 @@ export function MarsPixelOverlay({
                 1.0
               );
 
+            vec3 vividAllocationColor =
+              min(
+                vec3(1.0),
+                allocation.rgb * 1.30 +
+                allocation.rgb * allocation.rgb * 0.18
+              );
+
             vec3 finalColor =
               mix(
                 gridColor,
-                allocation.rgb,
-                allocation.a
+                vividAllocationColor,
+                step(0.01, allocation.a)
               );
 
             // Ares remains an interactive navigation region,
@@ -1248,8 +1255,27 @@ export function MarsPixelOverlay({
             vec3 territoryEdgeColor =
               min(
                 vec3(1.0),
-                allocation.rgb * 2.05 +
-                vec3(0.34)
+                vividAllocationColor * 1.65 +
+                allocation.rgb * 0.35
+              );
+
+            // Keep the whole owned territory luminous in its purchased
+            // color instead of only lighting the outer edge.
+            vec3 territoryCoreColor =
+              min(
+                vec3(1.0),
+                vividAllocationColor *
+                  (
+                    1.08 +
+                    territoryPulse * 0.20
+                  )
+              );
+
+            finalColor =
+              mix(
+                finalColor,
+                territoryCoreColor,
+                hasAllocation * 0.88
               );
 
             vec4 allocationLeft4 =
@@ -1687,19 +1713,17 @@ export function MarsPixelOverlay({
                 0.0
               );
 
+            // Owned hover/selection must preserve the territory's
+            // purchased color instead of replacing it with purple/gold.
             vec3 ownedFill =
-              vec3(
-                0.54,
-                0.16,
-                0.89
+              mix(
+                vividAllocationColor,
+                territoryCoreColor,
+                ownedPulse * 0.34
               );
 
             vec3 ownedEdge =
-              vec3(
-                1.0,
-                0.72,
-                0.08
-              );
+              territoryEdgeColor;
 
             vec3 statusFill =
               availableFill * isAvailable +
