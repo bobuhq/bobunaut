@@ -660,11 +660,20 @@ function MarsPlanet({
               return;
             }
 
-            const mobileAresDirectEntry =
+            const nativeBridge =
               typeof window !== "undefined" &&
-              window.matchMedia(
-                "(max-width: 680px) and (pointer: coarse)",
-              ).matches;
+              new URLSearchParams(
+                window.location.search,
+              ).get("nativeBridge") === "1";
+
+            const mobileAresDirectEntry =
+              nativeBridge ||
+              (
+                typeof window !== "undefined" &&
+                window.matchMedia(
+                  "(max-width: 680px) and (pointer: coarse)",
+                ).matches
+              );
 
             if (mobileAresDirectEntry) {
               onEnterSector(

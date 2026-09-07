@@ -236,10 +236,13 @@ export function BuildMars() {
       ).get("nativeBridge") === "1";
 
     const mobileDirectEntry =
-      typeof window !== "undefined" &&
-      window.matchMedia(
-        "(max-width: 680px) and (pointer: coarse)",
-      ).matches;
+      nativeBridge ||
+      (
+        typeof window !== "undefined" &&
+        window.matchMedia(
+          "(max-width: 680px) and (pointer: coarse)",
+        ).matches
+      );
 
     if (mobileDirectEntry) {
       // Mobile enters Ares directly.

@@ -420,15 +420,83 @@ export function MarsPixelOverlay({
     [blockStatusTexture],
   );
 
-  const aresPixelRegion = useMemo(
-    () => ({
+  const aresPixelRegion = useMemo(() => {
+    /*
+     * Keep the Ares navigation hit region aligned with the
+     * visible SectorMarker. SectorMarker snaps Ares to the
+     * centre of a 20x20 map cell (5 map units per cell).
+     *
+     * Mars Pixel coordinates use the 1000x1000 grid, so the
+     * same snapped map position is converted into pixel space.
+     */
+    const fallback = {
       xStart: 520,
       yStart: 370,
       xEnd: 529,
       yEnd: 379,
-    }),
-    [],
-  );
+    };
+
+    if (
+      aresMapX === null ||
+      aresMapY === null ||
+      !Number.isFinite(aresMapX) ||
+      !Number.isFinite(aresMapY)
+    ) {
+      return fallback;
+    }
+
+    const mapCellSize = 100 / 20;
+
+    const snappedMapX =
+      Math.floor(aresMapX / mapCellSize) *
+        mapCellSize +
+      mapCellSize / 2;
+
+    const snappedMapY =
+      Math.floor(aresMapY / mapCellSize) *
+        mapCellSize +
+      mapCellSize / 2;
+
+    const centerX = Math.min(
+      gridWidth - 1,
+      Math.max(
+        0,
+        Math.floor(
+          (snappedMapX / 100) * gridWidth,
+        ),
+      ),
+    );
+
+    const centerY = Math.min(
+      gridHeight - 1,
+      Math.max(
+        0,
+        Math.floor(
+          (snappedMapY / 100) * gridHeight,
+        ),
+      ),
+    );
+
+    const halfSize = 5;
+
+    return {
+      xStart: Math.max(0, centerX - halfSize),
+      yStart: Math.max(0, centerY - halfSize),
+      xEnd: Math.min(
+        gridWidth - 1,
+        centerX + halfSize - 1,
+      ),
+      yEnd: Math.min(
+        gridHeight - 1,
+        centerY + halfSize - 1,
+      ),
+    };
+  }, [
+    aresMapX,
+    aresMapY,
+    gridWidth,
+    gridHeight,
+  ]);
 
   const materialRef =
     useRef<ShaderMaterial | null>(null);
