@@ -245,13 +245,9 @@ export function BuildMars() {
       );
 
     if (mobileDirectEntry) {
-      // Mobile enters Ares directly.
-      // Do not run the desktop orbital dive transition.
-      navigate(
-        nativeBridge
-          ? "/mars/explore?sector=ares&nativeBridge=1"
-          : "/mars/explore?sector=ares",
-      );
+      // Native/mobile must never enter the legacy red Ares exploration world.
+      // Keep the user on the Mars planet screen.
+      setSelectedSectorId(null);
       return;
     }
 
