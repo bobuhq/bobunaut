@@ -432,26 +432,6 @@ function MarsPlanet({
   onDragStateChange,
   onPixelHover,
 }: MarsPlanetSceneProps) {
-  const nativeMarsMobile =
-    typeof window !== "undefined" &&
-    (
-      new URLSearchParams(
-        window.location.search,
-      ).get("nativeBridge") === "1" ||
-      (
-        typeof navigator !== "undefined" &&
-        navigator.userAgent.includes("BOBU-Mobile")
-      ) ||
-      (
-        window as Window & {
-          ReactNativeWebView?: unknown;
-        }
-      ).ReactNativeWebView != null ||
-      window.matchMedia(
-        "(max-width: 680px) and (pointer: coarse)",
-      ).matches
-    );
-
   const groupRef =
     useRef<Group | null>(null);
 
@@ -680,14 +660,6 @@ function MarsPlanet({
               return;
             }
 
-            if (nativeMarsMobile) {
-              onEnterSector(
-                aresSector.sector_id,
-              );
-              return;
-            }
-
-            // Desktop/web keeps the existing sector-selection flow.
             onSelectSector(
               aresSector.sector_id,
             );
@@ -746,13 +718,6 @@ function MarsPlanet({
                 selectedSectorId
               }
               onSelect={() => {
-                if (nativeMarsMobile) {
-                  onEnterSector(
-                    sector.sector_id,
-                  );
-                  return;
-                }
-
                 onSelectSector(
                   sector.sector_id,
                 );
@@ -876,26 +841,6 @@ export function MarsPlanetMap({
   aresAccessLoading,
 }: MarsPlanetMapProps) {
   const { t } = useLanguage();
-
-  const nativeMarsMobile =
-    typeof window !== "undefined" &&
-    (
-      new URLSearchParams(
-        window.location.search,
-      ).get("nativeBridge") === "1" ||
-      (
-        typeof navigator !== "undefined" &&
-        navigator.userAgent.includes("BOBU-Mobile")
-      ) ||
-      (
-        window as Window & {
-          ReactNativeWebView?: unknown;
-        }
-      ).ReactNativeWebView != null ||
-      window.matchMedia(
-        "(max-width: 680px) and (pointer: coarse)",
-      ).matches
-    );
   const [
     pixelNetworkStatus,
     setPixelNetworkStatus,
@@ -3915,7 +3860,7 @@ export function MarsPlanetMap({
         />
       </Canvas>
 
-      {selectedSector && !nativeMarsMobile && (
+      {selectedSector && (
         <aside
           className="mars-planet-map__focus-panel"
         >

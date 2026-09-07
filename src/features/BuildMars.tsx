@@ -228,33 +228,15 @@ export function BuildMars() {
     }
 
     setSectorActionError(null);
-
-    const nativeBridge =
-      typeof window !== "undefined" &&
-      new URLSearchParams(
-        window.location.search,
-      ).get("nativeBridge") === "1";
-
-    const mobileDirectEntry =
-      nativeBridge ||
-      (
-        typeof window !== "undefined" &&
-        window.matchMedia(
-          "(max-width: 680px) and (pointer: coarse)",
-        ).matches
-      );
-
-    if (mobileDirectEntry) {
-      // Native/mobile must never enter the legacy red Ares exploration world.
-      // Keep the user on the Mars planet screen.
-      setSelectedSectorId(null);
-      return;
-    }
-
-    // Desktop/web keeps the existing cinematic orbital descent.
     setSectorDiveActive(true);
 
     window.setTimeout(() => {
+      const nativeBridge =
+        typeof window !== "undefined" &&
+        new URLSearchParams(
+          window.location.search,
+        ).get("nativeBridge") === "1";
+
       navigate(
         nativeBridge
           ? "/mars/explore?sector=ares&nativeBridge=1"
