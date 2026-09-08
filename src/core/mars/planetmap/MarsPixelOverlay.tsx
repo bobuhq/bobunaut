@@ -55,6 +55,8 @@ export type MarsPixelOwnerHoverPreview = {
   creative_status: string | null;
   title: string | null;
   image_url: string | null;
+  destination_url: string | null;
+  cta_label: string | null;
 };
 
 type MarsPixelOverlayProps = {
@@ -661,6 +663,33 @@ export function MarsPixelOverlay({
 
   const [hoveredTerritoryId, setHoveredTerritoryId] =
     useState<string | null>(null);
+
+  const territoryHoverLeaveTimerRef =
+    useRef<number | null>(null);
+
+  const cancelTerritoryHoverLeave = () => {
+    if (territoryHoverLeaveTimerRef.current !== null) {
+      window.clearTimeout(
+        territoryHoverLeaveTimerRef.current,
+      );
+      territoryHoverLeaveTimerRef.current = null;
+    }
+  };
+
+  const scheduleTerritoryHoverLeave = (
+    allocationId: string,
+  ) => {
+    cancelTerritoryHoverLeave();
+
+    territoryHoverLeaveTimerRef.current =
+      window.setTimeout(() => {
+        setHoveredTerritoryId((current) =>
+          current === allocationId ? null : current,
+        );
+        onOwnedTerritoryHover?.(null);
+        territoryHoverLeaveTimerRef.current = null;
+      }, 180);
+  };
 
   const territoryPulseRefs =
     useRef<Record<string, Group | null>>({});
@@ -2280,6 +2309,7 @@ export function MarsPixelOverlay({
                 renderOrder={22}
                 onPointerOver={(event) => {
                   event.stopPropagation();
+                  cancelTerritoryHoverLeave();
                   document.body.style.cursor =
                     "pointer";
                   setHoveredTerritoryId(
@@ -2291,12 +2321,9 @@ export function MarsPixelOverlay({
                 }}
                 onPointerOut={() => {
                   document.body.style.cursor = "";
-                  setHoveredTerritoryId((current) =>
-                    current === allocation.allocation_id
-                      ? null
-                      : current,
+                  scheduleTerritoryHoverLeave(
+                    allocation.allocation_id,
                   );
-                  onOwnedTerritoryHover?.(null);
                 }}
               >
                 <planeGeometry
@@ -2389,6 +2416,26 @@ export function MarsPixelOverlay({
               ? ownerPreview.creative_status
               : null;
 
+          const destinationUrl =
+            ownerPreview?.destination_url?.trim() ||
+            null;
+
+          const ctaLabel =
+            ownerPreview?.cta_label?.trim() ||
+            "EXPLORE NOW";
+
+          let destinationLabel: string | null = null;
+
+          if (destinationUrl) {
+            try {
+              const parsedUrl = new URL(destinationUrl);
+              destinationLabel =
+                parsedUrl.hostname.replace(/^www\./, "");
+            } catch {
+              destinationLabel = destinationUrl;
+            }
+          }
+
           const cardPosition =
             position
               .clone()
@@ -2405,7 +2452,25 @@ export function MarsPixelOverlay({
               zIndexRange={[30, 20]}
               className="mars-pixel-territory-hover-anchor"
             >
-              <div className="mars-pixel-territory-hover-card">
+              <div
+                className="mars-pixel-territory-hover-card"
+                onPointerEnter={() => {
+                  cancelTerritoryHoverLeave();
+                  document.body.style.cursor = "default";
+                }}
+                onPointerLeave={() => {
+                  document.body.style.cursor = "";
+                  scheduleTerritoryHoverLeave(
+                    allocation.allocation_id,
+                  );
+                }}
+                onPointerDown={(event) =>
+                  event.stopPropagation()
+                }
+                onClick={(event) =>
+                  event.stopPropagation()
+                }
+              >
                 {imageUrl ? (
                   <div className="mars-pixel-territory-hover-card__media">
                     <img
@@ -2423,6 +2488,23 @@ export function MarsPixelOverlay({
 
                   <strong>{title}</strong>
 
+                  {destinationUrl && destinationLabel ? (
+                    <a
+                      className="mars-pixel-territory-hover-card__site"
+                      href={destinationUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onPointerDown={(event) =>
+                        event.stopPropagation()
+                      }
+                      onClick={(event) =>
+                        event.stopPropagation()
+                      }
+                    >
+                      {destinationLabel}
+                    </a>
+                  ) : null}
+
                   <span className="mars-pixel-territory-hover-card__meta">
                     {pixels.toLocaleString()} PIXELS
                     {reviewStatus
@@ -2431,6 +2513,23 @@ export function MarsPixelOverlay({
                           .toUpperCase()}`
                       : ""}
                   </span>
+
+                  {destinationUrl ? (
+                    <a
+                      className="mars-pixel-territory-hover-card__cta"
+                      href={destinationUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onPointerDown={(event) =>
+                        event.stopPropagation()
+                      }
+                      onClick={(event) =>
+                        event.stopPropagation()
+                      }
+                    >
+                      {ctaLabel}
+                    </a>
+                  ) : null}
                 </div>
               </div>
             </Html>

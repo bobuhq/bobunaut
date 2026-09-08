@@ -1573,6 +1573,8 @@ export function MarsPlanetMap({
           creative_status: detail.creative_status,
           title: detail.title,
           image_url: detail.image_url,
+          destination_url: detail.destination_url,
+          cta_label: detail.cta_label,
         });
       })
       .catch((error) => {
