@@ -764,11 +764,11 @@ export function MarsPixelOverlay({
         }
 
         if (pixels >= 200) {
-          return 6.0;
+          return 6.55;
         }
 
         if (pixels >= 100) {
-          return 5.4;
+          return 6.55;
         }
 
         return 3.95;
@@ -2818,8 +2818,8 @@ export function MarsPixelOverlay({
                     : pixels >= 500
                       ? 4.45
                       : pixels >= 200
-                        ? 4.8
-                        : 5.1
+                        ? 3.75
+                        : 3.45
               }
               zIndexRange={[8, 0]}
               className="mars-pixel-territory-label-anchor"

@@ -4979,6 +4979,7 @@
 }
 
 .mars-pixel-territory-label {
+  box-sizing: border-box;
   max-width: 180px;
   overflow: hidden;
   padding: 3px 7px;
@@ -5881,4 +5882,13 @@
   .mars-pixel-territory-hover-card__body strong {
     font-size: 11px;
   }
+}
+
+/* Mars Pixel small territory labels: keep text inside territory footprint */
+.mars-pixel-territory-label--sm {
+  max-width: 54px;
+  padding: 1px 3px;
+  font-size: 6px;
+  letter-spacing: 0.025em;
+  line-height: 1.05;
 }
