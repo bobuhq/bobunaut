@@ -664,6 +664,9 @@ export function MarsPixelOverlay({
   const [hoveredTerritoryId, setHoveredTerritoryId] =
     useState<string | null>(null);
 
+  const [pinnedTerritoryId, setPinnedTerritoryId] =
+    useState<string | null>(null);
+
   const territoryHoverLeaveTimerRef =
     useRef<number | null>(null);
 
@@ -679,6 +682,10 @@ export function MarsPixelOverlay({
   const scheduleTerritoryHoverLeave = (
     allocationId: string,
   ) => {
+    if (pinnedTerritoryId === allocationId) {
+      return;
+    }
+
     cancelTerritoryHoverLeave();
 
     territoryHoverLeaveTimerRef.current =
@@ -932,6 +939,21 @@ export function MarsPixelOverlay({
          */
         if (allocation) {
           event.stopPropagation();
+
+          if (
+            typeof window !== "undefined" &&
+            window.matchMedia(
+              "(hover: none), (pointer: coarse)",
+            ).matches
+          ) {
+            cancelTerritoryHoverLeave();
+            setPinnedTerritoryId(allocation.allocation_id);
+            setHoveredTerritoryId(allocation.allocation_id);
+            onOwnedTerritoryHover?.(
+              allocation.allocation_id,
+            );
+            return;
+          }
 
           onPixelSelect(
             coordinate,
@@ -2381,6 +2403,8 @@ export function MarsPixelOverlay({
         }) => {
           if (
             hoveredTerritoryId !==
+              allocation.allocation_id &&
+            pinnedTerritoryId !==
               allocation.allocation_id
           ) {
             return null;
@@ -2473,6 +2497,40 @@ export function MarsPixelOverlay({
                   event.stopPropagation()
                 }
               >
+                {pinnedTerritoryId === allocation.allocation_id ? (
+                  <button
+                    type="button"
+                    aria-label="Close Mars Pixel advertisement"
+                    onPointerDown={(event) =>
+                      event.stopPropagation()
+                    }
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      cancelTerritoryHoverLeave();
+                      setPinnedTerritoryId(null);
+                      setHoveredTerritoryId(null);
+                      onOwnedTerritoryHover?.(null);
+                    }}
+                    style={{
+                      position: "absolute",
+                      top: "8px",
+                      left: "8px",
+                      zIndex: 5,
+                      width: "28px",
+                      height: "28px",
+                      borderRadius: "50%",
+                      border: "1px solid rgba(255,255,255,0.32)",
+                      background: "rgba(7, 8, 16, 0.88)",
+                      color: "#fff",
+                      fontSize: "20px",
+                      lineHeight: "24px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    ×
+                  </button>
+                ) : null}
+
                 {imageUrl ? (
                   <div className="mars-pixel-territory-hover-card__media">
                     <img
