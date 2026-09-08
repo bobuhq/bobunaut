@@ -209,7 +209,8 @@ export function App() {
             element={<TermsOfService />}
           />
 
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<BuildMars />} />
+          <Route path="/home" element={<Home />} />
           <Route path="/identity" element={<BuilderIdentity />} />
           <Route path="/passport" element={<BuilderPassport />} />
           <Route path="/wallet" element={<BuilderWallet />} />

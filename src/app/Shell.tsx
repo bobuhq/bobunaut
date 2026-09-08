@@ -14,6 +14,7 @@ export function Shell() {
    * Global BOBU AI must not appear inside the Mars game.
    */
   const isMarsGame =
+    location.pathname === "/" ||
     location.pathname === "/mars" ||
     location.pathname.startsWith("/mars/");
 
