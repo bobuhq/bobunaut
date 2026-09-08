@@ -2309,6 +2309,13 @@ export function MarsPixelOverlay({
                 renderOrder={22}
                 onPointerOver={(event) => {
                   event.stopPropagation();
+
+                  // Mouse/trackpad keeps the existing hover behaviour.
+                  // Touch devices open the card explicitly on tap instead.
+                  if (event.pointerType === "touch") {
+                    return;
+                  }
+
                   cancelTerritoryHoverLeave();
                   document.body.style.cursor =
                     "pointer";
@@ -2319,10 +2326,38 @@ export function MarsPixelOverlay({
                     allocation.allocation_id,
                   );
                 }}
-                onPointerOut={() => {
+                onPointerOut={(event) => {
+                  // A finger has no persistent hover state. Closing here
+                  // would make the card disappear immediately after a tap.
+                  if (event.pointerType === "touch") {
+                    return;
+                  }
+
                   document.body.style.cursor = "";
                   scheduleTerritoryHoverLeave(
                     allocation.allocation_id,
+                  );
+                }}
+                onPointerUp={(event) => {
+                  if (event.pointerType !== "touch") {
+                    return;
+                  }
+
+                  event.stopPropagation();
+                  cancelTerritoryHoverLeave();
+
+                  const nextAllocationId =
+                    hoveredTerritoryId ===
+                    allocation.allocation_id
+                      ? null
+                      : allocation.allocation_id;
+
+                  setHoveredTerritoryId(
+                    nextAllocationId,
+                  );
+
+                  onOwnedTerritoryHover?.(
+                    nextAllocationId,
                   );
                 }}
               >
