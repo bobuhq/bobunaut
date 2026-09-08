@@ -31,6 +31,9 @@ import type {
   MarsPixelPublicAllocation,
   MarsPixelPublicReservedZone,
 } from "../MarsPixelNetworkService";
+import {
+  recordMarsPixelAdEvent,
+} from "../MarsPixelNetworkService";
 
 import {
   MARS_PIXEL_SALE_BLOCK_SIZE,
@@ -545,6 +548,19 @@ export function MarsPixelOverlay({
   const territoryLabelsRef =
     useRef<Group | null>(null);
 
+  /*
+   * V40 real advertising impressions.
+   *
+   * An active ad must remain on the camera-facing side of
+   * Mars at its eligible zoom level for at least one second.
+   * Each allocation is recorded once per mounted Mars view.
+   */
+  const impressionVisibleSinceRef =
+    useRef<Record<string, number>>({});
+
+  const impressionRecordedRef =
+    useRef<Set<string>>(new Set());
+
   useFrame(({ camera }) => {
     const material =
       materialRef.current;
@@ -587,6 +603,132 @@ export function MarsPixelOverlay({
             cameraDirection,
           ) > 0.16;
       }
+    }
+
+    /*
+     * Impression detection uses the actual 3D territory
+     * groups, not the HTML card or hover state.
+     */
+    const cameraDirection =
+      camera.position
+        .clone()
+        .normalize();
+
+    const now =
+      performance.now();
+
+    for (const allocation of allocations) {
+      const allocationId =
+        allocation.allocation_id;
+
+      if (
+        impressionRecordedRef.current.has(
+          allocationId,
+        )
+      ) {
+        continue;
+      }
+
+      /*
+       * Public allocations without an active creative are
+       * territories, not advertisements.
+       */
+      const hasActiveAd =
+        Boolean(
+          allocation.creative_title?.trim() ||
+            allocation.creative_image_url?.trim() ||
+            allocation.destination_url?.trim(),
+        );
+
+      if (!hasActiveAd) {
+        delete impressionVisibleSinceRef.current[
+          allocationId
+        ];
+        continue;
+      }
+
+      const pixels =
+        allocation.width *
+        allocation.height;
+
+      const maxDistance =
+        pixels >= 5000
+          ? 9.2
+          : pixels >= 1000
+            ? 8.0
+            : pixels >= 500
+              ? 7.0
+              : pixels >= 200
+                ? 6.15
+                : pixels >= 100
+                  ? 5.65
+                  : 5.25;
+
+      const territory =
+        territoryPulseRefs.current[
+          allocationId
+        ];
+
+      if (
+        !territory ||
+        distance > maxDistance
+      ) {
+        delete impressionVisibleSinceRef.current[
+          allocationId
+        ];
+        continue;
+      }
+
+      const worldPosition =
+        territory.getWorldPosition(
+          new Vector3(),
+        );
+
+      const worldNormal =
+        worldPosition
+          .clone()
+          .normalize();
+
+      const facingCamera =
+        worldNormal.dot(
+          cameraDirection,
+        ) > 0.16;
+
+      if (!facingCamera) {
+        delete impressionVisibleSinceRef.current[
+          allocationId
+        ];
+        continue;
+      }
+
+      const visibleSince =
+        impressionVisibleSinceRef.current[
+          allocationId
+        ];
+
+      if (visibleSince === undefined) {
+        impressionVisibleSinceRef.current[
+          allocationId
+        ] = now;
+        continue;
+      }
+
+      if (now - visibleSince < 1000) {
+        continue;
+      }
+
+      impressionRecordedRef.current.add(
+        allocationId,
+      );
+
+      delete impressionVisibleSinceRef.current[
+        allocationId
+      ];
+
+      void recordMarsPixelAdEvent(
+        allocationId,
+        "impression",
+      );
     }
 
     if (
@@ -940,25 +1082,21 @@ export function MarsPixelOverlay({
         if (allocation) {
           event.stopPropagation();
 
-          if (
-            typeof window !== "undefined" &&
-            window.matchMedia(
-              "(hover: none), (pointer: coarse)",
-            ).matches
-          ) {
-            cancelTerritoryHoverLeave();
-            setPinnedTerritoryId(allocation.allocation_id);
-            setHoveredTerritoryId(allocation.allocation_id);
-            onOwnedTerritoryHover?.(
-              allocation.allocation_id,
-            );
-            return;
-          }
-
-          onPixelSelect(
-            coordinate,
-            allocation,
+          /*
+           * Public Mars Pixel advertisements use one stable interaction
+           * model on desktop and mobile:
+           * click/tap pins the ad card until the visitor closes it.
+           *
+           * This keeps CTA links reachable and does not alter the
+           * empty-pixel purchase-selection flow.
+           */
+          cancelTerritoryHoverLeave();
+          setPinnedTerritoryId(allocation.allocation_id);
+          setHoveredTerritoryId(allocation.allocation_id);
+          onOwnedTerritoryHover?.(
+            allocation.allocation_id,
           );
+          return;
         }
       }}
       onPointerOver={(event) => {
@@ -2331,20 +2469,28 @@ export function MarsPixelOverlay({
                 renderOrder={22}
                 onPointerOver={(event) => {
                   event.stopPropagation();
-                  cancelTerritoryHoverLeave();
                   document.body.style.cursor =
                     "pointer";
+                }}
+                onPointerOut={() => {
+                  document.body.style.cursor = "";
+                }}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  cancelTerritoryHoverLeave();
+                  setPinnedTerritoryId(
+                    allocation.allocation_id,
+                  );
                   setHoveredTerritoryId(
                     allocation.allocation_id,
                   );
                   onOwnedTerritoryHover?.(
                     allocation.allocation_id,
                   );
-                }}
-                onPointerOut={() => {
-                  document.body.style.cursor = "";
-                  scheduleTerritoryHoverLeave(
+
+                  void recordMarsPixelAdEvent(
                     allocation.allocation_id,
+                    "card_open",
                   );
                 }}
               >
@@ -2583,9 +2729,14 @@ export function MarsPixelOverlay({
                       onPointerDown={(event) =>
                         event.stopPropagation()
                       }
-                      onClick={(event) =>
-                        event.stopPropagation()
-                      }
+                      onClick={(event) => {
+                        event.stopPropagation();
+
+                        void recordMarsPixelAdEvent(
+                          allocation.allocation_id,
+                          "cta_click",
+                        );
+                      }}
                     >
                       {ctaLabel}
                     </a>

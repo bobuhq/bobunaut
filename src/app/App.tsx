@@ -49,6 +49,12 @@ const MarsExploreWorld = lazyWithRecovery(() =>
   })),
 );
 
+const MarsPixelAdvertiserCenter = lazyWithRecovery(() =>
+  import("../features/MarsPixelAdvertiserCenter").then((module) => ({
+    default: module.MarsPixelAdvertiserCenter,
+  })),
+);
+
 
 const BuilderPassport = lazyWithRecovery(() =>
   import(
@@ -214,6 +220,10 @@ export function App() {
           <Route
             path="/mars/explore"
             element={<MarsExploreWorld />}
+          />
+          <Route
+            path="/mars/advertiser"
+            element={<MarsPixelAdvertiserCenter />}
           />
           <Route
             path="/leaderboard"

@@ -1255,3 +1255,309 @@ export async function getMyMarsPixelCreative(
     links,
   };
 }
+
+export type MarsPixelAdEventType =
+  | "impression"
+  | "card_open"
+  | "cta_click";
+
+export type MarsPixelAdAnalytics = {
+  allocation_id: string;
+  period_days: number;
+  impressions: number;
+  card_opens: number;
+  cta_clicks: number;
+  ctr: number;
+  last_event_at: string | null;
+};
+
+const MARS_PIXEL_ANALYTICS_SESSION_KEY =
+  "bobu_mars_pixel_analytics_session_v1";
+
+function getMarsPixelAnalyticsSessionKey(): string | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  try {
+    const existing =
+      window.sessionStorage.getItem(
+        MARS_PIXEL_ANALYTICS_SESSION_KEY,
+      );
+
+    if (existing) {
+      return existing;
+    }
+
+    const generated =
+      typeof crypto !== "undefined" &&
+      typeof crypto.randomUUID === "function"
+        ? crypto.randomUUID()
+        : `${Date.now()}-${Math.random()
+            .toString(36)
+            .slice(2)}`;
+
+    window.sessionStorage.setItem(
+      MARS_PIXEL_ANALYTICS_SESSION_KEY,
+      generated,
+    );
+
+    return generated;
+  } catch {
+    return null;
+  }
+}
+
+export async function recordMarsPixelAdEvent(
+  allocationId: string,
+  eventType: MarsPixelAdEventType,
+): Promise<void> {
+  if (!allocationId) {
+    return;
+  }
+
+  const { error } = await supabase.rpc(
+    "record_mars_pixel_ad_event_v1",
+    {
+      p_allocation_id: allocationId,
+      p_event_type: eventType,
+      p_session_key:
+        getMarsPixelAnalyticsSessionKey(),
+    },
+  );
+
+  if (error) {
+    console.warn(
+      "[Mars Pixel analytics] event rejected",
+      eventType,
+      error.message,
+    );
+    return;
+  }
+
+}
+
+export async function getMyMarsPixelAdAnalytics(
+  days: 7 | 30 | 90 = 30,
+): Promise<MarsPixelAdAnalytics[]> {
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    return [];
+  }
+
+  const { data, error } = await supabase.rpc(
+    "get_my_mars_pixel_ad_analytics_v1",
+    {
+      p_days: days,
+    },
+  );
+
+  if (error) {
+    throw error;
+  }
+
+  const rows: unknown[] =
+    Array.isArray(data) ? data : [];
+
+  return rows
+    .filter(
+      (
+        row,
+      ): row is Record<string, unknown> =>
+        Boolean(
+          row &&
+            typeof row === "object" &&
+            !Array.isArray(row),
+        ),
+    )
+    .map((row) => ({
+      allocation_id:
+        typeof row.allocation_id === "string"
+          ? row.allocation_id
+          : "",
+      period_days:
+        typeof row.period_days === "number"
+          ? row.period_days
+          : Number(row.period_days ?? days),
+      impressions:
+        typeof row.impressions === "number"
+          ? row.impressions
+          : Number(row.impressions ?? 0),
+      card_opens:
+        typeof row.card_opens === "number"
+          ? row.card_opens
+          : Number(row.card_opens ?? 0),
+      cta_clicks:
+        typeof row.cta_clicks === "number"
+          ? row.cta_clicks
+          : Number(row.cta_clicks ?? 0),
+      ctr:
+        typeof row.ctr === "number"
+          ? row.ctr
+          : Number(row.ctr ?? 0),
+      last_event_at:
+        typeof row.last_event_at === "string"
+          ? row.last_event_at
+          : null,
+    }))
+    .filter((row) => row.allocation_id);
+}
+
+export type MarsPixelAdvertiserCenterTerritory = {
+  allocation_id: string;
+  advertiser_id: string;
+  advertiser_name: string;
+  advertiser_type: string;
+  advertiser_status: string;
+  allocation_status: string;
+  x_start: number;
+  y_start: number;
+  width: number;
+  height: number;
+  pixel_count: number;
+  color_key: string | null;
+  activated_at: string | null;
+  allocation_created_at: string;
+  creative_id: string | null;
+  creative_status: string | null;
+  creative_title: string | null;
+  creative_description: string | null;
+  creative_image_url: string | null;
+  creative_destination_url: string | null;
+  creative_cta_label: string | null;
+  creative_links: MarsPixelCreativeLink[];
+  creative_updated_at: string | null;
+};
+
+export async function getMyMarsPixelAdvertiserCenter(): Promise<
+  MarsPixelAdvertiserCenterTerritory[]
+> {
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    return [];
+  }
+
+  const { data, error } = await supabase.rpc(
+    "get_my_mars_pixel_advertiser_center_v1",
+  );
+
+  if (error) {
+    throw error;
+  }
+
+  const rows: unknown[] = Array.isArray(data) ? data : [];
+
+  return rows
+    .filter(
+      (value): value is Record<string, unknown> =>
+        typeof value === "object" &&
+        value !== null,
+    )
+    .map((row) => {
+      const rawLinks: unknown[] = Array.isArray(
+        row.creative_links,
+      )
+        ? row.creative_links
+        : [];
+
+      const creativeLinks: MarsPixelCreativeLink[] =
+        rawLinks
+          .filter(
+            (
+              value,
+            ): value is Record<string, unknown> =>
+              typeof value === "object" &&
+              value !== null,
+          )
+          .map((value) => ({
+            type: String(
+              value.type ?? "website",
+            ) as MarsPixelCreativeLink["type"],
+            url: String(value.url ?? ""),
+          }))
+          .filter((value) =>
+            [
+              "website",
+              "x",
+              "telegram",
+              "instagram",
+              "youtube",
+              "linkedin",
+            ].includes(value.type),
+          );
+
+      return {
+        allocation_id: String(row.allocation_id),
+        advertiser_id: String(row.advertiser_id),
+        advertiser_name: String(
+          row.advertiser_name ?? "",
+        ),
+        advertiser_type: String(
+          row.advertiser_type ?? "",
+        ),
+        advertiser_status: String(
+          row.advertiser_status ?? "",
+        ),
+        allocation_status: String(
+          row.allocation_status ?? "",
+        ),
+        x_start: Number(row.x_start),
+        y_start: Number(row.y_start),
+        width: Number(row.width),
+        height: Number(row.height),
+        pixel_count: Number(row.pixel_count),
+        color_key:
+          typeof row.color_key === "string"
+            ? row.color_key
+            : null,
+        activated_at:
+          typeof row.activated_at === "string"
+            ? row.activated_at
+            : null,
+        allocation_created_at: String(
+          row.allocation_created_at ?? "",
+        ),
+        creative_id:
+          typeof row.creative_id === "string"
+            ? row.creative_id
+            : null,
+        creative_status:
+          typeof row.creative_status === "string"
+            ? row.creative_status
+            : null,
+        creative_title:
+          typeof row.creative_title === "string"
+            ? row.creative_title
+            : null,
+        creative_description:
+          typeof row.creative_description === "string"
+            ? row.creative_description
+            : null,
+        creative_image_url:
+          typeof row.creative_image_url === "string"
+            ? row.creative_image_url
+            : null,
+        creative_destination_url:
+          typeof row.creative_destination_url === "string"
+            ? row.creative_destination_url
+            : null,
+        creative_cta_label:
+          typeof row.creative_cta_label === "string"
+            ? row.creative_cta_label
+            : null,
+        creative_links: creativeLinks,
+        creative_updated_at:
+          typeof row.creative_updated_at === "string"
+            ? row.creative_updated_at
+            : null,
+      };
+    });
+}
