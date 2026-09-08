@@ -752,23 +752,23 @@ export function MarsPixelOverlay({
         pixels: number,
       ) => {
         if (pixels >= 5000) {
-          return 8.4;
+          return 8.8;
         }
 
         if (pixels >= 1000) {
-          return 7.2;
+          return 7.6;
         }
 
         if (pixels >= 500) {
-          return 6.2;
+          return 6.8;
         }
 
         if (pixels >= 200) {
-          return 5.35;
+          return 6.0;
         }
 
         if (pixels >= 100) {
-          return 4.65;
+          return 5.4;
         }
 
         return 3.95;
