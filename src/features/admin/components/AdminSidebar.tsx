@@ -3,6 +3,7 @@ import {
   FileClock,
   Gift,
   LayoutDashboard,
+  PanelsTopLeft,
   Pickaxe,
   Settings,
   ShieldCheck,
@@ -140,6 +141,19 @@ export function AdminSidebar({
           >
             <Pickaxe size={19} />
             <span>Mining Sessions</span>
+          </NavLink>
+
+          <NavLink
+            to="/admin/mars-pixel-ads"
+            className={({ isActive }) =>
+              `admin-sidebar__link ${
+                isActive ? "admin-sidebar__link--active" : ""
+              }`
+            }
+            onClick={onClose}
+          >
+            <PanelsTopLeft size={19} />
+            <span>Mars Pixel Ads</span>
           </NavLink>
 
           {activeSecurityNavigation.map((item) => {

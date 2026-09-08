@@ -101,6 +101,10 @@ const AdminAnalytics = lazyWithRecovery(
   () => import("../features/admin/AdminAnalytics"),
 );
 
+const AdminMarsPixelAds = lazyWithRecovery(
+  () => import("../features/admin/AdminMarsPixelAds"),
+);
+
 const AdminLogin = lazyWithRecovery(
   () => import("../features/admin/AdminLogin"),
 );
@@ -283,6 +287,15 @@ export function App() {
           element={
             <AdminRoute>
               <AdminAnalytics />
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin/mars-pixel-ads"
+          element={
+            <AdminRoute>
+              <AdminMarsPixelAds />
             </AdminRoute>
           }
         />
