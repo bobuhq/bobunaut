@@ -16,29 +16,46 @@ import {
   type MarsPixelContentTier,
 } from "../core/mars/MarsPixelNetworkService";
 
+import { useLanguage } from "../core/language";
+
 import "./MarsPixelAdvertiserCenter.css";
 
 type AnalyticsPeriod = 7 | 30 | 90;
-
-function formatNumber(value: number) {
-  return new Intl.NumberFormat("en-US").format(value);
-}
 
 function formatPercent(value: number) {
   return `${value.toFixed(2)}%`;
 }
 
-function formatStatus(value: string | null | undefined) {
-  if (!value) {
-    return "NOT CONFIGURED";
-  }
-
-  return value
-    .replaceAll("_", " ")
-    .toUpperCase();
-}
 
 export function MarsPixelAdvertiserCenter() {
+  const { t, language } = useLanguage();
+
+  const formatNumber = (value: number) =>
+    new Intl.NumberFormat(language).format(value);
+
+  const formatStatusLocalized = (
+    value: string | null | undefined,
+  ) => {
+    if (!value) {
+      return t("mars.advertiser.status.notConfigured");
+    }
+
+    switch (value) {
+      case "active":
+        return t("mars.advertiser.status.active");
+      case "under_review":
+        return t("mars.advertiser.status.underReview");
+      case "rejected":
+        return t("mars.advertiser.status.rejected");
+      case "draft":
+        return t("mars.advertiser.status.draft");
+      case "paused":
+        return t("mars.advertiser.status.paused");
+      default:
+        return value.replaceAll("_", " ").toUpperCase();
+    }
+  };
+
   const [territories, setTerritories] = useState<
     MarsPixelAdvertiserCenterTerritory[]
   >([]);
@@ -147,7 +164,7 @@ export function MarsPixelAdvertiserCenter() {
         setError(
           value instanceof Error
             ? value.message
-            : "Unable to load advertiser data.",
+            : t("mars.advertiser.error.loadFailed"),
         );
       })
       .finally(() => {
@@ -159,7 +176,7 @@ export function MarsPixelAdvertiserCenter() {
     return () => {
       active = false;
     };
-  }, [period]);
+  }, [period, t]);
 
   const analyticsByAllocation =
     useMemo(() => {
@@ -323,7 +340,7 @@ export function MarsPixelAdvertiserCenter() {
     const title = creativeTitle.trim();
 
     if (!title) {
-      setEditorError("Ad title is required.");
+      setEditorError(t("mars.advertiser.error.titleRequired"));
       setEditorSuccess(null);
       return;
     }
@@ -333,7 +350,9 @@ export function MarsPixelAdvertiserCenter() {
       contentTier.territory_name_max_chars
     ) {
       setEditorError(
-        `Title can contain up to ${contentTier.territory_name_max_chars} characters.`,
+        t("mars.advertiser.error.titleMax", {
+          count: contentTier.territory_name_max_chars,
+        }),
       );
       setEditorSuccess(null);
       return;
@@ -344,7 +363,9 @@ export function MarsPixelAdvertiserCenter() {
       contentTier.description_max_chars
     ) {
       setEditorError(
-        `Description can contain up to ${contentTier.description_max_chars} characters.`,
+        t("mars.advertiser.error.descriptionMax", {
+          count: contentTier.description_max_chars,
+        }),
       );
       setEditorSuccess(null);
       return;
@@ -425,7 +446,11 @@ export function MarsPixelAdvertiserCenter() {
       );
 
       setEditorSuccess(
-        `Creative submitted · ${result.creative_status.toUpperCase()}`,
+        t("mars.advertiser.submittedStatus", {
+          status: formatStatusLocalized(
+            result.creative_status,
+          ),
+        }),
       );
     } catch (value: unknown) {
       if (uploadedObjectPath) {
@@ -444,7 +469,7 @@ export function MarsPixelAdvertiserCenter() {
       setEditorError(
         value instanceof Error
           ? value.message
-          : "Creative submission failed.",
+          : t("mars.advertiser.error.submissionFailed"),
       );
     } finally {
       setEditorLoading(false);
@@ -457,17 +482,15 @@ export function MarsPixelAdvertiserCenter() {
         <header className="mars-advertiser__hero">
           <div>
             <div className="mars-advertiser__eyebrow">
-              MARS PIXEL / ADVERTISER CENTER
+              {t("mars.advertiser.eyebrow")}
             </div>
 
             <h1>
-              Your Mars advertising command center.
+              {t("mars.advertiser.title")}
             </h1>
 
             <p>
-              Manage your owned Mars Pixel territories,
-              monitor campaign performance and control
-              your active creative from one place.
+              {t("mars.advertiser.subtitle")}
             </p>
           </div>
 
@@ -494,7 +517,7 @@ export function MarsPixelAdvertiserCenter() {
         {error ? (
           <div className="mars-advertiser__error">
             <strong>
-              Advertiser Center unavailable
+              {t("mars.advertiser.unavailable")}
             </strong>
             <span>{error}</span>
           </div>
@@ -502,7 +525,7 @@ export function MarsPixelAdvertiserCenter() {
 
         <section className="mars-advertiser__metrics">
           <article className="mars-advertiser__metric">
-            <span>IMPRESSIONS</span>
+            <span>{t("mars.advertiser.impressions")}</span>
             <strong>
               {loading
                 ? "—"
@@ -511,12 +534,12 @@ export function MarsPixelAdvertiserCenter() {
                   )}
             </strong>
             <small>
-              Visible ad views / {period} days
+              {t("mars.advertiser.visibleViews", { count: period })}
             </small>
           </article>
 
           <article className="mars-advertiser__metric">
-            <span>CARD OPENS</span>
+            <span>{t("mars.advertiser.cardOpens")}</span>
             <strong>
               {loading
                 ? "—"
@@ -525,12 +548,12 @@ export function MarsPixelAdvertiserCenter() {
                   )}
             </strong>
             <small>
-              Territory ad interactions
+              {t("mars.advertiser.territoryInteractions")}
             </small>
           </article>
 
           <article className="mars-advertiser__metric">
-            <span>CTA CLICKS</span>
+            <span>{t("mars.advertiser.ctaClicks")}</span>
             <strong>
               {loading
                 ? "—"
@@ -539,12 +562,12 @@ export function MarsPixelAdvertiserCenter() {
                   )}
             </strong>
             <small>
-              Outbound campaign clicks
+              {t("mars.advertiser.outboundClicks")}
             </small>
           </article>
 
           <article className="mars-advertiser__metric">
-            <span>CTR</span>
+            <span>{t("mars.advertiser.ctr")}</span>
             <strong>
               {loading
                 ? "—"
@@ -553,26 +576,26 @@ export function MarsPixelAdvertiserCenter() {
                   )}
             </strong>
             <small>
-              Clicks / impressions
+              {t("mars.advertiser.clicksImpressions")}
             </small>
           </article>
         </section>
 
         <section className="mars-advertiser__summary">
           <div>
-            <span>OWNED TERRITORIES</span>
+            <span>{t("mars.advertiser.ownedTerritories")}</span>
             <strong>{territories.length}</strong>
           </div>
 
           <div>
-            <span>TOTAL PIXELS</span>
+            <span>{t("mars.advertiser.totalPixels")}</span>
             <strong>
               {formatNumber(totalPixels)}
             </strong>
           </div>
 
           <div>
-            <span>ACTIVE ADS</span>
+            <span>{t("mars.advertiser.activeAds")}</span>
             <strong>{activeAds}</strong>
           </div>
         </section>
@@ -581,26 +604,27 @@ export function MarsPixelAdvertiserCenter() {
           <section className="mars-advertiser__territories">
             <div className="mars-advertiser__section-heading">
               <div>
-                <span>PORTFOLIO</span>
-                <h2>My Territories</h2>
+                <span>{t("mars.advertiser.portfolio")}</span>
+                <h2>{t("mars.advertiser.myTerritories")}</h2>
               </div>
 
               <small>
-                {territories.length} owned
+                {t("mars.advertiser.ownedCount", {
+                  count: territories.length,
+                })}
               </small>
             </div>
 
             {loading ? (
               <div className="mars-advertiser__empty">
-                Loading Mars Pixel territories...
+                {t("mars.advertiser.loadingTerritories")}
               </div>
             ) : null}
 
             {!loading &&
             territories.length === 0 ? (
               <div className="mars-advertiser__empty">
-                No owned Mars Pixel territory was
-                found for this account.
+                {t("mars.advertiser.noOwnedTerritories")}
               </div>
             ) : null}
 
@@ -638,18 +662,18 @@ export function MarsPixelAdvertiserCenter() {
                         <strong>
                           {territory.creative_title ||
                             territory.advertiser_name ||
-                            "Mars Pixel Territory"}
+                            t("mars.advertiser.territoryFallback")}
                         </strong>
 
                         <span>
                           {territory.width} ×{" "}
                           {territory.height} /{" "}
-                          {territory.pixel_count} PIXELS
+                          {territory.pixel_count} {t("mars.advertiser.pixels")}
                         </span>
                       </div>
 
                       <span className="mars-advertiser__status">
-                        {formatStatus(
+                        {formatStatusLocalized(
                           territory.creative_status,
                         )}
                       </span>
@@ -662,7 +686,7 @@ export function MarsPixelAdvertiserCenter() {
 
                     <div className="mars-advertiser__territory-stats">
                       <div>
-                        <span>Views</span>
+                        <span>{t("mars.advertiser.views")}</span>
                         <strong>
                           {formatNumber(
                             rowAnalytics?.impressions ??
@@ -672,7 +696,7 @@ export function MarsPixelAdvertiserCenter() {
                       </div>
 
                       <div>
-                        <span>Opens</span>
+                        <span>{t("mars.advertiser.opens")}</span>
                         <strong>
                           {formatNumber(
                             rowAnalytics?.card_opens ??
@@ -682,7 +706,7 @@ export function MarsPixelAdvertiserCenter() {
                       </div>
 
                       <div>
-                        <span>Clicks</span>
+                        <span>{t("mars.advertiser.clicks")}</span>
                         <strong>
                           {formatNumber(
                             rowAnalytics?.cta_clicks ??
@@ -700,13 +724,13 @@ export function MarsPixelAdvertiserCenter() {
           <section className="mars-advertiser__creative-panel">
             <div className="mars-advertiser__section-heading">
               <div>
-                <span>CAMPAIGN</span>
-                <h2>Active Creative</h2>
+                <span>{t("mars.advertiser.campaign")}</span>
+                <h2>{t("mars.advertiser.activeCreative")}</h2>
               </div>
 
               {selectedTerritory ? (
                 <span className="mars-advertiser__status">
-                  {formatStatus(
+                  {formatStatusLocalized(
                     selectedTerritory.creative_status,
                   )}
                 </span>
@@ -723,12 +747,12 @@ export function MarsPixelAdvertiserCenter() {
                       }
                       alt={
                         selectedTerritory.creative_title ||
-                        "Mars Pixel creative"
+                        t("mars.advertiser.creativeAlt")
                       }
                     />
                   ) : (
                     <div className="mars-advertiser__creative-placeholder">
-                      NO CREATIVE IMAGE
+                      {t("mars.advertiser.noCreativeImage")}
                     </div>
                   )}
 
@@ -741,12 +765,12 @@ export function MarsPixelAdvertiserCenter() {
 
                     <h3>
                       {selectedTerritory.creative_title ||
-                        "Untitled Creative"}
+                        t("mars.advertiser.untitledCreative")}
                     </h3>
 
                     <p>
                       {selectedTerritory.creative_description ||
-                        "No campaign description has been configured yet."}
+                        t("mars.advertiser.noDescription")}
                     </p>
 
                     {selectedTerritory.creative_destination_url ? (
@@ -758,7 +782,7 @@ export function MarsPixelAdvertiserCenter() {
                         rel="noopener noreferrer"
                       >
                         {selectedTerritory.creative_cta_label ||
-                          "EXPLORE"}
+                          t("mars.advertiser.explore")}
                       </a>
                     ) : null}
                   </div>
@@ -766,7 +790,7 @@ export function MarsPixelAdvertiserCenter() {
 
                 <div className="mars-advertiser__creative-stats">
                   <div>
-                    <span>IMPRESSIONS</span>
+                    <span>{t("mars.advertiser.impressions")}</span>
                     <strong>
                       {formatNumber(
                         selectedAnalytics?.impressions ??
@@ -776,7 +800,7 @@ export function MarsPixelAdvertiserCenter() {
                   </div>
 
                   <div>
-                    <span>CARD OPENS</span>
+                    <span>{t("mars.advertiser.cardOpens")}</span>
                     <strong>
                       {formatNumber(
                         selectedAnalytics?.card_opens ??
@@ -786,7 +810,7 @@ export function MarsPixelAdvertiserCenter() {
                   </div>
 
                   <div>
-                    <span>CTA CLICKS</span>
+                    <span>{t("mars.advertiser.ctaClicks")}</span>
                     <strong>
                       {formatNumber(
                         selectedAnalytics?.cta_clicks ??
@@ -796,7 +820,7 @@ export function MarsPixelAdvertiserCenter() {
                   </div>
 
                   <div>
-                    <span>CTR</span>
+                    <span>{t("mars.advertiser.ctr")}</span>
                     <strong>
                       {formatPercent(
                         selectedAnalytics?.ctr ??
@@ -808,7 +832,7 @@ export function MarsPixelAdvertiserCenter() {
 
                 <div className="mars-advertiser__creative-meta">
                   <div>
-                    <span>ALLOCATION</span>
+                    <span>{t("mars.advertiser.allocation")}</span>
                     <strong>
                       {
                         selectedTerritory.allocation_id
@@ -817,10 +841,10 @@ export function MarsPixelAdvertiserCenter() {
                   </div>
 
                   <div>
-                    <span>COLOR KEY</span>
+                    <span>{t("mars.advertiser.colorKey")}</span>
                     <strong>
                       {selectedTerritory.color_key ??
-                        "DEFAULT"}
+                        t("mars.advertiser.default")}
                     </strong>
                   </div>
                 </div>
@@ -828,9 +852,9 @@ export function MarsPixelAdvertiserCenter() {
                 <div className="mars-advertiser__manager">
                   <div className="mars-advertiser__manager-head">
                     <div>
-                      <span>AD MANAGER</span>
+                      <span>{t("mars.advertiser.adManager")}</span>
                       <strong>
-                        Manage Creative
+                        {t("mars.advertiser.manageCreative")}
                       </strong>
                     </div>
 
@@ -843,15 +867,15 @@ export function MarsPixelAdvertiserCenter() {
                       }
                     >
                       {editorOpen
-                        ? "CLOSE EDITOR"
-                        : "EDIT AD"}
+                        ? t("mars.advertiser.closeEditor")
+                        : t("mars.advertiser.editAd")}
                     </button>
                   </div>
 
                   {editorOpen ? (
                     <div className="mars-advertiser__editor">
                       <label>
-                        <span>AD TITLE</span>
+                        <span>{t("mars.advertiser.adTitle")}</span>
                         <input
                           type="text"
                           value={creativeTitle}
@@ -864,7 +888,7 @@ export function MarsPixelAdvertiserCenter() {
                               event.target.value,
                             )
                           }
-                          placeholder="Campaign title"
+                          placeholder={t("mars.advertiser.campaignTitlePlaceholder")}
                         />
                         <small>
                           {creativeTitle.length} /{" "}
@@ -875,7 +899,7 @@ export function MarsPixelAdvertiserCenter() {
                       </label>
 
                       <label>
-                        <span>DESCRIPTION</span>
+                        <span>{t("mars.advertiser.description")}</span>
                         <textarea
                           value={
                             creativeDescription
@@ -889,7 +913,7 @@ export function MarsPixelAdvertiserCenter() {
                               event.target.value,
                             )
                           }
-                          placeholder="Tell visitors about your project."
+                          placeholder={t("mars.advertiser.descriptionPlaceholder")}
                           rows={4}
                         />
                         <small>
@@ -905,7 +929,7 @@ export function MarsPixelAdvertiserCenter() {
 
                       {contentTier?.image_allowed ? (
                         <label>
-                          <span>CREATIVE IMAGE</span>
+                          <span>{t("mars.advertiser.creativeImage")}</span>
                           <input
                             type="file"
                             accept="image/jpeg,image/png,image/webp"
@@ -918,7 +942,7 @@ export function MarsPixelAdvertiserCenter() {
                             }
                           />
                           <small>
-                            JPG, PNG or WebP · max 5 MB
+                            {t("mars.advertiser.imageHelp")}
                             {creativeImageFile
                               ? ` · ${creativeImageFile.name}`
                               : ""}
@@ -927,7 +951,7 @@ export function MarsPixelAdvertiserCenter() {
                       ) : null}
 
                       <label>
-                        <span>DESTINATION URL</span>
+                        <span>{t("mars.advertiser.destinationUrl")}</span>
                         <input
                           type="url"
                           value={
@@ -944,7 +968,7 @@ export function MarsPixelAdvertiserCenter() {
 
                       {contentTier?.cta_allowed ? (
                         <label>
-                          <span>CTA LABEL</span>
+                          <span>{t("mars.advertiser.ctaLabel")}</span>
                           <input
                             type="text"
                             value={
@@ -955,7 +979,7 @@ export function MarsPixelAdvertiserCenter() {
                                 event.target.value,
                               )
                             }
-                            placeholder="EXPLORE NOW"
+                            placeholder={t("mars.advertiser.exploreNow")}
                           />
                         </label>
                       ) : null}
@@ -974,8 +998,7 @@ export function MarsPixelAdvertiserCenter() {
 
                       <div className="mars-advertiser__editor-actions">
                         <span>
-                          Saving creates a moderated
-                          creative revision.
+                          {t("mars.advertiser.moderatedRevision")}
                         </span>
 
                         <button
@@ -989,23 +1012,21 @@ export function MarsPixelAdvertiserCenter() {
                           }
                         >
                           {editorLoading
-                            ? "SUBMITTING..."
-                            : "SAVE & SUBMIT"}
+                            ? t("mars.advertiser.submitting")
+                            : t("mars.advertiser.saveSubmit")}
                         </button>
                       </div>
                     </div>
                   ) : (
                     <p className="mars-advertiser__manager-copy">
-                      Update your campaign image,
-                      message, destination and CTA.
+                      {t("mars.advertiser.managerCopy")}
                     </p>
                   )}
                 </div>
               </>
             ) : (
               <div className="mars-advertiser__empty">
-                Select a territory to inspect its
-                campaign.
+                {t("mars.advertiser.selectTerritory")}
               </div>
             )}
           </section>

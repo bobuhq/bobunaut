@@ -34,6 +34,7 @@ import type {
 import {
   recordMarsPixelAdEvent,
 } from "../MarsPixelNetworkService";
+import { useLanguage } from "../../language";
 
 import {
   MARS_PIXEL_SALE_BLOCK_SIZE,
@@ -190,6 +191,8 @@ export function MarsPixelOverlay({
   ownerHoverPreview = null,
   onOwnedTerritoryHover,
 }: MarsPixelOverlayProps) {
+  const { t } = useLanguage();
+
   const texture = useMemo(() => {
     const data = new Uint8Array(
       gridWidth * gridHeight * 4,
@@ -2594,7 +2597,7 @@ export function MarsPixelOverlay({
           const ctaLabel =
             ownerPreview?.cta_label?.trim() ||
             allocation.cta_label?.trim() ||
-            "EXPLORE NOW";
+            t("mars.pixel.overlay.exploreNow");
 
           let destinationLabel: string | null = null;
 
@@ -2646,7 +2649,7 @@ export function MarsPixelOverlay({
                 {pinnedTerritoryId === allocation.allocation_id ? (
                   <button
                     type="button"
-                    aria-label="Close Mars Pixel advertisement"
+                    aria-label={t("mars.pixel.overlay.closeAd")}
                     onPointerDown={(event) =>
                       event.stopPropagation()
                     }

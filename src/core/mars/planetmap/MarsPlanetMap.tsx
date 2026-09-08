@@ -879,7 +879,7 @@ export function MarsPlanetMap({
   aresAccess,
   aresAccessLoading,
 }: MarsPlanetMapProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [
     pixelNetworkStatus,
     setPixelNetworkStatus,
@@ -1079,7 +1079,7 @@ export function MarsPlanetMap({
 
         if (!automatic) {
           setPixelColorError(
-            "No eligible territory color is available.",
+            t("mars.pixel.error.noEligibleColor"),
           );
         }
       })
@@ -1095,7 +1095,7 @@ export function MarsPlanetMap({
         setPixelColorError(
           error instanceof Error
             ? error.message
-            : "Territory color options could not be loaded.",
+            : t("mars.pixel.error.colorOptionsFailed"),
         );
       })
       .finally(() => {
@@ -1275,7 +1275,7 @@ export function MarsPlanetMap({
       setSelectedPixelSelection(null);
       setSelectedPixelValuation(null);
       setSelectedPixelSelectionError(
-        "SELECTION DATA UNAVAILABLE",
+        t("mars.pixel.error.selectionDataUnavailable"),
       );
     } finally {
       if (
@@ -1400,7 +1400,7 @@ export function MarsPlanetMap({
         );
 
         setSelectedPixelContentTierError(
-          "TIER DATA UNAVAILABLE",
+          t("mars.pixel.error.tierDataUnavailable"),
         );
       })
       .finally(() => {
@@ -1531,7 +1531,7 @@ export function MarsPlanetMap({
       setMarsPixelPurchaseError(
         error instanceof Error
           ? error.message
-          : "Unable to connect Solana wallet.",
+          : t("mars.pixel.error.solanaConnectFailed"),
       );
     } finally {
       setMarsSolanaWalletConnecting(false);
@@ -1890,7 +1890,7 @@ export function MarsPlanetMap({
       setCreativeSaveError(
         error instanceof Error
           ? error.message
-          : "Creative submission failed.",
+          : t("mars.pixel.error.creativeSubmissionFailed"),
       );
     } finally {
       setCreativeImageUploading(false);
@@ -1970,7 +1970,7 @@ export function MarsPlanetMap({
       !marsSolanaWallet.publicKey
     ) {
       setMarsPixelPurchaseError(
-        "Connect your Solana wallet before checkout.",
+        t("mars.pixel.error.connectWalletBeforeCheckout"),
       );
       return;
     }
@@ -2012,7 +2012,7 @@ export function MarsPlanetMap({
         marsSolanaWallet.publicKey
       ) {
         throw new Error(
-          "Connected wallet does not match the checkout wallet.",
+          t("mars.pixel.error.checkoutWalletMismatch"),
         );
       }
 
@@ -2028,11 +2028,13 @@ export function MarsPlanetMap({
       );
 
       setMarsPixelPurchaseSuccess(
-        `SOLANA DEVNET CHECKOUT READY · ${(
-          checkout.amountLamports / 1_000_000_000
-        ).toLocaleString("en-US", {
-          maximumFractionDigits: 9,
-        })} SOL`,
+        t("mars.pixel.solana.checkoutReady", {
+          amount: (
+            checkout.amountLamports / 1_000_000_000
+          ).toLocaleString(language, {
+            maximumFractionDigits: 9,
+          }),
+        }),
       );
     } catch (error) {
       console.error(
@@ -2044,7 +2046,7 @@ export function MarsPlanetMap({
       setMarsPixelPurchaseError(
         error instanceof Error
           ? error.message
-          : "Unable to prepare Solana checkout.",
+          : t("mars.pixel.error.checkoutPrepareFailed"),
       );
     } finally {
       setMarsPixelPurchaseLoading(false);
@@ -2071,7 +2073,7 @@ export function MarsPlanetMap({
     ) {
       setMarsSolanaPaymentStage("failed");
       setMarsPixelPurchaseError(
-        "Connected wallet does not match the prepared checkout.",
+        t("mars.pixel.error.preparedWalletMismatch"),
       );
       return;
     }
@@ -2079,7 +2081,7 @@ export function MarsPlanetMap({
     if (marsSolanaCheckout.network !== "devnet") {
       setMarsSolanaPaymentStage("failed");
       setMarsPixelPurchaseError(
-        "Only Solana Devnet payments are enabled.",
+        t("mars.pixel.error.devnetOnly"),
       );
       return;
     }
@@ -2099,7 +2101,7 @@ export function MarsPlanetMap({
       ) {
         setMarsSolanaPaymentStage("failed");
         setMarsPixelPurchaseError(
-          "Solana checkout expired. Prepare a new checkout before signing.",
+          t("mars.pixel.error.checkoutExpired"),
         );
         return;
       }
@@ -2231,7 +2233,7 @@ export function MarsPlanetMap({
       setMarsPixelPurchaseError(
         error instanceof Error
           ? error.message
-          : "Mars Solana payment failed.",
+          : t("mars.pixel.error.solanaPaymentFailed"),
       );
     } finally {
       setMarsPixelPurchaseLoading(false);
@@ -2310,7 +2312,7 @@ export function MarsPlanetMap({
       const message =
         error instanceof Error
           ? error.message
-          : "Mars Pixel purchase failed.";
+          : t("mars.pixel.error.purchaseFailed");
 
       setMarsPixelPurchaseError(message);
     } finally {
@@ -2487,7 +2489,7 @@ export function MarsPlanetMap({
         );
 
         setSelectedPixelSelectionError(
-          "SELECTION DATA UNAVAILABLE",
+          t("mars.pixel.error.selectionDataUnavailable"),
         );
       } finally {
         if (
@@ -2555,7 +2557,7 @@ export function MarsPlanetMap({
       );
 
       setSelectedPixelError(
-        "BLOCK DATA UNAVAILABLE",
+        t("mars.pixel.error.blockDataUnavailable"),
       );
     } finally {
       if (
@@ -2686,16 +2688,16 @@ export function MarsPlanetMap({
                 "en-US",
               )} MARS PIXELS`
             : pixelNetworkError
-              ? "NETWORK UNAVAILABLE"
-              : "NETWORK SYNCING"}
+              ? t("mars.pixel.networkUnavailable")
+              : t("mars.pixel.networkSyncing")}
         </strong>
 
         <small>
           {pixelNetworkStatus
             ? `COMMERCIAL NETWORK ${pixelNetworkStatus.commercial_status.toUpperCase()}`
             : pixelNetworkError
-              ? "STATUS UNAVAILABLE"
-              : "READING PRODUCTION STATE"}
+              ? t("mars.pixel.statusUnavailable")
+              : t("mars.pixel.readingProductionState")}
         </small>
       </div>
 
@@ -2708,7 +2710,7 @@ export function MarsPlanetMap({
 
           <div className="mars-pixel-goto__controls">
             <label>
-              <span>WIDTH</span>
+              <span>{t("mars.pixel.width")}</span>
               <input
                 type="number"
                 min={1}
@@ -2726,7 +2728,7 @@ export function MarsPlanetMap({
             </label>
 
             <label>
-              <span>HEIGHT</span>
+              <span>{t("mars.pixel.height")}</span>
               <input
                 type="number"
                 min={0}
@@ -2775,7 +2777,7 @@ export function MarsPlanetMap({
                     ? width * height
                     : 0;
 
-                return `${total.toLocaleString("en-US")} ${t("mars.pixel.pixels")}`;
+                return `${total.toLocaleString(language)} ${t("mars.pixel.pixels")}`;
               })()}
             </button>
           </div>
@@ -2863,7 +2865,7 @@ export function MarsPlanetMap({
             {!pixelDragActive &&
               selectedPixelLoading && (
                 <div className="mars-pixel-detail__message">
-                  READING PRODUCTION STATE
+                  {t("mars.pixel.readingProductionState")}
                 </div>
               )}
 
@@ -3065,34 +3067,34 @@ export function MarsPlanetMap({
                           ].join(" ")}
                         >
                           {reservedZoneCode === "ARES_PROTECTED"
-                            ? "PROTECTED"
+                            ? t("mars.pixel.protected")
                             : status.toUpperCase()}
                         </div>
 
                         {selectionLocked && (
                           <>
                             <div className="mars-pixel-detail__meta">
-                              <span>RESERVED OVERLAP</span>
+                              <span>{t("mars.pixel.reservedOverlap")}</span>
                               <strong>
                                 {reservedOverlapCount ?? 0}
                               </strong>
                             </div>
 
                             <div className="mars-pixel-detail__meta">
-                              <span>OWNED OVERLAP</span>
+                              <span>{t("mars.pixel.ownedOverlap")}</span>
                               <strong>
                                 {ownedOverlapCount ?? 0}
                               </strong>
                             </div>
 
                             <div className="mars-pixel-detail__meta">
-                              <span>AVAILABILITY</span>
+                              <span>{t("mars.pixel.availability")}</span>
                               <strong>
                                 {reservedZoneCode === "ARES_PROTECTED"
-                                  ? "PROTECTED"
+                                  ? t("mars.pixel.protected")
                                   : status === "available"
-                                    ? "AVAILABLE"
-                                    : "UNAVAILABLE"}
+                                    ? t("mars.pixel.available")
+                                    : t("mars.pixel.unavailable")}
                               </strong>
                             </div>
                           </>
@@ -3101,13 +3103,13 @@ export function MarsPlanetMap({
                         {reservedZoneCode === "ARES_PROTECTED" && (
                           <>
                             <div className="mars-pixel-detail__commercial">
-                              NOT FOR SALE
+                              {t("mars.pixel.notForSale")}
                             </div>
 
                             <div className="mars-pixel-detail__meta">
                               <span>{t("mars.pixel.protectedTerritory")}</span>
                               <strong>
-                                {reservedZoneName ?? "Ares Sector"}
+                                {reservedZoneName ?? t("mars.pixel.aresSector")}
                               </strong>
                             </div>
                           </>
@@ -3126,13 +3128,13 @@ export function MarsPlanetMap({
                           reservedZoneCode !== "ARES_PROTECTED" && (
                           <>
                             <div className="mars-pixel-detail__commercial">
-                              NOT FOR SALE
+                              {t("mars.pixel.notForSale")}
                             </div>
 
                             {reservedZoneName && (
                               <div className="mars-pixel-detail__meta">
                                 <span>
-                                  RESERVED ZONE
+                                  {t("mars.pixel.reservedZone")}
                                 </span>
                                 <strong>
                                   {reservedZoneName}
@@ -3189,7 +3191,7 @@ export function MarsPlanetMap({
                                     );
                                   }}
                                 >
-                                  <span>MANAGE MY ADS</span>
+                                  <span>{t("mars.pixel.manageMyAds")}</span>
                                   <small>
                                     Creative · Analytics · Campaign
                                   </small>
@@ -3490,11 +3492,11 @@ export function MarsPlanetMap({
                             <div className="mars-checkout-journey">
                               <div className="mars-checkout-journey__steps">
                                 {[
-                                  [1, "SIZE"],
-                                  [2, "LOCATION"],
-                                  [3, "CUSTOMIZE"],
-                                  [4, "REVIEW"],
-                                  [5, "AGREEMENT"],
+                                  [1, t("mars.pixel.checkout.size")],
+                                  [2, t("mars.pixel.checkout.location")],
+                                  [3, t("mars.pixel.checkout.customize")],
+                                  [4, t("mars.pixel.checkout.review")],
+                                  [5, t("mars.pixel.checkout.agreement")],
                                 ].map(([step, label]) => {
                                   const stepNumber = step as number;
                                   const complete =
@@ -3592,8 +3594,8 @@ export function MarsPlanetMap({
                                           >
                                             IMAGE ·{" "}
                                             {selectedPixelContentTier.image_allowed
-                                              ? "UNLOCKED"
-                                              : "LOCKED"}
+                                              ? t("mars.pixel.unlocked")
+                                              : t("mars.ares.locked")}
                                           </span>
 
                                           <span className="is-unlocked">
@@ -3612,8 +3614,8 @@ export function MarsPlanetMap({
                                           >
                                             CTA ·{" "}
                                             {selectedPixelContentTier.cta_allowed
-                                              ? "UNLOCKED"
-                                              : "LOCKED"}
+                                              ? t("mars.pixel.unlocked")
+                                              : t("mars.ares.locked")}
                                           </span>
                                         </div>
 
@@ -3699,7 +3701,7 @@ export function MarsPlanetMap({
                                     </strong>
 
                                     {selectedPixelContentTierLoading && (
-                                      <p>CALCULATING...</p>
+                                      <p>{t("mars.pixel.calculating")}</p>
                                     )}
 
                                     {selectedPixelContentTierError && (
@@ -3728,8 +3730,8 @@ export function MarsPlanetMap({
                                         >
                                           IMAGE ·{" "}
                                           {selectedPixelContentTier.image_allowed
-                                            ? "UNLOCKED"
-                                            : "LOCKED"}
+                                            ? t("mars.pixel.unlocked")
+                                            : t("mars.ares.locked")}
                                         </span>
 
                                         <span className="is-unlocked">
@@ -3748,8 +3750,8 @@ export function MarsPlanetMap({
                                         >
                                           CTA ·{" "}
                                           {selectedPixelContentTier.cta_allowed
-                                            ? "UNLOCKED"
-                                            : "LOCKED"}
+                                            ? t("mars.pixel.unlocked")
+                                            : t("mars.ares.locked")}
                                         </span>
 
                                         <span
@@ -3761,8 +3763,8 @@ export function MarsPlanetMap({
                                         >
                                           SOCIAL ·{" "}
                                           {selectedPixelContentTier.socials_allowed
-                                            ? "UNLOCKED"
-                                            : "LOCKED"}
+                                            ? t("mars.pixel.unlocked")
+                                            : t("mars.ares.locked")}
                                         </span>
 
                                         <span
@@ -3774,8 +3776,8 @@ export function MarsPlanetMap({
                                         >
                                           ANALYTICS ·{" "}
                                           {selectedPixelContentTier.analytics_allowed
-                                            ? "UNLOCKED"
-                                            : "LOCKED"}
+                                            ? t("mars.pixel.unlocked")
+                                            : t("mars.ares.locked")}
                                         </span>
 
                                         <span
@@ -3787,8 +3789,8 @@ export function MarsPlanetMap({
                                         >
                                           PREMIUM ·{" "}
                                           {selectedPixelContentTier.premium
-                                            ? "UNLOCKED"
-                                            : "LOCKED"}
+                                            ? t("mars.pixel.unlocked")
+                                            : t("mars.ares.locked")}
                                         </span>
                                       </div>
                                     )}
@@ -3812,15 +3814,15 @@ export function MarsPlanetMap({
 
                                           <strong>
                                             {pixelColorLoading
-                                              ? "SELECTING..."
+                                              ? t("mars.pixel.selecting")
                                               : selectedPixelColorKey ??
-                                                "UNAVAILABLE"}
+                                                t("mars.pixel.unavailable")}
                                           </strong>
 
                                           <em>
                                             {pixelColorMode === "auto"
-                                              ? "AUTO SELECTED"
-                                              : "MANUAL SELECTION"}
+                                              ? t("mars.pixel.autoSelected")
+                                              : t("mars.pixel.manualSelection")}
                                           </em>
                                         </div>
 
@@ -3838,8 +3840,8 @@ export function MarsPlanetMap({
                                           }
                                         >
                                           {pixelColorPickerOpen
-                                            ? "CLOSE"
-                                            : "CHANGE COLOR"}
+                                            ? t("mars.pixel.close")
+                                            : t("mars.pixel.changeColor")}
                                         </button>
                                       </div>
 
@@ -3931,7 +3933,7 @@ export function MarsPlanetMap({
 
                                     <div className="mars-checkout-review">
                                       <div>
-                                        <span>TERRITORY</span>
+                                        <span>{t("mars.pixel.territory")}</span>
                                         <strong>
                                           {
                                             selectedPixelSelection.width
@@ -3944,7 +3946,7 @@ export function MarsPlanetMap({
                                       </div>
 
                                       <div>
-                                        <span>TIER</span>
+                                        <span>{t("mars.pixel.tier")}</span>
                                         <strong>
                                           {selectedPixelContentTier?.tier_key ??
                                             "—"}
@@ -3952,15 +3954,15 @@ export function MarsPlanetMap({
                                       </div>
 
                                       <div>
-                                        <span>COLOR</span>
+                                        <span>{t("mars.pixel.color")}</span>
                                         <strong>
                                           {selectedPixelColorKey ??
-                                            "AUTO"}
+                                            t("mars.pixel.auto")}
                                         </strong>
                                       </div>
 
                                       <div>
-                                        <span>TOTAL</span>
+                                        <span>{t("mars.pixel.total")}</span>
                                         <strong>
                                           {selectedPixelValuation?.settlement_total_price !=
                                           null
@@ -3975,7 +3977,7 @@ export function MarsPlanetMap({
                                       </div>
 
                                       <div>
-                                        <span>PRICE / PIXEL</span>
+                                        <span>{t("mars.pixel.pricePerPixel")}</span>
                                         <strong>
                                           {selectedPixelValuation?.settlement_price_per_pixel !=
                                           null
@@ -4112,13 +4114,13 @@ export function MarsPlanetMap({
                                   }}
                                 >
                                   {marsSolanaWalletConnecting
-                                    ? "CONNECTING SOLANA WALLET..."
+                                    ? t("mars.pixel.solana.connectingWallet")
                                     : !marsSolanaWalletAvailable
-                                      ? "SOLANA WALLET NOT FOUND"
+                                      ? t("mars.pixel.solana.walletNotFound")
                                       : marsPurchaseAgreementAccepted &&
                                           purchasable
-                                        ? "CONNECT SOLANA WALLET"
-                                        : "ACCEPT AGREEMENT TO CONTINUE"}
+                                        ? t("mars.pixel.solana.connectWallet")
+                                        : t("mars.pixel.solana.acceptAgreement")}
                                 </button>
                               ) : marsSolanaCheckout ? (
                                 <button
@@ -4136,22 +4138,24 @@ export function MarsPlanetMap({
                                 >
                                   {marsPixelPurchaseLoading
                                     ? marsSolanaPaymentStage === "awaiting_signature"
-                                      ? "AWAITING WALLET SIGNATURE..."
+                                      ? t("mars.pixel.solana.awaitingSignature")
                                       : marsSolanaPaymentStage === "broadcast"
-                                        ? "WAITING FOR SOLANA FINALITY..."
+                                        ? t("mars.pixel.solana.waitingFinality")
                                         : marsSolanaPaymentStage === "verifying"
-                                          ? "VERIFYING PAYMENT..."
-                                          : "PROCESSING DEVNET PAYMENT..."
+                                          ? t("mars.pixel.solana.verifyingPayment")
+                                          : t("mars.pixel.solana.processingDevnet")
                                     : marsSolanaPaymentStage === "verified"
-                                      ? "PAYMENT VERIFIED"
+                                      ? t("mars.pixel.solana.paymentVerified")
                                       : marsSolanaTransactionSignature
-                                        ? "RETRY PAYMENT VERIFICATION"
-                                        : `PAY WITH SOL — DEVNET · ${(
-                                            marsSolanaCheckout.amountLamports /
-                                            1_000_000_000
-                                          ).toLocaleString("en-US", {
-                                            maximumFractionDigits: 9,
-                                          })} SOL`}
+                                        ? t("mars.pixel.solana.retryVerification")
+                                        : t("mars.pixel.solana.payWithSolDevnet", {
+                                            amount: (
+                                              marsSolanaCheckout.amountLamports /
+                                              1_000_000_000
+                                            ).toLocaleString(language, {
+                                              maximumFractionDigits: 9,
+                                            }),
+                                          })}
                                 </button>
                               ) : (
                                 <button
@@ -4167,8 +4171,8 @@ export function MarsPlanetMap({
                                   }}
                                 >
                                   {marsPixelPurchaseLoading
-                                    ? "PREPARING SOLANA CHECKOUT..."
-                                    : "PREPARE SOLANA CHECKOUT"}
+                                    ? t("mars.pixel.solana.preparingCheckout")
+                                    : t("mars.pixel.solana.prepareCheckout")}
                                 </button>
                               )}
 
@@ -4412,7 +4416,7 @@ export function MarsPlanetMap({
           <button
             type="button"
             className="mars-planet-map__focus-close"
-            aria-label="Close sector"
+            aria-label={t("mars.ares.closeSector")}
             onClick={() =>
               onSelectSector(null)
             }
@@ -4495,10 +4499,10 @@ export function MarsPlanetMap({
                   </span>
                   <strong>
                     {aresAccessLoading
-                      ? "VERIFYING ACCESS"
+                      ? t("mars.ares.verifyingAccess")
                       : aresAccess?.unlocked
                         ? t("mars.ares.accessAuthorized")
-                        : "SECURITY LOCK ACTIVE"}
+                        : t("mars.ares.securityLockActive")}
                   </strong>
                 </div>
               </div>
@@ -4514,8 +4518,8 @@ export function MarsPlanetMap({
                   <span>{t("mars.ares.telegramVerification")}</span>
                   <strong>
                     {aresAccess?.telegram_verified
-                      ? "VERIFIED ✓"
-                      : "LOCKED"}
+                      ? t("mars.ares.verifiedCheck")
+                      : t("mars.ares.locked")}
                   </strong>
                 </div>
 
@@ -4529,8 +4533,8 @@ export function MarsPlanetMap({
                   <span>{t("mars.ares.xVerification")}</span>
                   <strong>
                     {aresAccess?.x_verified
-                      ? "VERIFIED ✓"
-                      : "LOCKED"}
+                      ? t("mars.ares.verifiedCheck")
+                      : t("mars.ares.locked")}
                   </strong>
                 </div>
 
@@ -4546,7 +4550,7 @@ export function MarsPlanetMap({
                   <span>{t("mars.ares.miningDays")}</span>
                   <strong>
                     {aresAccessLoading
-                      ? "SYNCING"
+                      ? t("mars.ares.syncing")
                       : `${aresAccess?.mining_days ?? 0} / ${
                           aresAccess?.required_mining_days ?? 7
                         }`}
@@ -4584,10 +4588,10 @@ export function MarsPlanetMap({
                 }}
               >
                 {aresAccessLoading
-                  ? "VERIFYING ACCESS"
+                  ? t("mars.ares.verifyingAccess")
                   : aresAccess?.unlocked
                     ? t("mars.ares.enter")
-                    : "ARES LOCKED"}
+                    : t("mars.ares.aresLocked")}
                 <span>
                   {aresAccess?.unlocked ? "→" : "×"}
                 </span>
@@ -4600,7 +4604,7 @@ export function MarsPlanetMap({
                   className="mars-planet-map__exploration-dot"
                   aria-hidden="true"
                 />
-                <strong>EXPLORATION LOCKED</strong>
+                <strong>{t("mars.ares.explorationLocked")}</strong>
               </div>
 
               <button
@@ -4609,7 +4613,7 @@ export function MarsPlanetMap({
                 disabled
                 aria-disabled="true"
               >
-                EXPLORATION LOCKED
+                {t("mars.ares.explorationLocked")}
                 <span>×</span>
               </button>
             </>
