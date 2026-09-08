@@ -5839,30 +5839,3 @@
     font-size: 11px;
   }
 }
-
-/* MARS PIXEL — TOUCH AD CARD V1 */
-@media (hover: none) and (pointer: coarse) {
-  .mars-pixel-territory-hover-anchor {
-    pointer-events: auto;
-  }
-
-  .mars-pixel-territory-hover-card {
-    width: min(230px, calc(100vw - 28px));
-    transform: translateY(-4px);
-    touch-action: manipulation;
-  }
-
-  .mars-pixel-territory-hover-card__site,
-  .mars-pixel-territory-hover-card__cta {
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  .mars-pixel-territory-hover-card__cta {
-    min-height: 32px;
-    padding: 9px 11px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-  }
-}
