@@ -2418,10 +2418,12 @@ export function MarsPixelOverlay({
 
           const destinationUrl =
             ownerPreview?.destination_url?.trim() ||
+            allocation.destination_url?.trim() ||
             null;
 
           const ctaLabel =
             ownerPreview?.cta_label?.trim() ||
+            allocation.cta_label?.trim() ||
             "EXPLORE NOW";
 
           let destinationLabel: string | null = null;
