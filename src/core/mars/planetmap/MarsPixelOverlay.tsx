@@ -688,7 +688,7 @@ export function MarsPixelOverlay({
         );
         onOwnedTerritoryHover?.(null);
         territoryHoverLeaveTimerRef.current = null;
-      }, 180);
+      }, 500);
   };
 
   const territoryPulseRefs =
