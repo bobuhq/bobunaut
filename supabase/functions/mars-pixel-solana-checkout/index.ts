@@ -168,59 +168,160 @@ Deno.serve(async (req) => {
   );
 
   /*
-   * Reservation remains user-scoped.
-   * The database is authoritative for geometry,
-   * overlap checks and commercial availability.
+   * Idempotent checkout replay.
+   *
+   * IMPORTANT:
+   * Before creating a new reservation, look for an existing
+   * Solana payment order owned by this builder with the same
+   * idempotency key.
+   *
+   * This prevents a retry from colliding with the builder's
+   * own active reservation after the first checkout preparation.
+   *
+   * Reservation overlap / protected-zone / owned-territory
+   * enforcement remains entirely database-authoritative.
    */
-  const {
-    data: reservationData,
-    error: reservationError,
-  } = await userClient.rpc(
-    "reserve_mars_pixel_selection_solana_devnet_v1",
-    {
-      p_anchor_x: body.anchorX,
-      p_anchor_y: body.anchorY,
-      p_target_x: body.targetX,
-      p_target_y: body.targetY,
-    },
-  );
+  const xStart = Math.min(body.anchorX, body.targetX);
+  const yStart = Math.min(body.anchorY, body.targetY);
+  const xEnd = Math.max(body.anchorX, body.targetX);
+  const yEnd = Math.max(body.anchorY, body.targetY);
+  const selectionWidth = xEnd - xStart + 1;
+  const selectionHeight = yEnd - yStart + 1;
 
-  if (reservationError) {
+  const {
+    data: existingOrder,
+    error: existingOrderError,
+  } = await adminClient
+    .from("mars_pixel_solana_payment_orders")
+    .select(
+      [
+        "id",
+        "reservation_id",
+        "x_start",
+        "y_start",
+        "width",
+        "height",
+        "buyer_wallet",
+        "payment_status",
+        "expires_at",
+      ].join(","),
+    )
+    .eq("builder_id", user.id)
+    .eq("idempotency_key", idempotencyKey)
+    .maybeSingle();
+
+  if (existingOrderError) {
     console.error(
-      "Mars SOL reservation failed:",
-      reservationError.message,
+      "Mars SOL idempotency lookup failed:",
+      existingOrderError.message,
     );
 
-    const commercialLocked =
-      reservationError.message.includes(
-        "MARS_PIXEL_COMMERCIAL_LOCKED",
-      ) ||
-      reservationError.message.includes(
-        "MARS_PIXEL_COMMERCIAL_NETWORK_LOCKED",
-      ) ||
-      reservationError.message.includes(
-        "MARS_PIXEL_SOLANA_DEVNET_LOCKED",
-      );
-
     return jsonResponse(
-      {
-        error: commercialLocked
-          ? "MARS_PIXEL_COMMERCIAL_LOCKED"
-          : reservationError.message,
-      },
-      commercialLocked ? 423 : 409,
+      { error: "MARS_PIXEL_SOLANA_IDEMPOTENCY_LOOKUP_FAILED" },
+      500,
     );
   }
 
-  const reservation =
-    Array.isArray(reservationData)
-      ? reservationData[0]
-      : reservationData;
+  let reservationId: string | null = null;
 
-  const reservationId =
-    reservation?.reservation_id ??
-    reservation?.id ??
-    null;
+  if (existingOrder) {
+    const sameWallet =
+      existingOrder.buyer_wallet === buyerWallet;
+
+    const sameGeometry =
+      existingOrder.x_start === xStart &&
+      existingOrder.y_start === yStart &&
+      existingOrder.width === selectionWidth &&
+      existingOrder.height === selectionHeight;
+
+    if (!sameWallet) {
+      return jsonResponse(
+        { error: "MARS_PIXEL_SOLANA_WALLET_CONFLICT" },
+        409,
+      );
+    }
+
+    if (!sameGeometry) {
+      return jsonResponse(
+        { error: "MARS_PIXEL_SOLANA_IDEMPOTENCY_CONFLICT" },
+        409,
+      );
+    }
+
+    const existingExpiresAt =
+      typeof existingOrder.expires_at === "string"
+        ? Date.parse(existingOrder.expires_at)
+        : NaN;
+
+    if (
+      existingOrder.payment_status === "expired" ||
+      (
+        Number.isFinite(existingExpiresAt) &&
+        existingExpiresAt <= Date.now()
+      )
+    ) {
+      return jsonResponse(
+        { error: "MARS_PIXEL_SOLANA_CHECKOUT_EXPIRED" },
+        409,
+      );
+    }
+
+    reservationId = existingOrder.reservation_id;
+  } else {
+    /*
+     * First checkout attempt only:
+     * create a new user-scoped reservation.
+     */
+    const {
+      data: reservationData,
+      error: reservationError,
+    } = await userClient.rpc(
+      "reserve_mars_pixel_selection_solana_devnet_v1",
+      {
+        p_anchor_x: body.anchorX,
+        p_anchor_y: body.anchorY,
+        p_target_x: body.targetX,
+        p_target_y: body.targetY,
+      },
+    );
+
+    if (reservationError) {
+      console.error(
+        "Mars SOL reservation failed:",
+        reservationError.message,
+      );
+
+      const commercialLocked =
+        reservationError.message.includes(
+          "MARS_PIXEL_COMMERCIAL_LOCKED",
+        ) ||
+        reservationError.message.includes(
+          "MARS_PIXEL_COMMERCIAL_NETWORK_LOCKED",
+        ) ||
+        reservationError.message.includes(
+          "MARS_PIXEL_SOLANA_DEVNET_LOCKED",
+        );
+
+      return jsonResponse(
+        {
+          error: commercialLocked
+            ? "MARS_PIXEL_COMMERCIAL_LOCKED"
+            : reservationError.message,
+        },
+        commercialLocked ? 423 : 409,
+      );
+    }
+
+    const reservation =
+      Array.isArray(reservationData)
+        ? reservationData[0]
+        : reservationData;
+
+    reservationId =
+      reservation?.reservation_id ??
+      reservation?.id ??
+      null;
+  }
 
   if (!reservationId) {
     return jsonResponse(
