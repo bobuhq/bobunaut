@@ -3179,21 +3179,38 @@ export function MarsPlanetMap({
                             )}
 
                             {creativeOwnerDetail && (
-                              <button
-                                type="button"
-                                className="mars-pixel-creative__edit"
-                                onClick={() => {
-                                  setCreativeEditorOpen(
-                                    (value) => !value,
-                                  );
-                                  setCreativeSaveError(null);
-                                  setCreativeSaveSuccess(null);
-                                }}
-                              >
-                                {creativeEditorOpen
-                                  ? t("mars.pixel.closeEditor")
-                                  : t("mars.pixel.editContent")}
-                              </button>
+                              <div className="mars-pixel-owner-actions">
+                                <button
+                                  type="button"
+                                  className="mars-pixel-owner-actions__dashboard"
+                                  onClick={() => {
+                                    window.location.assign(
+                                      "/mars/advertiser",
+                                    );
+                                  }}
+                                >
+                                  <span>MANAGE MY ADS</span>
+                                  <small>
+                                    Creative · Analytics · Campaign
+                                  </small>
+                                </button>
+
+                                <button
+                                  type="button"
+                                  className="mars-pixel-creative__edit"
+                                  onClick={() => {
+                                    setCreativeEditorOpen(
+                                      (value) => !value,
+                                    );
+                                    setCreativeSaveError(null);
+                                    setCreativeSaveSuccess(null);
+                                  }}
+                                >
+                                  {creativeEditorOpen
+                                    ? t("mars.pixel.closeEditor")
+                                    : t("mars.pixel.editContent")}
+                                </button>
+                              </div>
                             )}
 
                             {creativeOwnerLoading && (
