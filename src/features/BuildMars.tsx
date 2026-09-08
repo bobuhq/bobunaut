@@ -5,6 +5,7 @@ import {
   useState,
 } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuthSession } from "../core/auth/useAuthSession";
 import { useLanguage } from "../core/language";
 import { lazyWithRecovery } from "../core/runtime/lazyWithRecovery";
 import {
@@ -32,6 +33,7 @@ import {
 
 import {
   getMarsSectorDirectory,
+  getPublicMarsSectorDirectory,
   type MarsSector,
 } from "../core/mars/MarsSectorService";
 
@@ -51,6 +53,10 @@ export function BuildMars() {
 
   const { t } = useLanguage();
   const navigate = useNavigate();
+  const {
+    authenticated,
+    loading: authLoading,
+  } = useAuthSession();
 
   const [marsAccess, setMarsAccess] =
     useState<MarsAccess | null>(null);
@@ -86,6 +92,17 @@ export function BuildMars() {
     useState<string | null>(null);
 
   useEffect(() => {
+    if (authLoading) {
+      return;
+    }
+
+    if (!authenticated) {
+      setMarsAccess(null);
+      setAccessError(null);
+      setAccessLoading(false);
+      return;
+    }
+
     let cancelled = false;
 
     const loadAccess = async () => {
@@ -121,7 +138,7 @@ export function BuildMars() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [authLoading, authenticated]);
 
   useEffect(() => {
     let cancelled = false;
@@ -162,31 +179,49 @@ export function BuildMars() {
     };
   }, []);
 
-  const loadSectors = async () => {
-    try {
-      setSectorsLoading(true);
-      setSectorsError(null);
-
-      const data = await getMarsSectorDirectory();
-
-      setSectors(data);
-    } catch (loadError) {
-      console.error(
-        "BUILD MARS Sector directory failed:",
-        loadError,
-      );
-
-      setSectorsError(
-        t("mars.error.sectorsUnavailable"),
-      );
-    } finally {
-      setSectorsLoading(false);
-    }
-  };
-
   useEffect(() => {
+    if (authLoading) {
+      return;
+    }
+
+    let cancelled = false;
+
+    const loadSectors = async () => {
+      try {
+        setSectorsLoading(true);
+        setSectorsError(null);
+
+        const data = authenticated
+          ? await getMarsSectorDirectory()
+          : await getPublicMarsSectorDirectory();
+
+        if (!cancelled) {
+          setSectors(data);
+        }
+      } catch (loadError) {
+        console.error(
+          "BUILD MARS Sector directory failed:",
+          loadError,
+        );
+
+        if (!cancelled) {
+          setSectorsError(
+            t("mars.error.sectorsUnavailable"),
+          );
+        }
+      } finally {
+        if (!cancelled) {
+          setSectorsLoading(false);
+        }
+      }
+    };
+
     void loadSectors();
-  }, []);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [authLoading, authenticated]);
 
   const handleEnterSector = (
     sectorId: string,

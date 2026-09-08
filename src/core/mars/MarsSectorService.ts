@@ -35,6 +35,18 @@ export async function getMarsSectorDirectory(): Promise<MarsSector[]> {
   return (data as MarsSector[] | null) ?? [];
 }
 
+export async function getPublicMarsSectorDirectory(): Promise<MarsSector[]> {
+  const { data, error } = await supabase.rpc(
+    "get_public_mars_sector_directory_v1",
+  );
+
+  if (error) {
+    throw error;
+  }
+
+  return (data as MarsSector[] | null) ?? [];
+}
+
 export async function assignMyColonyToMarsSector(
   sectorId: string,
 ): Promise<MarsSectorAssignment> {
