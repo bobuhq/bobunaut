@@ -1459,6 +1459,9 @@ export function MarsPlanetMap({
   const marsSolanaCheckoutIdempotencyKeyRef =
     useRef<string | null>(null);
 
+  const marsSolanaRecoveryWalletRef =
+    useRef<string | null>(null);
+
   const [
     marsSolanaWallet,
     setMarsSolanaWallet,
@@ -1525,61 +1528,6 @@ export function MarsPlanetMap({
         "wallet_connected",
       );
 
-      /*
-       * AUTOMATIC DEVNET PAYMENT RECOVERY:
-       * If this wallet already broadcast a payment whose signature was
-       * durably recorded by V45, settle that exact order before allowing
-       * the user to create/send another payment.
-       */
-      const recovery =
-        await getMyMarsPixelSolanaRecovery(
-          wallet.publicKey,
-        );
-
-      if (recovery) {
-        setMarsPixelPurchaseLoading(true);
-        setMarsSolanaTransactionSignature(
-          recovery.transaction_signature,
-        );
-        setMarsSolanaPaymentStage("verifying");
-
-        try {
-          const verification =
-            await verifyMarsPixelSolanaPayment({
-              paymentOrderId:
-                recovery.payment_order_id,
-              transactionSignature:
-                recovery.transaction_signature,
-              colorKey: null,
-            });
-
-          if (
-            verification.paymentStatus !== "verified" ||
-            !verification.allocationId
-          ) {
-            throw new Error(
-              `Mars Pixel recovered payment verification returned status: ${verification.paymentStatus}`,
-            );
-          }
-
-          setMarsSolanaPaymentStage("verified");
-
-          const refreshedAllocations =
-            await getMarsPixelPublicAllocations();
-
-          setPixelAllocations(
-            refreshedAllocations,
-          );
-
-          setMarsPixelPurchaseSuccess(
-            t("mars.pixel.territoryClaimed", {
-              id: verification.allocationId,
-            }),
-          );
-        } finally {
-          setMarsPixelPurchaseLoading(false);
-        }
-      }
     } catch (error) {
       console.error(
         "Mars Solana wallet connection failed.",
@@ -2070,6 +2018,124 @@ export function MarsPlanetMap({
       cancelled = true;
     };
   }, []);
+
+  /*
+   * AUTOMATIC DEVNET PAYMENT RECOVERY
+   *
+   * Runs for both:
+   * - a wallet already connected when the page loads, and
+   * - a wallet connected during this session.
+   *
+   * Recovery never prepares, signs or broadcasts a new transaction.
+   * It only verifies a signature already persisted against an existing
+   * Devnet payment order.
+   */
+  useEffect(() => {
+    const walletPublicKey =
+      marsSolanaWallet?.connected
+        ? marsSolanaWallet.publicKey
+        : null;
+
+    if (
+      !walletPublicKey ||
+      marsPixelTestAccess !== true ||
+      marsSolanaRecoveryWalletRef.current === walletPublicKey
+    ) {
+      return;
+    }
+
+    marsSolanaRecoveryWalletRef.current =
+      walletPublicKey;
+
+    let cancelled = false;
+
+    void (async () => {
+      try {
+        const recovery =
+          await getMyMarsPixelSolanaRecovery(
+            walletPublicKey,
+          );
+
+        if (cancelled || !recovery) {
+          return;
+        }
+
+        setMarsPixelPurchaseLoading(true);
+        setMarsPixelPurchaseError(null);
+        setMarsPixelPurchaseSuccess(null);
+        setMarsSolanaCheckout(null);
+        setMarsSolanaTransactionSignature(
+          recovery.transaction_signature,
+        );
+        setMarsSolanaPaymentStage("verifying");
+
+        const verification =
+          await verifyMarsPixelSolanaPayment({
+            paymentOrderId:
+              recovery.payment_order_id,
+            transactionSignature:
+              recovery.transaction_signature,
+            colorKey: null,
+          });
+
+        if (cancelled) {
+          return;
+        }
+
+        if (
+          verification.paymentStatus !== "verified" ||
+          !verification.allocationId
+        ) {
+          throw new Error(
+            `Mars Pixel recovered payment verification returned status: ${verification.paymentStatus}`,
+          );
+        }
+
+        const refreshedAllocations =
+          await getMarsPixelPublicAllocations();
+
+        if (cancelled) {
+          return;
+        }
+
+        setPixelAllocations(refreshedAllocations);
+        setMarsSolanaPaymentStage("verified");
+        setMarsPixelPurchaseSuccess(
+          t("mars.pixel.territoryClaimed", {
+            id: verification.allocationId,
+          }),
+        );
+      } catch (error) {
+        if (cancelled) {
+          return;
+        }
+
+        console.error(
+          "Mars Solana payment recovery failed.",
+          error,
+        );
+
+        setMarsSolanaPaymentStage("failed");
+        setMarsPixelPurchaseError(
+          error instanceof Error
+            ? error.message
+            : t("mars.pixel.error.solanaPaymentFailed"),
+        );
+      } finally {
+        if (!cancelled) {
+          setMarsPixelPurchaseLoading(false);
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    marsSolanaWallet?.connected,
+    marsSolanaWallet?.publicKey,
+    marsPixelTestAccess,
+  ]);
 
   const handleMarsSolanaCheckout = async () => {
     if (
