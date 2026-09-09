@@ -802,6 +802,107 @@ export type MarsPixelSolanaVerifyResult = {
   verifiedAt: string | null;
 };
 
+export type MarsPixelSolanaSignatureRecordResult = {
+  payment_order_id: string;
+  payment_status: string;
+  transaction_signature: string;
+};
+
+export async function recordMarsPixelSolanaTransactionSignature(input: {
+  paymentOrderId: string;
+  transactionSignature: string;
+}): Promise<MarsPixelSolanaSignatureRecordResult> {
+  const paymentOrderId = input.paymentOrderId.trim();
+  const transactionSignature = input.transactionSignature.trim();
+
+  if (!paymentOrderId || !transactionSignature) {
+    throw new Error(
+      "Mars Pixel Solana payment order and transaction signature are required.",
+    );
+  }
+
+  const { data, error } = await supabase.rpc(
+    "record_mars_pixel_solana_signature_v1",
+    {
+      p_payment_order_id: paymentOrderId,
+      p_transaction_signature: transactionSignature,
+    },
+  );
+
+  if (error) {
+    throw error;
+  }
+
+  const row = Array.isArray(data) ? data[0] : data;
+
+  if (
+    !row?.payment_order_id ||
+    !row?.transaction_signature
+  ) {
+    throw new Error(
+      "Mars Pixel Solana signature persistence returned no result.",
+    );
+  }
+
+  return row as MarsPixelSolanaSignatureRecordResult;
+}
+
+export type MarsPixelSolanaRecoveryResult = {
+  payment_order_id: string;
+  payment_status: string;
+  reservation_id: string;
+  buyer_wallet: string;
+  network: string;
+  transaction_signature: string;
+  x_start: number;
+  y_start: number;
+  width: number;
+  height: number;
+  pixel_count: number;
+  expires_at: string;
+  idempotency_key: string;
+};
+
+export async function getMyMarsPixelSolanaRecovery(
+  buyerWallet: string,
+): Promise<MarsPixelSolanaRecoveryResult | null> {
+  const wallet = buyerWallet.trim();
+
+  if (wallet.length < 32 || wallet.length > 44) {
+    throw new Error("A valid Solana buyer wallet is required.");
+  }
+
+  const { data, error } = await supabase.rpc(
+    "get_my_mars_pixel_solana_recovery_v1",
+    {
+      p_buyer_wallet: wallet,
+    },
+  );
+
+  if (error) {
+    throw error;
+  }
+
+  const row = Array.isArray(data) ? data[0] : data;
+
+  if (!row) {
+    return null;
+  }
+
+  if (
+    !row.payment_order_id ||
+    !row.transaction_signature ||
+    row.buyer_wallet !== wallet ||
+    row.network !== "devnet"
+  ) {
+    throw new Error(
+      "Mars Pixel Solana recovery returned an invalid payment record.",
+    );
+  }
+
+  return row as MarsPixelSolanaRecoveryResult;
+}
+
 async function getMarsPixelEdgeFunctionError(
   error: {
     message?: string;

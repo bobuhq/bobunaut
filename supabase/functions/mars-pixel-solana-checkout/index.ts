@@ -168,6 +168,41 @@ Deno.serve(async (req) => {
   );
 
   /*
+   * Devnet advertiser onboarding.
+   *
+   * Every authenticated Builder with Mars Pixel Devnet access must have
+   * an advertiser before reservation/payment preparation can continue.
+   * The database RPC is authoritative and concurrency-safe:
+   * it reuses an existing active/under_review advertiser or creates one
+   * as personal + under_review.
+   *
+   * This does not activate creatives or enable Mainnet/commercial access.
+   */
+  const {
+    error: advertiserOnboardingError,
+  } = await userClient.rpc(
+    "ensure_mars_pixel_devnet_advertiser_v1",
+    {
+      p_builder_id: user.id,
+    },
+  );
+
+  if (advertiserOnboardingError) {
+    console.error(
+      "Mars Pixel Devnet advertiser onboarding failed:",
+      advertiserOnboardingError.message,
+    );
+
+    return jsonResponse(
+      {
+        error: advertiserOnboardingError.message ||
+          "MARS_PIXEL_ADVERTISER_ONBOARDING_FAILED",
+      },
+      409,
+    );
+  }
+
+  /*
    * Idempotent checkout replay.
    *
    * IMPORTANT:

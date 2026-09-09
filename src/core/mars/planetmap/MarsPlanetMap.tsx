@@ -45,6 +45,8 @@ import {
   purchaseMarsPixelTerritory,
   checkoutMarsPixelSolanaPayment,
   verifyMarsPixelSolanaPayment,
+  recordMarsPixelSolanaTransactionSignature,
+  getMyMarsPixelSolanaRecovery,
   saveMarsPixelCreative,
   uploadMarsPixelCreativeImage,
   deleteMarsPixelCreativeImage,
@@ -1522,6 +1524,62 @@ export function MarsPlanetMap({
       setMarsSolanaPaymentStage(
         "wallet_connected",
       );
+
+      /*
+       * AUTOMATIC DEVNET PAYMENT RECOVERY:
+       * If this wallet already broadcast a payment whose signature was
+       * durably recorded by V45, settle that exact order before allowing
+       * the user to create/send another payment.
+       */
+      const recovery =
+        await getMyMarsPixelSolanaRecovery(
+          wallet.publicKey,
+        );
+
+      if (recovery) {
+        setMarsPixelPurchaseLoading(true);
+        setMarsSolanaTransactionSignature(
+          recovery.transaction_signature,
+        );
+        setMarsSolanaPaymentStage("verifying");
+
+        try {
+          const verification =
+            await verifyMarsPixelSolanaPayment({
+              paymentOrderId:
+                recovery.payment_order_id,
+              transactionSignature:
+                recovery.transaction_signature,
+              colorKey: null,
+            });
+
+          if (
+            verification.paymentStatus !== "verified" ||
+            !verification.allocationId
+          ) {
+            throw new Error(
+              `Mars Pixel recovered payment verification returned status: ${verification.paymentStatus}`,
+            );
+          }
+
+          setMarsSolanaPaymentStage("verified");
+
+          const refreshedAllocations =
+            await getMarsPixelPublicAllocations();
+
+          setPixelAllocations(
+            refreshedAllocations,
+          );
+
+          setMarsPixelPurchaseSuccess(
+            t("mars.pixel.territoryClaimed", {
+              id: verification.allocationId,
+            }),
+          );
+        } finally {
+          setMarsPixelPurchaseLoading(false);
+        }
+      }
     } catch (error) {
       console.error(
         "Mars Solana wallet connection failed.",
@@ -2202,13 +2260,24 @@ export function MarsPlanetMap({
           broadcast.transactionSignature;
 
         /*
-         * Persist the signature immediately after broadcast.
-         * Any later retry must reuse this signature and must
-         * never send a second transfer for this checkout.
+         * CRASH-SAFE PAYMENT RECOVERY:
+         * Keep the signature in local React state immediately,
+         * then durably persist it against this exact payment
+         * order before waiting for blockchain finalization.
+         *
+         * The persistence RPC does NOT verify payment or create
+         * ownership. It only prevents a successful broadcast
+         * from being forgotten after refresh/reconnect/failure.
          */
         setMarsSolanaTransactionSignature(
           transactionSignature,
         );
+
+        await recordMarsPixelSolanaTransactionSignature({
+          paymentOrderId:
+            marsSolanaCheckout.paymentOrderId,
+          transactionSignature,
+        });
 
         setMarsSolanaPaymentStage("broadcast");
 
