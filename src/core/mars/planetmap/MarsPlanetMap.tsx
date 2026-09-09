@@ -50,6 +50,7 @@ import {
   deleteMarsPixelCreativeImage,
   getMyMarsPixelCreative,
   getMyMarsPixelTestAccess,
+  claimMarsDevnetFaucet,
 } from "../MarsPixelNetworkService";
 
 import type {
@@ -1539,6 +1540,67 @@ export function MarsPlanetMap({
   };
 
   const [
+    marsDevnetFaucetLoading,
+    setMarsDevnetFaucetLoading,
+  ] = useState(false);
+
+  const [
+    marsDevnetFaucetMessage,
+    setMarsDevnetFaucetMessage,
+  ] = useState<string | null>(null);
+
+  const [
+    marsDevnetFaucetError,
+    setMarsDevnetFaucetError,
+  ] = useState<string | null>(null);
+
+  const handleMarsDevnetFaucetClaim = async () => {
+    if (marsDevnetFaucetLoading) {
+      return;
+    }
+
+    setMarsDevnetFaucetMessage(null);
+    setMarsDevnetFaucetError(null);
+
+    if (
+      !marsSolanaWallet?.connected ||
+      !marsSolanaWallet.publicKey
+    ) {
+      try {
+        await handleMarsSolanaWalletConnect();
+      } catch {
+      }
+
+      return;
+    }
+
+    setMarsDevnetFaucetLoading(true);
+
+    try {
+      const result = await claimMarsDevnetFaucet(
+        marsSolanaWallet.publicKey,
+      );
+
+      setMarsDevnetFaucetMessage(
+        `${result.amountSol} DEVNET SOL SENT`,
+      );
+    } catch (error) {
+      console.error(
+        "BOBU Devnet faucet request failed.",
+        error,
+      );
+
+      setMarsDevnetFaucetError(
+        error instanceof Error
+          ? error.message
+          : "Unable to request Devnet SOL.",
+      );
+    } finally {
+      setMarsDevnetFaucetLoading(false);
+    }
+  };
+
+  const [
     ownerHoverPreview,
     setOwnerHoverPreview,
   ] = useState<MarsPixelOwnerHoverPreview | null>(null);
@@ -2700,6 +2762,80 @@ export function MarsPlanetMap({
               : t("mars.pixel.readingProductionState")}
         </small>
       </div>
+
+      {!diving && (
+        <aside
+          className="mars-devnet-faucet"
+          aria-live="polite"
+        >
+          <span className="mars-devnet-faucet__eyebrow">
+            BOBU DEVNET FAUCET
+          </span>
+
+          <strong>1.61 DEVNET SOL</strong>
+
+          <small>
+            ONE-TIME TEST ALLOCATION
+          </small>
+
+          <button
+            type="button"
+            className="mars-devnet-faucet__claim"
+            disabled={
+              marsDevnetFaucetLoading ||
+              marsSolanaWalletConnecting
+            }
+            onClick={() => {
+              void handleMarsDevnetFaucetClaim();
+            }}
+          >
+            {marsDevnetFaucetLoading
+              ? "SENDING DEVNET SOL..."
+              : marsSolanaWalletConnecting
+                ? "CONNECTING PHANTOM..."
+                : marsSolanaWallet?.connected
+                  ? "GET DEVNET SOL"
+                  : "CONNECT PHANTOM"}
+          </button>
+
+          {marsSolanaWallet?.connected &&
+            marsSolanaWallet.publicKey && (
+              <small className="mars-devnet-faucet__wallet">
+                {`${marsSolanaWallet.publicKey.slice(
+                  0,
+                  4,
+                )}...${marsSolanaWallet.publicKey.slice(-4)}`}
+              </small>
+            )}
+
+          {marsDevnetFaucetMessage && (
+            <small className="mars-devnet-faucet__success">
+              {marsDevnetFaucetMessage}
+            </small>
+          )}
+
+        </aside>
+      )}
+
+      {!diving && marsDevnetFaucetError && (
+        <div
+          className="mars-devnet-faucet-toast"
+          role="alert"
+          aria-live="assertive"
+        >
+          <strong>FAUCET REQUEST FAILED</strong>
+          <span>{marsDevnetFaucetError}</span>
+          <button
+            type="button"
+            aria-label="Close faucet error"
+            onClick={() => {
+              setMarsDevnetFaucetError(null);
+            }}
+          >
+            ×
+          </button>
+        </div>
+      )}
 
       {!diving && pixelNetworkStatus && (
         <div className="mars-pixel-goto"

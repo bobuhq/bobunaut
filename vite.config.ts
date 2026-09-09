@@ -111,6 +111,12 @@ const resolveVendorChunk = (
 export default defineConfig({
   base: "/",
 
+  resolve: {
+    alias: {
+      buffer: "buffer/",
+    },
+  },
+
   plugins: [
     react(),
     tailwindcss(),

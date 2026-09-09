@@ -2568,7 +2568,7 @@
 .mars-pixel-detail__header strong {
   display: block;
   margin-top: 3px;
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 900;
   letter-spacing: 0.08em;
 }
@@ -5891,4 +5891,278 @@
   font-size: 6px;
   letter-spacing: 0.025em;
   line-height: 1.05;
+}
+
+/* BOBU DEVNET FAUCET — TESTNET ONLY */
+.mars-devnet-faucet {
+  position: absolute;
+  z-index: 12;
+  top: 104px;
+  right: 26px;
+  display: flex;
+  width: min(200px, calc(100% - 36px));
+  box-sizing: border-box;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 5px;
+  padding: 10px;
+  border: 1px solid rgba(199, 149, 255, 0.34);
+  border-radius: 14px;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(29, 15, 42, 0.92),
+      rgba(7, 8, 16, 0.94)
+    );
+  box-shadow:
+    0 14px 38px rgba(0, 0, 0, 0.38),
+    0 0 24px rgba(160, 92, 255, 0.08);
+  backdrop-filter: blur(14px);
+  text-align: right;
+}
+
+.mars-devnet-faucet__eyebrow {
+  color: rgba(199, 149, 255, 0.9);
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+}
+
+.mars-devnet-faucet > strong {
+  color: rgba(255, 255, 255, 0.96);
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: -0.01em;
+}
+
+.mars-devnet-faucet > small {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.mars-devnet-faucet__claim {
+  width: 100%;
+  margin-top: 3px;
+  padding: 8px 10px;
+  border: 1px solid rgba(199, 149, 255, 0.48);
+  border-radius: 10px;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(133, 70, 214, 0.92),
+      rgba(82, 42, 151, 0.96)
+    );
+  color: #fff;
+  font: inherit;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    filter 160ms ease;
+}
+
+.mars-devnet-faucet__claim:hover:not(:disabled) {
+  transform: translateY(-1px);
+  border-color: rgba(222, 193, 255, 0.82);
+  filter: brightness(1.1);
+}
+
+.mars-devnet-faucet__claim:disabled {
+  cursor: wait;
+  opacity: 0.58;
+}
+
+.mars-devnet-faucet .mars-devnet-faucet__wallet {
+  color: rgba(99, 245, 255, 0.72);
+  overflow-wrap: anywhere;
+}
+
+.mars-devnet-faucet .mars-devnet-faucet__success {
+  color: rgba(116, 255, 184, 0.94);
+  line-height: 1.4;
+}
+
+.mars-devnet-faucet .mars-devnet-faucet__error {
+  color: rgba(255, 132, 132, 0.96);
+  line-height: 1.4;
+}
+
+@media (max-width: 680px) and (orientation: portrait) {
+  .mars-devnet-faucet {
+    top: 142px;
+    right: 18px;
+    width: min(196px, calc(100% - 36px));
+    padding: 10px;
+    gap: 5px;
+  }
+
+  .mars-devnet-faucet > strong {
+    font-size: 13px;
+  }
+
+  .mars-devnet-faucet__claim {
+    min-height: 40px;
+    padding: 9px 8px;
+    font-size: 8px;
+  }
+}
+
+@media (max-width: 900px) and (orientation: landscape) {
+  .mars-devnet-faucet {
+    top: 88px;
+    right: 18px;
+    width: 190px;
+    padding: 9px;
+  }
+
+  .mars-devnet-faucet > strong {
+    font-size: 12px;
+  }
+
+  .mars-devnet-faucet__claim {
+    padding: 8px;
+    font-size: 8px;
+  }
+}
+
+
+.mars-devnet-faucet-toast {
+  position: absolute;
+  z-index: 20;
+  top: 205px;
+  right: 26px;
+  width: min(260px, calc(100% - 36px));
+  box-sizing: border-box;
+  padding: 10px 32px 10px 11px;
+  border: 1px solid rgba(255, 104, 122, 0.42);
+  border-radius: 11px;
+  background: rgba(34, 8, 15, 0.94);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.42);
+  backdrop-filter: blur(14px);
+}
+
+.mars-devnet-faucet-toast strong,
+.mars-devnet-faucet-toast span {
+  display: block;
+}
+
+.mars-devnet-faucet-toast strong {
+  color: rgba(255, 142, 154, 0.98);
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+}
+
+.mars-devnet-faucet-toast span {
+  margin-top: 4px;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 9px;
+  line-height: 1.35;
+}
+
+.mars-devnet-faucet-toast button {
+  position: absolute;
+  top: 7px;
+  right: 8px;
+  padding: 2px 4px;
+  border: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+@media (max-width: 680px) and (orientation: portrait) {
+  .mars-devnet-faucet {
+    width: min(178px, calc(100% - 36px));
+    padding: 8px;
+  }
+
+  .mars-devnet-faucet-toast {
+    top: 252px;
+    right: 18px;
+    width: min(220px, calc(100% - 36px));
+  }
+}
+
+@media (max-width: 900px) and (orientation: landscape) {
+  .mars-devnet-faucet {
+    width: 172px;
+    padding: 8px;
+  }
+
+  .mars-devnet-faucet-toast {
+    top: 184px;
+    right: 18px;
+    width: 220px;
+  }
+}
+
+/* DEVNET FAUCET — FINAL COMPACT OVERRIDE */
+.mars-devnet-faucet {
+  width: min(168px, calc(100% - 36px));
+  gap: 4px;
+  padding: 8px;
+  border-radius: 11px;
+}
+
+.mars-devnet-faucet__eyebrow {
+  font-size: 6.5px;
+  letter-spacing: 0.13em;
+}
+
+.mars-devnet-faucet > strong {
+  font-size: 11px;
+}
+
+.mars-devnet-faucet > small {
+  font-size: 6.5px;
+  letter-spacing: 0.06em;
+}
+
+.mars-devnet-faucet__claim {
+  margin-top: 2px;
+  padding: 7px 6px;
+  border-radius: 8px;
+  font-size: 7px;
+  letter-spacing: 0.08em;
+}
+
+@media (max-width: 680px) and (orientation: portrait) {
+  .mars-devnet-faucet {
+    width: min(160px, calc(100% - 36px));
+    padding: 7px;
+  }
+
+  .mars-devnet-faucet > strong {
+    font-size: 10px;
+  }
+
+  .mars-devnet-faucet__claim {
+    min-height: 34px;
+    padding: 7px 5px;
+    font-size: 7px;
+  }
+}
+
+@media (max-width: 900px) and (orientation: landscape) {
+  .mars-devnet-faucet {
+    width: 158px;
+    padding: 7px;
+  }
+
+  .mars-devnet-faucet > strong {
+    font-size: 10px;
+  }
+
+  .mars-devnet-faucet__claim {
+    padding: 7px 5px;
+    font-size: 7px;
+  }
 }

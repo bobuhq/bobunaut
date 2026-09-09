@@ -57,7 +57,7 @@ function assertDevnetCheckout(
 export function createMarsSolanaDevnetConnection(): Connection {
   return new Connection(
     MARS_SOLANA_DEVNET_RPC,
-    "finalized",
+    "confirmed",
   );
 }
 
@@ -81,7 +81,7 @@ export async function prepareMarsPixelSolanaPaymentTransaction(
     blockhash,
     lastValidBlockHeight,
   } = await connection.getLatestBlockhash(
-    "finalized",
+    "confirmed",
   );
 
   const transaction = new Transaction({

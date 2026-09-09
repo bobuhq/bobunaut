@@ -1561,3 +1561,148 @@ export async function getMyMarsPixelAdvertiserCenter(): Promise<
       };
     });
 }
+
+export type MarsDevnetFaucetResult = {
+  success: true;
+  network: "devnet";
+  amountLamports: number;
+  amountSol: number;
+  walletAddress: string;
+  faucetAddress: string;
+  transactionSignature: string;
+};
+
+export async function claimMarsDevnetFaucet(
+  walletAddress: string,
+): Promise<MarsDevnetFaucetResult> {
+  if (
+    typeof walletAddress !== "string" ||
+    walletAddress.length < 32 ||
+    walletAddress.length > 44
+  ) {
+    throw new Error("Invalid Solana wallet.");
+  }
+
+  const {
+    data: { session },
+    error: sessionError,
+  } = await supabase.auth.getSession();
+
+  if (sessionError) {
+    throw new Error(
+      `Authenticated session could not be loaded: ${sessionError.message}`,
+    );
+  }
+
+  if (!session?.access_token) {
+    throw new Error(
+      "Please sign in with Google before requesting Devnet SOL.",
+    );
+  }
+
+  const { data, error } = await supabase.functions.invoke(
+    "mars-devnet-faucet",
+    {
+      body: {
+        walletAddress,
+      },
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+      },
+    },
+  );
+
+  if (error) {
+    let reason: string | null = null;
+
+    if (
+      typeof Response !== "undefined" &&
+      error.context instanceof Response
+    ) {
+      try {
+        const payload = await error.context.clone().json();
+
+        if (payload && typeof payload === "object") {
+          const body = payload as Record<string, unknown>;
+          reason =
+            typeof body.reason === "string"
+              ? body.reason
+              : null;
+        }
+      } catch {
+        // Fall through to the shared Edge Function error parser.
+      }
+    }
+
+    if (reason === "builder_already_claimed") {
+      throw new Error(
+        "This Builder has already received the one-time Devnet SOL allocation.",
+      );
+    }
+
+    if (reason === "wallet_already_claimed") {
+      throw new Error(
+        "This wallet has already received the one-time Devnet SOL allocation.",
+      );
+    }
+
+    if (reason === "daily_faucet_limit") {
+      throw new Error(
+        "The BOBU Devnet faucet has reached its daily limit. Please try again later.",
+      );
+    }
+
+    throw new Error(
+      await getMarsPixelEdgeFunctionError(
+        error,
+        "Unable to request Devnet SOL.",
+      ),
+    );
+  }
+
+  if (!data || data.success !== true) {
+    const reason =
+      typeof data?.reason === "string"
+        ? data.reason
+        : null;
+
+    if (reason === "builder_already_claimed") {
+      throw new Error(
+        "This Builder has already received the one-time Devnet SOL allocation.",
+      );
+    }
+
+    if (reason === "wallet_already_claimed") {
+      throw new Error(
+        "This wallet has already received the one-time Devnet SOL allocation.",
+      );
+    }
+
+    if (reason === "daily_faucet_limit") {
+      throw new Error(
+        "The BOBU Devnet faucet has reached its daily limit. Please try again later.",
+      );
+    }
+
+    throw new Error(
+      typeof data?.error === "string"
+        ? data.error
+        : "Unable to request Devnet SOL.",
+    );
+  }
+
+  if (
+    data.network !== "devnet" ||
+    data.amountLamports !== 1_610_000_000 ||
+    data.amountSol !== 1.61 ||
+    data.walletAddress !== walletAddress ||
+    typeof data.transactionSignature !== "string" ||
+    data.transactionSignature.length === 0
+  ) {
+    throw new Error(
+      "BOBU Devnet faucet returned an invalid response.",
+    );
+  }
+
+  return data as MarsDevnetFaucetResult;
+}

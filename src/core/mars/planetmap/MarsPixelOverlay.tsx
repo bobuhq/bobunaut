@@ -2565,10 +2565,15 @@ export function MarsPixelOverlay({
               ? ownerHoverPreview
               : null;
 
+          const activeOwnerPreview =
+            ownerPreview?.creative_status === "active"
+              ? ownerPreview
+              : null;
+
           const title =
             allocation.creative_title?.trim() ||
             allocation.advertiser_name?.trim() ||
-            ownerPreview?.title?.trim() ||
+            activeOwnerPreview?.title?.trim() ||
             null;
 
           if (!title) {
@@ -2577,7 +2582,7 @@ export function MarsPixelOverlay({
 
           const imageUrl =
             allocation.creative_image_url ||
-            ownerPreview?.image_url ||
+            activeOwnerPreview?.image_url ||
             null;
 
           const pixels =
@@ -2590,13 +2595,13 @@ export function MarsPixelOverlay({
               : null;
 
           const destinationUrl =
-            ownerPreview?.destination_url?.trim() ||
             allocation.destination_url?.trim() ||
+            activeOwnerPreview?.destination_url?.trim() ||
             null;
 
           const ctaLabel =
-            ownerPreview?.cta_label?.trim() ||
             allocation.cta_label?.trim() ||
+            activeOwnerPreview?.cta_label?.trim() ||
             t("mars.pixel.overlay.exploreNow");
 
           let destinationLabel: string | null = null;

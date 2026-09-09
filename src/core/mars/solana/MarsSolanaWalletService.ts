@@ -142,9 +142,36 @@ export async function signMarsSolanaTransaction(
     );
   }
 
-  if (!provider.publicKey) {
+  /*
+   * Re-establish the Phantom connection at signing time if the
+   * extension is open but the site/provider connection is stale.
+   *
+   * CRITICAL SAFETY:
+   * The transaction fee payer must still match the connected
+   * Phantom account before any signature is requested.
+   */
+  let publicKey = provider.publicKey ?? null;
+
+  if (!publicKey || provider.isConnected !== true) {
+    const result = await provider.connect();
+    publicKey =
+      result?.publicKey ??
+      provider.publicKey ??
+      null;
+  }
+
+  if (!publicKey) {
     throw new Error(
-      "Connect the Solana wallet before signing.",
+      "Phantom connection completed without a public key.",
+    );
+  }
+
+  if (
+    !transaction.feePayer ||
+    !transaction.feePayer.equals(publicKey)
+  ) {
+    throw new Error(
+      "The active Phantom account does not match the buyer wallet used to prepare this checkout. Reconnect the intended buyer wallet and prepare checkout again.",
     );
   }
 
