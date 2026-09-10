@@ -18,6 +18,7 @@ import { useAdminLiveOperations } from "../../core/admin/useAdminLiveOperations"
 import { useAdminMetrics } from "../../core/admin/useAdminMetrics";
 import { AdminLayout } from "./AdminLayout";
 import { AdminMetricCard } from "./components/AdminMetricCard";
+import { AdminTrendChart } from "./components/AdminTrendChart";
 import { AdminUniverseHealth } from "./components/AdminUniverseHealth";
 import "./AdminDashboard.css";
 
@@ -63,6 +64,15 @@ export default function AdminDashboard() {
   } = useAdminLiveOperations();
 
   const role = access?.role ?? "admin";
+
+  const registrationTrend =
+    analytics?.builderTrend.slice(-7) ?? [];
+
+  const registrationsLast7Days =
+    registrationTrend.reduce(
+      (total, point) => total + point.value,
+      0,
+    );
 
   const dashboardCards = [
     {
@@ -384,6 +394,81 @@ export default function AdminDashboard() {
               )}
             </div>
           </section>
+
+          {!analyticsError &&
+          !analyticsLoading &&
+          analytics ? (
+            <section className="admin-dashboard-intelligence">
+              <header className="admin-dashboard-intelligence__header">
+                <div>
+                  <span className="admin-dashboard__section-label">
+                    7-DAY INTELLIGENCE
+                  </span>
+
+                  <h2>Growth and GP activity</h2>
+
+                  <p>
+                    Live registration and Reward Engine activity
+                    from the last seven days.
+                  </p>
+                </div>
+
+                <div className="admin-dashboard-intelligence__gp">
+                  <article>
+                    <span>GP Credits Today</span>
+                    <strong>
+                      {numberFormatter.format(
+                        analytics.gp.creditsToday,
+                      )}
+                    </strong>
+                    <small>GP</small>
+                  </article>
+
+                  <article>
+                    <span>GP Credits · Last 7 Days</span>
+                    <strong>
+                      {numberFormatter.format(
+                        analytics.gp.creditsWeek,
+                      )}
+                    </strong>
+                    <small>GP</small>
+                  </article>
+                </div>
+              </header>
+
+              <div className="admin-dashboard-intelligence__trend">
+                <div className="admin-dashboard-intelligence__trend-heading">
+                  <div>
+                    <span>REGISTRATIONS</span>
+                    <strong>
+                      {numberFormatter.format(
+                        registrationsLast7Days,
+                      )}{" "}
+                      new users
+                    </strong>
+                  </div>
+
+                  <span>Last 7 days</span>
+                </div>
+
+                <AdminTrendChart
+                  points={registrationTrend}
+                  ariaLabel="7-day registration trend"
+                />
+
+                <footer>
+                  <span>
+                    {registrationTrend[0]?.date ?? "—"}
+                  </span>
+                  <span>
+                    {registrationTrend[
+                      registrationTrend.length - 1
+                    ]?.date ?? "—"}
+                  </span>
+                </footer>
+              </div>
+            </section>
+          ) : null}
 
           {!analyticsError &&
           !analyticsLoading &&

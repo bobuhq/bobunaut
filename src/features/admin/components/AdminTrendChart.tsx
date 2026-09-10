@@ -5,6 +5,7 @@ import type {
 type AdminTrendChartProps = {
   points: AdminAnalyticsTrendPoint[];
   valueSuffix?: string;
+  ariaLabel?: string;
 };
 
 const numberFormatter = new Intl.NumberFormat(
@@ -14,6 +15,7 @@ const numberFormatter = new Intl.NumberFormat(
 export function AdminTrendChart({
   points,
   valueSuffix = "",
+  ariaLabel = "30-day trend",
 }: AdminTrendChartProps) {
   const maximum = Math.max(
     ...points.map((point) => point.value),
@@ -23,7 +25,7 @@ export function AdminTrendChart({
   return (
     <div
       className="admin-analytics__chart"
-      aria-label="30-day trend"
+      aria-label={ariaLabel}
     >
       {points.map((point) => {
         const height = Math.max(
