@@ -6166,3 +6166,85 @@
     font-size: 7px;
   }
 }
+
+.mars-pixel-goto__journey {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr) auto
+    minmax(0, 1fr) auto
+    minmax(0, 1fr) auto
+    minmax(0, 1fr);
+  align-items: center;
+  gap: 4px;
+  margin: 2px 0 8px;
+}
+
+.mars-pixel-goto__journey > span {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 4px 5px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 6px;
+  color: rgba(255, 255, 255, 0.42);
+  background: rgba(255, 255, 255, 0.018);
+  font-size: 6px;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.mars-pixel-goto__journey > span.is-current {
+  border-color: rgba(77, 255, 145, 0.42);
+  color: rgba(133, 255, 177, 0.96);
+  background: rgba(43, 220, 115, 0.08);
+}
+
+.mars-pixel-goto__journey b {
+  display: grid;
+  flex: 0 0 13px;
+  width: 13px;
+  height: 13px;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.055);
+  font-size: 6px;
+}
+
+.mars-pixel-goto__journey > span.is-current b {
+  background: rgba(43, 220, 115, 0.2);
+}
+
+.mars-pixel-goto__journey > i {
+  color: rgba(124, 236, 243, 0.32);
+  font-size: 8px;
+  font-style: normal;
+  text-align: center;
+}
+
+@media (max-width: 680px) {
+  .mars-pixel-goto__journey {
+    gap: 2px;
+    margin-bottom: 6px;
+  }
+
+  .mars-pixel-goto__journey > span {
+    gap: 2px;
+    padding: 3px 2px;
+    font-size: 5px;
+    letter-spacing: 0.02em;
+  }
+
+  .mars-pixel-goto__journey b {
+    flex-basis: 11px;
+    width: 11px;
+    height: 11px;
+    font-size: 5px;
+  }
+
+  .mars-pixel-goto__journey > i {
+    font-size: 6px;
+  }
+}

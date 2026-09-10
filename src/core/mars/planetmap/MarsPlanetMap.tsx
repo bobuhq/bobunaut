@@ -2979,6 +2979,31 @@ export function MarsPlanetMap({
             {t("mars.pixel.selectTerritorySize")}
           </span>
 
+          <div
+            className="mars-pixel-goto__journey"
+            aria-label="Mars Pixel advertising journey"
+          >
+            <span className="is-current">
+              <b>1</b>
+              SELECT
+            </span>
+            <i>›</i>
+            <span>
+              <b>2</b>
+              DEVNET SOL
+            </span>
+            <i>›</i>
+            <span>
+              <b>3</b>
+              CREATE AD
+            </span>
+            <i>›</i>
+            <span>
+              <b>4</b>
+              GO LIVE
+            </span>
+          </div>
+
           <div className="mars-pixel-goto__controls">
             <label>
               <span>{t("mars.pixel.width")}</span>
