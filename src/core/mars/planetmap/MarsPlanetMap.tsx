@@ -76,7 +76,9 @@ import {
 import {
   connectMarsSolanaWallet,
   getMarsSolanaWalletSnapshot,
+  isMarsMobileBrowser,
   isMarsSolanaWalletAvailable,
+  openMarsInPhantomBrowser,
 } from "../solana/MarsSolanaWalletService";
 
 import type {
@@ -1476,6 +1478,9 @@ export function MarsPlanetMap({
     () => isMarsSolanaWalletAvailable(),
   );
 
+  const marsSolanaMobileFallbackAvailable =
+    isMarsMobileBrowser();
+
   const [
     marsSolanaWalletConnecting,
     setMarsSolanaWalletConnecting,
@@ -1509,6 +1514,13 @@ export function MarsPlanetMap({
 
   const handleMarsSolanaWalletConnect = async () => {
     if (marsSolanaWalletConnecting) {
+      return;
+    }
+
+    if (
+      !isMarsSolanaWalletAvailable() &&
+      openMarsInPhantomBrowser()
+    ) {
       return;
     }
 
@@ -4412,7 +4424,8 @@ export function MarsPlanetMap({
                                     !purchasable ||
                                     !marsPurchaseAgreementAccepted ||
                                     marsSolanaWalletConnecting ||
-                                    !marsSolanaWalletAvailable
+                                    (!marsSolanaWalletAvailable &&
+                                      !marsSolanaMobileFallbackAvailable)
                                   }
                                   onClick={() => {
                                     void handleMarsSolanaWalletConnect();
@@ -4420,7 +4433,8 @@ export function MarsPlanetMap({
                                 >
                                   {marsSolanaWalletConnecting
                                     ? t("mars.pixel.solana.connectingWallet")
-                                    : !marsSolanaWalletAvailable
+                                    : !marsSolanaWalletAvailable &&
+                                        !marsSolanaMobileFallbackAvailable
                                       ? t("mars.pixel.solana.walletNotFound")
                                       : marsPurchaseAgreementAccepted &&
                                           purchasable

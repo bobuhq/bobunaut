@@ -68,6 +68,44 @@ export function isMarsSolanaWalletAvailable(): boolean {
   return getMarsSolanaProvider() !== null;
 }
 
+export function isMarsMobileBrowser(): boolean {
+  const browser = getBrowserWindow();
+
+  if (!browser) {
+    return false;
+  }
+
+  const mobileUserAgent =
+    /Android|iPhone|iPad|iPod/i.test(
+      browser.navigator.userAgent,
+    );
+
+  const touchViewport =
+    browser.navigator.maxTouchPoints > 0 &&
+    Math.min(
+      browser.screen.width,
+      browser.screen.height,
+    ) <= 1024;
+
+  return mobileUserAgent || touchViewport;
+}
+
+export function openMarsInPhantomBrowser(): boolean {
+  const browser = getBrowserWindow();
+
+  if (!browser || !isMarsMobileBrowser()) {
+    return false;
+  }
+
+  const currentUrl = browser.location.href;
+  const phantomUrl =
+    `https://phantom.app/ul/browse/${encodeURIComponent(currentUrl)}` +
+    `?ref=${encodeURIComponent(browser.location.origin)}`;
+
+  browser.location.assign(phantomUrl);
+  return true;
+}
+
 export function getMarsSolanaWalletSnapshot():
   | MarsSolanaWalletSnapshot
   | null {
