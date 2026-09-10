@@ -21,7 +21,10 @@ import {
   type FormEvent,
 } from "react";
 
-import type { AdminBuilder } from "../../core/admin/AdminBuildersService";
+import {
+  AdminBuildersService,
+  type AdminBuilder,
+} from "../../core/admin/AdminBuildersService";
 import { useAdminAccess } from "../../core/admin/useAdminAccess";
 import { useAdminBuilderDetail } from "../../core/admin/useAdminBuilderDetail";
 import { useAdminBuilders } from "../../core/admin/useAdminBuilders";
@@ -37,6 +40,27 @@ const dateFormatter = new Intl.DateTimeFormat("en-US", {
   month: "short",
   day: "2-digit",
 });
+
+const dateTimeFormatter = new Intl.DateTimeFormat("en-US", {
+  year: "numeric",
+  month: "short",
+  day: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+});
+
+function createGrantOperationId(): string {
+  if (
+    typeof crypto !== "undefined" &&
+    typeof crypto.randomUUID === "function"
+  ) {
+    return `admin-grant-gp:${crypto.randomUUID()}`;
+  }
+
+  return `admin-grant-gp:${Date.now()}:${Math.random()
+    .toString(36)
+    .slice(2)}`;
+}
 
 function getBuilderName(builder: AdminBuilder): string {
   return (
@@ -77,6 +101,15 @@ export default function AdminBuilders() {
     useState<AdminBuilder | null>(null);
   const [copiedBuilderId, setCopiedBuilderId] =
     useState(false);
+  const [grantAmount, setGrantAmount] = useState("");
+  const [grantReason, setGrantReason] = useState("");
+  const [grantLoading, setGrantLoading] = useState(false);
+  const [grantError, setGrantError] =
+    useState<string | null>(null);
+  const [grantSuccess, setGrantSuccess] =
+    useState<string | null>(null);
+  const [grantOperationId, setGrantOperationId] =
+    useState(createGrantOperationId);
 
   const {
     builders,
@@ -99,8 +132,106 @@ export default function AdminBuilders() {
   );
 
   const role = access?.role ?? "admin";
+  const canGrantGp =
+    access?.role === "owner" || access?.role === "admin";
   const canGoBack = page > 0;
   const canGoForward = builders.length === PAGE_SIZE;
+
+  function handleSelectBuilder(builder: AdminBuilder) {
+    setSelectedBuilder(builder);
+    setGrantAmount("");
+    setGrantReason("");
+    setGrantError(null);
+    setGrantSuccess(null);
+    setGrantOperationId(createGrantOperationId());
+  }
+
+  async function handleGrantGp(
+    event: FormEvent<HTMLFormElement>,
+  ) {
+    event.preventDefault();
+
+    if (
+      !selectedBuilder ||
+      !canGrantGp ||
+      grantLoading
+    ) {
+      return;
+    }
+
+    const amount = Number(grantAmount);
+    const reason = grantReason.trim();
+
+    if (!Number.isSafeInteger(amount) || amount <= 0) {
+      setGrantError(
+        "Enter a positive whole-number GP amount.",
+      );
+      return;
+    }
+
+    if (reason.length < 3 || reason.length > 500) {
+      setGrantError(
+        "Reason must contain between 3 and 500 characters.",
+      );
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Grant ${numberFormatter.format(amount)} GP to ${getBuilderName(
+        selectedBuilder,
+      )}?\n\nReason: ${reason}`,
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setGrantLoading(true);
+    setGrantError(null);
+    setGrantSuccess(null);
+
+    try {
+      const result =
+        await AdminBuildersService.grantGp({
+          builderId: selectedBuilder.builderId,
+          amount,
+          reason,
+          idempotencyKey: grantOperationId,
+        });
+
+      if (!result.awarded) {
+        setGrantError(
+          "This operation was already processed. No duplicate GP was added.",
+        );
+        return;
+      }
+
+      setGrantSuccess(
+        `${numberFormatter.format(
+          amount,
+        )} GP granted successfully. New total: ${numberFormatter.format(
+          result.totalGp,
+        )} GP.`,
+      );
+
+      setGrantAmount("");
+      setGrantReason("");
+      setGrantOperationId(createGrantOperationId());
+
+      await Promise.all([
+        refresh(),
+        refreshBuilderDetail(),
+      ]);
+    } catch (caughtError: unknown) {
+      setGrantError(
+        caughtError instanceof Error
+          ? caughtError.message
+          : "Unable to grant GP.",
+      );
+    } finally {
+      setGrantLoading(false);
+    }
+  }
 
   function handleSearchSubmit(
     event: FormEvent<HTMLFormElement>,
@@ -172,7 +303,7 @@ export default function AdminBuilders() {
               <input
                 type="search"
                 value={searchInput}
-                placeholder="Search username, display name or invite code"
+                placeholder="Search email, Builder ID, username, display name or invite code"
                 aria-label="Search Builders"
                 onChange={(event) =>
                   setSearchInput(event.target.value)
@@ -391,7 +522,7 @@ export default function AdminBuilders() {
                         type="button"
                         className="admin-builder-card__view"
                         onClick={() =>
-                          setSelectedBuilder(builder)
+                          handleSelectBuilder(builder)
                         }
                       >
                         View Builder
@@ -567,6 +698,62 @@ export default function AdminBuilders() {
                   </section>
 
                   <section className="admin-builder-drawer__section">
+                    <h3>Account Intelligence</h3>
+
+                    <div className="admin-builder-drawer__rows">
+                      <div>
+                        <span>Email</span>
+                        <strong>
+                          {selectedBuilder.email ?? "—"}
+                        </strong>
+                      </div>
+
+                      <div>
+                        <span>Signup Source</span>
+                        <strong>
+                          {selectedBuilder.signupSource}
+                        </strong>
+                      </div>
+
+                      <div>
+                        <span>Registered</span>
+                        <strong>
+                          {dateTimeFormatter.format(
+                            new Date(selectedBuilder.createdAt),
+                          )}
+                        </strong>
+                      </div>
+
+                      <div>
+                        <span>Last Sign-in</span>
+                        <strong>
+                          {selectedBuilder.lastSignInAt
+                            ? dateTimeFormatter.format(
+                                new Date(
+                                  selectedBuilder.lastSignInAt,
+                                ),
+                              )
+                            : "Never"}
+                        </strong>
+                      </div>
+
+                      <div>
+                        <span>Builder ID</span>
+                        <strong className="admin-builder-drawer__mono">
+                          {selectedBuilder.builderId}
+                        </strong>
+                      </div>
+
+                      <div>
+                        <span>Invite Code</span>
+                        <strong>
+                          {selectedBuilder.inviteCode ?? "—"}
+                        </strong>
+                      </div>
+                    </div>
+                  </section>
+
+                  <section className="admin-builder-drawer__section">
                     <h3>GP Intelligence</h3>
 
                     <div className="admin-builder-drawer__rows">
@@ -611,6 +798,97 @@ export default function AdminBuilders() {
                       </div>
                     </div>
                   </section>
+
+                  {canGrantGp ? (
+                    <section className="admin-builder-grant">
+                      <div className="admin-builder-grant__header">
+                        <div>
+                          <span>ADMIN ACTION</span>
+                          <h3>Grant GP</h3>
+                          <p>
+                            Add Personal GP through the canonical
+                            Reward Engine. Every successful grant is
+                            written to the immutable reward ledger and
+                            Admin Audit Log.
+                          </p>
+                        </div>
+
+                        <div className="admin-builder-grant__current">
+                          <span>CURRENT GP</span>
+                          <strong>
+                            {numberFormatter.format(
+                              builderDetail.wallet.currentGp,
+                            )}
+                          </strong>
+                        </div>
+                      </div>
+
+                      <form
+                        className="admin-builder-grant__form"
+                        onSubmit={handleGrantGp}
+                      >
+                        <label>
+                          <span>GP Amount</span>
+                          <input
+                            type="number"
+                            min="1"
+                            step="1"
+                            inputMode="numeric"
+                            value={grantAmount}
+                            placeholder="5000"
+                            disabled={grantLoading}
+                            onChange={(event) =>
+                              setGrantAmount(
+                                event.target.value,
+                              )
+                            }
+                          />
+                        </label>
+
+                        <label>
+                          <span>Reason</span>
+                          <textarea
+                            rows={3}
+                            maxLength={500}
+                            value={grantReason}
+                            placeholder="Campaign reward, compensation, operational grant..."
+                            disabled={grantLoading}
+                            onChange={(event) =>
+                              setGrantReason(
+                                event.target.value,
+                              )
+                            }
+                          />
+                        </label>
+
+                        {grantError ? (
+                          <div className="admin-builder-grant__message admin-builder-grant__message--error">
+                            {grantError}
+                          </div>
+                        ) : null}
+
+                        {grantSuccess ? (
+                          <div className="admin-builder-grant__message admin-builder-grant__message--success">
+                            {grantSuccess}
+                          </div>
+                        ) : null}
+
+                        <button
+                          type="submit"
+                          disabled={
+                            grantLoading ||
+                            !grantAmount.trim() ||
+                            grantReason.trim().length < 3
+                          }
+                        >
+                          <Trophy size={16} />
+                          {grantLoading
+                            ? "Granting GP..."
+                            : "Grant GP"}
+                        </button>
+                      </form>
+                    </section>
+                  ) : null}
 
                   <section className="admin-builder-drawer__section">
                     <h3>Mining Intelligence</h3>

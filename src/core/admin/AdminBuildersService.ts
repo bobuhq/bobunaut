@@ -7,8 +7,13 @@ export interface AdminBuilderIdentity {
   wallet: boolean;
 }
 
+export type AdminBuilderSignupSource =
+  | "DIRECT"
+  | "REFERRAL";
+
 export interface AdminBuilder {
   builderId: string;
+  email: string | null;
   username: string | null;
   displayName: string | null;
   level: number;
@@ -17,6 +22,8 @@ export interface AdminBuilder {
   referralCount: number;
   inviteCode: string | null;
   createdAt: string;
+  lastSignInAt: string | null;
+  signupSource: AdminBuilderSignupSource;
   miningActive: boolean;
   identity: AdminBuilderIdentity;
   verified: boolean;
@@ -30,8 +37,22 @@ export interface AdminBuildersQuery {
   search?: string;
 }
 
+export interface AdminGrantBuilderGpInput {
+  builderId: string;
+  amount: number;
+  reason: string;
+  idempotencyKey: string;
+}
+
+export interface AdminGrantBuilderGpResult {
+  awarded: boolean;
+  totalGp: number;
+  ledgerId: string | null;
+}
+
 interface AdminBuilderRow {
   builder_id: string;
+  email: string | null;
   username: string | null;
   display_name: string | null;
   level: number | null;
@@ -40,6 +61,8 @@ interface AdminBuilderRow {
   referral_count: number | null;
   invite_code: string | null;
   created_at: string;
+  last_sign_in_at: string | null;
+  signup_source: string | null;
   mining_active: boolean | null;
   telegram_verified: boolean | null;
   x_verified: boolean | null;
@@ -48,6 +71,12 @@ interface AdminBuilderRow {
   verified: boolean | null;
   genesis_builder: boolean | null;
   passport_unlocked: boolean | null;
+}
+
+interface AdminGrantBuilderGpRow {
+  awarded: boolean | null;
+  total_gp: number | null;
+  ledger_id: string | null;
 }
 
 function normalizeNonNegativeNumber(
@@ -94,6 +123,7 @@ export const AdminBuildersService = {
 
     return rows.map((row) => ({
       builderId: row.builder_id,
+      email: row.email,
       username: row.username,
       displayName: row.display_name,
       level: normalizeNonNegativeNumber(row.level),
@@ -106,6 +136,11 @@ export const AdminBuildersService = {
       ),
       inviteCode: row.invite_code,
       createdAt: row.created_at,
+      lastSignInAt: row.last_sign_in_at,
+      signupSource:
+        row.signup_source === "REFERRAL"
+          ? "REFERRAL"
+          : "DIRECT",
       miningActive: Boolean(row.mining_active),
       identity: {
         telegram: Boolean(row.telegram_verified),
@@ -119,5 +154,73 @@ export const AdminBuildersService = {
         row.passport_unlocked,
       ),
     }));
+  },
+
+  async grantGp(
+    input: AdminGrantBuilderGpInput,
+  ): Promise<AdminGrantBuilderGpResult> {
+    const builderId = input.builderId.trim();
+    const reason = input.reason.trim();
+    const idempotencyKey =
+      input.idempotencyKey.trim();
+
+    if (!builderId) {
+      throw new Error("Builder ID is required.");
+    }
+
+    if (
+      !Number.isSafeInteger(input.amount) ||
+      input.amount <= 0
+    ) {
+      throw new Error(
+        "GP amount must be a positive whole number.",
+      );
+    }
+
+    if (reason.length < 3 || reason.length > 500) {
+      throw new Error(
+        "Reason must contain between 3 and 500 characters.",
+      );
+    }
+
+    if (idempotencyKey.length < 8) {
+      throw new Error(
+        "A valid operation ID is required.",
+      );
+    }
+
+    const { data, error } = await supabase.rpc(
+      "admin_grant_builder_gp_v1",
+      {
+        p_builder_id: builderId,
+        p_amount: input.amount,
+        p_reason: reason,
+        p_idempotency_key: idempotencyKey,
+      },
+    );
+
+    if (error) {
+      throw new Error(
+        `Unable to grant GP: ${error.message}`,
+      );
+    }
+
+    const rows =
+      (data ?? []) as AdminGrantBuilderGpRow[];
+    const row = rows[0];
+
+    if (!row) {
+      throw new Error(
+        "Grant GP returned an invalid response.",
+      );
+    }
+
+    return {
+      awarded: Boolean(row.awarded),
+      totalGp: normalizeNonNegativeNumber(
+        row.total_gp,
+      ),
+      ledgerId: row.ledger_id,
+    };
   },
 };
