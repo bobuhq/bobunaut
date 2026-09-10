@@ -253,6 +253,51 @@ export function MarsPixelAdvertiserCenter() {
         ) ?? null
       : null;
 
+  const campaignStage = useMemo(() => {
+    if (!selectedTerritory) {
+      return 0;
+    }
+
+    const status = selectedTerritory.creative_status;
+
+    if (status === "active") {
+      return 4;
+    }
+
+    if (
+      status === "under_review" ||
+      status === "rejected" ||
+      status === "paused"
+    ) {
+      return 3;
+    }
+
+    return 2;
+  }, [selectedTerritory]);
+
+  const campaignSteps = [
+    {
+      number: 1,
+      title: "Territory Secured",
+      detail: "Your Mars Pixel territory is owned.",
+    },
+    {
+      number: 2,
+      title: "Creative Setup",
+      detail: "Add your brand, image and destination.",
+    },
+    {
+      number: 3,
+      title: "Review",
+      detail: "Submit your creative for moderation.",
+    },
+    {
+      number: 4,
+      title: "Live on Mars",
+      detail: "Your approved campaign becomes visible.",
+    },
+  ];
+
   useEffect(() => {
     let active = true;
 
@@ -597,6 +642,51 @@ export function MarsPixelAdvertiserCenter() {
           <div>
             <span>{t("mars.advertiser.activeAds")}</span>
             <strong>{activeAds}</strong>
+          </div>
+        </section>
+
+        <section
+          className="mars-advertiser__journey"
+          aria-label="Mars Pixel campaign journey"
+        >
+          <div className="mars-advertiser__journey-head">
+            <div>
+              <span>CAMPAIGN JOURNEY</span>
+              <h2>From territory to live campaign</h2>
+            </div>
+
+            <strong>
+              {campaignStage === 0
+                ? "Start by securing a territory"
+                : `Step ${campaignStage} of 4`}
+            </strong>
+          </div>
+
+          <div className="mars-advertiser__journey-steps">
+            {campaignSteps.map((step) => {
+              const complete = step.number < campaignStage;
+              const current = step.number === campaignStage;
+
+              return (
+                <div
+                  key={step.number}
+                  className={[
+                    "mars-advertiser__journey-step",
+                    complete ? "is-complete" : "",
+                    current ? "is-current" : "",
+                  ].join(" ")}
+                >
+                  <div className="mars-advertiser__journey-number">
+                    {complete ? "✓" : step.number}
+                  </div>
+
+                  <div>
+                    <strong>{step.title}</strong>
+                    <span>{step.detail}</span>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </section>
 
