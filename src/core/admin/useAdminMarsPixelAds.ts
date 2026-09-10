@@ -6,50 +6,57 @@ import {
 
 import {
   AdminMarsPixelAdsService,
-  type AdminMarsPixelAdsQuery,
-  type AdminMarsPixelCreative,
+  type AdminMarsPixelAllocation,
 } from "./AdminMarsPixelAdsService";
 
 export function useAdminMarsPixelAds(
-  query: AdminMarsPixelAdsQuery,
+  enabled = true,
 ) {
-  const [creatives, setCreatives] =
-    useState<AdminMarsPixelCreative[]>([]);
+  const [allocations, setAllocations] =
+    useState<AdminMarsPixelAllocation[]>([]);
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] =
+    useState(enabled);
+
   const [error, setError] =
     useState<string | null>(null);
 
   const refresh = useCallback(async () => {
+    if (!enabled) {
+      setAllocations([]);
+      setLoading(false);
+      setError(null);
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
     try {
       const result =
-        await AdminMarsPixelAdsService.getCreatives(query);
+        await AdminMarsPixelAdsService.getAllocations(
+          200,
+          0,
+        );
 
-      setCreatives(result);
+      setAllocations(result);
     } catch (caughtError: unknown) {
       setError(
         caughtError instanceof Error
           ? caughtError.message
-          : "Unable to load Mars Pixel Ads.",
+          : "Unable to load Mars Pixel allocations.",
       );
     } finally {
       setLoading(false);
     }
-  }, [
-    query.limit,
-    query.offset,
-    query.status,
-  ]);
+  }, [enabled]);
 
   useEffect(() => {
     void refresh();
   }, [refresh]);
 
   return {
-    creatives,
+    allocations,
     loading,
     error,
     refresh,
