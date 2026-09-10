@@ -6268,3 +6268,48 @@
   font-weight: 900;
   white-space: nowrap;
 }
+
+/* BOBU MARS PIXEL — MOBILE CHECKOUT VIEWPORT SAFETY */
+@media (max-width: 900px) and (orientation: landscape) {
+  .mars-pixel-detail.is-purchase-flow,
+  .mars-pixel-detail.is-checkout {
+    top: 8px !important;
+    bottom: 8px !important;
+    height: calc(100dvh - 16px) !important;
+    max-height: calc(100dvh - 16px) !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    padding-bottom: 74px !important;
+  }
+
+  .mars-checkout-continue,
+  .mars-purchase-flow__purchase {
+    position: sticky;
+    bottom: 0;
+    z-index: 12;
+  }
+}
+
+@media (max-width: 680px) and (orientation: portrait) {
+  .mars-pixel-detail.is-purchase-flow,
+  .mars-pixel-detail.is-checkout {
+    top: 8px !important;
+    bottom: 8px !important;
+    height: calc(100dvh - 16px) !important;
+    max-height: calc(100dvh - 16px) !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    padding-bottom: 82px !important;
+  }
+
+  .mars-checkout-continue,
+  .mars-purchase-flow__purchase {
+    position: sticky;
+    bottom: 0;
+    z-index: 12;
+  }
+}
