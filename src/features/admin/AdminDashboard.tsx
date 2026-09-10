@@ -66,31 +66,31 @@ export default function AdminDashboard() {
 
   const dashboardCards = [
     {
-      label: "Total Builders",
+      label: "Registered Users",
       value: metricsLoading
         ? "—"
         : numberFormatter.format(
-            metrics?.totalBuilders ?? 0,
+            metrics?.totalRegisteredUsers ?? 0,
           ),
       status: metricsError
         ? "Metrics unavailable"
         : metricsLoading
           ? "Loading live data"
-          : "Live Builder profiles",
+          : "Total registered accounts",
       icon: Users,
     },
     {
-      label: "Active Today",
+      label: "Since Launch",
       value: metricsLoading
         ? "—"
         : numberFormatter.format(
-            metrics?.activeToday ?? 0,
+            metrics?.usersSinceLaunch ?? 0,
           ),
       status: metricsError
         ? "Metrics unavailable"
         : metricsLoading
           ? "Loading live data"
-          : "Activity tracking pending",
+          : "Registered since Aug 17, 2026",
       icon: Activity,
     },
     {

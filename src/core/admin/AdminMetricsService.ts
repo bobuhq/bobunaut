@@ -1,15 +1,15 @@
 import { supabase } from "../../lib/supabase";
 
 export interface AdminDashboardMetrics {
-  totalBuilders: number;
-  activeToday: number;
+  totalRegisteredUsers: number;
+  usersSinceLaunch: number;
   totalGp: number;
   activeMiners: number;
 }
 
 interface AdminDashboardMetricsRow {
-  total_builders: number;
-  active_today: number;
+  total_registered_users: number;
+  users_since_launch: number;
   total_gp: number;
   active_miners: number;
 }
@@ -47,16 +47,14 @@ export const AdminMetricsService = {
     }
 
     return {
-      totalBuilders: normalizeMetric(
-        metrics.total_builders,
+      totalRegisteredUsers: normalizeMetric(
+        metrics.total_registered_users,
       ),
-      activeToday: normalizeMetric(
-        metrics.active_today,
+      usersSinceLaunch: normalizeMetric(
+        metrics.users_since_launch,
       ),
       totalGp: normalizeMetric(metrics.total_gp),
-      activeMiners: normalizeMetric(
-        metrics.active_miners,
-      ),
+      activeMiners: normalizeMetric(metrics.active_miners),
     };
   },
 };
