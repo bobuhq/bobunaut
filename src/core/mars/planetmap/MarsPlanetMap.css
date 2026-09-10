@@ -6248,3 +6248,23 @@
     font-size: 6px;
   }
 }
+
+
+.mars-pixel-goto__start-label {
+  display: grid;
+  place-items: center;
+  line-height: 1.05;
+}
+
+.mars-pixel-goto__start-label small {
+  font-size: 5px;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  opacity: 0.72;
+}
+
+.mars-pixel-goto__start-label strong {
+  font-size: inherit;
+  font-weight: 900;
+  white-space: nowrap;
+}

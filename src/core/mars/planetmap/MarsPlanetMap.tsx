@@ -3073,7 +3073,16 @@ export function MarsPlanetMap({
                     ? width * height
                     : 0;
 
-                return `${total.toLocaleString(language)} ${t("mars.pixel.pixels")}`;
+                const label = `${total.toLocaleString(language)} ${t("mars.pixel.pixels")}`;
+
+                return pixelSelectionMode ? (
+                  label
+                ) : (
+                  <span className="mars-pixel-goto__start-label">
+                    <small>START</small>
+                    <strong>{label}</strong>
+                  </span>
+                );
               })()}
             </button>
           </div>
