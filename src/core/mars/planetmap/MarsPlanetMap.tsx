@@ -106,6 +106,7 @@ import {
 } from "./MarsPixelGridMapper";
 
 import { useLanguage } from "../../language";
+import { supabase } from "../../../lib/supabase";
 import MarsLanguageSelector from "../components/MarsLanguageSelector";
 
 import {
@@ -1592,9 +1593,41 @@ export function MarsPlanetMap({
       return;
     }
 
-    setMarsDevnetFaucetLoading(true);
-
     try {
+      const {
+        data: { session },
+        error: sessionError,
+      } = await supabase.auth.getSession();
+
+      if (sessionError) {
+        throw new Error(
+          `Authenticated session could not be loaded: ${sessionError.message}`,
+        );
+      }
+
+      if (!session?.access_token) {
+        const { error: googleLoginError } =
+          await supabase.auth.signInWithOAuth({
+            provider: "google",
+            options: {
+              redirectTo: new URL(
+                import.meta.env.BASE_URL,
+                window.location.origin,
+              ).toString(),
+            },
+          });
+
+        if (googleLoginError) {
+          throw new Error(
+            `Google sign-in failed: ${googleLoginError.message}`,
+          );
+        }
+
+        return;
+      }
+
+      setMarsDevnetFaucetLoading(true);
+
       const result = await claimMarsDevnetFaucet(
         marsSolanaWallet.publicKey,
       );
