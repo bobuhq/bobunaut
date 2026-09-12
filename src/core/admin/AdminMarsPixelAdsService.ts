@@ -1,4 +1,7 @@
 import { supabase } from "../../lib/supabase";
+import {
+  notifyMarsPixelEmail,
+} from "../mars/MarsPixelEmailNotificationService";
 
 export type AdminMarsPixelCreativeStatus =
   | "under_review"
@@ -188,6 +191,13 @@ export const AdminMarsPixelAdsService = {
         `Unable to ${decision} Mars Pixel creative: ${error.message}`,
       );
     }
+
+    await notifyMarsPixelEmail(
+      decision === "approve"
+        ? "approved"
+        : "rejected",
+      creativeId,
+    );
   },
 
   async manageAllocation(

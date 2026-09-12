@@ -1,4 +1,8 @@
 import { supabase } from "../../lib/supabase";
+import {
+  notifyMarsPixelEmail,
+} from "./MarsPixelEmailNotificationService";
+
 
 export type MarsPixelNetworkStatus = {
   grid_width: number;
@@ -1145,12 +1149,19 @@ export async function saveMarsPixelCreative(
     );
   }
 
-  return {
+  const result: SaveMarsPixelCreativeResult = {
     ...(row as SaveMarsPixelCreativeResult),
     pixel_count: Number(
       (row as SaveMarsPixelCreativeResult).pixel_count,
     ),
   };
+
+  await notifyMarsPixelEmail(
+    "submitted",
+    result.creative_id,
+  );
+
+  return result;
 }
 
 export type MarsPixelCreativeImageUpload = {
