@@ -47,7 +47,7 @@ const navItems = [
     mars: true,
   },
   {
-    to: "/",
+    to: "/orbit",
     labelKey: "nav.orbit",
     icon: Orbit,
     locked: false,
@@ -1178,7 +1178,7 @@ export function Nav() {
               <NavLink
                 key={to}
                 to={to}
-                end={to === "/"}
+                end={false}
                 className={({ isActive }) =>
                   `bobu-nav-link${mars ? " bobu-nav-link--mars" : ""}${isActive ? " active" : ""}`
                 }
@@ -1446,7 +1446,7 @@ export function Nav() {
                   <NavLink
                     key={to}
                     to={to}
-                    end={to === "/"}
+                    end={false}
                     className={({
                       isActive,
                     }) =>

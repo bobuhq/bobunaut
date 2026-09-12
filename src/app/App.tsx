@@ -26,6 +26,13 @@ const Home = lazyWithRecovery(() =>
   })),
 );
 
+
+const Deck = lazyWithRecovery(() =>
+  import("../features/Deck").then((module) => ({
+    default: module.Deck,
+  })),
+);
+
 const Missions = lazyWithRecovery(() =>
   import("../features/Missions").then((module) => ({
     default: module.Missions,
@@ -211,6 +218,11 @@ export function App() {
 
           <Route path="/" element={<BuildMars />} />
           <Route path="/home" element={<Home />} />
+          <Route path="/orbit" element={<Deck />} />
+          <Route
+            path="/command-deck"
+            element={<Navigate to="/orbit" replace />}
+          />
           <Route path="/identity" element={<BuilderIdentity />} />
           <Route path="/passport" element={<BuilderPassport />} />
           <Route path="/wallet" element={<BuilderWallet />} />
