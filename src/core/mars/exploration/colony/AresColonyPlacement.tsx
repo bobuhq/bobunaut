@@ -66,6 +66,12 @@ type Props = {
   targetRef: React.RefObject<THREE.Group | null>;
   onCancel: () => void;
   onSaved: () => void | Promise<void>;
+  onApproachStatusChange?: (
+    status: {
+      active: boolean;
+      distance: number | null;
+    },
+  ) => void;
 };
 
 type Placement = {
@@ -95,6 +101,7 @@ export default function AresColonyPlacement({
   targetRef,
   onCancel,
   onSaved,
+  onApproachStatusChange,
 }: Props) {
   const { t } = useLanguage();
   const normalizedBuildingKey =
@@ -488,6 +495,32 @@ export default function AresColonyPlacement({
   const builderNearPlacement =
     builderDistanceFromPreview <= 18;
 
+  useEffect(() => {
+    if (!onApproachStatusChange) {
+      return;
+    }
+
+    onApproachStatusChange({
+      active: !builderNearPlacement,
+      distance: Number.isFinite(
+        builderDistanceFromPreview,
+      )
+        ? builderDistanceFromPreview
+        : null,
+    });
+
+    return () => {
+      onApproachStatusChange({
+        active: false,
+        distance: null,
+      });
+    };
+  }, [
+    builderDistanceFromPreview,
+    builderNearPlacement,
+    onApproachStatusChange,
+  ]);
+
   const footprintMeters =
     aresColonyFootprintMeters(
       width,
@@ -702,85 +735,7 @@ export default function AresColonyPlacement({
           </mesh>
         </group>
 
-        <Html
-          fullscreen
-          style={{
-            pointerEvents: "none",
-          }}
-        >
-          <div
-          style={{
-            position: "fixed",
-            left: "50%",
-            bottom: "24px",
-            transform: "translateX(-50%)",
-            zIndex: 220,
-            pointerEvents: "auto",
-            minWidth: "270px",
-            padding: "13px 15px",
-            border:
-              "1px solid rgba(99,245,255,.32)",
-            borderRadius: "12px",
-            background:
-              "rgba(5,7,18,.94)",
-            color: "#fff",
-            fontFamily:
-              "Inter, system-ui, sans-serif",
-            textAlign: "center",
-          }}
-        >
-          <div
-            style={{
-              color: "#63f5ff",
-              fontSize: "9px",
-              fontWeight: 900,
-              letterSpacing: ".16em",
-            }}
-          >
-            {t("mars.placement.title")}
-          </div>
 
-          <strong
-            style={{
-              display: "block",
-              marginTop: "7px",
-              fontSize: "12px",
-            }}
-          >
-            {t("mars.placement.moveToArea")}
-          </strong>
-
-          <div
-            style={{
-              marginTop: "6px",
-              color: "rgba(255,255,255,.62)",
-              fontSize: "10px",
-              fontWeight: 700,
-            }}
-          >
-            {Number.isFinite(
-              builderDistanceFromPreview,
-            )
-              ? t("mars.placement.distance", {
-                  distance: Math.ceil(
-                    builderDistanceFromPreview,
-                  ),
-                })
-              : t("mars.placement.locating")}
-          </div>
-
-          <button
-            type="button"
-            onClick={onCancel}
-            style={{
-              marginTop: "10px",
-              width: "100%",
-            }}
-          >
-            {t("mars.placement.cancel")}
-          </button>
-          </div>
-        </Html>
       </>
     );
   }

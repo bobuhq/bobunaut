@@ -190,6 +190,12 @@ interface MarsExploreSceneProps {
     | null;
   onPlacementCancel: () => void;
   onPlacementSaved: () => void | Promise<void>;
+  onPlacementApproachStatusChange: (
+    status: {
+      active: boolean;
+      distance: number | null;
+    },
+  ) => void;
   colonyBuildingsRefreshKey: number;
 }
 
@@ -211,6 +217,7 @@ function MarsExploreScene({
   placementColonyId,
   onPlacementCancel,
   onPlacementSaved,
+  onPlacementApproachStatusChange,
   colonyBuildingsRefreshKey,
 }: MarsExploreSceneProps) {
   const bobuRef =
@@ -441,6 +448,9 @@ function MarsExploreScene({
             }
             onSaved={
               onPlacementSaved
+            }
+            onApproachStatusChange={
+              onPlacementApproachStatusChange
             }
           />
         )}
@@ -765,6 +775,17 @@ export function MarsExploreWorld() {
     );
 
   const [
+    placementApproach,
+    setPlacementApproach,
+  ] = useState<{
+    active: boolean;
+    distance: number | null;
+  }>({
+    active: false,
+    distance: null,
+  });
+
+  const [
     colonyBuildingsRefreshKey,
     setColonyBuildingsRefreshKey,
   ] = useState(0);
@@ -873,6 +894,10 @@ export function MarsExploreWorld() {
       setPlacementDefinition(null);
       setPlacementColonyId(null);
       setPlacementError(null);
+      setPlacementApproach({
+        active: false,
+        distance: null,
+      });
     }, []);
 
   const beginInventoryPlacement =
@@ -2876,6 +2901,89 @@ export function MarsExploreWorld() {
         </div>
       )}
 
+      {placementItem &&
+        placementApproach.active && (
+          <div
+            style={{
+              position: "fixed",
+              left: "50%",
+              bottom:
+                mobileOrientation === "landscape"
+                  ? "54px"
+                  : hiddenMissionNavigation && !archiveOpen
+                    ? "118px"
+                    : "24px",
+              transform: "translateX(-50%)",
+              zIndex: 2147483647,
+              pointerEvents: "auto",
+              minWidth: "270px",
+              padding: "13px 15px",
+              border:
+                "1px solid rgba(99,245,255,.32)",
+              borderRadius: "12px",
+              background:
+                "rgba(5,7,18,.94)",
+              color: "#fff",
+              fontFamily:
+                "Inter, system-ui, sans-serif",
+              textAlign: "center",
+              boxShadow:
+                "0 16px 48px rgba(0,0,0,.34)",
+              backdropFilter: "blur(14px)",
+            }}
+          >
+            <div
+              style={{
+                color: "#63f5ff",
+                fontSize: "9px",
+                fontWeight: 900,
+                letterSpacing: ".16em",
+              }}
+            >
+              {t("mars.placement.title")}
+            </div>
+
+            <strong
+              style={{
+                display: "block",
+                marginTop: "7px",
+                fontSize: "12px",
+              }}
+            >
+              {t("mars.placement.moveToArea")}
+            </strong>
+
+            <div
+              style={{
+                marginTop: "6px",
+                color:
+                  "rgba(255,255,255,.62)",
+                fontSize: "10px",
+                fontWeight: 700,
+              }}
+            >
+              {placementApproach.distance !== null
+                ? t("mars.placement.distance", {
+                    distance: Math.ceil(
+                      placementApproach.distance,
+                    ),
+                  })
+                : t("mars.placement.locating")}
+            </div>
+
+            <button
+              type="button"
+              onClick={cancelPlacement}
+              style={{
+                marginTop: "10px",
+                width: "100%",
+              }}
+            >
+              {t("mars.placement.cancel")}
+            </button>
+          </div>
+        )}
+
       <button
         type="button"
         className="ares-hud-market"
@@ -3046,6 +3154,9 @@ export function MarsExploreWorld() {
               }
               onPlacementSaved={
                 handlePlacementSaved
+              }
+              onPlacementApproachStatusChange={
+                setPlacementApproach
               }
               colonyBuildingsRefreshKey={
                 colonyBuildingsRefreshKey
