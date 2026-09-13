@@ -114,8 +114,13 @@ import {
 import MarsMarket from "../../../features/MarsMarket";
 
 import {
+  claimMyMarsColonyResources,
   getMyMarsColonyBase,
+  getMyMarsColonyResources,
+  getMyMarsResourceProduction,
   type MarsColonyBaseBuilding,
+  type MarsColonyResources,
+  type MarsColonyResourceProduction,
 } from "../MarsColonyBaseService";
 
 import {
@@ -1000,6 +1005,154 @@ export function MarsExploreWorld() {
         },
       );
     }, []);
+
+  const [
+    colonyResources,
+    setColonyResources,
+  ] = useState<MarsColonyResources | null>(null);
+
+  const [
+    resourceProduction,
+    setResourceProduction,
+  ] = useState<MarsColonyResourceProduction | null>(
+    null,
+  );
+
+  const [
+    resourcesLoading,
+    setResourcesLoading,
+  ] = useState(false);
+
+  const [
+    resourcesClaiming,
+    setResourcesClaiming,
+  ] = useState(false);
+
+  const [
+    resourcesError,
+    setResourcesError,
+  ] = useState<string | null>(null);
+
+  const refreshAresResources =
+    useCallback(async () => {
+      if (!session?.user.id) {
+        setColonyResources(null);
+        setResourceProduction(null);
+        return;
+      }
+
+      setResourcesLoading(true);
+
+      try {
+        const [resources, production] =
+          await Promise.all([
+            getMyMarsColonyResources(),
+            getMyMarsResourceProduction(),
+          ]);
+
+        setColonyResources(resources);
+        setResourceProduction(production);
+        setResourcesError(null);
+      } catch (error) {
+        console.error(
+          "Failed to refresh Ares colony resources",
+          error,
+        );
+
+        setResourcesError(
+          error instanceof Error
+            ? error.message
+            : "UNABLE TO LOAD COLONY RESOURCES",
+        );
+      } finally {
+        setResourcesLoading(false);
+      }
+    }, [session?.user.id]);
+
+  useEffect(() => {
+    void refreshAresResources();
+
+    const interval = window.setInterval(() => {
+      void refreshAresResources();
+    }, 60_000);
+
+    return () => {
+      window.clearInterval(interval);
+    };
+  }, [refreshAresResources]);
+
+  const claimAresResources =
+    useCallback(async () => {
+      if (resourcesClaiming) {
+        return;
+      }
+
+      setResourcesClaiming(true);
+      setResourcesError(null);
+
+      try {
+        await claimMyMarsColonyResources();
+        await refreshAresResources();
+
+        setResourcesError("RESOURCES COLLECTED");
+
+        window.setTimeout(() => {
+          setResourcesError((current) =>
+            current === "RESOURCES COLLECTED"
+              ? null
+              : current
+          );
+        }, 2200);
+      } catch (error) {
+        const message =
+          error instanceof Error
+            ? error.message
+            : typeof error === "object" &&
+                error !== null &&
+                "message" in error
+              ? String(
+                  (error as { message?: unknown }).message ??
+                    ""
+                )
+              : String(error);
+
+        const nothingToClaim =
+          message.includes("NOTHING_TO_CLAIM");
+
+        if (nothingToClaim) {
+          setResourcesError(
+            "PRODUCTION IS ACCUMULATING..."
+          );
+
+          await refreshAresResources();
+
+          window.setTimeout(() => {
+            setResourcesError((current) =>
+              current ===
+              "PRODUCTION IS ACCUMULATING..."
+                ? null
+                : current
+            );
+          }, 2200);
+
+          return;
+        }
+
+        console.error(
+          "Failed to claim Ares colony resources",
+          error,
+        );
+
+        setResourcesError(
+          "UNABLE TO COLLECT RESOURCES"
+        );
+      } finally {
+        setResourcesClaiming(false);
+      }
+    }, [
+      refreshAresResources,
+      resourcesClaiming,
+    ]);
 
   const [totalGp, setTotalGp] =
     useState<number | null>(null);
@@ -2473,6 +2626,253 @@ export function MarsExploreWorld() {
                         : "TURN LEFT"}
             </div>
           </div>
+        </div>
+      )}
+
+      {colonyResources && resourceProduction && (
+        <div
+          className="ares-colony-resource-hud"
+          style={{
+            position: "fixed",
+            left:
+              mobileOrientation === "landscape"
+                ? "8px"
+                : "18px",
+            top:
+              mobileOrientation === "landscape"
+                ? "36px"
+                : onboardingVisible
+                  ? "172px"
+                  : "112px",
+            zIndex: 95,
+            width:
+              mobileOrientation === "landscape"
+                ? "176px"
+                : "min(390px, calc(100vw - 36px))",
+            padding:
+              mobileOrientation === "landscape"
+                ? "7px"
+                : "11px",
+            border:
+              "1px solid rgba(99,245,255,.22)",
+            borderRadius:
+              mobileOrientation === "landscape"
+                ? "9px"
+                : "14px",
+            background:
+              mobileOrientation === "landscape"
+                ? "rgba(4,7,15,.50)"
+                : "rgba(4,7,15,.82)",
+            backdropFilter: "blur(14px)",
+            boxShadow:
+              "0 14px 42px rgba(0,0,0,.25)",
+            color: "#fff",
+            fontFamily:
+              "Inter, system-ui, sans-serif",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: "8px",
+            }}
+          >
+            <div>
+              <div
+                style={{
+                  color: "#63f5ff",
+                  fontSize:
+                    mobileOrientation === "landscape"
+                      ? "6px"
+                      : "8px",
+                  fontWeight: 900,
+                  letterSpacing: ".16em",
+                }}
+              >
+                ARES COLONY NETWORK
+              </div>
+
+              <div
+                style={{
+                  marginTop: "2px",
+                  fontSize:
+                    mobileOrientation === "landscape"
+                      ? "8px"
+                      : "11px",
+                  fontWeight: 900,
+                }}
+              >
+                {colonyResources.colony_name}
+              </div>
+            </div>
+
+            <button
+              type="button"
+              disabled={
+                resourcesClaiming ||
+                resourcesLoading
+              }
+              onClick={() => {
+                void claimAresResources();
+              }}
+              style={{
+                minHeight:
+                  mobileOrientation === "landscape"
+                    ? "20px"
+                    : "27px",
+                padding:
+                  mobileOrientation === "landscape"
+                    ? "0 6px"
+                    : "0 9px",
+                border:
+                  "1px solid rgba(141,255,173,.3)",
+                borderRadius: "999px",
+                background:
+                  "rgba(141,255,173,.08)",
+                color: "#8dffad",
+                cursor:
+                  resourcesClaiming
+                    ? "wait"
+                    : "pointer",
+                fontSize:
+                  mobileOrientation === "landscape"
+                    ? "5px"
+                    : "7px",
+                fontWeight: 900,
+                letterSpacing: ".1em",
+              }}
+            >
+              {resourcesClaiming
+                ? "COLLECTING"
+                : "COLLECT"}
+            </button>
+          </div>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns:
+                "repeat(5, minmax(0, 1fr))",
+              gap:
+                mobileOrientation === "landscape"
+                  ? "3px"
+                  : "6px",
+              marginTop:
+                mobileOrientation === "landscape"
+                  ? "5px"
+                  : "9px",
+            }}
+          >
+            {[
+              [
+                "MAT",
+                colonyResources.materials,
+                resourceProduction.materials_per_hour,
+              ],
+              [
+                "NRG",
+                colonyResources.energy,
+                resourceProduction.energy_per_hour,
+              ],
+              [
+                "H2O",
+                colonyResources.water,
+                resourceProduction.water_per_hour,
+              ],
+              [
+                "SCI",
+                colonyResources.science,
+                resourceProduction.science_per_hour,
+              ],
+              [
+                "FOOD",
+                colonyResources.food,
+                resourceProduction.food_per_hour,
+              ],
+            ].map(([label, balance, rate]) => (
+              <div
+                key={String(label)}
+                style={{
+                  minWidth: 0,
+                  padding:
+                    mobileOrientation === "landscape"
+                      ? "4px 2px"
+                      : "6px 4px",
+                  border:
+                    "1px solid rgba(255,255,255,.07)",
+                  borderRadius: "7px",
+                  background:
+                    "rgba(255,255,255,.035)",
+                  textAlign: "center",
+                }}
+              >
+                <div
+                  style={{
+                    color:
+                      "rgba(255,255,255,.55)",
+                    fontSize:
+                      mobileOrientation ===
+                      "landscape"
+                        ? "4px"
+                        : "6px",
+                    fontWeight: 900,
+                    letterSpacing: ".08em",
+                  }}
+                >
+                  {label}
+                </div>
+
+                <div
+                  style={{
+                    marginTop: "2px",
+                    fontSize:
+                      mobileOrientation ===
+                      "landscape"
+                        ? "7px"
+                        : "10px",
+                    fontWeight: 900,
+                  }}
+                >
+                  {Number(balance).toLocaleString(
+                    language,
+                  )}
+                </div>
+
+                <div
+                  style={{
+                    marginTop: "1px",
+                    color: "#8dffad",
+                    fontSize:
+                      mobileOrientation ===
+                      "landscape"
+                        ? "4px"
+                        : "6px",
+                    fontWeight: 800,
+                  }}
+                >
+                  +{Number(rate).toLocaleString(
+                    language,
+                  )}/H
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {resourcesError && (
+            <div
+              style={{
+                marginTop: "6px",
+                color: "#ff765f",
+                fontSize: "6px",
+                fontWeight: 900,
+                letterSpacing: ".06em",
+              }}
+            >
+              {resourcesError}
+            </div>
+          )}
         </div>
       )}
 
