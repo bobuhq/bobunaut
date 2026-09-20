@@ -36,6 +36,50 @@ export function Shell() {
   return (
     <div className="app">
       {!isMarsExplore && <Stars />}
+
+      {!isMarsExplore && !isNativeMarsBridge && (
+        <div
+          className="x-account-announcement"
+          role="status"
+          aria-label="X account update"
+        >
+          <div className="x-account-announcement__track">
+            <span>
+              X ACCOUNT UPDATE
+              <span className="x-account-announcement__dot"> • </span>
+              Our official X account is now{" "}
+              <a
+                href="https://x.com/bobunaut"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                @bobunaut
+              </a>
+              <span className="x-account-announcement__dot"> • </span>
+              Having trouble with X verification? Open Genesis and verify your X account again.
+              <span className="x-account-announcement__dot"> • </span>
+            </span>
+
+            <span aria-hidden="true">
+              X ACCOUNT UPDATE
+              <span className="x-account-announcement__dot"> • </span>
+              Our official X account is now{" "}
+              <a
+                href="https://x.com/bobunaut"
+                target="_blank"
+                rel="noopener noreferrer"
+                tabIndex={-1}
+              >
+                @bobunaut
+              </a>
+              <span className="x-account-announcement__dot"> • </span>
+              Having trouble with X verification? Open Genesis and verify your X account again.
+              <span className="x-account-announcement__dot"> • </span>
+            </span>
+          </div>
+        </div>
+      )}
+
       {!isMarsExplore &&
         !isNativeMarsBridge && <Nav />}
 

@@ -1670,3 +1670,96 @@ main.mars-explore-main {
   z-index: 1002;
   pointer-events: auto;
 }
+
+
+/* =========================================================
+   TEMPORARY X ACCOUNT ANNOUNCEMENT
+   Remove this block together with x-account-announcement
+   in src/app/Shell.tsx when the notice is no longer needed.
+   ========================================================= */
+
+.x-account-announcement {
+  position: relative;
+  z-index: 100;
+  width: 100%;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(139, 92, 246, 0.32);
+  background:
+    linear-gradient(
+      90deg,
+      rgba(7, 10, 22, 0.98),
+      rgba(35, 18, 70, 0.98),
+      rgba(7, 10, 22, 0.98)
+    );
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1;
+}
+
+.x-account-announcement__track {
+  display: flex;
+  width: max-content;
+  min-width: 200%;
+  align-items: center;
+  white-space: nowrap;
+  animation: bobu-x-announcement-scroll 28s linear infinite;
+  will-change: transform;
+}
+
+.x-account-announcement__track > span {
+  display: inline-flex;
+  min-width: 50%;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0.72rem 2.5rem;
+}
+
+.x-account-announcement a {
+  margin: 0 0.25rem;
+  color: #c4b5fd;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.x-account-announcement a:hover {
+  color: #ffffff;
+  text-decoration: underline;
+}
+
+.x-account-announcement__dot {
+  margin: 0 0.8rem;
+  color: #a78bfa;
+}
+
+@keyframes bobu-x-announcement-scroll {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (max-width: 768px) {
+  .x-account-announcement {
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+  }
+
+  .x-account-announcement__track {
+    animation-duration: 22s;
+  }
+
+  .x-account-announcement__track > span {
+    padding: 0.65rem 1.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .x-account-announcement__track {
+    animation: none;
+  }
+}
