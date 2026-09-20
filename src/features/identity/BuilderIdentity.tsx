@@ -40,7 +40,7 @@ const communityTasks: CommunityTask[] = [
     description:
       "identity.x.description",
     actionLabel: "identity.x.connect",
-    communityUrl: "https://x.com/bobu_hq",
+    communityUrl: "https://x.com/bobunaut",
     required: true,
   },
   {

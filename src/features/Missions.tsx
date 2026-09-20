@@ -81,8 +81,8 @@ const rewards = [
 const socialChannels = [
   {
     name: "X",
-    handle: "@bobu_hq",
-    href: "https://x.com/bobu_hq",
+    handle: "@bobunaut",
+    href: "https://x.com/bobunaut",
     icon: Twitter,
   },
   {
