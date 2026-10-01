@@ -180,17 +180,21 @@ const directActiveCircleCount = galaxyMembers.filter(
     member.referralStatus === "active",
 ).length;
 
-const pendingMemberCount = Math.max(
-    0,
-    galaxyMembers.length - activeMemberCount,
-  );
+const pendingMemberCount = galaxyMembers.filter(
+    (member) => member.referralStatus === "pending",
+  ).length;
 
   const galaxyLevelTarget = 10;
 
-  const remainingActiveBuilders = Math.max(
-    0,
-    galaxyLevelTarget - activeMemberCount,
+  const deepestGalaxyLevel = Math.min(
+    galaxyLevelTarget,
+    Math.max(0, ...galaxyMembers.map((member) => member.depth)),
   );
+
+  const nextGalaxyLevel =
+    deepestGalaxyLevel < galaxyLevelTarget
+      ? deepestGalaxyLevel + 1
+      : null;
 
   const visibleMembers = useMemo<GalaxyMember[]>(
     () =>
@@ -579,6 +583,80 @@ const pendingMemberCount = Math.max(
         .galaxy-copy:disabled {
           cursor: not-allowed;
           opacity: 0.4;
+        }
+        .galaxy-referral-guide {
+          margin-top: 18px;
+          padding: 22px;
+          border: 1px solid rgba(159, 118, 255, 0.3);
+          border-radius: 18px;
+          background: linear-gradient(
+            135deg,
+            rgba(89, 52, 176, 0.2),
+            rgba(17, 30, 76, 0.35)
+          );
+          box-shadow: 0 12px 36px rgba(0, 0, 0, 0.12);
+        }
+
+        .galaxy-referral-guide h4 {
+          margin: 0 0 18px;
+          color: #e8dfff;
+          font-size: 1.05rem;
+          font-weight: 700;
+        }
+
+        .galaxy-referral-steps {
+          display: grid;
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+          gap: 12px;
+          margin: 0;
+          padding: 0;
+          list-style: none;
+          counter-reset: referral-step;
+        }
+
+        .galaxy-referral-steps li {
+          min-width: 0;
+          padding: 16px;
+          border: 1px solid rgba(146, 124, 255, 0.2);
+          border-radius: 13px;
+          background: rgba(10, 17, 48, 0.48);
+          color: #dce5ff;
+          font-size: 0.76rem;
+          line-height: 1.65;
+          overflow-wrap: anywhere;
+          counter-increment: referral-step;
+        }
+
+        .galaxy-referral-steps li::before {
+          content: counter(referral-step, decimal-leading-zero);
+          display: block;
+          margin-bottom: 10px;
+          color: #b69aff;
+          font-size: 1.15rem;
+          font-weight: 800;
+        }
+
+        .galaxy-referral-guide-note {
+          margin-top: 16px !important;
+          color: #b8c6e8 !important;
+          font-size: 0.76rem !important;
+          line-height: 1.7 !important;
+        }
+
+        @media (max-width: 1100px) {
+          .galaxy-referral-steps {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+          }
+        }
+
+        @media (max-width: 600px) {
+          .galaxy-referral-guide {
+            padding: 15px;
+          }
+
+          .galaxy-referral-steps {
+            grid-template-columns: 1fr;
+          }
         }
 
         .galaxy-main {
@@ -1195,6 +1273,30 @@ const pendingMemberCount = Math.max(
             align-items: flex-start;
             flex-direction: column;
           }
+          .galaxy-network {
+            min-height: 0;
+            padding: 16px 12px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            overscroll-behavior-x: contain;
+            -webkit-overflow-scrolling: touch;
+          }
+
+          .galaxy-tree {
+            padding: 12px 20px 6px;
+          }
+
+          .galaxy-forest {
+            gap: 20px;
+            padding: 30px 20px 10px;
+          }
+
+          .galaxy-children {
+            gap: 16px;
+            padding-right: 8px;
+            padding-left: 8px;
+          }
+
 
           .galaxy-footer-grid {
             grid-template-columns: 1fr;
@@ -1324,6 +1426,8 @@ const pendingMemberCount = Math.max(
                 )}
               </button>
             </div>
+
+
           </div>
         </aside>
 
@@ -1357,6 +1461,24 @@ const pendingMemberCount = Math.max(
               <strong>#{builder.level}</strong>
             </div>
           </section>
+
+          <section
+              className="galaxy-referral-guide"
+              aria-label={t("galaxy.guide.title")}
+            >
+              <h4>{t("galaxy.guide.title")}</h4>
+
+              <ol className="galaxy-referral-steps">
+                <li>{t("galaxy.guide.step1")}</li>
+                <li>{t("galaxy.guide.step2")}</li>
+                <li>{t("galaxy.guide.step3")}</li>
+                <li>{t("galaxy.guide.step4")}</li>
+              </ol>
+
+              <p className="galaxy-referral-guide-note">
+                {t("galaxy.guide.pendingNote")}
+              </p>
+            </section>
 
           <section className="galaxy-network">
             <div className="galaxy-network-heading">
@@ -1596,7 +1718,9 @@ const pendingMemberCount = Math.max(
                       "galaxy.footer.verifiedConnections",
                     )}
                   </span>
-                  <strong>{activeMemberCount}</strong>
+                  <strong>{galaxyMembers.filter(
+                    (member) => member.referralStatus === "active"
+                  ).length}</strong>
                 </div>
 
                 <div>
@@ -1611,12 +1735,9 @@ const pendingMemberCount = Math.max(
                     {t("galaxy.footer.nextLevel")}
                   </span>
                   <strong>
-                    {remainingActiveBuilders === 0
+                    {nextGalaxyLevel === null
                       ? t("galaxy.footer.ready")
-                      : t("galaxy.footer.remaining", {
-                          count:
-                            remainingActiveBuilders,
-                        })}
+                      : `${nextGalaxyLevel} / ${galaxyLevelTarget}`}
                   </strong>
                 </div>
               </div>
