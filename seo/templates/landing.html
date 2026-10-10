@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="{{language}}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{title}}</title>
+  <meta name="description" content="{{description}}">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="{{title}}">
+  <meta property="og:description" content="{{description}}">
+  <meta property="og:site_name" content="BOBU Universe">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="{{title}}">
+  <meta name="twitter:description" content="{{description}}">
+  <link rel="stylesheet" href="../landing.css">
+</head>
+<body>
+  <a class="skip" href="#content">Skip to content</a>
+  <header class="site-header"><p class="brand"><span class="brand-orbit" aria-hidden="true"></span>BOBU Universe</p><p class="preview-label">English guide · Local SEO preview</p></header>
+  <main id="content">
+    <div class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">The builder journey · BOBU Universe</p>
+        <h1>{{heading}}</h1>
+        <p class="intro">{{intro}}</p>
+        <a class="explore-button" href="https://bobunaut.com">Explore BOBU Universe <span aria-hidden="true">↗</span></a>
+      </div>
+      <div class="planet-scene" aria-hidden="true"><div class="orbit"></div><div class="mars"></div><span class="planet-label">MARS / BOBU UNIVERSE</span></div>
+    </div>
+    <div class="guide-grid">
+    {{sections}}
+    </div>
+    <section class="faq-section" aria-labelledby="faq"><h2 id="faq">Frequently asked questions</h2>{{faq}}</section>
+    <nav aria-label="Related guides"><h2>Explore more guides</h2><ul>{{related}}</ul></nav>
+  </main>
+  <footer><p>BOBU Universe · Preview content for review</p><a class="explore-button" href="https://bobunaut.com">Explore BOBU Universe <span aria-hidden="true">↗</span></a></footer>
+</body>
+</html>
