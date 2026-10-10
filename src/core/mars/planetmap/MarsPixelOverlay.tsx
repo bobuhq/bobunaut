@@ -15,8 +15,12 @@ import {
   UnsignedByteType,
   ShaderMaterial,
   Group,
-  MeshBasicMaterial,
-  Quaternion,
+  Mesh,
+  BufferGeometry,
+  Float32BufferAttribute,
+  CanvasTexture,
+  Texture,
+  TextureLoader,
   Vector2,
   Vector3,
   Vector4,
@@ -540,16 +544,20 @@ export function MarsPixelOverlay({
       territorySelectionColor ? 1 : 0;
   }, [territorySelectionColor]);
 
-  const [
-    cameraDistanceForLabels,
-    setCameraDistanceForLabels,
-  ] = useState(8.4);
+  const reducedMotionRef = useRef(false);
+  useEffect(() => {
+    const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => { reducedMotionRef.current = preference.matches; };
+    update();
+    preference.addEventListener("change", update);
+    return () => preference.removeEventListener("change", update);
+  }, []);
 
-  const labelDistanceRef =
-    useRef(8.4);
-
-  const territoryLabelsRef =
-    useRef<Group | null>(null);
+  const cameraDirection = useMemo(() => new Vector3(), []);
+  const territoryWorldPosition = useMemo(() => new Vector3(), []);
+  const territoryWorldNormal = useMemo(() => new Vector3(), []);
+  const cardRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const projectedPosition = useMemo(() => new Vector3(), []);
 
   /*
    * V40 real advertising impressions.
@@ -563,6 +571,14 @@ export function MarsPixelOverlay({
 
   const impressionRecordedRef =
     useRef<Set<string>>(new Set());
+
+  useEffect(() => {
+    const resetImpressionDwell = () => {
+      impressionVisibleSinceRef.current = {};
+    };
+    document.addEventListener("visibilitychange", resetImpressionDwell);
+    return () => document.removeEventListener("visibilitychange", resetImpressionDwell);
+  }, []);
 
   useFrame(({ camera }) => {
     const material =
@@ -579,43 +595,27 @@ export function MarsPixelOverlay({
       distance;
 
     material.uniforms.time.value =
-      performance.now() * 0.001;
+      reducedMotionRef.current ? 0 : performance.now() * 0.001;
 
-    const labelGroup =
-      territoryLabelsRef.current;
-
-    if (labelGroup) {
-      const cameraDirection =
-        camera.position
-          .clone()
-          .normalize();
-
-      for (const child of labelGroup.children) {
-        const worldPosition =
-          child.getWorldPosition(
-            new Vector3(),
-          );
-
-        const worldNormal =
-          worldPosition
-            .clone()
-            .normalize();
-
-        child.visible =
-          worldNormal.dot(
-            cameraDirection,
-          ) > 0.16;
+    // Use the surface horizon, rather than a fixed normal-dot threshold.
+    // Elevated plates and DOM cards must not reveal allocations behind Mars.
+    cameraDirection.copy(camera.position).normalize();
+    for (const { allocation } of territoryPlates) {
+      const territory = territoryPulseRefs.current[allocation.allocation_id];
+      if (!territory) continue;
+      const worldPosition = territory.getWorldPosition(territoryWorldPosition);
+      const normal = territoryWorldNormal.copy(worldPosition).normalize();
+      projectedPosition.copy(normal).multiplyScalar(radius).project(camera);
+      const facing = normal.dot(camera.position) > radius;
+      territory.visible = facing;
+      const card = cardRefs.current[allocation.allocation_id];
+      if (card) {
+        card.style.display = facing && visible && gridVersion === 1 &&
+          Math.abs(projectedPosition.x) <= 1 && Math.abs(projectedPosition.y) <= 1 &&
+          projectedPosition.z >= -1 && projectedPosition.z <= 1 ? "" : "none";
+        card.style.translate = "12px 8px";
       }
     }
-
-    /*
-     * Impression detection uses the actual 3D territory
-     * groups, not the HTML card or hover state.
-     */
-    const cameraDirection =
-      camera.position
-        .clone()
-        .normalize();
 
     const now =
       performance.now();
@@ -684,20 +684,24 @@ export function MarsPixelOverlay({
 
       const worldPosition =
         territory.getWorldPosition(
-          new Vector3(),
+          territoryWorldPosition,
         );
 
       const worldNormal =
-        worldPosition
-          .clone()
-          .normalize();
+        territoryWorldNormal.copy(worldPosition).normalize();
 
       const facingCamera =
         worldNormal.dot(
           cameraDirection,
         ) > 0.16;
 
-      if (!facingCamera) {
+      projectedPosition.copy(worldNormal).multiplyScalar(radius).project(camera);
+      if (
+        !visible || gridVersion !== 1 || document.visibilityState !== "visible" ||
+        !facingCamera || worldNormal.dot(camera.position) <= radius ||
+        Math.abs(projectedPosition.x) > 1 || Math.abs(projectedPosition.y) > 1 ||
+        projectedPosition.z < -1 || projectedPosition.z > 1
+      ) {
         delete impressionVisibleSinceRef.current[
           allocationId
         ];
@@ -733,78 +737,7 @@ export function MarsPixelOverlay({
         "impression",
       );
     }
-
-    if (
-      Math.abs(
-        distance -
-          labelDistanceRef.current,
-      ) >= 0.12
-    ) {
-      labelDistanceRef.current =
-        distance;
-
-      setCameraDistanceForLabels(
-        distance,
-      );
-    }
   });
-
-  const visibleTerritoryLabels =
-    useMemo(() => {
-      const maxDistanceForPixels = (
-        pixels: number,
-      ) => {
-        if (pixels >= 5000) {
-          return 8.8;
-        }
-
-        if (pixels >= 1000) {
-          return 7.6;
-        }
-
-        if (pixels >= 500) {
-          return 6.8;
-        }
-
-        if (pixels >= 200) {
-          return 6.55;
-        }
-
-        if (pixels >= 100) {
-          return 6.55;
-        }
-
-        return 3.95;
-      };
-
-      return allocations
-        .filter((allocation) => {
-          const pixels =
-            allocation.width *
-            allocation.height;
-
-          return (
-            pixels >= 50 &&
-            cameraDistanceForLabels <=
-              maxDistanceForPixels(
-                pixels,
-              ) &&
-            Boolean(
-              allocation.creative_title?.trim() ||
-                allocation.advertiser_name?.trim(),
-            )
-          );
-        })
-        .sort(
-          (left, right) =>
-            right.width * right.height -
-            left.width * left.height,
-        )
-        .slice(0, 40);
-    }, [
-      allocations,
-      cameraDistanceForLabels,
-    ]);
 
   const [hoveredTerritoryId, setHoveredTerritoryId] =
     useState<string | null>(null);
@@ -846,199 +779,16 @@ export function MarsPixelOverlay({
   const territoryPulseRefs =
     useRef<Record<string, Group | null>>({});
 
-  const territoryHaloMaterialRefs =
-    useRef<
-      Record<
-        string,
-        MeshBasicMaterial | null
-      >
-    >({});
-
-  /*
-   * Premium owned-territory pulse.
-   *
-   * The solid territory remains readable while the complete
-   * plate gently breathes and its same-color outer halo
-   * brightens/fades like the Ares exploration marker.
-   *
-   * Each allocation gets a deterministic phase offset so
-   * multiple territories do not flash in perfect sync.
-   */
-  useFrame((state) => {
-    const time =
-      state.clock.elapsedTime;
-
-    for (const allocation of allocations) {
-      const allocationId =
-        allocation.allocation_id;
-
-      let seed = 0;
-
-      for (
-        let index = 0;
-        index < allocationId.length;
-        index += 1
-      ) {
-        seed +=
-          allocationId.charCodeAt(index);
-      }
-
-      const phase =
-        (seed % 23) * 0.19;
-
-      const wave =
-        (
-          Math.sin(
-            time * 2.65 + phase,
-          ) +
-          1
-        ) /
-        2;
-
-      const plate =
-        territoryPulseRefs.current[
-          allocationId
-        ];
-
-      if (plate) {
-        /*
-         * Very small physical pulse:
-         * enough to feel alive without making the
-         * purchased territory jump around.
-         */
-        const scale =
-          0.965 +
-          wave * 0.14;
-
-        plate.scale.set(
-          scale,
-          scale,
-          1,
-        );
-      }
-
-      const haloMaterial =
-        territoryHaloMaterialRefs.current[
-          allocationId
-        ];
-
-      if (haloMaterial) {
-        /*
-         * Main visible blink:
-         * halo fades from subtle to bright.
-         */
-        haloMaterial.opacity =
-          0.05 +
-          wave * 0.55;
-      }
-    }
-  });
-
-  const territoryPlates = allocations.map(
-    (allocation) => {
-      const centerX =
-        allocation.x_start +
-        allocation.width / 2;
-
-      const centerY =
-        allocation.y_start +
-        allocation.height / 2;
-
-      const u = centerX / gridWidth;
-      const v = 1 - centerY / gridHeight;
-
-      const longitude =
-        (u - 0.5) * Math.PI * 2;
-
-      const latitude =
-        (v - 0.5) * Math.PI;
-
-      /*
-       * Keep the plate above both the Mars surface and the
-       * legacy allocation overlay. This creates a physically
-       * separated territory layer without changing ownership.
-       */
-      const plateRadius = radius * 1.016;
-
-      const normal = new Vector3(
-        Math.cos(latitude) * Math.sin(longitude),
-        Math.sin(latitude),
-        Math.cos(latitude) * Math.cos(longitude),
-      ).normalize();
-
-      const position =
-        normal.clone().multiplyScalar(plateRadius);
-
-      /*
-       * PlaneGeometry faces +Z. Rotate it so its face follows
-       * the outward normal of the Mars sphere.
-       */
-      const quaternion =
-        new Quaternion().setFromUnitVectors(
-          new Vector3(0, 0, 1),
-          normal,
-        );
-
-      const persistedColor =
-        marsPixelTerritoryColorRgb(
-          allocation.color_key,
-        );
-
-      const color = persistedColor
-        ? new Color(
-            persistedColor[0] / 255,
-            persistedColor[1] / 255,
-            persistedColor[2] / 255,
-          )
-        : new Color(
-            allocationColor(allocation)[0] / 255,
-            allocationColor(allocation)[1] / 255,
-            allocationColor(allocation)[2] / 255,
-          );
-
-      /*
-       * Preserve the purchased aspect ratio. A minimum visual
-       * footprint keeps 50 px territories readable from the
-       * normal Mars overview without pretending they own more
-       * pixels than they actually do.
-       */
-      const aspect =
-        allocation.width /
-        Math.max(allocation.height, 1);
-
-      const pixelCount =
-        allocation.width * allocation.height;
-
-      const areaScale =
-        Math.max(
-          1,
-          Math.sqrt(pixelCount / 50),
-        );
-
-      const baseHeight =
-        Math.min(
-          0.105 * areaScale,
-          0.30,
-        );
-
-      const plateHeight = baseHeight;
-
-      const plateWidth =
-        Math.min(
-          plateHeight * aspect,
-          0.48,
-        );
-
-      return {
-        allocation,
-        position,
-        quaternion,
-        color,
-        plateWidth,
-        plateHeight,
-      };
-    },
-  );
+  const territoryPlates = useMemo(() => allocations.map((allocation) => {
+    const longitude = ((allocation.x_start + allocation.width / 2) / gridWidth - 0.5) * Math.PI * 2;
+    const latitude = (0.5 - (allocation.y_start + allocation.height / 2) / gridHeight) * Math.PI;
+    const position = new Vector3(
+      Math.cos(latitude) * Math.sin(longitude), Math.sin(latitude),
+      Math.cos(latitude) * Math.cos(longitude),
+    ).multiplyScalar(radius * 1.002);
+    const rgb = allocationColor(allocation);
+    return { allocation, position, color: new Color(rgb[0] / 255, rgb[1] / 255, rgb[2] / 255) };
+  }), [allocations, gridWidth, gridHeight, radius]);
 
   if (
     !visible ||
@@ -2401,148 +2151,30 @@ export function MarsPixelOverlay({
     </mesh>
 
       <group name="mars-pixel-owned-territory-plates">
-        {territoryPlates.map(
-          ({
-            allocation,
-            position,
-            quaternion,
-            color,
-            plateWidth,
-            plateHeight,
-          }) => (
-            <group
-              ref={(group) => {
-                territoryPulseRefs.current[
-                  allocation.allocation_id
-                ] = group;
+        {territoryPlates.map(({ allocation, position, color }) => (
+          <group key={allocation.allocation_id} position={position}
+            ref={(group) => { territoryPulseRefs.current[allocation.allocation_id] = group; }}>
+            <MarsTerritoryLight allocation={allocation} radius={radius} gridWidth={gridWidth}
+              gridHeight={gridHeight} center={position} color={color} reducedMotionRef={reducedMotionRef} />
+            <MarsTerritoryCreative allocation={allocation} radius={radius} gridWidth={gridWidth}
+              gridHeight={gridHeight} center={position} color={color}
+              onHover={() => {
+                if (selectionEnabled) return;
+                cancelTerritoryHoverLeave();
+                setHoveredTerritoryId(allocation.allocation_id);
+                onOwnedTerritoryHover?.(allocation.allocation_id);
               }}
-              key={`territory-plate-${allocation.allocation_id}`}
-              position={position}
-              quaternion={quaternion}
-            >
-              {/* Wide same-color energy halo. */}
-              <mesh
-                position={[0, 0, -0.004]}
-                renderOrder={20}
-              >
-                <planeGeometry
-                  args={[
-                    plateWidth * 1.72,
-                    plateHeight * 1.72,
-                  ]}
-                />
-
-                <meshBasicMaterial
-                  ref={(material) => {
-                    territoryHaloMaterialRefs.current[
-                      allocation.allocation_id
-                    ] = material;
-                  }}
-                  color={color}
-                  transparent
-                  opacity={0.16}
-                  depthWrite={false}
-                  toneMapped={false}
-                />
-              </mesh>
-
-              {/* Bright outer territory frame. */}
-              <mesh
-                position={[0, 0, -0.001]}
-                renderOrder={21}
-              >
-                <planeGeometry
-                  args={[
-                    plateWidth * 1.18,
-                    plateHeight * 1.18,
-                  ]}
-                />
-
-                <meshBasicMaterial
-                  color={color}
-                  transparent
-                  opacity={0.54}
-                  depthWrite={false}
-                  toneMapped={false}
-                />
-              </mesh>
-
-              {/* Solid purchased territory surface. */}
-              <mesh
-                renderOrder={22}
-                onPointerOver={(event) => {
-                  event.stopPropagation();
-                  document.body.style.cursor =
-                    "pointer";
-                }}
-                onPointerOut={() => {
-                  document.body.style.cursor = "";
-                }}
-                onClick={(event) => {
-                  event.stopPropagation();
-                  cancelTerritoryHoverLeave();
-                  setPinnedTerritoryId(
-                    allocation.allocation_id,
-                  );
-                  setHoveredTerritoryId(
-                    allocation.allocation_id,
-                  );
-                  onOwnedTerritoryHover?.(
-                    allocation.allocation_id,
-                  );
-
-                  void recordMarsPixelAdEvent(
-                    allocation.allocation_id,
-                    "card_open",
-                  );
-                }}
-              >
-                <planeGeometry
-                  args={[
-                    plateWidth,
-                    plateHeight,
-                  ]}
-                />
-
-                <meshBasicMaterial
-                  color={color}
-                  transparent
-                  opacity={0.94}
-                  depthWrite={false}
-                  toneMapped={false}
-                />
-              </mesh>
-
-              {/* Small luminous inner face gives raised depth. */}
-              <mesh
-                position={[0, 0, 0.004]}
-                renderOrder={23}
-              >
-                <planeGeometry
-                  args={[
-                    plateWidth * 0.82,
-                    plateHeight * 0.72,
-                  ]}
-                />
-
-                <meshBasicMaterial
-                  color={color}
-                  transparent
-                  opacity={0.72}
-                  depthWrite={false}
-                  toneMapped={false}
-                />
-              </mesh>
-
-              <pointLight
-                color={color}
-                intensity={0.72}
-                distance={0.72}
-                decay={2}
-              />
-            </group>
-          ),
-        )}
+              onLeave={() => scheduleTerritoryHoverLeave(allocation.allocation_id)}
+              onOpen={() => {
+                if (selectionEnabled) return;
+                cancelTerritoryHoverLeave();
+                setPinnedTerritoryId(allocation.allocation_id);
+                setHoveredTerritoryId(allocation.allocation_id);
+                onOwnedTerritoryHover?.(allocation.allocation_id);
+                void recordMarsPixelAdEvent(allocation.allocation_id, "card_open");
+              }} selectionEnabled={selectionEnabled} />
+          </group>
+        ))}
       </group>
 
       {territoryPlates.map(
@@ -2574,11 +2206,7 @@ export function MarsPixelOverlay({
             allocation.creative_title?.trim() ||
             allocation.advertiser_name?.trim() ||
             activeOwnerPreview?.title?.trim() ||
-            null;
-
-          if (!title) {
-            return null;
-          }
+            "MARS PIXEL";
 
           const imageUrl =
             allocation.creative_image_url ||
@@ -2620,19 +2248,18 @@ export function MarsPixelOverlay({
             position
               .clone()
               .normalize()
-              .multiplyScalar(radius * 1.085);
+              .multiplyScalar(radius);
 
           return (
             <Html
               key={`territory-hover-${allocation.allocation_id}`}
               position={cardPosition}
-              center
-              sprite
-              distanceFactor={4.1}
               zIndexRange={[30, 20]}
               className="mars-pixel-territory-hover-anchor"
             >
               <div
+                ref={(element) => { cardRefs.current[allocation.allocation_id] = element; }}
+                style={{ display: "none" }}
                 className="mars-pixel-territory-hover-card"
                 onPointerEnter={() => {
                   cancelTerritoryHoverLeave();
@@ -2756,101 +2383,219 @@ export function MarsPixelOverlay({
         },
       )}
 
-      <group
-        ref={territoryLabelsRef}
-        name="mars-pixel-territory-labels"
-      >
-      {visibleTerritoryLabels.map(
-        (allocation) => {
-          const centerX =
-            allocation.x_start +
-            allocation.width / 2;
-
-          const centerY =
-            allocation.y_start +
-            allocation.height / 2;
-
-          const u =
-            centerX / gridWidth;
-
-          const v =
-            1 -
-            centerY / gridHeight;
-
-          const longitude =
-            (u - 0.5) *
-            Math.PI *
-            2;
-
-          const latitude =
-            (v - 0.5) *
-            Math.PI;
-
-          const labelRadius =
-            radius * 1.014;
-
-          const x =
-            labelRadius *
-            Math.cos(latitude) *
-            Math.sin(longitude);
-
-          const y =
-            labelRadius *
-            Math.sin(latitude);
-
-          const z =
-            labelRadius *
-            Math.cos(latitude) *
-            Math.cos(longitude);
-
-          const pixels =
-            allocation.width *
-            allocation.height;
-
-          const label =
-            allocation.creative_title?.trim() ||
-            allocation.advertiser_name?.trim();
-
-          return (
-            <Html
-              key={`territory-label-${allocation.allocation_id}`}
-              position={[x, y, z]}
-              center
-              transform
-              sprite
-              distanceFactor={
-                pixels >= 5000
-                  ? 3.7
-                  : pixels >= 1000
-                    ? 4.1
-                    : pixels >= 500
-                      ? 4.45
-                      : pixels >= 200
-                        ? 3.75
-                        : 3.45
-              }
-              zIndexRange={[8, 0]}
-              className="mars-pixel-territory-label-anchor"
-            >
-              <div
-                className={[
-                  "mars-pixel-territory-label",
-                  pixels >= 5000
-                    ? "mars-pixel-territory-label--xl"
-                    : pixels >= 1000
-                      ? "mars-pixel-territory-label--lg"
-                      : pixels >= 500
-                        ? "mars-pixel-territory-label--md"
-                        : "mars-pixel-territory-label--sm",
-                ].join(" ")}
-              >
-                {label}
-              </div>
-            </Html>
-          );
-        },
-      )}
-      </group>
     </>
   );
+}
+
+/** Curved surface patch: every vertex stays within the purchased grid rectangle. */
+function MarsTerritoryCreative({ allocation, radius, gridWidth, gridHeight, center, color,
+  onHover, onLeave, onOpen, selectionEnabled,
+}: {
+  allocation: MarsPixelPublicAllocation; radius: number; gridWidth: number; gridHeight: number;
+  center: Vector3; color: Color; onHover: () => void; onLeave: () => void;
+  onOpen: () => void; selectionEnabled: boolean;
+}) {
+  const materialRef = useRef<ShaderMaterial>(null);
+  const meshRef = useRef<Mesh>(null);
+  const worldCenter = useMemo(() => new Vector3(), []);
+  const [image, setImage] = useState<Texture | null>(null);
+  const imageUrl = allocation.creative_image_url?.trim();
+  const title = allocation.creative_title?.trim();
+  useEffect(() => {
+    setImage(null);
+    if (!imageUrl) return;
+    let active = true;
+    const texture = new TextureLoader().load(imageUrl, (loaded) => {
+      if (active) setImage(loaded);
+    }, undefined, () => { if (active) setImage(null); });
+    texture.colorSpace = SRGBColorSpace;
+    return () => { active = false; texture.dispose(); };
+  }, [imageUrl]);
+
+  const titleTexture = useMemo(() => {
+    const canvas = document.createElement("canvas");
+    canvas.width = 1024;
+    canvas.height = 512;
+    const context = canvas.getContext("2d")!;
+    if (title) {
+      context.fillStyle = "rgba(0,0,0,0.78)";
+      context.fillRect(0, 384, 1024, 128);
+      context.fillStyle = "white";
+      context.font = "bold 48px sans-serif";
+      context.textBaseline = "middle";
+      context.fillText(title, 24, 448, 976);
+    }
+    const texture = new CanvasTexture(canvas);
+    texture.colorSpace = SRGBColorSpace;
+    return texture;
+  }, [title]);
+  const geometry = useMemo(() => {
+    const positions: number[] = [];
+    const uvs: number[] = [];
+    const indices: number[] = [];
+    const columns = Math.max(2, Math.ceil(allocation.width / gridWidth * 256));
+    const rows = Math.max(2, Math.ceil(allocation.height / gridHeight * 128));
+    for (let y = 0; y <= rows; y++) {
+      for (let x = 0; x <= columns; x++) {
+        const longitude = ((allocation.x_start + allocation.width * x / columns) / gridWidth - 0.5) * Math.PI * 2;
+        const latitude = (0.5 - (allocation.y_start + allocation.height * y / rows) / gridHeight) * Math.PI;
+        const point = new Vector3(Math.cos(latitude) * Math.sin(longitude), Math.sin(latitude),
+          Math.cos(latitude) * Math.cos(longitude)).multiplyScalar(radius * 1.002).sub(center);
+        positions.push(point.x, point.y, point.z);
+        uvs.push(x / columns, 1 - y / rows);
+        if (x < columns && y < rows) {
+          const a = y * (columns + 1) + x;
+          indices.push(a, a + columns + 1, a + 1, a + 1, a + columns + 1, a + columns + 2);
+        }
+      }
+    }
+    const result = new BufferGeometry();
+    result.setAttribute("position", new Float32BufferAttribute(positions, 3));
+    result.setAttribute("uv", new Float32BufferAttribute(uvs, 2));
+    result.setIndex(indices);
+    result.computeVertexNormals();
+    return result;
+  }, [allocation.x_start, allocation.y_start, allocation.width, allocation.height, gridWidth, gridHeight, radius, center.x, center.y, center.z]);
+  useEffect(() => () => geometry.dispose(), [geometry]);
+  useEffect(() => () => titleTexture.dispose(), [titleTexture]);
+  const imageDimensions = image?.image as HTMLImageElement | undefined;
+  const uniforms = useMemo(() => ({
+    imageAspect: { value: imageDimensions ? imageDimensions.naturalWidth / imageDimensions.naturalHeight : 1 },
+    surfaceAspect: { value: 2 * allocation.width * gridHeight / (allocation.height * gridWidth) *
+      Math.sqrt(Math.max(0, 1 - (center.y / (radius * 1.002)) ** 2)) },
+    creative: { value: image }, hasImage: { value: image ? 1 : 0 },
+    titleMap: { value: titleTexture }, titleOpacity: { value: 0 },
+    territoryColor: { value: color }, surfaceRadius: { value: radius },
+  }), [image, imageDimensions, titleTexture, color, radius, allocation.width, allocation.height, gridWidth, gridHeight, center.y]);
+  useFrame(({ camera, size }) => {
+    const material = materialRef.current;
+    if (!material) return;
+    // Screen-space footprint controls text only; geometry never grows with zoom.
+    meshRef.current?.getWorldPosition(worldCenter);
+    const distance = camera.position.distanceTo(worldCenter);
+    const projectionScale = Math.abs(camera.projectionMatrix.elements[5]) * size.height / (2 * distance);
+    const width = radius * Math.PI * 2 * allocation.width / gridWidth * projectionScale *
+      Math.sqrt(Math.max(0, 1 - (center.y / (radius * 1.002)) ** 2));
+    const height = radius * Math.PI * allocation.height / gridHeight * projectionScale;
+    material.uniforms.titleOpacity.value = Math.min(1, Math.max(0, Math.min((width - 90) / 60, (height - 48) / 32)));
+  });
+  return <mesh ref={meshRef} geometry={geometry} renderOrder={22}
+    onPointerOver={(event) => {
+      if (selectionEnabled) return;
+      event.stopPropagation(); document.body.style.cursor = "pointer"; onHover();
+    }}
+    onPointerOut={() => { document.body.style.cursor = ""; onLeave(); }}
+    onClick={(event) => { if (!selectionEnabled) { event.stopPropagation(); onOpen(); } }}>
+    <shaderMaterial ref={materialRef} uniforms={uniforms} transparent depthWrite={false} toneMapped={false}
+      vertexShader={`varying vec2 creativeUv; varying vec3 worldPoint;
+        void main() { creativeUv = uv; worldPoint = (modelMatrix * vec4(position, 1.0)).xyz;
+          gl_Position = projectionMatrix * viewMatrix * vec4(worldPoint, 1.0); }`}
+      fragmentShader={`uniform sampler2D creative; uniform sampler2D titleMap;
+        uniform float imageAspect; uniform float surfaceAspect;
+        uniform float hasImage; uniform float titleOpacity; uniform float surfaceRadius;
+        uniform vec3 territoryColor; varying vec2 creativeUv; varying vec3 worldPoint;
+        void main() {
+          if (dot(normalize(worldPoint), cameraPosition) <= surfaceRadius) discard;
+          vec3 base = territoryColor * 0.65;
+          if (hasImage > 0.5) {
+            vec2 mediaUv = creativeUv - 0.5;
+            if (surfaceAspect > imageAspect) mediaUv.x *= surfaceAspect / imageAspect;
+            else mediaUv.y *= imageAspect / max(surfaceAspect, 0.001);
+            mediaUv += 0.5;
+            if (mediaUv.x >= 0.0 && mediaUv.x <= 1.0 && mediaUv.y >= 0.0 && mediaUv.y <= 1.0) {
+              vec4 media = texture2D(creative, mediaUv); base = mix(base, media.rgb, media.a);
+            }
+          }
+          vec4 label = texture2D(titleMap, creativeUv);
+          base = mix(base, label.rgb, label.a * titleOpacity);
+          gl_FragColor = vec4(base, 0.96);
+          #include <colorspace_fragment>
+        }`} />
+  </mesh>;
+}
+
+/** Original broad plate/halo footprint, projected onto Mars independently of the ad. */
+function MarsTerritoryLight({ allocation, radius, gridWidth, gridHeight, center, color, reducedMotionRef }: {
+  allocation: MarsPixelPublicAllocation; radius: number; gridWidth: number; gridHeight: number;
+  center: Vector3; color: Color; reducedMotionRef: { current: boolean };
+}) {
+  const materialRef = useRef<ShaderMaterial>(null);
+  const geometry = useMemo(() => {
+    const latitude = (0.5 - (allocation.y_start + allocation.height / 2) / gridHeight) * Math.PI;
+    const longitude = ((allocation.x_start + allocation.width / 2) / gridWidth - 0.5) * Math.PI * 2;
+    const normal = center.clone().normalize();
+    const east = new Vector3(Math.cos(longitude), 0, -Math.sin(longitude));
+    const north = new Vector3(-Math.sin(latitude) * Math.sin(longitude), Math.cos(latitude),
+      -Math.sin(latitude) * Math.cos(longitude));
+    // Match the original minimum overview footprint and area-based sizing.
+    const plateHeight = Math.min(0.105 * Math.max(1, Math.sqrt(allocation.width * allocation.height / 50)), 0.30);
+    const plateWidth = Math.min(plateHeight * allocation.width / Math.max(allocation.height, 1), 0.48);
+    const width = Math.max(plateWidth, radius * Math.PI * 2 * allocation.width / gridWidth * Math.cos(latitude)) * 1.72 * 1.105;
+    const height = Math.max(plateHeight, radius * Math.PI * allocation.height / gridHeight) * 1.72 * 1.105;
+    const positions: number[] = [], uvs: number[] = [], territoryUvs: number[] = [], indices: number[] = [];
+    const columns = Math.max(4, Math.ceil(width / radius * 32));
+    const rows = Math.max(4, Math.ceil(height / radius * 32));
+    for (let y = 0; y <= rows; y++) {
+      for (let x = 0; x <= columns; x++) {
+        const u = x / columns, v = y / rows;
+        const point = normal.clone().multiplyScalar(radius)
+          .addScaledVector(east, (u - 0.5) * width).addScaledVector(north, (v - 0.5) * height)
+          .normalize().multiplyScalar(radius * 1.003);
+        let deltaLongitude = Math.atan2(point.x, point.z) - longitude;
+        deltaLongitude = Math.atan2(Math.sin(deltaLongitude), Math.cos(deltaLongitude));
+        territoryUvs.push(0.5 + deltaLongitude * gridWidth / (Math.PI * 2 * allocation.width),
+          0.5 + (Math.asin(point.y / point.length()) - latitude) * gridHeight / (Math.PI * allocation.height));
+        point.sub(center);
+        positions.push(point.x, point.y, point.z); uvs.push(u, v);
+        if (x < columns && y < rows) {
+          const a = y * (columns + 1) + x;
+          indices.push(a, a + 1, a + columns + 1, a + 1, a + columns + 2, a + columns + 1);
+        }
+      }
+    }
+    const result = new BufferGeometry();
+    result.setAttribute("position", new Float32BufferAttribute(positions, 3));
+    result.setAttribute("uv", new Float32BufferAttribute(uvs, 2));
+    result.setAttribute("territoryUv", new Float32BufferAttribute(territoryUvs, 2));
+    result.setIndex(indices);
+    return result;
+  }, [allocation.x_start, allocation.y_start, allocation.width, allocation.height, radius, gridWidth, gridHeight, center]);
+  useEffect(() => () => geometry.dispose(), [geometry]);
+  const uniforms = useMemo(() => ({
+    territoryColor: { value: color }, surfaceRadius: { value: radius }, wave: { value: 1 },
+    preserveCreative: { value: allocation.creative_image_url?.trim() || allocation.creative_title?.trim() ? 1 : 0 },
+    phase: { value: Array.from(allocation.allocation_id).reduce((sum, letter) => sum + letter.charCodeAt(0), 0) % 23 * 0.19 },
+  }), [color, radius, allocation.allocation_id, allocation.creative_image_url, allocation.creative_title]);
+  useFrame(({ clock }) => {
+    if (!materialRef.current) return;
+    // Four-second cycle: bright to dim (and back) takes two seconds.
+    materialRef.current.uniforms.wave.value = reducedMotionRef.current ? 1 :
+      (Math.sin(clock.elapsedTime * Math.PI / 2 + uniforms.phase.value) + 1) / 2;
+  });
+  return <mesh geometry={geometry} renderOrder={23} raycast={() => {}}>
+    <shaderMaterial ref={materialRef} uniforms={uniforms} transparent depthWrite={false} toneMapped={false}
+      vertexShader={`attribute vec2 territoryUv; varying vec2 lightUv; varying vec2 purchasedUv; varying vec3 worldPoint;
+        void main() { lightUv = uv; purchasedUv = territoryUv;
+          worldPoint = (modelMatrix * vec4(position, 1.0)).xyz;
+          gl_Position = projectionMatrix * viewMatrix * vec4(worldPoint, 1.0); }`}
+      fragmentShader={`uniform vec3 territoryColor; uniform float surfaceRadius; uniform float wave; uniform float preserveCreative;
+        varying vec2 lightUv; varying vec2 purchasedUv; varying vec3 worldPoint;
+        void main() {
+          if (dot(normalize(worldPoint), cameraPosition) <= surfaceRadius) discard;
+          // Keep the entire purchased creative face untouched. Only colored light extends beyond it.
+          if (preserveCreative > 0.5 && purchasedUv.x > 0.0 && purchasedUv.x < 1.0 && purchasedUv.y > 0.0 && purchasedUv.y < 1.0) discard;
+          float scale = 0.965 + wave * 0.14;
+          vec2 distanceFromCenter = abs(lightUv - 0.5) * 2.0 * 1.105 / scale;
+          float edge = max(distanceFromCenter.x, distanceFromCenter.y);
+          float aa = max(fwidth(edge), 0.001);
+          float halo = 1.0 - smoothstep(0.88, 1.0, edge);
+          float frame = 1.0 - smoothstep(1.18 / 1.72 - aa, 1.18 / 1.72 + aa, edge);
+          float face = 1.0 - smoothstep(1.0 / 1.72 - aa, 1.0 / 1.72 + aa, edge);
+          float inner = 1.0 - smoothstep(0.72 / 1.72 - aa, 0.82 / 1.72 + aa, edge);
+          float alpha = max(halo * (0.05 + wave * 0.55),
+            max(frame * (0.08 + wave * 0.46), max(face * (0.12 + wave * 0.82), inner * (0.12 + wave * 0.60))));
+          gl_FragColor = vec4(territoryColor, alpha);
+          #include <colorspace_fragment>
+        }`} />
+  </mesh>;
 }

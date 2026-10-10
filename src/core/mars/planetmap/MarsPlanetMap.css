@@ -6313,3 +6313,13 @@
     z-index: 12;
   }
 }
+
+/* Detailed cards retain full titles for compact purchased territories. */
+.mars-pixel-territory-hover-card__body strong {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.mars-pixel-territory-hover-card__media img {
+  object-fit: contain;
+}
