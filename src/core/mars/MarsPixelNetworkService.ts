@@ -1156,10 +1156,17 @@ export async function saveMarsPixelCreative(
     ),
   };
 
-  await notifyMarsPixelEmail(
-    "submitted",
-    result.creative_id,
-  );
+  try {
+    await notifyMarsPixelEmail(
+      "submitted",
+      result.creative_id,
+    );
+  } catch (error) {
+    console.warn(
+      "Mars Pixel creative saved, but email notification failed.",
+      error,
+    );
+  }
 
   return result;
 }
