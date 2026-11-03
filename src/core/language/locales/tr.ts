@@ -54,6 +54,7 @@ export const tr: TranslationDictionary = {
   "identity.telegram.check": "Telegram Durumunu Kontrol Et",
   "identity.telegram.retry": "Telegram'ı Yeniden Dene",
   "identity.x.label": "BOBU'yu X'te Takip Et",
+  "identity.x.follow": "BOBU'yu X'te Takip Et",
   "identity.x.description": "Duyurular, görevler ve lansman güncellemeleri için resmi BOBU hesabını takip et.",
   "identity.x.connect": "X'i Bağla",
   "identity.x.retry": "X'i Yeniden Dene",
@@ -1385,4 +1386,13 @@ export const tr: TranslationDictionary = {
   "mars.pixel.overlay.exploreNow": "ŞİMDİ KEŞFET",
   "mars.pixel.overlay.closeAd": "Mars Pixel reklamını kapat",
 
+  "identity.x.relink": "X hesabını yeniden bağla",
+  "identity.x.relinkHelp": "Yeniden doğrulamak için aynı X hesabını bağlayın. Çalışan başka bir giriş yöntemi gereklidir.",
+  "identity.x.relinkConfirm": "Bu BOBU hesabı için başka bir giriş yöntemini denedim. X bağlantısı kesilip aynı X hesabı yeniden bağlansın mı?",
+  "identity.x.alternativeRequired": "X bağlantısını kesmeden önce başka bir giriş yöntemi ekleyin ve deneyin.",
+  "identity.x.failed": "X doğrulaması başarısız. Tekrar deneyin veya yeniden giriş yapın.",
+  "identity.x.done": "X doğrulaması tamamlandı.",
+  "identity.x.verifying": "X kimliğiniz doğrulanıyor…",
+  "identity.x.opening": "Güvenli X bağlantısı açılıyor…",
+  "identity.x.signIn": "Lütfen önce giriş yapın.",
 };

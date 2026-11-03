@@ -12,6 +12,7 @@ export const sv: TranslationDictionary = {
   "identity.telegram.check": "Kontrollera Telegram-status",
   "identity.telegram.retry": "Försök med Telegram igen",
   "identity.x.label": "Följ BOBU på X",
+  "identity.x.follow": "Följ BOBU på X",
   "identity.x.description": "Följ det officiella BOBU-kontot för meddelanden, uppdrag och lanseringsnyheter.",
   "identity.x.connect": "Anslut X",
   "identity.x.retry": "Försök med X igen",
@@ -1376,4 +1377,13 @@ export const sv: TranslationDictionary = {
   "mars.pixel.overlay.exploreNow": "UTFORSKA NU",
   "mars.pixel.overlay.closeAd": "Stäng Mars Pixel-annons",
 
+  "identity.x.relink": "Anslut X igen",
+  "identity.x.relinkHelp": "Anslut samma X-konto för att verifiera igen. En fungerande alternativ inloggningsmetod krävs.",
+  "identity.x.relinkConfirm": "Jag har testat en annan inloggningsmetod för detta BOBU-konto. Koppla från X och anslut samma X-konto igen?",
+  "identity.x.alternativeRequired": "Lägg till och testa en annan inloggningsmetod innan du kopplar från X.",
+  "identity.x.failed": "X-verifieringen misslyckades. Försök igen eller logga in igen.",
+  "identity.x.done": "X-verifieringen är klar.",
+  "identity.x.verifying": "Verifierar din X-identitet…",
+  "identity.x.opening": "Öppnar säker X-anslutning…",
+  "identity.x.signIn": "Logga in först.",
 };

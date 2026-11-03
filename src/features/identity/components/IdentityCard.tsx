@@ -104,6 +104,8 @@ export function IdentityCard({
             ? t("identity.status.completedCheck")
             : actionLabel}
       </button>
+
+
     </article>
   );
 }

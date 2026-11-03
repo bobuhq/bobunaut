@@ -12,6 +12,7 @@ export const fi: TranslationDictionary = {
   "identity.telegram.check": "Tarkista Telegramin tila",
   "identity.telegram.retry": "Yritä Telegramia uudelleen",
   "identity.x.label": "Seuraa BOBUa X:ssä",
+  "identity.x.follow": "Seuraa BOBUa X:ssä",
   "identity.x.description": "Seuraa virallista BOBU-tiliä saadaksesi ilmoituksia, tehtäviä ja julkaisu-uutisia.",
   "identity.x.connect": "Yhdistä X",
   "identity.x.retry": "Yritä X:ää uudelleen",
@@ -1376,4 +1377,13 @@ export const fi: TranslationDictionary = {
   "mars.pixel.overlay.exploreNow": "TUTUSTU NYT",
   "mars.pixel.overlay.closeAd": "Sulje Mars Pixel -mainos",
 
+  "identity.x.relink": "Yhdistä X uudelleen",
+  "identity.x.relinkHelp": "Vahvista yhdistämällä sama X-tili uudelleen. Tarvitset toimivan vaihtoehtoisen kirjautumistavan.",
+  "identity.x.relinkConfirm": "Olen testannut toista kirjautumistapaa tälle BOBU-tilille. Katkaistaanko X-yhteys ja yhdistetäänkö sama X-tili uudelleen?",
+  "identity.x.alternativeRequired": "Lisää ja testaa toinen kirjautumistapa ennen X-yhteyden katkaisemista.",
+  "identity.x.failed": "X-vahvistus epäonnistui. Yritä uudelleen tai kirjaudu uudelleen.",
+  "identity.x.done": "X-vahvistus valmis.",
+  "identity.x.verifying": "Vahvistetaan X-tiliäsi…",
+  "identity.x.opening": "Avataan suojattua X-yhteyttä…",
+  "identity.x.signIn": "Kirjaudu ensin sisään.",
 };

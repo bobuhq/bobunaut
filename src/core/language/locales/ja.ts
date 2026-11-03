@@ -55,6 +55,7 @@ export const ja: TranslationDictionary = {
   "identity.telegram.check": "Telegramの状態を確認",
   "identity.telegram.retry": "Telegramを再試行",
   "identity.x.label": "XでBOBUをフォロー",
+  "identity.x.follow": "XでBOBUをフォロー",
   "identity.x.description": "お知らせ、ミッション、ローンチ情報のために公式BOBUアカウントをフォローしてください。",
   "identity.x.connect": "Xを接続",
   "identity.x.retry": "Xを再試行",
@@ -1385,4 +1386,13 @@ export const ja: TranslationDictionary = {
   "mars.pixel.overlay.exploreNow": "今すぐ探索",
   "mars.pixel.overlay.closeAd": "Mars Pixel 広告を閉じる",
 
+  "identity.x.relink": "Xを再接続",
+  "identity.x.relinkHelp": "再認証するには同じXアカウントを接続してください。利用可能な別のログイン方法が必要です。",
+  "identity.x.relinkConfirm": "このBOBUアカウントで別のログイン方法を試しました。Xの接続を解除して同じXアカウントを再接続しますか？",
+  "identity.x.alternativeRequired": "Xの接続を解除する前に、別のログイン方法を追加して試してください。",
+  "identity.x.failed": "Xの認証に失敗しました。再試行するか、再度ログインしてください。",
+  "identity.x.done": "Xの認証が完了しました。",
+  "identity.x.verifying": "Xアカウントを確認中…",
+  "identity.x.opening": "Xへの安全な接続を開始中…",
+  "identity.x.signIn": "先にログインしてください。",
 };

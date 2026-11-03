@@ -12,6 +12,7 @@ export const pt: TranslationDictionary = {
   "identity.telegram.check": "Verificar status do Telegram",
   "identity.telegram.retry": "Tentar Telegram novamente",
   "identity.x.label": "Seguir BOBU no X",
+  "identity.x.follow": "Seguir BOBU no X",
   "identity.x.description": "Siga a conta oficial BOBU para anúncios, missões e atualizações de lançamento.",
   "identity.x.connect": "Conectar X",
   "identity.x.retry": "Tentar X novamente",
@@ -1376,4 +1377,13 @@ export const pt: TranslationDictionary = {
   "mars.pixel.overlay.exploreNow": "EXPLORAR AGORA",
   "mars.pixel.overlay.closeAd": "Fechar anúncio do Mars Pixel",
 
+  "identity.x.relink": "Reconectar X",
+  "identity.x.relinkHelp": "Reconecte a mesma conta X para verificar novamente. É necessário outro método de login que funcione.",
+  "identity.x.relinkConfirm": "Testei outro método de login para esta conta BOBU. Desconectar X e reconectar a mesma conta X?",
+  "identity.x.alternativeRequired": "Adicione e teste outro método de login antes de desconectar X.",
+  "identity.x.failed": "A verificação do X falhou. Tente novamente ou faça login novamente.",
+  "identity.x.done": "Verificação do X concluída.",
+  "identity.x.verifying": "Verificando sua identidade no X…",
+  "identity.x.opening": "Abrindo conexão segura com X…",
+  "identity.x.signIn": "Faça login primeiro.",
 };

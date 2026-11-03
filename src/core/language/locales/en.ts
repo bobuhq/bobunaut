@@ -55,6 +55,7 @@ export const en: TranslationDictionary = {
   "identity.telegram.check": "Check Telegram Status",
   "identity.telegram.retry": "Retry Telegram",
   "identity.x.label": "Follow BOBU on X",
+  "identity.x.follow": "Follow BOBU on X",
   "identity.x.description": "Follow the official BOBU account for announcements, missions and launch updates.",
   "identity.x.connect": "Connect X",
   "identity.x.retry": "Retry X",
@@ -1410,4 +1411,13 @@ export const en: TranslationDictionary = {
   "mars.pixel.overlay.exploreNow": "EXPLORE NOW",
   "mars.pixel.overlay.closeAd": "Close Mars Pixel advertisement",
 
+  "identity.x.relink": "Reconnect X",
+  "identity.x.relinkHelp": "Reconnect the same X account to verify again. A working alternative sign-in method is required.",
+  "identity.x.relinkConfirm": "I have tested another sign-in method for this BOBU account. Disconnect X and reconnect the same X account?",
+  "identity.x.alternativeRequired": "Add and test another sign-in method before disconnecting X.",
+  "identity.x.failed": "X verification failed. Please retry or sign in again.",
+  "identity.x.done": "X verification completed.",
+  "identity.x.verifying": "Verifying your X identity…",
+  "identity.x.opening": "Opening secure X connection…",
+  "identity.x.signIn": "Please sign in first.",
 };

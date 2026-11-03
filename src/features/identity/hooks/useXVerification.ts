@@ -5,6 +5,8 @@ import {
 } from "react";
 
 import { restoreAuthenticatedBuilder } from "../../../core/builder/services/BuilderRestoreService";
+import { useLanguage } from "../../../core/language";
+import { beginXReauthentication, clearXReauthentication } from "../services/xReauthGuard";
 import { gpEngine } from "../../../core/gp";
 import { supabase } from "../../../lib/supabase";
 
@@ -25,6 +27,7 @@ const X_WORKFLOW_KEY =
 export function useXVerification({
   initiallyVerified,
 }: UseXVerificationOptions) {
+  const { t } = useLanguage();
   const [phase, setPhase] =
     useState<XVerificationPhase>(
       initiallyVerified ? "completed" : "idle",
@@ -33,7 +36,7 @@ export function useXVerification({
   const [message, setMessage] =
     useState<string | null>(
       initiallyVerified
-        ? "X verification completed."
+        ? t("identity.x.done")
         : null,
     );
 
@@ -43,7 +46,7 @@ export function useXVerification({
   const verifyAndReward = useCallback(
     async (): Promise<boolean> => {
       setPhase("verifying");
-      setMessage("Verifying your X identity...");
+      setMessage(t("identity.x.verifying"));
       setErrorMessage(null);
 
       try {
@@ -63,22 +66,12 @@ export function useXVerification({
           X_WORKFLOW_KEY,
         );
 
+        clearXReauthentication();
         setPhase("completed");
-        setMessage(
-          result.message ??
-            (
-              result.rewarded
-                ? `X verified. ${result.rewardGp.toLocaleString()} GP awarded.`
-                : "X is already verified."
-            ),
-        );
+        setMessage(t("identity.x.done"));
 
         return true;
       } catch (error) {
-        const text =
-          error instanceof Error
-            ? error.message
-            : "X verification failed.";
 
         console.error(
           "X verification failed:",
@@ -87,18 +80,18 @@ export function useXVerification({
 
         setPhase("error");
         setMessage(null);
-        setErrorMessage(text);
+        setErrorMessage(t("identity.x.failed"));
 
         return false;
       }
     },
-    [],
+    [t],
   );
 
   const connectX = useCallback(
     async (): Promise<void> => {
       setPhase("connecting");
-      setMessage("Opening secure X connection...");
+      setMessage(t("identity.x.opening"));
       setErrorMessage(null);
 
       try {
@@ -113,9 +106,11 @@ export function useXVerification({
 
         if (!session) {
           throw new Error(
-            "Please sign in with Google first.",
+            t("identity.x.signIn"),
           );
         }
+
+        await beginXReauthentication();
 
         const redirectTo = new URL(
           "/identity",
@@ -143,10 +138,6 @@ export function useXVerification({
           throw new Error(error.message);
         }
       } catch (error) {
-        const text =
-          error instanceof Error
-            ? error.message
-            : "X connection could not be started.";
 
         console.error(
           "X connection failed:",
@@ -155,25 +146,22 @@ export function useXVerification({
 
         setPhase("error");
         setMessage(null);
-        setErrorMessage(text);
+        setErrorMessage(t("identity.x.failed"));
       }
     },
-    [],
+    [t],
   );
 
   useEffect(() => {
     if (!initiallyVerified) {
+      setPhase(current => current === "completed" ? "idle" : current);
       return;
     }
 
-    window.sessionStorage.removeItem(
-      X_WORKFLOW_KEY,
-    );
-
     setPhase("completed");
-    setMessage("X verification completed.");
+    setMessage(t("identity.x.done"));
     setErrorMessage(null);
-  }, [initiallyVerified]);
+  }, [initiallyVerified, t]);
 
   return {
     phase,

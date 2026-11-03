@@ -12,6 +12,7 @@ export const ru: TranslationDictionary = {
   "identity.telegram.check": "Проверить статус Telegram",
   "identity.telegram.retry": "Повторить Telegram",
   "identity.x.label": "Подписаться на BOBU в X",
+  "identity.x.follow": "Подписаться на BOBU в X",
   "identity.x.description": "Подпишитесь на официальный аккаунт BOBU, чтобы получать объявления, миссии и новости запуска.",
   "identity.x.connect": "Подключить X",
   "identity.x.retry": "Повторить X",
@@ -1375,4 +1376,13 @@ export const ru: TranslationDictionary = {
   "mars.pixel.overlay.exploreNow": "ИССЛЕДОВАТЬ",
   "mars.pixel.overlay.closeAd": "Закрыть рекламу Mars Pixel",
 
+  "identity.x.relink": "Подключить X заново",
+  "identity.x.relinkHelp": "Для повторной проверки подключите тот же аккаунт X. Нужен другой работающий способ входа.",
+  "identity.x.relinkConfirm": "Я проверил другой способ входа в этот аккаунт BOBU. Отключить X и заново подключить тот же аккаунт X?",
+  "identity.x.alternativeRequired": "Добавьте и проверьте другой способ входа перед отключением X.",
+  "identity.x.failed": "Проверка X не удалась. Повторите попытку или войдите снова.",
+  "identity.x.done": "Проверка X завершена.",
+  "identity.x.verifying": "Проверяем ваш аккаунт X…",
+  "identity.x.opening": "Открываем защищённое соединение с X…",
+  "identity.x.signIn": "Сначала войдите в аккаунт.",
 };

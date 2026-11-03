@@ -53,6 +53,7 @@ export const ar: TranslationDictionary = {
   "identity.telegram.check": "تحقق من حالة Telegram",
   "identity.telegram.retry": "إعادة محاولة Telegram",
   "identity.x.label": "تابع BOBU على X",
+  "identity.x.follow": "تابع BOBU على X",
   "identity.x.description": "تابع حساب BOBU الرسمي للحصول على الإعلانات والمهام وتحديثات الإطلاق.",
   "identity.x.connect": "ربط X",
   "identity.x.retry": "إعادة محاولة X",
@@ -1383,4 +1384,13 @@ export const ar: TranslationDictionary = {
   "mars.pixel.overlay.exploreNow": "استكشف الآن",
   "mars.pixel.overlay.closeAd": "إغلاق إعلان Mars Pixel",
 
+  "identity.x.relink": "إعادة ربط X",
+  "identity.x.relinkHelp": "أعد ربط حساب X نفسه للتحقق مجددًا. يلزم وجود طريقة تسجيل دخول بديلة تعمل.",
+  "identity.x.relinkConfirm": "لقد اختبرت طريقة دخول أخرى لحساب BOBU هذا. هل تريد فصل X وإعادة ربط حساب X نفسه؟",
+  "identity.x.alternativeRequired": "أضف طريقة دخول أخرى واختبرها قبل فصل X.",
+  "identity.x.failed": "فشل التحقق من X. حاول مجددًا أو سجّل الدخول مرة أخرى.",
+  "identity.x.done": "اكتمل التحقق من X.",
+  "identity.x.verifying": "جارٍ التحقق من هويتك على X…",
+  "identity.x.opening": "جارٍ فتح اتصال آمن بـ X…",
+  "identity.x.signIn": "يرجى تسجيل الدخول أولًا.",
 };

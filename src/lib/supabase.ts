@@ -11,6 +11,10 @@ const isNativeMarsWebView =
   ) === "1" &&
   navigator.userAgent.includes("BOBU-Mobile");
 
+// Capture before the SDK consumes callback parameters during initialization.
+const initialOAuthParams = new URLSearchParams(window.location.search);
+export const initialOAuthError = initialOAuthParams.has("error") || initialOAuthParams.has("error_code");
+
 export const supabase = createClient(
   supabaseUrl,
   supabaseAnonKey,
@@ -22,5 +26,5 @@ export const supabase = createClient(
           detectSessionInUrl: false,
         },
       }
-    : undefined,
+    : { auth: { flowType: "pkce", detectSessionInUrl: true } },
 );

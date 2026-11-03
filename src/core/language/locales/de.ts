@@ -56,6 +56,7 @@ export const de: TranslationDictionary = {
   "identity.telegram.check": "Telegram-Status prüfen",
   "identity.telegram.retry": "Telegram erneut versuchen",
   "identity.x.label": "BOBU auf X folgen",
+  "identity.x.follow": "BOBU auf X folgen",
   "identity.x.description": "Folge dem offiziellen BOBU-Konto für Ankündigungen, Missionen und Launch-Updates.",
   "identity.x.connect": "X verbinden",
   "identity.x.retry": "X erneut versuchen",
@@ -1387,4 +1388,13 @@ export const de: TranslationDictionary = {
   "mars.pixel.overlay.exploreNow": "JETZT ENTDECKEN",
   "mars.pixel.overlay.closeAd": "Mars-Pixel-Anzeige schließen",
 
+  "identity.x.relink": "X erneut verbinden",
+  "identity.x.relinkHelp": "Verbinde dasselbe X-Konto zur erneuten Verifizierung. Eine funktionierende alternative Anmeldemethode ist erforderlich.",
+  "identity.x.relinkConfirm": "Ich habe eine andere Anmeldemethode für dieses BOBU-Konto getestet. X trennen und dasselbe X-Konto erneut verbinden?",
+  "identity.x.alternativeRequired": "Füge eine andere Anmeldemethode hinzu und teste sie, bevor du X trennst.",
+  "identity.x.failed": "X-Verifizierung fehlgeschlagen. Versuche es erneut oder melde dich neu an.",
+  "identity.x.done": "X-Verifizierung abgeschlossen.",
+  "identity.x.verifying": "Deine X-Identität wird überprüft…",
+  "identity.x.opening": "Sichere X-Verbindung wird geöffnet…",
+  "identity.x.signIn": "Bitte melde dich zuerst an.",
 };

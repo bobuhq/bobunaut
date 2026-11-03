@@ -1,11 +1,13 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { IdentityCard } from "./components/IdentityCard";
 import { useBuilderStore } from "./hooks/useBuilderStore";
-import { builderStore } from "../../store/builderStore";
-import { supabase } from "../../lib/supabase";
+import { supabase, initialOAuthError } from "../../lib/supabase";
 import { restoreAuthenticatedBuilder } from "../../core/builder/services/BuilderRestoreService";
 import { useTelegramVerification } from "./hooks/useTelegramVerification";
 import { useXVerification } from "./hooks/useXVerification";
+import { completeXOAuthCallback } from "./services/xOAuthCallback";
+import { unlinkXForReverification } from "./services/xOAuthRelink";
+
 import { useInstagramVerification } from "./hooks/useInstagramVerification";
 import type { IdentityProvider } from "../../core/models/Builder";
 import { useLanguage } from "../../core/language";
@@ -67,11 +69,35 @@ const communityTasks: CommunityTask[] = [
 export default function BuilderIdentity() {
   const { t } = useLanguage();
   const builder = useBuilderStore();
+  const [relinkBusy, setRelinkBusy] = useState(false);
+  const [relinkMessage, setRelinkMessage] = useState<string | null>(null);
+  const reconnectX = async () => {
+    if (!window.confirm(t("identity.x.relinkConfirm"))) return;
+    setRelinkBusy(true);
+    setRelinkMessage(null);
+    try {
+      const { data, error } = await supabase.auth.getUserIdentities();
+      if (error) throw error;
+      if (data.identities.some(identity => identity.provider === "x")) {
+        if (!data.identities.some(identity => identity.provider !== "x")) {
+          setRelinkMessage(t("identity.x.alternativeRequired"));
+          return;
+        }
+        await unlinkXForReverification(true);
+      }
+      await xVerification.connectX();
+    } catch {
+      setRelinkMessage(t("identity.x.failed"));
+    } finally {
+      setRelinkBusy(false);
+    }
+  };
   const telegramVerification =
     useTelegramVerification({
       communityUrl: TELEGRAM_COMMUNITY_URL,
       initiallyVerified: builder.identity.telegram,
     });
+
 
   const xVerification =
     useXVerification({
@@ -96,91 +122,19 @@ export default function BuilderIdentity() {
         ) === "true";
 
       const hasXCallback =
-        searchParams.has("code") ||
-        searchParams.get("error_code") ===
-          "identity_already_exists" ||
-        hasPendingXWorkflow;
+        hasPendingXWorkflow &&
+        !initialOAuthError &&
+        !searchParams.has("error") &&
+        !searchParams.has("error_code");
+
+      if (hasPendingXWorkflow && (initialOAuthError || searchParams.has("error"))) {
+        window.sessionStorage.removeItem("bobu:x-verification:pending");
+        setRelinkMessage(t("identity.x.failed"));
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
 
       if (hasXCallback) {
-        const authorizationCode =
-          searchParams.get("code");
-
-        /*
-         * X uses the PKCE authorization-code flow.
-         *
-         * The OAuth callback is not complete until the code
-         * has been exchanged. Only after this step can the
-         * linked X identity reliably appear in Supabase Auth.
-         */
-        if (authorizationCode) {
-          const { error: exchangeError } =
-            await supabase.auth.exchangeCodeForSession(
-              authorizationCode,
-            );
-
-          if (exchangeError) {
-            /*
-             * Supabase may already have consumed the code
-             * during client initialization. In that case,
-             * accept the callback only if X is actually
-             * present on the authenticated user.
-             */
-            const {
-              data: identityData,
-              error: identitiesError,
-            } =
-              await supabase.auth.getUserIdentities();
-
-            const hasLinkedX =
-              !identitiesError &&
-              identityData?.identities?.some(
-                (identity) =>
-                  identity.provider.toLowerCase() === "x",
-              );
-
-            if (!hasLinkedX) {
-              throw exchangeError;
-            }
-          }
-        }
-
-        /*
-         * Wait briefly for the linked identity to become
-         * observable before calling the authoritative
-         * server-side reward engine.
-         */
-        for (let attempt = 0; attempt < 6; attempt += 1) {
-          const {
-            data: identityData,
-            error: identitiesError,
-          } =
-            await supabase.auth.getUserIdentities();
-
-          if (identitiesError) {
-            throw identitiesError;
-          }
-
-          const hasLinkedX =
-            identityData.identities.some(
-              (identity) =>
-                identity.provider.toLowerCase() === "x",
-            );
-
-          if (hasLinkedX) {
-            break;
-          }
-
-          if (attempt === 5) {
-            throw new Error(
-              "X identity linking did not complete.",
-            );
-          }
-
-          await new Promise((resolve) =>
-            window.setTimeout(resolve, 500),
-          );
-        }
-
+        await completeXOAuthCallback();
         await xVerification.verifyAndReward();
 
         window.history.replaceState(
@@ -213,6 +167,7 @@ export default function BuilderIdentity() {
     };
 
     void restoreIdentityPage().catch((error) => {
+      setRelinkMessage(t("identity.x.failed"));
       console.error(
         "Builder identity restore failed:",
         error,
@@ -221,6 +176,7 @@ export default function BuilderIdentity() {
   }, [
     xVerification.verifyAndReward,
     instagramVerification.processCallback,
+    t,
   ]);
 
   const requiredTasks = communityTasks.filter(
@@ -449,6 +405,14 @@ export default function BuilderIdentity() {
           ))}
         </div>
 
+        <div className="identity-task">
+          <p>{t("identity.x.relinkHelp")}</p>
+          <button type="button" className="identity-task__button"
+            disabled={relinkBusy || xVerification.busy} onClick={() => void reconnectX()}>
+            {t("identity.x.relink")}
+          </button>
+          {relinkMessage && <p role="alert">{relinkMessage}</p>}
+        </div>
         <div className="identity-unlocks">
           <div
             className={

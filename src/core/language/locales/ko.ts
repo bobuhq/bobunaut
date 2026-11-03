@@ -12,6 +12,7 @@ export const ko: TranslationDictionary = {
   "identity.telegram.check": "Telegram 상태 확인",
   "identity.telegram.retry": "Telegram 다시 시도",
   "identity.x.label": "X에서 BOBU 팔로우",
+  "identity.x.follow": "X에서 BOBU 팔로우",
   "identity.x.description": "공지, 미션 및 출시 업데이트를 위해 공식 BOBU 계정을 팔로우하세요.",
   "identity.x.connect": "X 연결",
   "identity.x.retry": "X 다시 시도",
@@ -1375,4 +1376,13 @@ export const ko: TranslationDictionary = {
   "mars.pixel.overlay.exploreNow": "지금 탐색",
   "mars.pixel.overlay.closeAd": "Mars Pixel 광고 닫기",
 
+  "identity.x.relink": "X 다시 연결",
+  "identity.x.relinkHelp": "다시 인증하려면 동일한 X 계정을 연결하세요. 사용 가능한 다른 로그인 방법이 필요합니다.",
+  "identity.x.relinkConfirm": "이 BOBU 계정에서 다른 로그인 방법을 테스트했습니다. X 연결을 해제하고 동일한 X 계정을 다시 연결할까요?",
+  "identity.x.alternativeRequired": "X 연결을 해제하기 전에 다른 로그인 방법을 추가하고 테스트하세요.",
+  "identity.x.failed": "X 인증에 실패했습니다. 다시 시도하거나 다시 로그인하세요.",
+  "identity.x.done": "X 인증이 완료되었습니다.",
+  "identity.x.verifying": "X 계정 확인 중…",
+  "identity.x.opening": "X 보안 연결 여는 중…",
+  "identity.x.signIn": "먼저 로그인하세요.",
 };

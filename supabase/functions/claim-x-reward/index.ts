@@ -1,6 +1,8 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
+import { withXClockSkewRetry } from "../_shared/x-oauth-retry.ts";
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
@@ -202,8 +204,7 @@ export default {
     }
 
     const providerUserId =
-      xIdentity.identity_data?.sub ??
-      xIdentity.id;
+      xIdentity.identity_data?.sub;
 
     if (
       typeof providerUserId !== "string" ||
@@ -239,7 +240,7 @@ export default {
     const {
       data: claimResult,
       error: claimError,
-    } = await adminClient.rpc(
+    } = await withXClockSkewRetry(() => adminClient.rpc(
       "claim_x_identity_reward",
       {
         p_builder_id: user.id,
@@ -247,7 +248,7 @@ export default {
           providerUserId.trim(),
         p_username: username,
       },
-    );
+    ));
 
     if (claimError) {
       console.error(
@@ -318,8 +319,10 @@ export default {
           verified: false,
           linked: false,
           rewarded: false,
-          error:
-            "X verification could not be completed.",
+          status: row.reason,
+          error: row.reason === "fresh_x_oauth_required"
+            ? "Reconnect your original X account before verification."
+            : "X verification could not be completed.",
         },
         409,
       );

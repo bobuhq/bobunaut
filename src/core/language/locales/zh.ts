@@ -53,6 +53,7 @@ export const zh: TranslationDictionary = {
   "identity.telegram.check": "检查 Telegram 状态",
   "identity.telegram.retry": "重试 Telegram",
   "identity.x.label": "在 X 上关注 BOBU",
+  "identity.x.follow": "在 X 上关注 BOBU",
   "identity.x.description": "关注 BOBU 官方账号，获取公告、任务和发布更新。",
   "identity.x.connect": "连接 X",
   "identity.x.retry": "重试 X",
@@ -1383,4 +1384,13 @@ export const zh: TranslationDictionary = {
   "mars.pixel.overlay.exploreNow": "立即探索",
   "mars.pixel.overlay.closeAd": "关闭 Mars Pixel 广告",
 
+  "identity.x.relink": "重新连接 X",
+  "identity.x.relinkHelp": "请重新连接同一个 X 账号以再次验证。需要另一个可用的登录方式。",
+  "identity.x.relinkConfirm": "我已测试此 BOBU 账号的其他登录方式。是否断开 X 并重新连接同一个 X 账号？",
+  "identity.x.alternativeRequired": "断开 X 前，请添加并测试其他登录方式。",
+  "identity.x.failed": "X 验证失败。请重试或重新登录。",
+  "identity.x.done": "X 验证已完成。",
+  "identity.x.verifying": "正在验证您的 X 身份…",
+  "identity.x.opening": "正在打开安全的 X 连接…",
+  "identity.x.signIn": "请先登录。",
 };

@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build && node scripts/create-pages-routes.mjs",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:x-oauth": "node scripts/build-x-oauth-migration.mjs --check && node --test tests/x-oauth/*.test.mjs && deno test --allow-env supabase/functions/claim-x-reward/index.test.ts supabase/functions/_shared/x-oauth-retry.test.ts supabase/functions/_shared/x-follow-verifier-v2.test.ts",
+    "test:x-oauth:sql": "node scripts/test-x-oauth-sql.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.8",
