@@ -31,7 +31,7 @@ export function useXVerification(_options: { initiallyVerified: boolean }) {
     assertCurrent(id);
     if (check === version.current) setState({userId: id, verified: linked && !recovery && status.verified, reconnect: recovery || status.pending});
     if (status.status === "invalid_session" || status.status === "unavailable") throw new Error(t("identity.x.failed"));
-    return { linked, reconnect: recovery || status.pending, verified: linked && !recovery && status.verified };
+    return { linked, reconnect: recovery || status.pending, verified: linked && !recovery && status.verified, serverStatus: status.status };
   }, [userId, assertCurrent, t]);
   useEffect(() => {
     setState({userId, verified: false, reconnect: false});
@@ -79,8 +79,15 @@ export function useXVerification(_options: { initiallyVerified: boolean }) {
         if (!window.confirm(t("identity.x.relinkConfirm"))) { setPhase("idle"); return; }
         await prepareXReconnect(userId, true);
       } else if (status.linked) {
+        // Legacy no_reset does not authorize unlinking an X identity.
+        // Try the existing server-side claim exactly once; if it fails,
+        // present the real state instead of pretending OAuth will open.
         lock.current = false;
-        await verifyAndReward(); return;
+        const verified = await verifyAndReward();
+        if (!verified && status.serverStatus === "no_reset") {
+          setError("X is connected but is not verified by the server. Contact BOBU support for a safe account review before reconnecting.");
+        }
+        return;
       }
       assertCurrent(userId);
       const initiatingId = await beginXLink();
