@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { IdentityCard } from "./components/IdentityCard";
 import { useBuilderStore } from "./hooks/useBuilderStore";
-import { supabase, initialOAuthError } from "../../lib/supabase";
+import { initialOAuthError } from "../../lib/supabase";
 import { restoreAuthenticatedBuilder } from "../../core/builder/services/BuilderRestoreService";
 import { useTelegramVerification } from "./hooks/useTelegramVerification";
 import { useXVerification } from "./hooks/useXVerification";
@@ -72,29 +72,7 @@ const communityTasks: CommunityTask[] = [
 export default function BuilderIdentity() {
   const { t } = useLanguage();
   const builder = useBuilderStore();
-  const [relinkBusy, setRelinkBusy] = useState(false);
-  const [showFollowLink, setShowFollowLink] = useState(false);
   const [relinkMessage, setRelinkMessage] = useState<string | null>(null);
-  const reconnectX = async () => {
-    if (!window.confirm(t("identity.x.relinkConfirm"))) return;
-    setRelinkBusy(true);
-    setRelinkMessage(null);
-    try {
-      const { data, error } = await supabase.auth.getUserIdentities();
-      if (error) throw error;
-      if (data.identities.some(identity => identity.provider === "x")) {
-        // Never unlink an existing X identity during verification.
-        await xVerification.verifyAndReward();
-        return;
-      }
-      await xVerification.connectX();
-    } catch (error) {
-      console.error("[BOBU X Reconnect] Failed:", error);
-      setRelinkMessage(t("identity.x.failed"));
-    } finally {
-      setRelinkBusy(false);
-    }
-  };
   const telegramVerification =
     useTelegramVerification({
       communityUrl: TELEGRAM_COMMUNITY_URL,
@@ -141,14 +119,7 @@ export default function BuilderIdentity() {
           await completeXOAuthCallback();
           const verified = await xVerification.verifyAndReward();
 
-          if (verified) {
-            setShowFollowLink(true);
-            window.open(
-              X_FOLLOW_URL,
-              "_blank",
-              "noopener,noreferrer",
-            );
-          }
+          if (!verified) setRelinkMessage(t("identity.x.failed"));
         } catch (error) {
           console.error("[BOBU X OAuth] Callback failed:", error);
           setRelinkMessage(t("identity.x.failed"));
@@ -375,6 +346,7 @@ export default function BuilderIdentity() {
                     )
                   : task.provider === "x"
                     ? (
+                        relinkMessage ??
                         xVerification.errorMessage ??
                         xVerification.message
                       )
@@ -437,14 +409,6 @@ export default function BuilderIdentity() {
           </div>
         )}
 
-        <div className="identity-task">
-          <p>{t("identity.x.relinkHelp")}</p>
-          <button type="button" className="identity-task__button"
-            disabled={relinkBusy || xVerification.busy} onClick={() => void reconnectX()}>
-            {t("identity.x.relink")}
-          </button>
-          {relinkMessage && <p role="alert">{relinkMessage}</p>}
-        </div>
         <div className="identity-unlocks">
           <div
             className={
