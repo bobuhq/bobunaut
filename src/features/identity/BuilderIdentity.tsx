@@ -201,6 +201,7 @@ export default function BuilderIdentity() {
         return;
       }
 
+      setRelinkMessage(null);
       await xVerification.connectX();
       return;
     }

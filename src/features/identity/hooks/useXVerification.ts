@@ -43,6 +43,10 @@ export function useXVerification({
   const [errorMessage, setErrorMessage] =
     useState<string | null>(null);
 
+  // null = Auth identity status not yet checked.
+  const [authXLinked, setAuthXLinked] =
+    useState<boolean | null>(null);
+
   const verifyAndReward = useCallback(
     async (): Promise<boolean> => {
       setPhase("verifying");
@@ -67,6 +71,7 @@ export function useXVerification({
         );
 
         clearXReauthentication();
+        setAuthXLinked(true);
         setPhase("completed");
         setMessage(t("identity.x.done"));
 
@@ -118,11 +123,15 @@ export function useXVerification({
           throw identityError;
         }
 
-        if (
+        const hasXIdentity = Boolean(
           identityData.identities?.some(
             (identity) => identity.provider.toLowerCase() === "x",
           )
-        ) {
+        );
+
+        setAuthXLinked(hasXIdentity);
+
+        if (hasXIdentity) {
           await verifyAndReward();
           return;
         }
@@ -171,14 +180,48 @@ export function useXVerification({
   );
 
   useEffect(() => {
-    if (!initiallyVerified) {
-      setPhase(current => current === "completed" ? "idle" : current);
-      return;
-    }
+    let cancelled = false;
 
-    setPhase("completed");
-    setMessage(t("identity.x.done"));
-    setErrorMessage(null);
+    const checkXIdentity = async () => {
+      try {
+        const { data, error } =
+          await supabase.auth.getUserIdentities();
+
+        if (cancelled) return;
+        if (error) throw error;
+
+        const linked = Boolean(
+          data.identities?.some(
+            (identity) => identity.provider.toLowerCase() === "x"
+          )
+        );
+
+        setAuthXLinked(linked);
+
+        if (initiallyVerified && linked) {
+          setPhase("completed");
+          setMessage(t("identity.x.done"));
+          setErrorMessage(null);
+        } else if (!linked && initiallyVerified) {
+          // Historical GP verification is not an active Auth link.
+          setPhase("idle");
+          setMessage(null);
+          setErrorMessage(null);
+        }
+      } catch (error) {
+        if (cancelled) return;
+        console.error("X Auth identity check failed:", error);
+        setAuthXLinked(null);
+        setPhase("error");
+        setErrorMessage(t("identity.x.failed"));
+      }
+    };
+
+    void checkXIdentity();
+
+    return () => {
+      cancelled = true;
+    };
   }, [initiallyVerified, t]);
 
   return {
@@ -186,8 +229,8 @@ export function useXVerification({
     message,
     errorMessage,
     completed:
-      phase === "completed" ||
-      initiallyVerified,
+      authXLinked === true &&
+      (phase === "completed" || initiallyVerified),
     busy:
       phase === "connecting" ||
       phase === "verifying",
