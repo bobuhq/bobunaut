@@ -110,6 +110,23 @@ export function useXVerification({
           );
         }
 
+        // Existing X identity: verify without starting another OAuth link.
+        const { data: identityData, error: identityError } =
+          await supabase.auth.getUserIdentities();
+
+        if (identityError) {
+          throw identityError;
+        }
+
+        if (
+          identityData.identities?.some(
+            (identity) => identity.provider.toLowerCase() === "x",
+          )
+        ) {
+          await verifyAndReward();
+          return;
+        }
+
         await beginXReauthentication();
 
         const redirectTo = new URL(
@@ -149,7 +166,7 @@ export function useXVerification({
         setErrorMessage(t("identity.x.failed"));
       }
     },
-    [t],
+    [t, verifyAndReward],
   );
 
   useEffect(() => {

@@ -9,6 +9,20 @@ export function completeXOAuthCallback(): Promise<void> {
     const { data, error } = await supabase.auth.getSession();
     if (error || !data.session) throw new Error("OAuth session unavailable");
     const account = await verifyXReauthenticationAccount();
-    if (!account.sameAccount) throw new Error("OAuth account changed; sign in to the original account");
+    if (!account.sameAccount) {
+      throw new Error("OAuth account changed; sign in to the original account");
+    }
+
+    // A successful callback must link X to this authenticated account.
+    const { data: identities, error: identitiesError } =
+      await supabase.auth.getUserIdentities();
+
+    if (identitiesError) throw identitiesError;
+
+    if (!identities.identities.some(
+      (identity) => identity.provider.toLowerCase() === "x"
+    )) {
+      throw new Error("X identity was not linked to this BOBU account.");
+    }
   })().catch(error => { completion = undefined; throw error; });
 }

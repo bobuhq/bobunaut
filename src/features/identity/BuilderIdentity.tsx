@@ -6,7 +6,7 @@ import { restoreAuthenticatedBuilder } from "../../core/builder/services/Builder
 import { useTelegramVerification } from "./hooks/useTelegramVerification";
 import { useXVerification } from "./hooks/useXVerification";
 import { completeXOAuthCallback } from "./services/xOAuthCallback";
-import { unlinkXForReverification } from "./services/xOAuthRelink";
+import { clearXReauthentication } from "./services/xReauthGuard";
 
 import { useInstagramVerification } from "./hooks/useInstagramVerification";
 import type { IdentityProvider } from "../../core/models/Builder";
@@ -83,11 +83,9 @@ export default function BuilderIdentity() {
       const { data, error } = await supabase.auth.getUserIdentities();
       if (error) throw error;
       if (data.identities.some(identity => identity.provider === "x")) {
-        if (!data.identities.some(identity => identity.provider !== "x")) {
-          setRelinkMessage(t("identity.x.alternativeRequired"));
-          return;
-        }
-        await unlinkXForReverification(true);
+        // Never unlink an existing X identity during verification.
+        await xVerification.verifyAndReward();
+        return;
       }
       await xVerification.connectX();
     } catch (error) {
@@ -126,36 +124,43 @@ export default function BuilderIdentity() {
           "bobu:x-verification:pending",
         ) === "true";
 
-      const hasXCallback =
-        hasPendingXWorkflow &&
-        !initialOAuthError &&
-        !searchParams.has("error") &&
-        !searchParams.has("error_code");
+      const hasOAuthError =
+        initialOAuthError ||
+        searchParams.has("error") ||
+        searchParams.has("error_code");
 
-      if (hasPendingXWorkflow && (initialOAuthError || searchParams.has("error"))) {
+      if (hasPendingXWorkflow && hasOAuthError) {
         window.sessionStorage.removeItem("bobu:x-verification:pending");
+        clearXReauthentication();
         setRelinkMessage(t("identity.x.failed"));
         window.history.replaceState({}, document.title, window.location.pathname);
       }
 
-      if (hasXCallback) {
-        await completeXOAuthCallback();
-        const verified = await xVerification.verifyAndReward();
+      if (hasPendingXWorkflow && !hasOAuthError) {
+        try {
+          await completeXOAuthCallback();
+          const verified = await xVerification.verifyAndReward();
 
-        if (verified) {
-          setShowFollowLink(true);
-          window.open(
-            X_FOLLOW_URL,
-            "_blank",
-            "noopener,noreferrer",
+          if (verified) {
+            setShowFollowLink(true);
+            window.open(
+              X_FOLLOW_URL,
+              "_blank",
+              "noopener,noreferrer",
+            );
+          }
+        } catch (error) {
+          console.error("[BOBU X OAuth] Callback failed:", error);
+          setRelinkMessage(t("identity.x.failed"));
+        } finally {
+          window.sessionStorage.removeItem("bobu:x-verification:pending");
+          clearXReauthentication();
+          window.history.replaceState(
+            {},
+            document.title,
+            window.location.pathname,
           );
         }
-
-        window.history.replaceState(
-          {},
-          document.title,
-          window.location.pathname,
-        );
       }
 
       const hasInstagramCallback =
