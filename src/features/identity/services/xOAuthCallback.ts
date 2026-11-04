@@ -13,15 +13,30 @@ export function completeXOAuthCallback(): Promise<void> {
       throw new Error("OAuth account changed; sign in to the original account");
     }
 
-    // A successful callback must link X to this authenticated account.
-    const { data: identities, error: identitiesError } =
-      await supabase.auth.getUserIdentities();
+    // Wait for Supabase Auth identity propagation after OAuth.
+    // Never accept an identity belonging to a different Builder.
+    let linked = false;
 
-    if (identitiesError) throw identitiesError;
+    for (let attempt = 0; attempt < 6; attempt += 1) {
+      const { data: identities, error: identitiesError } =
+        await supabase.auth.getUserIdentities();
 
-    if (!identities.identities.some(
-      (identity) => identity.provider.toLowerCase() === "x"
-    )) {
+      if (identitiesError) throw identitiesError;
+
+      linked = identities.identities.some(
+        (identity) => identity.provider.toLowerCase() === "x"
+      );
+
+      if (linked) break;
+
+      if (attempt < 5) {
+        await new Promise<void>((resolve) =>
+          setTimeout(resolve, 500)
+        );
+      }
+    }
+
+    if (!linked) {
       throw new Error("X identity was not linked to this BOBU account.");
     }
   })().catch(error => { completion = undefined; throw error; });

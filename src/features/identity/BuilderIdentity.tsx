@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { IdentityCard } from "./components/IdentityCard";
 import { useBuilderStore } from "./hooks/useBuilderStore";
 import { initialOAuthError } from "../../lib/supabase";
@@ -73,6 +73,7 @@ export default function BuilderIdentity() {
   const { t } = useLanguage();
   const builder = useBuilderStore();
   const [relinkMessage, setRelinkMessage] = useState<string | null>(null);
+  const xCallbackRunning = useRef(false);
   const telegramVerification =
     useTelegramVerification({
       communityUrl: TELEGRAM_COMMUNITY_URL,
@@ -115,6 +116,10 @@ export default function BuilderIdentity() {
       }
 
       if (hasPendingXWorkflow && !hasOAuthError) {
+        // React StrictMode and rerenders must not process one callback twice.
+        if (xCallbackRunning.current) return;
+        xCallbackRunning.current = true;
+
         try {
           await completeXOAuthCallback();
           const verified = await xVerification.verifyAndReward();

@@ -148,10 +148,8 @@ export function useXVerification({
           });
 
         if (error) {
-          window.sessionStorage.removeItem(
-            X_WORKFLOW_KEY,
-          );
-
+          window.sessionStorage.removeItem(X_WORKFLOW_KEY);
+          clearXReauthentication();
           throw new Error(error.message);
         }
       } catch (error) {
@@ -160,6 +158,9 @@ export function useXVerification({
           "X connection failed:",
           error,
         );
+
+        window.sessionStorage.removeItem(X_WORKFLOW_KEY);
+        clearXReauthentication();
 
         setPhase("error");
         setMessage(null);
