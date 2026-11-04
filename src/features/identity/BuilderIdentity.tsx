@@ -13,6 +13,9 @@ import type { IdentityProvider } from "../../core/models/Builder";
 import { useLanguage } from "../../core/language";
 import "./BuilderIdentity.css";
 
+const X_FOLLOW_URL =
+  "https://x.com/intent/follow?screen_name=bobunaut";
+
 const TELEGRAM_COMMUNITY_URL =
   "https://t.me/+I0Q01kVMYw41YjA0";
 
@@ -70,6 +73,7 @@ export default function BuilderIdentity() {
   const { t } = useLanguage();
   const builder = useBuilderStore();
   const [relinkBusy, setRelinkBusy] = useState(false);
+  const [showFollowLink, setShowFollowLink] = useState(false);
   const [relinkMessage, setRelinkMessage] = useState<string | null>(null);
   const reconnectX = async () => {
     if (!window.confirm(t("identity.x.relinkConfirm"))) return;
@@ -86,7 +90,8 @@ export default function BuilderIdentity() {
         await unlinkXForReverification(true);
       }
       await xVerification.connectX();
-    } catch {
+    } catch (error) {
+      console.error("[BOBU X Reconnect] Failed:", error);
       setRelinkMessage(t("identity.x.failed"));
     } finally {
       setRelinkBusy(false);
@@ -135,7 +140,16 @@ export default function BuilderIdentity() {
 
       if (hasXCallback) {
         await completeXOAuthCallback();
-        await xVerification.verifyAndReward();
+        const verified = await xVerification.verifyAndReward();
+
+        if (verified) {
+          setShowFollowLink(true);
+          window.open(
+            X_FOLLOW_URL,
+            "_blank",
+            "noopener,noreferrer",
+          );
+        }
 
         window.history.replaceState(
           {},
@@ -404,6 +418,19 @@ export default function BuilderIdentity() {
             />
           ))}
         </div>
+
+        {(
+          <div className="identity-task">
+            <a
+              className="identity-task__button"
+              href={X_FOLLOW_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {t("identity.x.label")} — @bobunaut
+            </a>
+          </div>
+        )}
 
         <div className="identity-task">
           <p>{t("identity.x.relinkHelp")}</p>
