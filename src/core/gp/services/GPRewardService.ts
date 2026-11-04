@@ -1,3 +1,4 @@
+import { requireXIdentity, validateXRecovery } from "../../../features/identity/services/xOAuthCallback";
 import { supabase } from "../../../lib/supabase";
 
 export type GenesisRewardProvider =
@@ -45,6 +46,7 @@ interface GPRewardFunctionResponse {
   message?: string;
   warning?: string;
   error?: string;
+  status?: string;
 }
 
 interface MissionRewardClaimRow {
@@ -106,7 +108,10 @@ const readEdgeFunctionError = async (
           error?: unknown;
           message?: unknown;
           warning?: unknown;
+          status?: unknown;
         };
+
+      if (payload.status === "fresh_x_oauth_required") return "fresh_x_oauth_required";
 
       if (
         typeof payload.error === "string" &&
@@ -166,8 +171,18 @@ const requireValue = (
 };
 
 export class GPRewardService {
-  async claimGenesisReward(
+  private xClaims = new Map<string, Promise<GPRewardClaimResult>>();
+  claimGenesisReward(provider: GenesisRewardProvider, expectedUserId?: string): Promise<GPRewardClaimResult> {
+    if (provider !== "x" || !expectedUserId) return this.claimGenesisRewardInternal(provider, expectedUserId);
+    const existing = this.xClaims.get(expectedUserId);
+    if (existing) return existing;
+    const claim = this.claimGenesisRewardInternal(provider, expectedUserId).finally(() => this.xClaims.delete(expectedUserId));
+    this.xClaims.set(expectedUserId, claim);
+    return claim;
+  }
+  private async claimGenesisRewardInternal(
     provider: GenesisRewardProvider,
+    expectedUserId?: string,
   ): Promise<GPRewardClaimResult> {
     const {
       data: { session },
@@ -184,6 +199,11 @@ export class GPRewardService {
       throw new Error(
         "Authentication is required to claim a GP reward.",
       );
+    }
+
+    if (provider === "x") {
+      if (!expectedUserId || session.user.id !== expectedUserId || !(await requireXIdentity(expectedUserId))) throw new Error("BOBU account changed or X identity unavailable.");
+      await validateXRecovery(expectedUserId);
     }
 
     const functionName =
@@ -218,6 +238,9 @@ export class GPRewardService {
         `${provider} GP reward returned no data.`,
       );
     }
+
+    if (data.status === "fresh_x_oauth_required") throw new Error("fresh_x_oauth_required");
+    if (provider === "x") await requireXIdentity(expectedUserId!);
 
     if (data.error) {
       throw new Error(data.error);

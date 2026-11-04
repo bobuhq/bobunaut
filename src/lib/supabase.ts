@@ -13,7 +13,8 @@ const isNativeMarsWebView =
 
 // Capture before the SDK consumes callback parameters during initialization.
 const initialOAuthParams = new URLSearchParams(window.location.search);
-export const initialOAuthError = initialOAuthParams.has("error") || initialOAuthParams.has("error_code");
+const initialOAuthHash = new URLSearchParams(window.location.hash.slice(1));
+export const initialOAuthError = [initialOAuthParams, initialOAuthHash].some(params => params.has("error") || params.has("error_code"));
 
 export const supabase = createClient(
   supabaseUrl,

@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from "react";
+import { useAuthSession } from "../../core/auth/useAuthSession";
 import { IdentityCard } from "./components/IdentityCard";
 import { useBuilderStore } from "./hooks/useBuilderStore";
 import { initialOAuthError } from "../../lib/supabase";
 import { restoreAuthenticatedBuilder } from "../../core/builder/services/BuilderRestoreService";
 import { useTelegramVerification } from "./hooks/useTelegramVerification";
 import { useXVerification } from "./hooks/useXVerification";
-import { completeXOAuthCallback } from "./services/xOAuthCallback";
-import { clearXReauthentication } from "./services/xReauthGuard";
+import { completeXOAuthCallback, hasPendingXLink, clearXLink } from "./services/xOAuthCallback";
+
 
 import { useInstagramVerification } from "./hooks/useInstagramVerification";
 import type { IdentityProvider } from "../../core/models/Builder";
@@ -71,6 +72,7 @@ const communityTasks: CommunityTask[] = [
 
 export default function BuilderIdentity() {
   const { t } = useLanguage();
+  const { loading: authLoading, session } = useAuthSession();
   const builder = useBuilderStore();
   const [relinkMessage, setRelinkMessage] = useState<string | null>(null);
   const xCallbackRunning = useRef(false);
@@ -93,15 +95,14 @@ export default function BuilderIdentity() {
     });
 
   useEffect(() => {
+    if (authLoading || !session?.user.id) return;
     const restoreIdentityPage = async (): Promise<void> => {
       const searchParams = new URLSearchParams(
         window.location.search,
       );
 
       const hasPendingXWorkflow =
-        window.sessionStorage.getItem(
-          "bobu:x-verification:pending",
-        ) === "true";
+        hasPendingXLink();
 
       const hasOAuthError =
         initialOAuthError ||
@@ -109,8 +110,8 @@ export default function BuilderIdentity() {
         searchParams.has("error_code");
 
       if (hasPendingXWorkflow && hasOAuthError) {
-        window.sessionStorage.removeItem("bobu:x-verification:pending");
-        clearXReauthentication();
+        await clearXLink();
+
         setRelinkMessage(t("identity.x.failed"));
         window.history.replaceState({}, document.title, window.location.pathname);
       }
@@ -122,6 +123,7 @@ export default function BuilderIdentity() {
 
         try {
           await completeXOAuthCallback();
+          await xVerification.refresh();
           const verified = await xVerification.verifyAndReward();
 
           if (!verified) setRelinkMessage(t("identity.x.failed"));
@@ -129,8 +131,8 @@ export default function BuilderIdentity() {
           console.error("[BOBU X OAuth] Callback failed:", error);
           setRelinkMessage(t("identity.x.failed"));
         } finally {
-          window.sessionStorage.removeItem("bobu:x-verification:pending");
-          clearXReauthentication();
+          await clearXLink();
+
           window.history.replaceState(
             {},
             document.title,
@@ -169,6 +171,9 @@ export default function BuilderIdentity() {
       );
     });
   }, [
+    authLoading,
+    session?.user.id,
+    xVerification.refresh,
     xVerification.verifyAndReward,
     instagramVerification.processCallback,
     t,
@@ -179,7 +184,7 @@ export default function BuilderIdentity() {
   );
 
   const completedCount = requiredTasks.filter(
-    (task) => builder.identity[task.provider],
+    (task) => task.provider === "x" ? xVerification.completed : builder.identity[task.provider],
   ).length;
 
   const progress =
@@ -312,7 +317,9 @@ export default function BuilderIdentity() {
                       ? t("identity.status.completed")
                       : xVerification.busy
                         ? t("identity.status.checking")
-                        : xVerification.phase === "error"
+                        : xVerification.reconnect
+                          ? t("identity.x.relink")
+                          : xVerification.phase === "error"
                           ? t("identity.x.retry")
                           : t("identity.x.connect")
                   : task.provider === "instagram"

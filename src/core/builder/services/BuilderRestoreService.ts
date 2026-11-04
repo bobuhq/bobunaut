@@ -1,3 +1,4 @@
+import { readXVerification } from "../../../features/identity/services/xVerificationStatus";
 import { supabase } from "../../../lib/supabase";
 import { builderStore } from "../../../store/builderStore";
 import { builderMapper } from "../mapper/BuilderMapper";
@@ -36,6 +37,9 @@ export const restoreAuthenticatedBuilder = async (
 
   const source = await builderRepository.load(builderId);
   const snapshot = builderMapper.toSnapshot(source);
+  // Historical social records and browser cache cannot prove current X verification.
+  const xStatus = await readXVerification(builderId);
+  snapshot.identity.x = xStatus.verified;
 
   /*
    * The session may change while Supabase queries are running.
