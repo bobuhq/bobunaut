@@ -7,6 +7,9 @@ import { supabase } from "../../../lib/supabase";
 import { beginXLink, clearXLink, finishXRecovery, hasXRecovery, prepareXReconnect, requireXIdentity } from "../services/xOAuthCallback";
 import { readXVerification } from "../services/xVerificationStatus";
 
+// UI-only cache. Never authorizes OAuth or reward claims.
+let lastVerifiedXUserId: string | null = null;
+
 export function useXVerification(_options: { initiallyVerified: boolean }) {
   const { t } = useLanguage();
   const { session } = useAuthSession();
@@ -14,7 +17,11 @@ export function useXVerification(_options: { initiallyVerified: boolean }) {
   const current = useRef(userId); current.current = userId;
   const lock = useRef(false);
   const version = useRef(0);
-  const [state, setState] = useState({ userId, verified: false, reconnect: false });
+  const [state, setState] = useState(() => ({
+    userId,
+    verified: Boolean(userId && lastVerifiedXUserId === userId),
+    reconnect: false,
+  }));
   const [checkState, setCheckState] = useState<{
     userId: string | undefined;
     status: "checking" | "ready" | "error";
@@ -32,7 +39,11 @@ export function useXVerification(_options: { initiallyVerified: boolean }) {
     setState(s =>
       s.userId === id
         ? s
-        : { userId: id, verified: false, reconnect: false }
+        : {
+            userId: id,
+            verified: Boolean(id && lastVerifiedXUserId === id),
+            reconnect: false,
+          }
     );
 
     if (!id) {
@@ -68,16 +79,31 @@ export function useXVerification(_options: { initiallyVerified: boolean }) {
         serverStatus: status.status,
       };
 
+      if (result.verified) {
+        lastVerifiedXUserId = id;
+      } else if (lastVerifiedXUserId === id) {
+        lastVerifiedXUserId = null;
+      }
+
       setState({
         userId: id,
         verified: result.verified,
         reconnect: result.reconnect,
       });
+
+      // Clear stale errors only after confirmed server verification.
+      if (result.verified) {
+        setError(null);
+      }
+
       setCheckState({ userId: id, status: "ready" });
 
       return result;
     } catch (error) {
       if (check === version.current && current.current === id) {
+        if (lastVerifiedXUserId === id) {
+          lastVerifiedXUserId = null;
+        }
         setState(s => ({ ...s, userId: id, verified: false }));
         setCheckState({ userId: id, status: "error" });
       }
@@ -88,7 +114,11 @@ export function useXVerification(_options: { initiallyVerified: boolean }) {
     setState(previous =>
       previous.userId === userId
         ? previous
-        : { userId, verified: false, reconnect: false }
+        : {
+            userId,
+            verified: Boolean(userId && lastVerifiedXUserId === userId),
+            reconnect: false,
+          }
     );
     setCheckState({ userId, status: "checking" });
     setPhase("idle"); setError(null);
