@@ -44,18 +44,23 @@ export function useXVerification(_options: { initiallyVerified: boolean }) {
     if (!userId || lock.current) return false;
     lock.current = true; setPhase("verifying"); setError(null);
     try {
+      // A completed reset with invalid server evidence must never trigger a new GP claim.
+      const preflight = await refresh();
+      assertCurrent(userId);
+      if (preflight?.serverStatus === "rewarded" && !preflight.verified) {
+        throw new Error("X account requires a secure identity review. No GP claim was made.");
+      }
       const result = await gpRewardService.claimGenesisReward("x", userId);
       assertCurrent(userId);
       if (!result.verified) throw new Error(result.message || t("identity.x.failed"));
-      await finishXRecovery(userId);
-      await clearXLink();
       await restoreAuthenticatedBuilder(userId);
       const status = await refresh();
       assertCurrent(userId);
-      setPhase("idle");
-      // A successful claim response alone is not verification proof.
-      // Only the authenticated status endpoint can turn the green check on.
+      // Keep local recovery evidence until the server confirms the identity.
       if (!status?.verified) throw new Error("X verification was not confirmed by the server.");
+      await finishXRecovery(userId);
+      await clearXLink();
+      setPhase("idle");
       return true;
     } catch (error) {
       if (current.current === userId) {
@@ -73,6 +78,13 @@ export function useXVerification(_options: { initiallyVerified: boolean }) {
       const status = await refresh();
       assertCurrent(userId);
       if (!status) throw new Error("Session unavailable");
+      // A rewarded record with rejected server proof needs controlled review,
+      // not client unlink, OAuth relink, or another reward attempt.
+      if (status.serverStatus === "rewarded" && !status.verified) {
+        setPhase("error");
+        setError("X identity mismatch: secure BOBU support review required. Your GP has not been changed.");
+        return;
+      }
       if (status.reconnect && status.linked) {
         // Only unlink if an X identity actually exists. Pending accounts with
         // no linked X identity must be allowed to start fresh browser OAuth.
