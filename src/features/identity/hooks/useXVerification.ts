@@ -15,6 +15,10 @@ export function useXVerification(_options: { initiallyVerified: boolean }) {
   const lock = useRef(false);
   const version = useRef(0);
   const [state, setState] = useState({ userId, verified: false, reconnect: false });
+  const [checkState, setCheckState] = useState<{
+    userId: string | undefined;
+    status: "checking" | "ready" | "error";
+  }>({ userId, status: "checking" });
   const [phase, setPhase] = useState("idle");
   const [errorMessage, setError] = useState<string | null>(null);
   const assertCurrent = useCallback((id: string) => {
@@ -23,18 +27,70 @@ export function useXVerification(_options: { initiallyVerified: boolean }) {
   const refresh = useCallback(async () => {
     const id = userId;
     const check = ++version.current;
-    setState(s => ({...s, verified: false}));
-    if (!id) return null;
-    const linked = await requireXIdentity(id);
-    const recovery = await hasXRecovery(id);
-    const status = await readXVerification(id);
-    assertCurrent(id);
-    if (check === version.current) setState({userId: id, verified: linked && !recovery && status.verified, reconnect: recovery || status.pending});
-    if (status.status === "invalid_session" || status.status === "unavailable") throw new Error(t("identity.x.failed"));
-    return { linked, reconnect: recovery || status.pending, verified: linked && !recovery && status.verified, serverStatus: status.status };
+
+    setCheckState({ userId: id, status: "checking" });
+    setState(s =>
+      s.userId === id
+        ? s
+        : { userId: id, verified: false, reconnect: false }
+    );
+
+    if (!id) {
+      setCheckState({ userId: id, status: "error" });
+      return null;
+    }
+
+    try {
+      const linked = await requireXIdentity(id);
+      assertCurrent(id);
+
+      const recovery = await hasXRecovery(id);
+      assertCurrent(id);
+
+      const status = await readXVerification(id);
+      assertCurrent(id);
+
+      if (check !== version.current) {
+        throw new Error("X verification check superseded.");
+      }
+
+      if (
+        status.status === "invalid_session" ||
+        status.status === "unavailable"
+      ) {
+        throw new Error(t("identity.x.failed"));
+      }
+
+      const result = {
+        linked,
+        reconnect: recovery || status.pending,
+        verified: linked && !recovery && status.verified,
+        serverStatus: status.status,
+      };
+
+      setState({
+        userId: id,
+        verified: result.verified,
+        reconnect: result.reconnect,
+      });
+      setCheckState({ userId: id, status: "ready" });
+
+      return result;
+    } catch (error) {
+      if (check === version.current && current.current === id) {
+        setState(s => ({ ...s, userId: id, verified: false }));
+        setCheckState({ userId: id, status: "error" });
+      }
+      throw error;
+    }
   }, [userId, assertCurrent, t]);
   useEffect(() => {
-    setState({userId, verified: false, reconnect: false});
+    setState(previous =>
+      previous.userId === userId
+        ? previous
+        : { userId, verified: false, reconnect: false }
+    );
+    setCheckState({ userId, status: "checking" });
     setPhase("idle"); setError(null);
     const check = () => { void refresh().catch(() => { if (current.current === userId) setError(t("identity.x.failed")); }); };
     check(); window.addEventListener("focus", check);
@@ -72,12 +128,22 @@ export function useXVerification(_options: { initiallyVerified: boolean }) {
     } finally { lock.current = false; }
   }, [userId, assertCurrent, refresh, t]);
   const connectX = useCallback(async () => {
-    if (!userId || lock.current) return;
+    if (
+      !userId ||
+      lock.current ||
+      checkState.userId !== userId ||
+      checkState.status !== "ready" ||
+      (state.userId === userId && state.verified)
+    ) return;
     lock.current = true; setPhase("connecting"); setError(null);
     try {
       const status = await refresh();
       assertCurrent(userId);
       if (!status) throw new Error("Session unavailable");
+      if (status.verified) {
+        setPhase("idle");
+        return;
+      }
       // A rewarded record with rejected server proof needs controlled review,
       // not client unlink, OAuth relink, or another reward attempt.
       if (status.serverStatus === "rewarded" && !status.verified) {
@@ -110,7 +176,32 @@ export function useXVerification(_options: { initiallyVerified: boolean }) {
       await clearXLink();
       if (current.current === userId) { setPhase("error"); setError(t("identity.x.failed")); }
     } finally { lock.current = false; }
-  }, [userId, refresh, assertCurrent, verifyAndReward, t]);
+  }, [userId, refresh, assertCurrent, verifyAndReward, t, checkState, state]);
   const completed = state.userId === userId && state.verified;
-  return { phase, errorMessage, message: completed ? t("identity.x.done") : null, completed, reconnect: state.userId === userId && state.reconnect, busy: phase === "connecting" || phase === "verifying", connectX, verifyAndReward, refresh };
+  const checkStatus =
+    checkState.userId === userId ? checkState.status : "checking";
+  const busy =
+    checkStatus === "checking" ||
+    phase === "connecting" ||
+    phase === "verifying";
+  const canConnect =
+    Boolean(userId) &&
+    checkStatus === "ready" &&
+    !completed &&
+    !busy &&
+    !lock.current;
+
+  return {
+    phase,
+    errorMessage,
+    message: completed ? t("identity.x.done") : null,
+    completed,
+    reconnect: state.userId === userId && state.reconnect,
+    checkStatus,
+    canConnect,
+    busy,
+    connectX,
+    verifyAndReward,
+    refresh,
+  };
 }

@@ -202,7 +202,7 @@ export default function BuilderIdentity() {
     );
 
     if (provider === "x") {
-      if (xVerification.completed) {
+      if (!xVerification.canConnect) {
         return;
       }
 
@@ -317,6 +317,8 @@ export default function BuilderIdentity() {
                       ? t("identity.status.completed")
                       : xVerification.busy
                         ? t("identity.status.checking")
+                        : xVerification.checkStatus === "error"
+                        ? t("identity.x.failed")
                         : xVerification.reconnect
                           ? t("identity.x.relink")
                           : xVerification.phase === "error"
@@ -338,7 +340,7 @@ export default function BuilderIdentity() {
                 (task.provider === "telegram" &&
                   telegramVerification.busy) ||
                 (task.provider === "x" &&
-                  xVerification.busy) ||
+                  !xVerification.canConnect) ||
                 (task.provider === "instagram" &&
                   instagramVerification.busy)
               }
@@ -389,7 +391,8 @@ export default function BuilderIdentity() {
                   : task.provider === "x"
                     ? xVerification.completed
                       ? "success"
-                      : xVerification.phase === "error"
+                      : xVerification.checkStatus === "error" ||
+                      xVerification.phase === "error"
                         ? "error"
                         : xVerification.busy
                           ? "pending"
