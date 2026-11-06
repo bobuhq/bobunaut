@@ -20,6 +20,7 @@ import { Link } from "react-router-dom";
 
 import { useLanguage } from "../../core/language";
 import { supabase } from "../../lib/supabase";
+import { savePendingBuilderInviteCode } from "../../core/builder/services/BuilderInviteService";
 import "./BuilderAuthDialog.css";
 
 type AuthMode =
@@ -54,6 +55,7 @@ export default function BuilderAuthDialog({
   const [builderName, setBuilderName] =
     useState("");
 
+  const [referralCode, setReferralCode] = useState("");
   const [email, setEmail] = useState("");
 
   const [password, setPassword] =
@@ -168,7 +170,17 @@ export default function BuilderAuthDialog({
     return null;
   }
 
+  const prepareReferral = () => {
+    if (mode !== "sign-up" || !referralCode.trim()) return true;
+    if (!savePendingBuilderInviteCode(referralCode)) {
+      setErrorMessage(t("auth.dialog.referral.invalid"));
+      return false;
+    }
+    return true;
+  };
+
   const handleGoogleLogin = async () => {
+    if (!prepareReferral()) return;
     setBusy(true);
     setErrorMessage(null);
     setMessage(null);
@@ -247,6 +259,8 @@ export default function BuilderAuthDialog({
       );
       return;
     }
+
+    if (!prepareReferral()) return;
 
     setBusy(true);
     setMessage(null);
@@ -472,6 +486,24 @@ export default function BuilderAuthDialog({
                       )}
                 </small>
               )}
+            </label>
+          )}
+
+          {mode === "sign-up" && (
+            <label>
+              <span>{t("auth.dialog.referral.label")}</span>
+              <div className="builder-auth-input">
+                <UserRound size={17} />
+                <input
+                  type="text"
+                  value={referralCode}
+                  placeholder="BOBU-ABC123"
+                  maxLength={11}
+                  onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
+                  disabled={busy}
+                />
+              </div>
+              <small>{t("auth.dialog.referral.help")}</small>
             </label>
           )}
 
