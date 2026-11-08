@@ -1,7 +1,6 @@
 import { AresBobuOperatorWorkstations } from "./AresBobuOperatorWorkstations";
 import { AresBobuOperationsScreens } from "./AresBobuOperationsScreens";
 import { AresCommandHubV31Facility } from "./AresCommandHubV31Facility";
-import { AresNASAHabitatPreview } from "./AresNASAHabitatPreview";
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
@@ -165,7 +164,7 @@ function Annex({ side }: { side: -1 | 1 }) {
 export function AresCommandCenterV2Exterior() {
   return (
     <group>
-      <AresNASAHabitatPreview />
+      {/* NASA preview GLBs temporarily disabled: CSP blocks Draco/blob textures in production. */}
       <AresCommandHubV31Facility />
       <Annex side={-1} />
       <Annex side={1} />
