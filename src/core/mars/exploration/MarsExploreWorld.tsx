@@ -1554,6 +1554,59 @@ export function MarsExploreWorld() {
       />
 
       <style>{`
+        @media (pointer: coarse) and (orientation: portrait) {
+          .mars-explore-world .mars-explore-return-button {
+            top: max(68px, calc(env(safe-area-inset-top) + 50px)) !important;
+            left: max(12px, env(safe-area-inset-left)) !important;
+            min-height: 48px !important;
+            padding: 0 16px !important;
+            font-size: 12px !important;
+            border: 2px solid #63f5ff !important;
+            background: rgba(5, 37, 53, 0.98) !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 18px rgba(99, 245, 255, 0.5) !important;
+          }
+        }
+
+        /* BOBU ORBIT BUTTON V2 */
+        .mars-explore-world .mars-explore-return-button {
+          position: absolute;
+          top: 46px;
+          left: 18px;
+          z-index: 65;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          min-height: 38px;
+          padding: 0 15px;
+          border: 1px solid rgba(76, 233, 245, 0.85);
+          border-radius: 12px;
+          background: linear-gradient(
+            135deg,
+            rgba(10, 43, 59, 0.97),
+            rgba(31, 22, 64, 0.97)
+          );
+          color: #c8fbff;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+          font-size: 12px;
+          font-weight: 800;
+          letter-spacing: 0.07em;
+          text-decoration: none;
+          white-space: nowrap;
+          cursor: pointer;
+          pointer-events: auto;
+        }
+
+        .mars-explore-world .mars-explore-return-button:hover,
+        .mars-explore-world .mars-explore-return-button:focus-visible {
+          border-color: #ffffff;
+          color: #ffffff;
+          background: #174a65;
+          outline: 2px solid #63f5ff;
+          outline-offset: 2px;
+        }
+
         .ares-mobile-actions {
           display: none;
         }
@@ -1779,11 +1832,17 @@ export function MarsExploreWorld() {
           }
 
           .mars-explore-return-button {
-            top: max(7px, env(safe-area-inset-top)) !important;
-            left: max(9px, calc(env(safe-area-inset-left) + 5px)) !important;
-            min-height: 30px !important;
-            padding: 0 9px !important;
-            font-size: 8px !important;
+            top: max(52px, calc(env(safe-area-inset-top) + 44px)) !important;
+            left: max(12px, calc(env(safe-area-inset-left) + 8px)) !important;
+            min-height: 48px !important;
+            padding: 0 16px !important;
+            font-size: 12px !important;
+            font-weight: 900 !important;
+            letter-spacing: 0.05em !important;
+            background: rgba(5, 37, 53, 0.98) !important;
+            border: 2px solid #63f5ff !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 18px rgba(99, 245, 255, 0.5) !important;
           }
 
           .ares-mobile-actions {
