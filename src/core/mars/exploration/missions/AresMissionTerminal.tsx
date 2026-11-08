@@ -476,7 +476,11 @@ export function AresMissionTerminal({
                     "#c79af1",
                 }}
               >
-                REWARD {mission.rewardGp} GP
+                {mission.status === "claimed"
+                  ? "MISSION COMPLETED · REWARD CLAIMED"
+                  : mission.status === "completed"
+                    ? "MISSION COMPLETED"
+                    : `REWARD ${mission.rewardGp} GP`}
               </div>
             </>
           )}
