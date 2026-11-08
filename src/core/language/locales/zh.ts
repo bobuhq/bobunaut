@@ -1180,6 +1180,7 @@ export const zh: TranslationDictionary = {
   "mars.ares.accessProtocol": "ARES 访问协议",
   "mars.ares.telegramVerification": "TELEGRAM 验证",
   "mars.ares.xVerification": "X 验证",
+  "mars.ares.instagramVerification": "INSTAGRAM 验证",
   "mars.ares.verified": "已验证",
   "mars.ares.locked": "已锁定",
   "mars.ares.miningDays": "挖矿天数",

@@ -1182,6 +1182,7 @@ export const ja: TranslationDictionary = {
   "mars.ares.accessProtocol": "ARESアクセスプロトコル",
   "mars.ares.telegramVerification": "TELEGRAM認証",
   "mars.ares.xVerification": "X認証",
+  "mars.ares.instagramVerification": "INSTAGRAM認証",
   "mars.ares.verified": "認証済み",
   "mars.ares.locked": "ロック中",
   "mars.ares.miningDays": "マイニング日数",

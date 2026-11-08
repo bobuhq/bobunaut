@@ -1173,6 +1173,7 @@ export const pt: TranslationDictionary = {
   "mars.ares.accessProtocol": "PROTOCOLO DE ACESSO ARES",
   "mars.ares.telegramVerification": "VERIFICAÇÃO DO TELEGRAM",
   "mars.ares.xVerification": "VERIFICAÇÃO DO X",
+  "mars.ares.instagramVerification": "VERIFICAÇÃO DO INSTAGRAM",
   "mars.ares.verified": "VERIFICADO",
   "mars.ares.locked": "BLOQUEADO",
   "mars.ares.miningDays": "DIAS DE MINERAÇÃO",

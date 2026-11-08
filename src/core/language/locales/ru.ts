@@ -1172,6 +1172,7 @@ export const ru: TranslationDictionary = {
   "mars.ares.accessProtocol": "ПРОТОКОЛ ДОСТУПА ARES",
   "mars.ares.telegramVerification": "ПРОВЕРКА TELEGRAM",
   "mars.ares.xVerification": "ПРОВЕРКА X",
+  "mars.ares.instagramVerification": "ПРОВЕРКА INSTAGRAM",
   "mars.ares.verified": "ПОДТВЕРЖДЕНО",
   "mars.ares.locked": "ЗАБЛОКИРОВАНО",
   "mars.ares.miningDays": "ДНИ МАЙНИНГА",

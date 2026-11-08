@@ -130,6 +130,7 @@ type MarsPlanetMapProps = {
   aresAccess: {
     telegram_verified: boolean;
     x_verified: boolean;
+    instagram_verified: boolean;
     mining_days: number;
     required_mining_days: number;
     unlocked: boolean;
@@ -4885,6 +4886,21 @@ export function MarsPlanetMap({
                   <span>{t("mars.ares.xVerification")}</span>
                   <strong>
                     {aresAccess?.x_verified
+                      ? t("mars.ares.verifiedCheck")
+                      : t("mars.ares.locked")}
+                  </strong>
+                </div>
+
+                <div
+                  className={
+                    aresAccess?.instagram_verified
+                      ? "is-complete"
+                      : "is-pending"
+                  }
+                >
+                  <span>{t("mars.ares.instagramVerification")}</span>
+                  <strong>
+                    {aresAccess?.instagram_verified
                       ? t("mars.ares.verifiedCheck")
                       : t("mars.ares.locked")}
                   </strong>

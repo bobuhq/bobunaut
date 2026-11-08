@@ -1173,6 +1173,7 @@ export const fi: TranslationDictionary = {
   "mars.ares.accessProtocol": "ARES-PÄÄSYPROTOKOLLA",
   "mars.ares.telegramVerification": "TELEGRAM-VAHVISTUS",
   "mars.ares.xVerification": "X-VAHVISTUS",
+  "mars.ares.instagramVerification": "INSTAGRAM-VAHVISTUS",
   "mars.ares.verified": "VAHVISTETTU",
   "mars.ares.locked": "LUKITTU",
   "mars.ares.miningDays": "LOUHINTAPÄIVÄT",

@@ -122,6 +122,7 @@ export function BuildMars() {
         );
 
         if (!cancelled) {
+          setMarsAccess(null);
           setAccessError(
             t("mars.error.accessUnavailable"),
           );
@@ -134,9 +135,11 @@ export function BuildMars() {
     };
 
     void loadAccess();
+    window.addEventListener("focus", loadAccess);
 
     return () => {
       cancelled = true;
+      window.removeEventListener("focus", loadAccess);
     };
   }, [authLoading, authenticated]);
 

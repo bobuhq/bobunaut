@@ -1172,6 +1172,7 @@ export const ko: TranslationDictionary = {
   "mars.ares.accessProtocol": "ARES 접근 프로토콜",
   "mars.ares.telegramVerification": "TELEGRAM 인증",
   "mars.ares.xVerification": "X 인증",
+  "mars.ares.instagramVerification": "INSTAGRAM 인증",
   "mars.ares.verified": "인증됨",
   "mars.ares.locked": "잠김",
   "mars.ares.miningDays": "마이닝 일수",
