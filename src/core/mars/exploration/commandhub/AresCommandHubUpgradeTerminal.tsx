@@ -105,7 +105,7 @@ export function AresCommandHubUpgradeTerminal({
           worldPosition.x -
           (
             ARES_COMMAND_HUB_POSITION.x +
-            2.65
+            6.0
           );
         const dz =
           worldPosition.z -
@@ -191,7 +191,7 @@ export function AresCommandHubUpgradeTerminal({
   return (
     <group
       position={[
-        2.65,
+        6.0,
         0,
         1.55,
       ]}

@@ -13,6 +13,7 @@ import {
 } from "@react-three/fiber";
 
 import * as THREE from "three";
+import { AresLiveTerminalVisual, AresEBeacon } from "../commandhub/AresLiveTerminalVisual";
 
 import { useLanguage } from "../../../language";
 
@@ -287,6 +288,13 @@ export function AresMissionTerminal({
           toneMapped={false}
         />
       </mesh>
+      <group position={[0, 1.08, 0.61]} rotation={[-0.06, 0, 0]}>
+        <AresLiveTerminalVisual kind="mission" />
+      </group>
+      <AresEBeacon
+        active={isNear && !busy}
+        label="ACCESS MISSION"
+      />
 
       <mesh
         position={[

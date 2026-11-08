@@ -13,6 +13,7 @@ import {
 } from "react";
 
 import * as THREE from "three";
+import { AresLiveTerminalVisual, AresEBeacon } from "../commandhub/AresLiveTerminalVisual";
 
 import { useLanguage } from "../../../language";
 
@@ -325,11 +326,13 @@ export function AresResearchTerminal({
 
   return (
     <group
+      // BOBU_RESEARCH_ENTRY_CLEARANCE_V41: clear central entry route.
       position={[
-        -2.65,
+        -3.45,
         0,
         1.55,
       ]}
+      scale={[0.85, 0.85, 0.85]}
       rotation={[
         0,
         0,
@@ -450,6 +453,13 @@ export function AresResearchTerminal({
           toneMapped={false}
         />
       </mesh>
+      <group position={[0, 1.64, -0.22]} rotation={[-0.16, 0, 0]}>
+        <AresLiveTerminalVisual kind="research" />
+      </group>
+      <AresEBeacon
+        active={mobileInteractionAvailable}
+        label="OPEN ARCHIVE"
+      />
 
       <mesh
         position={[
