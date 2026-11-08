@@ -128,17 +128,32 @@ export const builderWalletService = {
 
     const ledger = (ledgerRows ?? []).map(mapLedgerEntry);
 
-    const lifetimeEarnedGp = ledger.reduce(
-      (total, entry) =>
-        entry.type === "credit" ? total + entry.amount : total,
-      0,
-    );
+    const { data: statsData, error: statsError } =
+      await supabase.rpc("get_my_wallet_ledger_stats");
 
-    const lifetimeSpentGp = ledger.reduce(
-      (total, entry) =>
-        entry.type === "debit" ? total + entry.amount : total,
-      0,
-    );
+    if (statsError) throw statsError;
+
+    type WalletStatsRow = {
+      builder_id: string;
+      lifetime_earned_gp: number | string | null;
+      lifetime_spent_gp: number | string | null;
+      transaction_count: number | string | null;
+    };
+
+    const stats = (
+      Array.isArray(statsData) ? statsData[0] : statsData
+    ) as WalletStatsRow | null | undefined;
+
+    if (
+      !stats ||
+      stats.builder_id.toLowerCase() !==
+        normalizedBuilderId.toLowerCase()
+    ) {
+      throw new Error("Wallet statistics unavailable for this Builder.");
+    }
+
+    const lifetimeEarnedGp = toNumber(stats.lifetime_earned_gp);
+    const lifetimeSpentGp = toNumber(stats.lifetime_spent_gp);
 
     const personalGp =
       toNumber(profile?.personal_gp);
@@ -168,7 +183,7 @@ export const builderWalletService = {
 
       lifetimeEarnedGp,
       lifetimeSpentGp,
-      transactionCount: ledger.length,
+      transactionCount: toNumber(stats.transaction_count),
       lastTransactionAt: ledger[0]?.createdAt ?? null,
       walletAddress: null,
       activated: Boolean(profile),
