@@ -3,6 +3,8 @@ import {
 } from "@react-three/drei";
 
 import * as THREE from "three";
+import { useFrame } from "@react-three/fiber";
+import { useRef } from "react";
 
 type Piece = {
   path: string;
@@ -101,6 +103,21 @@ function ReactorCrystal({
 
 
 function BobuCrystalReactor() {
+  const haloRef = useRef<THREE.Group>(null);
+  const crystalRef = useRef<THREE.Group>(null);
+
+  useFrame(({ clock }, delta) => {
+    // Visual-only animation. No network calls or gameplay effects.
+    if (haloRef.current) {
+      haloRef.current.rotation.y += Math.min(delta, 0.05) * 0.22;
+    }
+    if (crystalRef.current) {
+      crystalRef.current.position.y =
+        1.2 + Math.sin(clock.elapsedTime * 1.35) * 0.055;
+      crystalRef.current.rotation.y += Math.min(delta, 0.05) * 0.12;
+    }
+  });
+
   return (
     <group>
       <mesh
@@ -152,7 +169,31 @@ function BobuCrystalReactor() {
         />
       </mesh>
 
+      <group ref={haloRef} position={[0, 0.72, 0]}>
+        <mesh rotation={[Math.PI / 2.6, 0, 0]}>
+          <torusGeometry args={[0.96, 0.022, 6, 40]} />
+          <meshStandardMaterial
+            color="#c67bff"
+            emissive="#8424d0"
+            emissiveIntensity={1.45}
+            metalness={0.45}
+            roughness={0.25}
+          />
+        </mesh>
+        <mesh rotation={[-Math.PI / 2.6, Math.PI / 3, 0]}>
+          <torusGeometry args={[0.92, 0.018, 6, 40]} />
+          <meshStandardMaterial
+            color="#a864f1"
+            emissive="#6e20b6"
+            emissiveIntensity={1.2}
+            metalness={0.4}
+            roughness={0.28}
+          />
+        </mesh>
+      </group>
+
       <group
+        ref={crystalRef}
         position={[0, 1.2, 0]}
         scale={[0.82, 1.65, 0.82]}
       >
