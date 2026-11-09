@@ -347,8 +347,9 @@ export function AresMissionTerminal({
         MISSION TERMINAL
       </Html>
 
-      {isNear && (
+              {/* BOBU_STABLE_HTML_ISNEAR_V1 */}
         <Html
+          style={{ display: isNear ? "block" : "none" }}
           center
           position={[
             0,
@@ -494,7 +495,6 @@ export function AresMissionTerminal({
           )}
         </div>
         </Html>
-      )}
     </group>
   );
 }

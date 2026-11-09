@@ -616,8 +616,7 @@ export function AresResearchTerminal({
         RESEARCH TERMINAL
       </Html>
 
-      {isNear && (
-        <Html
+      <Html
           center
           position={[
             0,
@@ -625,6 +624,7 @@ export function AresResearchTerminal({
             0.2,
           ]}
           distanceFactor={6}
+          style={{ display: isNear ? "block" : "none" }}
         >
           <div
             className="ares-terminal-panel ares-terminal-panel--research"
@@ -757,7 +757,6 @@ export function AresResearchTerminal({
           )}
         </div>
         </Html>
-      )}
 
     </group>
   );

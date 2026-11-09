@@ -236,12 +236,12 @@ function OuterFoundation() {
 export function AresCommandHubV4Architecture() {
   return (
     <group>
-      <OuterFoundation />
+      {/* LOCAL ISOLATION: OuterFoundation temporarily hidden to test body clipping. */}
       <CommandWing side={-1} />
       <CommandWing side={1} />
       <RadarTower side={-1} />
       <RadarTower side={1} />
-      <GroundApproach />
+      {/* LOCAL TEST: GroundApproach hidden to isolate entrance clipping. */}
       {/* The original dome, flag, sensor doors and interactive interiors remain. */}
     </group>
   );

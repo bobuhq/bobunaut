@@ -227,8 +227,9 @@ export function AresCommandHubUpgradeTerminal({
         />
       </mesh>
 
-      {nearby && (
+              {/* BOBU_STABLE_HTML_NEARBY_V1 */}
         <Html
+          style={{ display: nearby ? "block" : "none" }}
           center
           position={[
             0,
@@ -407,7 +408,6 @@ export function AresCommandHubUpgradeTerminal({
           </div>
         </div>
         </Html>
-      )}
     </group>
   );
 }
