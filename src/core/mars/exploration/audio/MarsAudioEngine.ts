@@ -4,8 +4,34 @@ class MarsAudioEngine {
   private enabled = true;
   private lastStepAt = 0;
   private stepSide = false;
+  private contextProvider: (() => AudioContext | null) | null = null;
+  private activeSources = new Map<OscillatorNode, GainNode>();
+
+  private trackSource(source: OscillatorNode, gain: GainNode) {
+    this.activeSources.set(source, gain);
+    source.onended = () => {
+      source.disconnect(); gain.disconnect(); this.activeSources.delete(source);
+    };
+  }
+
+  setContextProvider(provider: () => AudioContext | null) {
+    void this.stop();
+    this.contextProvider = provider;
+  }
 
   private ensureContext(): AudioContext | null {
+    if (this.contextProvider) {
+      const shared = this.contextProvider();
+      if (!shared || shared.state !== "running") return null;
+      if (this.context !== shared) {
+        this.master?.disconnect();
+        this.context = shared;
+        this.master = shared.createGain();
+        this.master.gain.value = this.enabled ? 0.8 : 0;
+        this.master.connect(shared.destination);
+      }
+      return shared;
+    }
     if (this.context) {
       return this.context;
     }
@@ -35,34 +61,49 @@ class MarsAudioEngine {
   }
 
   async unlock(): Promise<void> {
-    const context = this.ensureContext();
+    // Muted controls must not create/resume contexts; WebViews can also reject
+    // resume despite a gesture. Keep those failures out of movement handlers.
+    if (!this.enabled) return;
+    try {
+      const context = this.ensureContext();
 
-    if (!context) {
-      return;
-    }
+      if (!context) {
+        return;
+      }
 
-    if (context.state === "suspended") {
-      await context.resume();
-    }
+      if (context.state === "suspended") {
+        await context.resume();
+      }
+    } catch { /* Autoplay unavailable: keep movement silent. */ }
   }
 
-  async stop(): Promise<void> {
+  async stop(fade = false): Promise<void> {
     const context = this.context;
-
+    const master = this.master;
+    const sources = new Map(this.activeSources);
+    this.activeSources.clear();
     this.context = null;
     this.master = null;
     this.lastStepAt = 0;
-
-    if (
-      context &&
-      context.state !== "closed"
-    ) {
-      try {
-        await context.close();
-      } catch {
-        return;
+    const ownsContext = !this.contextProvider;
+    const release = async () => {
+      for (const [source, gain] of sources) {
+        source.onended = null;
+        try { source.stop(); } catch { /* Already ended. */ }
+        source.disconnect(); gain.disconnect();
       }
+      master?.disconnect();
+      if (context && ownsContext && context.state !== "closed") {
+        try { await context.close(); } catch { /* Browser already released it. */ }
+      }
+    };
+    if (fade && master && context?.state === "running") {
+      master.gain.cancelScheduledValues(context.currentTime);
+      master.gain.setValueAtTime(master.gain.value, context.currentTime);
+      master.gain.linearRampToValueAtTime(0, context.currentTime + 0.05);
+      await new Promise<void>(resolve => setTimeout(resolve, 60));
     }
+    await release();
   }
 
   setEnabled(enabled: boolean): void {
@@ -169,6 +210,8 @@ class MarsAudioEngine {
 
     sole.start(now);
     sole.stop(now + 0.065);
+    this.trackSource(impact, impactGain);
+    this.trackSource(sole, soleGain);
   }
 
   jump(): void {
@@ -247,6 +290,8 @@ class MarsAudioEngine {
 
     impulse.start(now);
     impulse.stop(now + 0.08);
+    this.trackSource(lift, liftGain);
+    this.trackSource(impulse, impulseGain);
   }
 }
 

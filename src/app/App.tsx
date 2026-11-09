@@ -10,6 +10,7 @@ import {
 } from "react-router-dom";
 
 import { Shell } from "./Shell";
+import { useAresArrivalRoute } from "../core/mars/exploration/audio/useAresArrivalSound";
 import { useLanguage } from "../core/language";
 import { LanguageSetupGuard } from "../core/preferences";
 import { AdminRoute } from "../core/admin/AdminRoute";
@@ -147,6 +148,7 @@ import { BuilderInviteEntry } from "../features/invite/BuilderInviteEntry";
 
 export function App() {
   const location = useLocation();
+  useAresArrivalRoute(location.pathname);
   const { t } = useLanguage();
 
   return (

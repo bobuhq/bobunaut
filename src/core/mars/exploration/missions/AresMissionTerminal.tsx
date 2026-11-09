@@ -3,6 +3,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { aresArrivalSound } from "../audio/AresArrivalSound";
 
 import {
   Html,
@@ -161,6 +162,7 @@ export function AresMissionTerminal({
 
       busyRef.current =
         true;
+      aresArrivalSound.terminal("mission");
 
       setBusy(true);
       setError(null);

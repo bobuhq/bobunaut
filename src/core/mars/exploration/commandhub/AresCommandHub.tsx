@@ -1,4 +1,5 @@
 import { AresCommandHubV4Architecture } from "./AresCommandHubV4Architecture";
+import { aresArrivalSound } from "../audio/AresArrivalSound";
 import { AresCommandHubV37RadarCrown } from "./AresCommandHubV37RadarCrown";
 import {
   useEffect,
@@ -169,7 +170,9 @@ function MarsModule({
   );
 }
 
-function BobuEnergyCore() {
+function BobuEnergyCore({ targetRef }: Pick<Props, "targetRef">) {
+  const audioPositions = useMemo(() => ({ player: new THREE.Vector3(), reactor: new THREE.Vector3() }), []);
+  const lastAudioSample = useRef(-1);
   const coreRef =
     useRef<THREE.Group | null>(
       null,
@@ -191,6 +194,12 @@ function BobuEnergyCore() {
     }) => {
       const t =
         clock.elapsedTime;
+      if (t - lastAudioSample.current > 0.12 && coreRef.current && targetRef.current) {
+        lastAudioSample.current = t;
+        coreRef.current.getWorldPosition(audioPositions.reactor);
+        targetRef.current.getWorldPosition(audioPositions.player);
+        aresArrivalSound.setCrystalDistance(audioPositions.player.distanceTo(audioPositions.reactor));
+      }
 
       if (
         coreRef.current
@@ -473,7 +482,7 @@ function CommandInterior({
         />
       </mesh>
 
-      <BobuEnergyCore />
+      <BobuEnergyCore targetRef={targetRef} />
 
       <AresMissionTerminal
         targetRef={targetRef}
@@ -1990,6 +1999,8 @@ export function AresCommandHub({
         ARES_COMMAND_HUB_DEPTH /
           2 -
           0.35;
+
+    aresArrivalSound.setInterior(isInside);
 
     if (
       isInside ===

@@ -7,6 +7,7 @@ import {
   type MutableRefObject,
 } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAresArrivalSurface, useAresSoundControl } from "./audio/useAresArrivalSound";
 
 
 import {
@@ -220,6 +221,7 @@ function MarsExploreScene({
   onPlacementApproachStatusChange,
   colonyBuildingsRefreshKey,
 }: MarsExploreSceneProps) {
+  useAresArrivalSurface();
   const bobuRef =
     useRef<THREE.Group | null>(
       null,
@@ -732,10 +734,7 @@ export function MarsExploreWorld() {
     setOnboardingVisible,
   ] = useState(true);
 
-  const [
-    soundEnabled,
-    setSoundEnabled,
-  ] = useState(true);
+  const { soundEnabled, toggleSound } = useAresSoundControl();
 
   const [
     marketOpen,
@@ -1008,28 +1007,6 @@ export function MarsExploreWorld() {
 
       cancelPlacement();
     }, [cancelPlacement]);
-
-  const toggleSound =
-    useCallback(() => {
-      setSoundEnabled(
-        (
-          current,
-        ) => {
-          const next =
-            !current;
-
-          marsAudio.setEnabled(
-            next,
-          );
-
-          if (next) {
-            void marsAudio.unlock();
-          }
-
-          return next;
-        },
-      );
-    }, []);
 
   const [
     colonyResources,
@@ -2259,6 +2236,8 @@ export function MarsExploreWorld() {
       <button
         type="button"
         className="ares-hud-sound"
+        data-ares-sound-control
+        aria-pressed={soundEnabled}
         onClick={toggleSound}
         aria-label={
           soundEnabled

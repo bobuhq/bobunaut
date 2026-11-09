@@ -4,6 +4,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { aresArrivalSound } from "../audio/AresArrivalSound";
 
 import type {
   AresHiddenMission,
@@ -71,6 +72,7 @@ export function useAresResearchTerminal(
           !missionClaimed
         ) {
           setResearch(null);
+          aresArrivalSound.terminal("research");
           setProgress(0);
           setState(
             "unavailable",
