@@ -2,13 +2,13 @@ import { StrictMode, useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { MemoryRouter, useLocation, useNavigate } from "react-router-dom";
 import { useAresArrivalRoute, useAresArrivalSurface, useAresSoundControl } from "../../src/core/mars/exploration/audio/useAresArrivalSound";
-import { synthesizeAresArrival } from "../../src/core/mars/exploration/audio/AresArrivalSynth";
+import { AresOfficialAudio } from "../../src/core/mars/exploration/audio/AresOfficialAudio";
 import { marsAudio } from "../../src/core/mars/exploration/audio/MarsAudioEngine";
 import { aresArrivalSound } from "../../src/core/mars/exploration/audio/AresArrivalSound";
 import { AresSoundscape } from "../../src/core/mars/exploration/audio/AresSoundscape";
 
-// Expose only in the test fixture for OfflineAudioContext waveform inspection.
-Object.assign(window, { synthesizeAresArrival, AresSoundscape });
+// Expose only in the isolated audio fixture; no production console is invented.
+Object.assign(window, { AresOfficialAudio, AresSoundscape });
 function Surface() {
   useAresArrivalSurface();
   return <div id="surface">Ares surface mounted</div>;
@@ -35,6 +35,8 @@ function Fixture() {
     <button id="far" onClick={() => aresArrivalSound.setCrystalDistance(12)}>Far reactor</button>
     <button id="mission" onClick={() => aresArrivalSound.terminal("mission")}>Mission accepted interaction</button>
     <button id="research" onClick={() => aresArrivalSound.terminal("research")}>Research accepted interaction</button>
+    <button id="upgrade" onClick={() => aresArrivalSound.terminal("upgrade")}>Upgrade accepted interaction</button>
+    <button id="command" onClick={() => aresArrivalSound.terminal("command")}>Command API test only (no production event)</button>
     <button id="step" onClick={() => { void marsAudio.unlock().then(() => marsAudio.step()); }}>Move</button>
     {location.pathname === "/mars/explore" && <Surface key={key} />}
   </>;

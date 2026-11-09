@@ -1,4 +1,4 @@
-import { ARES_ARRIVAL_DURATION, synthesizeAresArrival } from "./AresArrivalSynth";
+import { AresOfficialAudio, type AresConsoleKind } from "./AresOfficialAudio";
 import { AresSoundscape } from "./AresSoundscape";
 import { marsAudio } from "./MarsAudioEngine";
 
@@ -9,13 +9,14 @@ export class AresArrivalSound {
   private entry: { consumed: boolean } | null = null;
   private leases = new Set<symbol>();
   private context: AudioContext | null = null;
-  private voice: ReturnType<typeof synthesizeAresArrival> | null = null;
+  private voice: ReturnType<AresOfficialAudio["playArrival"]> = null;
+  private recordings: AresOfficialAudio | null = null;
+  private loadingArrival = false;
   private soundscape: AresSoundscape | null = null;
   private inside = false;
   private resonance = 0;
   private retire: (() => void) | null = null;
   private startup: ReturnType<typeof setTimeout> | undefined;
-  private finish: ReturnType<typeof setTimeout> | undefined;
   private enabled: boolean | undefined;
   private subscribers = new Set<() => void>();
 
@@ -115,7 +116,7 @@ export class AresArrivalSound {
 
   private attempt(fromGesture: boolean) {
     const entry = this.entry;
-    if (!entry || !this.leases.size || !this.getEnabled() || this.voice || this.soundscape) return;
+    if (!entry || !this.leases.size || !this.getEnabled() || this.voice || this.soundscape || this.loadingArrival) return;
     if (document.visibilityState === "hidden") { this.skip(); return; }
     try {
       if (!this.context) {
@@ -124,26 +125,37 @@ export class AresArrivalSound {
           (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
         if (!Constructor) { this.skip(); return; }
         this.context = new Constructor();
+        this.recordings = new AresOfficialAudio(this.context);
+        this.recordings.preload();
       }
       const context = this.context;
       context.onstatechange = () => {
         // An OS audio interruption must not leave a half-played cue queued to
         // continue much later, even if the WebView remains visibly foregrounded.
-        if (this.context === context && (this.voice || this.soundscape) && context.state !== "running") this.cancel(false, true);
+        if (this.context === context && (this.voice || this.soundscape || this.loadingArrival) && context.state !== "running") this.cancel(false, true);
       };
       const play = () => {
         // A late resume must not play after a mute, unmount, or navigation.
-        if (this.context !== context || this.entry !== entry || this.voice || this.soundscape ||
+        if (this.context !== context || this.entry !== entry || this.voice || this.soundscape || this.loadingArrival ||
           !this.leases.size || !this.getEnabled() || context.state !== "running") return;
         if (document.visibilityState === "hidden") { this.skip(); return; }
         try {
           if (!entry.consumed) {
             entry.consumed = true;
-            this.voice = synthesizeAresArrival(context);
-            this.finish = setTimeout(() => {
-              this.voice?.dispose(); this.voice = null; this.finish = undefined;
-              if (this.context === context && this.entry === entry) this.startSoundscape(context);
-            }, (ARES_ARRIVAL_DURATION + 0.08) * 1000);
+            this.loadingArrival = true;
+            const recordings = this.recordings;
+            void recordings?.load("arrival").then(buffer => {
+              if (this.context !== context || this.entry !== entry || this.recordings !== recordings) return;
+              this.loadingArrival = false;
+              if (!this.getEnabled() || !this.leases.size || document.visibilityState === "hidden" || context.state !== "running") return;
+              try {
+                if (!buffer) { this.startSoundscape(context); return; }
+                this.voice = recordings.playArrival(buffer, () => {
+                  this.voice = null;
+                  if (this.context === context && this.entry === entry) this.startSoundscape(context);
+                });
+              } catch { this.cancel(false); }
+            });
           } else this.startSoundscape(context);
         } catch { this.cancel(false); }
       };
@@ -183,34 +195,37 @@ export class AresArrivalSound {
     catch { this.cancel(false); } // Audio failure must never escape into useFrame.
   }
 
-  terminal(kind: "mission" | "research") {
+  terminal(kind: AresConsoleKind) {
     try {
-      if (this.getEnabled() && document.visibilityState !== "hidden") this.soundscape?.terminal(kind);
+      if (this.getEnabled() && document.visibilityState !== "hidden") this.recordings?.terminal(kind);
     } catch { this.cancel(false); }
   }
 
   private cancel(fade = true, keepVisibility = false) {
     clearTimeout(this.startup);
-    clearTimeout(this.finish);
-    this.startup = this.finish = undefined;
+    this.startup = undefined;
     this.unlisten();
     // Retain only visibility/gesture observation while hidden or OS-interrupted.
     if (keepVisibility && this.entry && this.leases.size) this.listen();
     const context = this.context;
     const voice = this.voice;
+    const recordings = this.recordings;
     const soundscape = this.soundscape;
     if (context) context.onstatechange = null;
     this.context = null;
     this.voice = null;
+    this.recordings = null;
+    this.loadingArrival = false;
     this.soundscape = null;
     void marsAudio.stop(fade);
     const release = () => {
+      try { recordings?.dispose(); } catch { /* Always release the shared context. */ }
       try { voice?.dispose(); } catch { /* Closing the context is the final fallback. */ }
       try { soundscape?.dispose(); } catch { /* Continue releasing the context. */ }
       if (context && context.state !== "closed") void context.close().catch(() => {});
     };
-    if (fade && (voice || soundscape) && context?.state === "running") {
-      voice?.fadeOut(); soundscape?.fadeOut();
+    if (fade && (voice || soundscape || recordings) && context?.state === "running") {
+      recordings?.fadeOut(); soundscape?.fadeOut();
       const timer = setTimeout(() => { this.retire = null; release(); }, soundscape ? 195 : 65);
       this.retire = () => { clearTimeout(timer); this.retire = null; release(); };
     } else release();

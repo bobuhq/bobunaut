@@ -8,8 +8,6 @@ export class AresSoundscape {
   private sources = new Set<AudioScheduledSourceNode>();
   private sparseTimer: ReturnType<typeof setTimeout> | undefined;
   private disposed = false;
-  private lastCue = -Infinity;
-  private variation = 0;
   private mixTargets = new Map<AudioParam, number>();
 
   constructor(private context: AudioContext) {
@@ -116,15 +114,6 @@ export class AresSoundscape {
       parameter.cancelScheduledValues(now);
       parameter.setTargetAtTime(value, now, 0.65);
     }
-  }
-  terminal(kind: "mission" | "research") {
-    const now = this.context.currentTime;
-    if (this.disposed || now - this.lastCue < 1.2) return;
-    this.lastCue = now;
-    const cents = [-3, 1, 3, -1][this.variation++ % 4];
-    const hz = (kind === "mission" ? 659.25 : 783.99) * 2 ** (cents / 1200);
-    this.note(hz, 0.025, 0.65, this.root);
-    this.note(hz * 1.501, 0.007, 0.85, this.root);
   }
   fadeOut() {
     clearTimeout(this.sparseTimer);

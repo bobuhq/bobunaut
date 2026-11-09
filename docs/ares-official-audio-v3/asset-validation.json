@@ -1,0 +1,112 @@
+{
+  "zipIntegrity": "PASS",
+  "zipSha256": "f14fa7e1e3183ccd489987fa3183672c12f20e1acd5feb751c2254f4fb8e8679",
+  "allIntegratedBytesEqualApprovedSource": true,
+  "recordings": [
+    {
+      "file": "BOBU_Ares_Futuristic_Crystal_Resonance_V3_6s.wav",
+      "ffprobe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "pcm_s16le",
+            "sample_fmt": "s16",
+            "sample_rate": "44100",
+            "channels": 2
+          }
+        ],
+        "format": {
+          "format_name": "wav",
+          "duration": "6.350000",
+          "size": "1120184"
+        }
+      },
+      "ffmpegFullDecode": "PASS"
+    },
+    {
+      "file": "BOBU_Command_Console.wav",
+      "ffprobe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "pcm_s16le",
+            "sample_fmt": "s16",
+            "sample_rate": "44100",
+            "channels": 2
+          }
+        ],
+        "format": {
+          "format_name": "wav",
+          "duration": "1.050000",
+          "size": "185264"
+        }
+      },
+      "ffmpegFullDecode": "PASS"
+    },
+    {
+      "file": "BOBU_Mission_Console.wav",
+      "ffprobe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "pcm_s16le",
+            "sample_fmt": "s16",
+            "sample_rate": "44100",
+            "channels": 2
+          }
+        ],
+        "format": {
+          "format_name": "wav",
+          "duration": "1.050000",
+          "size": "185264"
+        }
+      },
+      "ffmpegFullDecode": "PASS"
+    },
+    {
+      "file": "BOBU_Research_Console.wav",
+      "ffprobe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "pcm_s16le",
+            "sample_fmt": "s16",
+            "sample_rate": "44100",
+            "channels": 2
+          }
+        ],
+        "format": {
+          "format_name": "wav",
+          "duration": "1.050000",
+          "size": "185264"
+        }
+      },
+      "ffmpegFullDecode": "PASS"
+    },
+    {
+      "file": "BOBU_Upgrade_Console.wav",
+      "ffprobe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "pcm_s16le",
+            "sample_fmt": "s16",
+            "sample_rate": "44100",
+            "channels": 2
+          }
+        ],
+        "format": {
+          "format_name": "wav",
+          "duration": "1.100000",
+          "size": "194084"
+        }
+      },
+      "ffmpegFullDecode": "PASS"
+    }
+  ]
+}

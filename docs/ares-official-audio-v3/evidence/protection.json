@@ -1,0 +1,64 @@
+{
+  "baseline": "2ee4e7c6bf13a30dc7b02b5bba1f72de03db4477",
+  "audioAncestor": true,
+  "blackScreenAncestor": true,
+  "protectedFiles": [
+    {
+      "path": "src/core/mars/exploration/MarsExploreWorld.tsx",
+      "sha256": "858b2e5a28718980bc3227957ef5f3d72bfadd3834c52d39d549ec6424b88455",
+      "equalsBaseline": true
+    },
+    {
+      "path": "src/core/mars/exploration/commandhub/AresCommandHub.tsx",
+      "sha256": "878c02698cd352dc22df763c77aea358d4c86fdd34d426299e17944758976408",
+      "equalsBaseline": true
+    },
+    {
+      "path": "src/core/mars/exploration/commandhub/AresCommandHubCollision.ts",
+      "sha256": "b875ecb664b7fc0765fc38a4a0cc8ed17d555840ac692eee076e23b684fadc5a",
+      "equalsBaseline": true
+    },
+    {
+      "path": "src/core/mars/exploration/commandhub/AresCommandHubWalkableSurface.ts",
+      "sha256": "2d7d0eb2703e7e951bc3ab7419f523939eff02f0fb1a60620d855aca118018b7",
+      "equalsBaseline": true
+    },
+    {
+      "path": "src/core/mars/exploration/commandhub/AresCommandCenterV2Visuals.tsx",
+      "sha256": "952a718ce184123953a8205f398fc1c10d15cf7f8234bf9c9bc0f17ad1d8f837",
+      "equalsBaseline": true
+    },
+    {
+      "path": "src/core/mars/exploration/components/BobuCharacterController.tsx",
+      "sha256": "0c30fd78d5c0d2703fc287675b73b579f31ae6cd30505a739ff9066c8f0fccba",
+      "equalsBaseline": true
+    },
+    {
+      "path": "src/core/mars/exploration/components/MarsFollowCamera.tsx",
+      "sha256": "8aee18786174117a92845e17723e49b77a5b8f4592642772c08c3363bc20854c",
+      "equalsBaseline": true
+    },
+    {
+      "path": "src/core/mars/exploration/audio/MarsAudioEngine.ts",
+      "sha256": "77eab464c57b0c49e616045315d377d8b41fc174c280c0fba1a7ab0303d49aa8",
+      "equalsBaseline": true
+    },
+    {
+      "path": "src/core/mars/exploration/audio/useAresArrivalSound.ts",
+      "sha256": "bf38ab510b732325a061bc1aad7e5bfb346ebd1fb9a8d265a25b170f190c4f54",
+      "equalsBaseline": true
+    },
+    {
+      "path": "src/core/mars/exploration/missions/AresMissionTerminal.tsx",
+      "sha256": "30fefc6cf2f49e99c37ddff59c85081138a99b5465dc7d6b8e8079997f7008e4",
+      "equalsBaseline": true
+    },
+    {
+      "path": "src/core/mars/exploration/research/AresResearchTerminal.tsx",
+      "sha256": "a5d1a01314d5c05586b60009e192d4e0d05450a4f7589adbcaed303b3e3f6b25",
+      "equalsBaseline": true
+    }
+  ],
+  "ambientSourceIdenticalExceptRemovedGenericTerminalBeep": true,
+  "databaseOrDependencyChanges": false
+}

@@ -1,0 +1,94 @@
+
+> bobu-universe@0.2.1 build
+> tsc -b && vite build && node scripts/create-pages-routes.mjs
+
+vite v6.4.5 building for production...
+transforming...
+✓ 2966 modules transformed.
+Generated an empty chunk: "vendor-postprocessing".
+rendering chunks...
+computing gzip size...
+dist/index.html                                              1.39 kB │ gzip:   0.51 kB
+dist/assets/LegalPage-BY9_8B_5.css                           1.85 kB │ gzip:   0.70 kB
+dist/assets/Home-NKR2_6ff.css                                2.74 kB │ gzip:   0.98 kB
+dist/assets/LanguageSetup-CPgPS1Vr.css                       3.29 kB │ gzip:   1.24 kB
+dist/assets/BuilderIdentity-BUNBEQSc.css                     4.92 kB │ gzip:   1.47 kB
+dist/assets/BuilderAuthDialog-CID9O99u.css                   6.74 kB │ gzip:   2.05 kB
+dist/assets/MarsExploreWorld-5vUSR6-N.css                    9.53 kB │ gzip:   2.35 kB
+dist/assets/BuildMars-CP7WzyWs.css                          10.91 kB │ gzip:   2.16 kB
+dist/assets/MarsPixelAdvertiserCenter-DZuWLCbH.css          12.42 kB │ gzip:   2.85 kB
+dist/assets/BuilderMining-CfPF2SRL.css                      13.19 kB │ gzip:   3.44 kB
+dist/assets/BuilderPassport-BFrzb9W5.css                    18.97 kB │ gzip:   4.08 kB
+dist/assets/BuilderWallet-CXTenaR7.css                      24.93 kB │ gzip:   5.36 kB
+dist/assets/index-DNDMac03.css                              39.61 kB │ gzip:   9.83 kB
+dist/assets/AdminDashboard-DqTPQLdt.css                     61.67 kB │ gzip:  11.77 kB
+dist/assets/MarsPlanetMap-BxmEnd1-.css                      80.32 kB │ gzip:  14.72 kB
+dist/assets/vendor-postprocessing-l0sNRNKZ.js                0.00 kB │ gzip:   0.02 kB
+dist/assets/LegalBackLink-DKmufaL3.js                        0.30 kB │ gzip:   0.24 kB
+dist/assets/MarsAccessService-BrQlQ8wq.js                    0.50 kB │ gzip:   0.33 kB
+dist/assets/MarsPixelEmailNotificationService-exmv4caP.js    0.54 kB │ gzip:   0.34 kB
+dist/assets/MarsLanguageSelector-CYoTWTeZ.js                 1.23 kB │ gzip:   0.76 kB
+dist/assets/BuilderWalletService-CVriuNvd.js                 1.61 kB │ gzip:   0.82 kB
+dist/assets/GalaxyService-BE5tPQKQ.js                        1.63 kB │ gzip:   0.62 kB
+dist/assets/PrivacyPolicy-C19Z7tMq.js                        1.71 kB │ gzip:   0.51 kB
+dist/assets/Genesis-C6TwdeAo.js                              1.83 kB │ gzip:   0.84 kB
+dist/assets/TermsOfService-C76lg1PP.js                       2.02 kB │ gzip:   0.54 kB
+dist/assets/ChildSafety-CqG-TDCB.js                          2.08 kB │ gzip:   0.54 kB
+dist/assets/Support-CS7HolOH.js                              2.14 kB │ gzip:   0.61 kB
+dist/assets/LanguageSetup-Cr3NZI02.js                        2.67 kB │ gzip:   1.03 kB
+dist/assets/vendor-state-BjdwjPpJ.js                         2.93 kB │ gzip:   1.31 kB
+dist/assets/GettingStarted-dpAlHwPK.js                       4.36 kB │ gzip:   0.69 kB
+dist/assets/DeleteAccount-DqJC5e8H.js                        4.64 kB │ gzip:   1.78 kB
+dist/assets/AdminLogin-D-7-U5Ms.js                           4.70 kB │ gzip:   1.87 kB
+dist/assets/AdminUniverseHealth-BsUiMaWi.js                  5.23 kB │ gzip:   1.98 kB
+dist/assets/AdminAuditLogs-D5d1GCUv.js                       6.51 kB │ gzip:   2.31 kB
+dist/assets/AdminSecurityCenter-BYFhGS0t.js                  7.38 kB │ gzip:   2.47 kB
+dist/assets/AdminAnalytics-C82EnIjU.js                       7.52 kB │ gzip:   1.91 kB
+dist/assets/AdminLayout-D_DwLWiv.js                          8.24 kB │ gzip:   2.56 kB
+dist/assets/BuildMars-D6hQoilO.js                            8.74 kB │ gzip:   2.60 kB
+dist/assets/AdminRewardLedger-DRSPYW49.js                    9.76 kB │ gzip:   2.97 kB
+dist/assets/BuilderAuthDialog-DVONjCb0.js                    9.94 kB │ gzip:   2.82 kB
+dist/assets/AdminMiningSessions-BT3afAdp.js                 10.74 kB │ gzip:   3.13 kB
+dist/assets/AdminDashboard-DatTge5f.js                      11.85 kB │ gzip:   3.64 kB
+dist/assets/vendor-image-Br7REqB6.js                        12.99 kB │ gzip:   5.18 kB
+dist/assets/MarsPixelAdvertiserCenter-SDjZTSum.js           14.41 kB │ gzip:   3.65 kB
+dist/assets/MarsPixelNetworkService-B_a-5LbR.js             15.90 kB │ gzip:   4.37 kB
+dist/assets/AdminMarsPixelAds-JZ0_8XVe.js                   15.95 kB │ gzip:   4.35 kB
+dist/assets/BuilderPassport-BG9PZDzN.js                     17.71 kB │ gzip:   4.50 kB
+dist/assets/BuilderMining-FDhvZ2SK.js                       17.79 kB │ gzip:   5.14 kB
+dist/assets/BuilderIdentity-CBJw_BrP.js                     17.94 kB │ gzip:   5.47 kB
+dist/assets/AdminBuilders-BoMt134S.js                       21.98 kB │ gzip:   5.65 kB
+dist/assets/BuilderWallet-B9LKdDt6.js                       24.39 kB │ gzip:   5.86 kB
+dist/assets/Galaxy-Cjgh8yW7.js                              37.54 kB │ gzip:   7.51 kB
+dist/assets/Missions-C4sCylVt.js                            41.08 kB │ gzip:   8.23 kB
+dist/assets/vendor-icons-kBareJ-t.js                        43.35 kB │ gzip:   9.36 kB
+dist/assets/Leaderboard-CQOLEZCG.js                         53.47 kB │ gzip:   9.94 kB
+dist/assets/zh-B_ukwOJQ.js                                  74.71 kB │ gzip:  21.74 kB
+dist/assets/Home-JlhBC4Df.js                                75.37 kB │ gzip:  15.65 kB
+dist/assets/sv-CsEJHbmi.js                                  78.68 kB │ gzip:  22.39 kB
+dist/assets/fi-C_iRQLfJ.js                                  80.49 kB │ gzip:  23.14 kB
+dist/assets/tr-NQdoBuRb.js                                  80.98 kB │ gzip:  23.16 kB
+dist/assets/pt-Brz5-jjS.js                                  81.36 kB │ gzip:  22.95 kB
+dist/assets/ko-DrdAWhXN.js                                  82.19 kB │ gzip:  22.27 kB
+dist/assets/es-C7FgMlbJ.js                                  82.21 kB │ gzip:  22.99 kB
+dist/assets/de-Ds38v1UL.js                                  82.31 kB │ gzip:  23.37 kB
+dist/assets/fr-zPSVRwXz.js                                  84.76 kB │ gzip:  23.54 kB
+dist/assets/vendor-three-support-DpUn0Nma.js                86.23 kB │ gzip:  25.05 kB
+dist/assets/ja-eO_OAhQa.js                                  89.07 kB │ gzip:  23.43 kB
+dist/assets/ar-BcaNVaZ6.js                                  93.32 kB │ gzip:  23.24 kB
+dist/assets/ru-DE95Lhmi.js                                 106.46 kB │ gzip:  26.86 kB
+dist/assets/vendor-motion-Dr-IWhFu.js                      129.69 kB │ gzip:  42.54 kB
+dist/assets/MarsExploreWorld-IKK1NJDd.js                   174.20 kB │ gzip:  45.55 kB
+dist/assets/index-Cc1UyPBC.js                              188.80 kB │ gzip:  51.04 kB
+dist/assets/vendor-react-three-DX1NClUn.js                 190.81 kB │ gzip:  61.37 kB
+dist/assets/vendor-supabase-BLTfs_0E.js                    219.37 kB │ gzip:  57.15 kB
+dist/assets/vendor-react-BqfoNvAf.js                       263.08 kB │ gzip:  83.37 kB
+dist/assets/MarsPlanetMap-CVZPtZqb.js                      369.28 kB │ gzip: 104.78 kB
+dist/assets/vendor-three-core-iLbkwnvT.js                  734.10 kB │ gzip: 188.81 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 5.66s
+✓ GitHub Pages SPA entries generated: 25

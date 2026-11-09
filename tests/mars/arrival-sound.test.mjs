@@ -10,11 +10,11 @@ function moduleUrl(file, replace = text => text) {
   }).outputText;
   return "data:text/javascript;base64," + Buffer.from(code).toString("base64");
 }
-const synth = moduleUrl("AresArrivalSynth.ts");
+const recordings = moduleUrl("AresOfficialAudio.ts");
 const soundscape = moduleUrl("AresSoundscape.ts");
 const movement = moduleUrl("MarsAudioEngine.ts");
 const { AresArrivalSound, ARES_SOUND_PREFERENCE_KEY } = await import(moduleUrl("AresArrivalSound.ts", text => text
-  .replace('"./AresArrivalSynth"', JSON.stringify(synth))
+  .replace('"./AresOfficialAudio"', JSON.stringify(recordings))
   .replace('"./AresSoundscape"', JSON.stringify(soundscape))
   .replace('"./MarsAudioEngine"', JSON.stringify(movement))));
 const { marsAudio } = await import(movement);
@@ -40,6 +40,10 @@ class Context {
   closed = false;
   resumed = 0;
   constructor() { Context.instances.push(this); }
+  decodeAudioData(bytes) {
+    const data = new DataView(bytes);
+    return Promise.resolve({ numberOfChannels: data.getUint16(22, true), duration: data.getUint32(40, true) / data.getUint32(28, true) });
+  }
   createGain() { return { gain: new Parameter(), connect() {}, disconnect() {} }; }
   createBuffer(_channels, length) { const data = new Float32Array(length); return { getChannelData: () => data }; }
   createBufferSource() {
@@ -85,6 +89,10 @@ beforeEach(() => {
   globalThis.KeyboardEvent = class extends Event {};
   globalThis.Element = class { closest() { return null; } };
   globalThis.AudioBufferSourceNode = class {};
+  globalThis.fetch = async url => {
+    const data = readFileSync("public" + url);
+    return { ok: true, arrayBuffer: async () => data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength) };
+  };
   storage = new Map();
   globalThis.localStorage = { getItem: key => storage.get(key) ?? null, setItem: (key, value) => storage.set(key, value) };
   sound = new AresArrivalSound();
@@ -103,7 +111,7 @@ test("one cue per entry, including StrictMode replay and ordinary surface remoun
   const detach = sound.attachSurface();
   await wait(10);
   assert.equal(Context.instances.length, 1);
-  assert.equal(Context.instances[0].sources.length, 9);
+  assert.equal(Context.instances[0].sources.length, 1);
   sound.routeChanged("/mars/explore/");
   gesture(); gesture("keydown"); gesture("touchend");
   detach();
@@ -117,7 +125,7 @@ test("one cue per entry, including StrictMode replay and ordinary surface remoun
   sound.attachSurface();
   await wait(10);
   assert.equal(Context.instances.length, 3);
-  assert.equal(Context.instances[2].sources.length, 9);
+  assert.equal(Context.instances[2].sources.length, 1);
 });
 
 test("no context or cue before the actual surface commits", async () => {
@@ -137,7 +145,7 @@ test("suspended autoplay waits for a trusted touch, never synthetic gestures", a
   gesture("touchend");
   await wait(0);
   assert.equal(context.resumed, 1);
-  assert.equal(context.sources.length, 9);
+  assert.equal(context.sources.length, 1);
 });
 
 test("rejected resumes can retry on a later gesture without loops", async () => {
@@ -152,7 +160,7 @@ test("rejected resumes can retry on a later gesture without loops", async () => 
   Context.resumeMode = "resolve";
   gesture("keydown"); await wait(0);
   assert.equal(context.resumed, 2);
-  assert.equal(context.sources.length, 9);
+  assert.equal(context.sources.length, 1);
 });
 
 test("navigation cancels a pending resume; a late resolution cannot play", async () => {
@@ -175,7 +183,7 @@ test("a late resume after remount cannot start the old cue or duplicate the new 
   old.resolveResume(); await wait(0);
   assert.equal(old.sources.length, 0);
   Context.resumeMode = "resolve"; gesture(); await wait(0);
-  assert.equal(Context.instances[1].sources.length, 9);
+  assert.equal(Context.instances[1].sources.length, 1);
 });
 
 test("persistent mute prevents allocation; unmute does not replay this entry", async () => {
@@ -235,7 +243,7 @@ test("WebKit fallback and blocked storage are supported", async () => {
   globalThis.localStorage = { getItem() { throw Error("SecurityError"); }, setItem() { throw Error("SecurityError"); } };
   sound.setEnabled(false); sound.setEnabled(true);
   sound.routeChanged("/mars/explore"); sound.attachSurface(); await wait(10);
-  assert.equal(Context.instances[0].sources.length, 9);
+  assert.equal(Context.instances[0].sources.length, 1);
 });
 
 test("unsupported audio skips gracefully", async () => {
@@ -246,10 +254,11 @@ test("unsupported audio skips gracefully", async () => {
 
 test("arrival hands off to one continuous soundscape and releases its finite sources", async () => {
   sound.routeChanged("/mars/explore"); sound.attachSurface();
-  await wait(3900);
+  await wait(10);
+  Context.instances[0].sources[0].onended();
   assert(!Context.instances[0].closed);
-  assert(Context.instances[0].sources.slice(0, 9).every(source => source.disconnected));
-  assert.equal(Context.instances[0].sources.length, 19);
+  assert(Context.instances[0].sources.slice(0, 1).every(source => source.disconnected));
+  assert.equal(Context.instances[0].sources.length, 11);
   gesture(); assert.equal(Context.instances.length, 1);
   await marsAudio.unlock(); Context.instances[0].currentTime = 5; marsAudio.step();
   assert.equal(Context.instances.length, 1, "Movement uses the same context");
@@ -274,14 +283,14 @@ test("mix updates create no sources, near-crystal gain is gated by interior, cue
   sound.setCrystalDistance(9);
   assert.equal(sound.soundscape.crystal.gain.value, 0);
   sound.terminal("mission"); sound.terminal("mission"); sound.terminal("research");
-  assert.equal(context.sources.length, 12);
+  assert.equal(context.sources.length, 11);
   context.currentTime = 1.3; sound.terminal("research");
-  assert.equal(context.sources.length, 14);
+  assert.equal(context.sources.length, 12);
   sound.setEnabled(false);
   assert(context.sources.slice(0, 10).every(source => source.stopped === context.currentTime + 0.185), "Continuous native sources stop even if JS cleanup timers freeze");
   await wait(210);
   sound.terminal("research");
-  assert.equal(context.sources.length, 14);
+  assert.equal(context.sources.length, 12);
   assert(context.closed);
 });
 
@@ -300,7 +309,7 @@ test("invalid spatial samples and audio backend failures cannot crash scene or t
   assert.doesNotThrow(() => sound.setInterior(true));
   assert(Context.instances[0].closed);
   sound.setEnabled(false); sound.setEnabled(true);
-  sound.soundscape.terminal = () => { throw Error("audio backend unavailable"); };
+  sound.recordings.terminal = () => { throw Error("audio backend unavailable"); };
   assert.doesNotThrow(() => sound.terminal("mission"));
   assert(Context.instances[1].closed);
 });
@@ -318,4 +327,59 @@ test("a failed sparse timer voice stops silently instead of throwing or retrying
   assert.doesNotThrow(sparseCallback);
   assert(context.closed);
   assert(context.sources.every(source => source.disconnected));
+});
+
+for (const kind of ["mission", "research", "upgrade", "command"]) {
+  test(`approved ${kind} recording plays once per accepted cue, without generic oscillators`, async () => {
+    sound.setEnabled(false); sound.routeChanged("/mars/explore"); sound.attachSurface(); sound.setEnabled(true);
+    await wait(10);
+    const context = Context.instances[0], recordings = sound.recordings, expected = await recordings.load(kind);
+    const before = context.sources.length;
+    sound.terminal(kind); sound.terminal(kind);
+    assert.equal(context.sources.length, before + 1);
+    const source = context.sources.at(-1);
+    assert.equal(source.buffer, expected); assert.equal(source.loop, false);
+    assert.equal(source.stopped, expected.duration);
+    source.onended(); assert.equal(source.buffer, null); assert(source.disconnected);
+    context.currentTime = 1.21; sound.terminal(kind);
+    assert.equal(context.sources.length, before + 2);
+    sound.setEnabled(false); await wait(210);
+    assert.equal(context.sources.at(-1).buffer, null);
+    for (const collection of [recordings.buffers, recordings.pending, recordings.active, recordings.timers]) assert.equal(collection.size, 0);
+  });
+}
+
+test("V3 uses the full 6.35-second recording and hands off only at natural end", async () => {
+  sound.routeChanged("/mars/explore"); sound.attachSurface(); await wait(10);
+  const context = Context.instances[0], source = context.sources[0];
+  assert.equal(source.buffer.duration, 6.35); assert.equal(source.stopped, 6.35);
+  assert.equal(source.loop, false); assert.equal(context.sources.length, 1);
+  source.onended(); assert.equal(source.buffer, null);
+  assert.equal(context.sources.length, 11); assert(sound.soundscape);
+});
+
+test("missing recording skips arrival without replacement and preserves ambience", async () => {
+  globalThis.fetch = async () => ({ ok: false });
+  sound.routeChanged("/mars/explore"); sound.attachSurface(); await wait(10);
+  assert.equal(Context.instances[0].sources.length, 10);
+  assert(sound.soundscape); sound.terminal("mission");
+  assert.equal(Context.instances[0].sources.length, 10);
+});
+
+test("navigation during pending asset fetch cannot start a late recording", async () => {
+  const resolves = [];
+  globalThis.fetch = () => new Promise(resolve => resolves.push(resolve));
+  sound.routeChanged("/mars/explore"); sound.attachSurface(); await wait(10);
+  const context = Context.instances[0]; sound.routeChanged("/mars"); await wait(80);
+  const bytes = readFileSync("public/audio/ares-official-v3/BOBU_Ares_Futuristic_Crystal_Resonance_V3_6s.wav");
+  for (const resolve of resolves) resolve({ ok: true, arrayBuffer: async () => bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) });
+  await wait(10); assert(context.closed); assert.equal(context.sources.length, 0);
+});
+
+test("pagehide during arrival releases its buffer and returns with ambience only", async () => {
+  sound.routeChanged("/mars/explore"); sound.attachSurface(); await wait(10);
+  const source = Context.instances[0].sources[0];
+  window.dispatchEvent(new Event("pagehide")); assert.equal(source.buffer, null);
+  gesture(); await wait(10);
+  assert.equal(Context.instances[1].sources.length, 10);
 });

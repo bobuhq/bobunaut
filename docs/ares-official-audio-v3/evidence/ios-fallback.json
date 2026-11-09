@@ -1,0 +1,113 @@
+{
+  "profile": "ios-fallback",
+  "result": "PASS",
+  "engine": "Chromium; mobile/WebKit constructor fallback emulated, not physical WebView",
+  "checks": [
+    "blocked autoplay: no resume/playback",
+    "trusted gesture, StrictMode and rerenders: one exact approved arrival",
+    "natural full arrival end -> ambience in shared context",
+    "spatial mix updates allocate no sources",
+    "mission: exact recording hash, duplicate suppressed",
+    "research: exact recording hash, duplicate suppressed",
+    "upgrade: exact recording hash, duplicate suppressed",
+    "command: exact recording hash, duplicate suppressed",
+    "movement still shares context",
+    "surface remount: ambience only, old context closed",
+    "simulated hidden/foreground: cleanup, no arrival replay",
+    "genuine route re-entry replays once",
+    "persistent mute; unmute restores ambience without arrival",
+    "exit: all scheduled sources ended, all contexts closed"
+  ],
+  "preReload": [
+    {
+      "starts": 10,
+      "buffers": 7,
+      "ended": 7,
+      "resumes": 2,
+      "files": [
+        "BOBU_Ares_Futuristic_Crystal_Resonance_V3_6s.wav",
+        "BOBU_Mission_Console.wav",
+        "BOBU_Research_Console.wav",
+        "BOBU_Upgrade_Console.wav",
+        "BOBU_Command_Console.wav"
+      ],
+      "active": 10,
+      "state": "closed"
+    },
+    {
+      "starts": 8,
+      "buffers": 2,
+      "ended": 0,
+      "resumes": 0,
+      "files": [],
+      "active": 10,
+      "state": "closed"
+    },
+    {
+      "starts": 8,
+      "buffers": 2,
+      "ended": 0,
+      "resumes": 0,
+      "files": [],
+      "active": 10,
+      "state": "closed"
+    },
+    {
+      "starts": 0,
+      "buffers": 1,
+      "ended": 1,
+      "resumes": 0,
+      "files": [
+        "BOBU_Ares_Futuristic_Crystal_Resonance_V3_6s.wav"
+      ],
+      "active": 0,
+      "state": "closed"
+    }
+  ],
+  "final": [
+    {
+      "starts": 8,
+      "buffers": 2,
+      "ended": 10,
+      "resumes": 0,
+      "files": [],
+      "active": 0,
+      "state": "closed"
+    }
+  ],
+  "errors": [],
+  "csp": "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://pvemtnmeewyaqgindocs.supabase.co wss://pvemtnmeewyaqgindocs.supabase.co https://api.devnet.solana.com; media-src 'self' blob: https:; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'self';",
+  "requests": [
+    "http://127.0.0.1:49905/tests/mars/arrival-sound.html",
+    "http://127.0.0.1:49905/assets/arrival-sound-COYOcUL-.js",
+    "http://127.0.0.1:49905/assets/vendor-react-H0xLgyMR.js",
+    "http://127.0.0.1:49905/audio/ares-official-v3/BOBU_Ares_Futuristic_Crystal_Resonance_V3_6s.wav",
+    "http://127.0.0.1:49905/audio/ares-official-v3/BOBU_Mission_Console.wav",
+    "http://127.0.0.1:49905/audio/ares-official-v3/BOBU_Research_Console.wav",
+    "http://127.0.0.1:49905/audio/ares-official-v3/BOBU_Upgrade_Console.wav",
+    "http://127.0.0.1:49905/audio/ares-official-v3/BOBU_Command_Console.wav",
+    "http://127.0.0.1:49905/audio/ares-official-v3/BOBU_Ares_Futuristic_Crystal_Resonance_V3_6s.wav",
+    "http://127.0.0.1:49905/audio/ares-official-v3/BOBU_Mission_Console.wav",
+    "http://127.0.0.1:49905/audio/ares-official-v3/BOBU_Research_Console.wav",
+    "http://127.0.0.1:49905/audio/ares-official-v3/BOBU_Upgrade_Console.wav",
+    "http://127.0.0.1:49905/audio/ares-official-v3/BOBU_Command_Console.wav",
+    "http://127.0.0.1:49905/audio/ares-official-v3/BOBU_Ares_Futuristic_Crystal_Resonance_V3_6s.wav",
+    "http://127.0.0.1:49905/audio/ares-official-v3/BOBU_Mission_Console.wav",
+    "http://127.0.0.1:49905/audio/ares-official-v3/BOBU_Research_Console.wav",
+    "http://127.0.0.1:49905/audio/ares-official-v3/BOBU_Upgrade_Console.wav",
+    "http://127.0.0.1:49905/audio/ares-official-v3/BOBU_Command_Console.wav",
+    "http://127.0.0.1:49905/audio/ares-official-v3/BOBU_Ares_Futuristic_Crystal_Resonance_V3_6s.wav",
+    "http://127.0.0.1:49905/audio/ares-official-v3/BOBU_Mission_Console.wav",
+    "http://127.0.0.1:49905/audio/ares-official-v3/BOBU_Research_Console.wav",
+    "http://127.0.0.1:49905/audio/ares-official-v3/BOBU_Upgrade_Console.wav",
+    "http://127.0.0.1:49905/audio/ares-official-v3/BOBU_Command_Console.wav",
+    "http://127.0.0.1:49905/tests/mars/arrival-sound.html",
+    "http://127.0.0.1:49905/assets/arrival-sound-COYOcUL-.js",
+    "http://127.0.0.1:49905/assets/vendor-react-H0xLgyMR.js",
+    "http://127.0.0.1:49905/audio/ares-official-v3/BOBU_Ares_Futuristic_Crystal_Resonance_V3_6s.wav",
+    "http://127.0.0.1:49905/audio/ares-official-v3/BOBU_Mission_Console.wav",
+    "http://127.0.0.1:49905/audio/ares-official-v3/BOBU_Research_Console.wav",
+    "http://127.0.0.1:49905/audio/ares-official-v3/BOBU_Upgrade_Console.wav",
+    "http://127.0.0.1:49905/audio/ares-official-v3/BOBU_Command_Console.wav"
+  ]
+}

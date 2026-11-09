@@ -1,3 +1,4 @@
+import { aresArrivalSound } from "../audio/AresArrivalSound";
 import {
   Html,
 } from "@react-three/drei";
@@ -161,6 +162,7 @@ export function AresCommandHubUpgradeTerminal({
       return;
     }
 
+    aresArrivalSound.terminal("upgrade");
     setUpgrading(true);
     setError(null);
 

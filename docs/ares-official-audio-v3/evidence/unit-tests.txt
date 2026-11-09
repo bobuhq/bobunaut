@@ -1,0 +1,44 @@
+✔ one cue per entry, including StrictMode replay and ordinary surface remounts (316.344958ms)
+✔ no context or cue before the actual surface commits (222.570291ms)
+✔ suspended autoplay waits for a trusted touch, never synthetic gestures (223.862708ms)
+✔ rejected resumes can retry on a later gesture without loops (235.453541ms)
+✔ navigation cancels a pending resume; a late resolution cannot play (224.519875ms)
+✔ a late resume after remount cannot start the old cue or duplicate the new one (235.764291ms)
+✔ persistent mute prevents allocation; unmute does not replay this entry (467.002917ms)
+✔ mute control pointerdown cannot accidentally unlock pending arrival (224.428334ms)
+✔ backgrounding drops the cue and closes audio rather than playing on return (319.637916ms)
+✔ foreground OS audio interruption closes the cue instead of queuing a late continuation (233.043041ms)
+✔ WebKit fallback and blocked storage are supported (221.773792ms)
+✔ unsupported audio skips gracefully (222.400958ms)
+✔ arrival hands off to one continuous soundscape and releases its finite sources (443.887583ms)
+✔ mix updates create no sources, near-crystal gain is gated by interior, cues are throttled (444.259ms)
+✔ existing movement audio respects mute and catches rejected autoplay (212.602708ms)
+✔ invalid spatial samples and audio backend failures cannot crash scene or terminal handlers (222.04375ms)
+✔ a failed sparse timer voice stops silently instead of throwing or retrying (222.752833ms)
+✔ approved mission recording plays once per accepted cue, without generic oscillators (441.492125ms)
+✔ approved research recording plays once per accepted cue, without generic oscillators (441.1915ms)
+✔ approved upgrade recording plays once per accepted cue, without generic oscillators (440.114667ms)
+✔ approved command recording plays once per accepted cue, without generic oscillators (441.551292ms)
+✔ V3 uses the full 6.35-second recording and hands off only at natural end (233.011625ms)
+✔ missing recording skips arrival without replacement and preserves ambience (222.745875ms)
+✔ navigation during pending asset fetch cannot start a late recording (316.31975ms)
+✔ pagehide during arrival releases its buffer and returns with ambience only (242.723916ms)
+✔ approved bytes, PCM metadata and complete samples: BOBU_Upgrade_Console.wav (2.083ms)
+✔ approved bytes, PCM metadata and complete samples: BOBU_Command_Console.wav (0.5145ms)
+✔ approved bytes, PCM metadata and complete samples: BOBU_Research_Console.wav (0.4585ms)
+✔ approved bytes, PCM metadata and complete samples: BOBU_Ares_Futuristic_Crystal_Resonance_V3_6s.wav (1.261667ms)
+✔ approved bytes, PCM metadata and complete samples: BOBU_Mission_Console.wav (0.461292ms)
+✔ all four console recordings are distinct approved assets (0.091667ms)
+✔ Mission actual access handler: near + not busy only, no proximity/restore playback (37.770667ms)
+✔ Research actual start handler: claimed mission + near + ready/error required; restore stays silent (21.016625ms)
+✔ Upgrade actual handler rejects unavailable, busy or distant requests before sound (13.009292ms)
+✔ Command has no production event: do not invent a proximity or frame trigger (10.564792ms)
+✔ existing mobile click/touch bridge continues to dispatch the interaction key (0.222292ms)
+ℹ tests 36
+ℹ suites 0
+ℹ pass 36
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 7916.825458

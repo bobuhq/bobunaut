@@ -72,7 +72,6 @@ export function useAresResearchTerminal(
           !missionClaimed
         ) {
           setResearch(null);
-          aresArrivalSound.terminal("research");
           setProgress(0);
           setState(
             "unavailable",
@@ -171,6 +170,7 @@ export function useAresResearchTerminal(
           return;
         }
 
+        aresArrivalSound.terminal("research");
         try {
           setProgress(0);
           setState(
