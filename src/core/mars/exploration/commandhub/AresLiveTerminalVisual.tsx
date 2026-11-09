@@ -1,5 +1,4 @@
-import { useEffect, useRef, useState } from "react";
-import { Text } from "@react-three/drei";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
@@ -97,6 +96,25 @@ export function AresLiveTerminalVisual({ kind }: { kind: Kind }) {
 
 export function AresEBeacon({ active, label }: { active: boolean; label: string }) {
   const ref = useRef<THREE.Group>(null);
+  // This proximity hint must not suspend the shared Mars scene. Drei Text
+  // initializes Troika workers/fonts on first access, which production CSP
+  // blocks. Use the same local canvas texture approach as the console screens.
+  const labelTexture = useMemo(() => {
+    const canvas = document.createElement("canvas");
+    canvas.width = 1024;
+    canvas.height = 128;
+    const context = canvas.getContext("2d");
+    if (!context) return null;
+    context.fillStyle = "#bdffcd";
+    context.font = "bold 64px monospace";
+    context.textAlign = "center";
+    context.textBaseline = "middle";
+    context.fillText(`[ E ] ${label}`, 512, 64, 1000);
+    const map = new THREE.CanvasTexture(canvas);
+    map.colorSpace = THREE.SRGBColorSpace;
+    return map;
+  }, [label]);
+  useEffect(() => () => labelTexture?.dispose(), [labelTexture]);
   useFrame(({ clock }) => {
     if (ref.current) {
       ref.current.visible = Math.sin(clock.elapsedTime * 7) > -0.25;
@@ -113,10 +131,10 @@ export function AresEBeacon({ active, label }: { active: boolean; label: string 
         <boxGeometry args={[0.15, 0.15, 0.018]} />
         <meshBasicMaterial color="#79ff6b" toneMapped={false} />
       </mesh>
-      <Text position={[0.14, 0, 0.045]} fontSize={0.12}
-        anchorX="center" anchorY="middle" color="#bdffcd">
-        {`[ E ] ${label}`}
-      </Text>
+      {labelTexture && <mesh position={[0.14, 0, 0.045]}>
+        <planeGeometry args={[1.52, 0.19]} />
+        <meshBasicMaterial map={labelTexture} transparent depthWrite={false} toneMapped={false} />
+      </mesh>}
     </group>
   );
 }
