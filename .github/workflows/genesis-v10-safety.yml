@@ -1,0 +1,52 @@
+name: Genesis V10 Safety
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'src/core/mars/exploration/genesis-v5/**'
+      - 'src/core/mars/exploration/MarsExploreWorld.tsx'
+      - 'public/mars/ares-genesis/**'
+      - 'tests/genesis-v10/**'
+      - '.github/workflows/genesis-v10-safety.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  genesis-safety:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Genesis fail-closed safety tests
+        run: node tests/genesis-v10/release-safety.mjs
+
+      - name: Production build
+        run: npm run build
+
+      - name: Verify no hardcoded site approval
+        run: |
+          node --input-type=module <<'JS'
+          import assert from 'node:assert/strict';
+          import {
+            ARES_GENESIS_PRODUCTION_SITE
+          } from './src/core/mars/exploration/genesis-v5/production-site.mjs';
+
+          assert.equal(ARES_GENESIS_PRODUCTION_SITE, null);
+          console.log('NO_HARDCODED_SITE_APPROVAL_PASS');
+          JS
