@@ -30,33 +30,40 @@ jobs:
           node-version: '24'
           cache: npm
 
+      - name: Normalize npm registry URLs for CI
+        shell: bash
+        run: |
+          node <<'JS'
+          const fs = require('node:fs');
+          const path = 'package-lock.json';
+          const lock = JSON.parse(fs.readFileSync(path, 'utf8'));
+          const oldPrefix =
+            'https://packages.applied-caas-gateway1.internal.api.openai.org/artifactory/api/npm/npm-public/';
+          const newPrefix = 'https://registry.npmjs.org/';
+          let changed = 0;
+
+          for (const pkg of Object.values(lock.packages || {})) {
+            if (typeof pkg.resolved !== 'string') continue;
+            if (pkg.resolved.startsWith(oldPrefix)) {
+              pkg.resolved = newPrefix + pkg.resolved.slice(oldPrefix.length);
+              changed++;
+            } else if (pkg.resolved.includes('applied-caas-gateway')) {
+              throw new Error('Unexpected private registry URL');
+            }
+          }
+
+          if (changed === 0) {
+            throw new Error('Expected registry URLs not found');
+          }
+
+          fs.writeFileSync(path, JSON.stringify(lock, null, 2) + '\\n');
+          console.log('CI_REGISTRY_URLS_NORMALIZED:', changed);
+          JS
+
       - name: Install dependencies
         shell: bash
         run: |
-          set -o pipefail
-          node --version
-          npm --version
-          npm config set fetch-retries 5
-          npm config set fetch-retry-mintimeout 20000
-          npm config set fetch-retry-maxtimeout 120000
-
-          for attempt in 1 2; do
-            echo "NPM INSTALL ATTEMPT ${attempt}/2"
-
-            if npm ci --no-audit --no-fund               --loglevel=verbose               > "$RUNNER_TEMP/genesis-npm-install.log" 2>&1; then
-              echo "NPM_INSTALL_PASS"
-              exit 0
-            fi
-
-            tail -80 "$RUNNER_TEMP/genesis-npm-install.log"
-
-            if [ "$attempt" -eq 1 ]; then
-              rm -rf node_modules
-            fi
-          done
-
-          echo "NPM_INSTALL_FAILED"
-          exit 1
+          npm ci --registry=https://registry.npmjs.org/ --no-audit --no-fund
 
       - name: Genesis fail-closed safety tests
         run: node tests/genesis-v10/release-safety.mjs
