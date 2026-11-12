@@ -1,0 +1,53 @@
+:root { color-scheme: dark; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-synthesis: none; }
+* { box-sizing: border-box; }
+html, body, #root { width: 100%; height: 100%; min-height: 100%; margin: 0; overflow: hidden; background: #181b20; }
+body { color: #e9edef; }
+button { font: inherit; }
+.genesis3d-shell { position: fixed; inset: 0; overflow: hidden; background: #766b70; touch-action: none; user-select: none; }
+.genesis3d-shell canvas { display: block; width: 100%; height: 100%; outline: 0; touch-action: none; cursor: grab; }
+.genesis-hud { position: absolute; inset: 0 0 auto; height: 77px; display: flex; align-items: center; gap: 25px; padding: 0 30px; background: linear-gradient(180deg, rgba(12,17,21,.88), rgba(12,17,21,.48)); border-bottom: 1px solid rgba(127,197,198,.18); pointer-events: none; }
+.genesis-brand { display: flex; align-items: center; gap: 11px; min-width: 265px; }
+.brand-mark { display: grid; place-items: center; width: 39px; height: 39px; color: #d7b5f2; border: 1px solid #9d63ce; border-radius: 11px 11px 11px 4px; box-shadow: inset 0 0 16px #8c4fc233, 0 0 15px #9a5dc733; font-size: 23px; font-weight: 800; }
+.genesis-brand b { display: block; font-size: 13px; letter-spacing: .19em; }
+.genesis-brand small { display: block; margin-top: 4px; color: #93a4aa; font-size: 9px; letter-spacing: .13em; }
+.genesis-zone { display: flex; align-items: center; gap: 9px; color: #c9dcdd; font-size: 10px; letter-spacing: .15em; }
+.genesis-zone i { width: 7px; height: 7px; border-radius: 50%; background: #57d2d1; box-shadow: 0 0 10px #63d9d3; }
+.hud-button { margin-left: auto; padding: 9px 12px; pointer-events: auto; color: #b5d0d2; background: rgba(32,48,54,.78); border: 1px solid rgba(105,188,190,.34); border-radius: 5px; font-size: 9px; letter-spacing: .13em; cursor: pointer; }
+.hud-button:hover { background: rgba(49,78,82,.9); }
+.genesis-status { position: absolute; top: 93px; right: 24px; display: grid; gap: 8px; padding: 13px 15px; color: #9eb3b7; background: rgba(17,24,28,.74); border: 1px solid rgba(115,177,179,.16); border-radius: 6px; font-size: 9px; letter-spacing: .1em; pointer-events: none; }
+.genesis-status span:first-child { color: #b98be0; font-weight: 700; }
+.genesis-help { position: absolute; top: 98px; left: 24px; display: grid; gap: 7px; min-width: 172px; padding: 14px 16px; background: rgba(18,25,29,.73); border: 1px solid rgba(112,184,188,.2); border-radius: 6px; color: #aab9bd; font-size: 10px; pointer-events: none; }
+.genesis-help b { margin-bottom: 3px; color: #d8e3e2; font-size: 9px; letter-spacing: .16em; }
+.genesis-crosshair { position: absolute; top: 50%; left: 50%; color: rgba(213,238,234,.45); font-size: 15px; transform: translate(-50%, -50%); pointer-events: none; }
+.genesis-footer { position: absolute; bottom: 0; left: 0; right: 0; display: flex; justify-content: space-between; padding: 13px 24px 14px; color: rgba(214,223,220,.65); background: linear-gradient(0deg, rgba(12,17,21,.75), transparent); font-size: 9px; letter-spacing: .09em; pointer-events: none; }
+.genesis-footer span:first-child { color: #bf96df; }
+.genesis-console-panel { position: absolute; left: 50%; bottom: 70px; width: min(440px, calc(100vw - 32px)); padding: 19px 20px 17px; color: #dce5e4; background: rgba(17,25,30,.94); border: 1px solid rgba(113,204,205,.38); border-radius: 8px; box-shadow: 0 12px 50px #080e12aa; transform: translateX(-50%); }
+.genesis-console-panel b { color: #71ced0; font-size: 10px; letter-spacing: .16em; }
+.genesis-console-panel p { margin: 11px 0 0; color: #bbc8c9; font-size: 12px; line-height: 1.55; }
+.genesis-console-panel button { position: absolute; top: 7px; right: 10px; color: #a7b5b7; background: transparent; border: 0; font-size: 22px; cursor: pointer; }
+.genesis-joystick { display: none; position: absolute; z-index: 5; left: 25px; bottom: 49px; width: 112px; height: 112px; align-items: center; justify-content: center; touch-action: none; }
+.genesis-joystick-ring { position: absolute; inset: 0; border: 1px solid rgba(159,205,206,.33); border-radius: 50%; background: rgba(18,29,35,.28); box-shadow: inset 0 0 26px rgba(91,157,162,.1); }
+.genesis-joystick-knob { position: relative; width: 40px; height: 40px; border: 1px solid rgba(163,215,216,.68); border-radius: 50%; background: radial-gradient(circle at 35% 28%, #9dd4d3, #4b777c 70%); box-shadow: 0 2px 12px #0a171a99; transition: background .12s; }
+.genesis-joystick-knob.active { background: radial-gradient(circle at 35% 28%, #d9bded, #8055a1 70%); }
+@media (pointer: coarse), (max-width: 760px) {
+  .genesis-hud { height: 62px; gap: 10px; padding: 0 13px; }
+  .genesis-brand { min-width: auto; gap: 8px; }
+  .brand-mark { width: 33px; height: 33px; font-size: 19px; }
+  .genesis-brand b { font-size: 11px; }
+  .genesis-brand small { font-size: 7px; }
+  .genesis-zone { max-width: 33vw; overflow: hidden; white-space: nowrap; font-size: 8px; }
+  .hud-button { padding: 8px; font-size: 8px; }
+  .genesis-status { top: 74px; right: 10px; gap: 5px; padding: 9px 10px; font-size: 7px; }
+  .genesis-help { top: 74px; left: 10px; gap: 5px; min-width: 132px; padding: 9px 10px; font-size: 8px; }
+  .genesis-joystick { display: flex; }
+  .genesis-footer { padding: 10px 12px 12px; padding-left: 152px; font-size: 7px; }
+  .genesis-footer span:last-child { max-width: 52%; text-align: right; }
+  .genesis-console-panel { bottom: 174px; }
+}
+@media (max-height: 480px) and (pointer: coarse) {
+  .genesis-hud { height: 54px; }
+  .genesis-help { top: 62px; }
+  .genesis-status { top: 62px; }
+  .genesis-joystick { left: 16px; bottom: 16px; width: 96px; height: 96px; }
+  .genesis-footer { padding-left: 122px; }
+}
