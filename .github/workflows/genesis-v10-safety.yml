@@ -17,7 +17,7 @@ permissions:
 
 jobs:
   genesis-safety:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
 
     steps:
@@ -27,11 +27,36 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '24'
           cache: npm
 
       - name: Install dependencies
-        run: npm ci
+        shell: bash
+        run: |
+          set -o pipefail
+          node --version
+          npm --version
+          npm config set fetch-retries 5
+          npm config set fetch-retry-mintimeout 20000
+          npm config set fetch-retry-maxtimeout 120000
+
+          for attempt in 1 2; do
+            echo "NPM INSTALL ATTEMPT ${attempt}/2"
+
+            if npm ci --no-audit --no-fund               --loglevel=verbose               > "$RUNNER_TEMP/genesis-npm-install.log" 2>&1; then
+              echo "NPM_INSTALL_PASS"
+              exit 0
+            fi
+
+            tail -80 "$RUNNER_TEMP/genesis-npm-install.log"
+
+            if [ "$attempt" -eq 1 ]; then
+              rm -rf node_modules
+            fi
+          done
+
+          echo "NPM_INSTALL_FAILED"
+          exit 1
 
       - name: Genesis fail-closed safety tests
         run: node tests/genesis-v10/release-safety.mjs
