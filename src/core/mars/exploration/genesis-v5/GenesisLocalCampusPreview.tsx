@@ -14,7 +14,16 @@ import {
 } from "react";
 import * as THREE from "three";
 import { useFrame, useThree } from "@react-three/fiber";
-import { aresArrivalSound } from "../audio/AresArrivalSound"; // BOBU_ARES_RESTORE_V1
+import { aresArrivalSound } from "../audio/AresArrivalSound";
+
+type GenesisPreviewAudioCompat = {
+  door?: (id: string, open: boolean, position: [number, number, number]) => void;
+  setMusicInterior?: (area: string, inside: boolean) => void;
+  setListener?: (x: number, y: number, z: number, dx: number, dy: number, dz: number) => void;
+  stopDoor?: (id: string) => void;
+};
+const previewAudio = aresArrivalSound as typeof aresArrivalSound & GenesisPreviewAudioCompat;
+ // BOBU_ARES_RESTORE_V1
 import {
   loadAresGenesisTerrainData,
   sampleAresGenesisRenderedSurfaceMeters,
@@ -132,7 +141,7 @@ export function GenesisLocalCampusPreview({targetRef,integration}:{targetRef:Ref
   const listenerPoint=useMemo(()=>new THREE.Vector3(),[]);
   const lastAudioFrame=useRef(0);
   const onDoorMotion=useCallback((id:string,open:boolean,position:[number,number,number])=>{
-    aresArrivalSound.door(id,open,position);
+    previewAudio.door?.(id,open,position);
   },[]);
   // BOBU_ARES_RESTORE_V1: Use the real character and previously authored room bounds.
   useFrame(({clock})=>{
@@ -144,19 +153,19 @@ export function GenesisLocalCampusPreview({targetRef,integration}:{targetRef:Ref
     const insideControl=Math.abs(lx)<8.15&&lz>-9.1&&lz<9.1;
     const insideHabitat=Math.abs(lx)<7.2&&lz>=-43&&lz<=-26;
     const insideVestibule=Math.abs(lx)<1.9&&lz>=9.1&&lz<13.3;
-    aresArrivalSound.setMusicInterior("genesis-building",insideControl||insideHabitat||insideVestibule);
+    previewAudio.setMusicInterior?.("genesis-building",insideControl||insideHabitat||insideVestibule);
     camera.getWorldDirection(direction);
     targetRef.current.getWorldPosition(listenerPoint);
-    aresArrivalSound.setListener(listenerPoint.x,listenerPoint.y+1.5,listenerPoint.z,direction.x,direction.y,direction.z);
+    previewAudio.setListener?.(listenerPoint.x,listenerPoint.y+1.5,listenerPoint.z,direction.x,direction.y,direction.z);
     if(Math.abs(lx)<18&&lz>-45&&lz<16){
       aresArrivalSound.setInterior(insideControl||insideHabitat||insideVestibule);
       aresArrivalSound.setCrystalDistance(Math.hypot(lx+13,lz+1));
     }
   });
   useEffect(()=>()=>{
-    aresArrivalSound.setMusicInterior("genesis-building",false);
+    previewAudio.setMusicInterior?.("genesis-building",false);
     for(const id of ["genesis-surface-airlock","genesis-command-front","genesis-internal-connector","genesis-habitat"])
-      aresArrivalSound.stopDoor(id);
+      previewAudio.stopDoor?.(id);
   },[]);
   if(!import.meta.env.DEV||!site)return null;
   return <PreviewBoundary><Suspense fallback={null}>

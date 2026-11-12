@@ -1,3 +1,4 @@
+import { AresGenesisCampusIntegration, useAresGenesisCampusIntegration } from "./genesis-v5/AresGenesisCampusIntegration";
 import {
   Suspense,
   useCallback,
@@ -230,6 +231,9 @@ function MarsExploreScene({
   const bobuStairStateRef =
     useRef(false);
 
+  // Genesis V10 production integration: fail-closed without backend approval.
+  const genesisProduction = useAresGenesisCampusIntegration();
+
   const [
     hiddenMission,
     setHiddenMission,
@@ -317,6 +321,8 @@ function MarsExploreScene({
 
       <MarsExplorationTerrain />
       <MarsSurfaceRocks />
+      {/* Genesis V10 stays hidden until the authoritative placement check approves. */}
+      <AresGenesisCampusIntegration integration={genesisProduction} targetRef={bobuRef} />
       <AresGroundDust />
       <AresExplorationLandmarks
         targetRef={bobuRef}
