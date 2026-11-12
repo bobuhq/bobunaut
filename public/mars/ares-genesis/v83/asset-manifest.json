@@ -1,0 +1,93 @@
+{
+  "pipeline": "Three.js ExtrudeGeometry fallback; Blender Metal startup crash",
+  "files": {
+    "genesis-cinematic-kit.glb": {
+      "bytes": 1464208,
+      "primitives": 58
+    },
+    "genesis-exterior.glb": {
+      "bytes": 227520,
+      "primitives": 11
+    },
+    "genesis-door-leaf.glb": {
+      "bytes": 195632,
+      "primitives": 5
+    },
+    "genesis-green-airlock.glb": {
+      "bytes": 334696,
+      "primitives": 5
+    }
+  },
+  "assets": {
+    "wall-cassette": {
+      "materialPrimitives": 4,
+      "triangles": 1080,
+      "components": 32
+    },
+    "operator-console": {
+      "materialPrimitives": 5,
+      "triangles": 2356,
+      "components": 57
+    },
+    "ceiling-module": {
+      "materialPrimitives": 4,
+      "triangles": 1188,
+      "components": 27
+    },
+    "pressure-rib": {
+      "materialPrimitives": 4,
+      "triangles": 592,
+      "components": 20
+    },
+    "sleep-berth": {
+      "materialPrimitives": 5,
+      "triangles": 1144,
+      "components": 28
+    },
+    "life-support": {
+      "materialPrimitives": 5,
+      "triangles": 1188,
+      "components": 31
+    },
+    "hydro-tray": {
+      "materialPrimitives": 4,
+      "triangles": 572,
+      "components": 13
+    },
+    "floor-cassette": {
+      "materialPrimitives": 2,
+      "triangles": 516,
+      "components": 35
+    },
+    "green-airlock": {
+      "materialPrimitives": 5,
+      "triangles": 2420,
+      "components": 63
+    },
+    "exterior-facade": {
+      "materialPrimitives": 4,
+      "triangles": 640,
+      "components": 14
+    },
+    "entrance-crown": {
+      "materialPrimitives": 4,
+      "triangles": 288,
+      "components": 6
+    },
+    "door-leaf": {
+      "materialPrimitives": 5,
+      "triangles": 972,
+      "components": 21
+    },
+    "control-cladding": {
+      "materialPrimitives": 4,
+      "triangles": 508,
+      "components": 11
+    },
+    "external-service": {
+      "materialPrimitives": 3,
+      "triangles": 332,
+      "components": 7
+    }
+  }
+}

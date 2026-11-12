@@ -1,0 +1,6817 @@
+{
+  "wall-cassette": [
+    {
+      "shape": "box",
+      "position": [
+        0,
+        1.8,
+        0
+      ],
+      "size": [
+        2.72,
+        3.6,
+        0.075
+      ],
+      "material": "rubber",
+      "bevel": 0.015,
+      "label": "Pressure gasket",
+      "rotationY": 0
+    },
+    {
+      "shape": "profile",
+      "points": [
+        [
+          -1.34,
+          0.08
+        ],
+        [
+          1.34,
+          0.08
+        ],
+        [
+          1.34,
+          3.34
+        ],
+        [
+          1.12,
+          3.55
+        ],
+        [
+          -1.12,
+          3.55
+        ],
+        [
+          -1.34,
+          3.34
+        ]
+      ],
+      "depth": 0.075,
+      "z": 0.05,
+      "material": "composite",
+      "bevel": 0.025,
+      "label": "Folded composite cassette",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.27,
+        1.8,
+        0.105
+      ],
+      "size": [
+        0.065,
+        3.28,
+        0.04
+      ],
+      "material": "titanium",
+      "bevel": 0.0092,
+      "label": "Retaining rail",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.27,
+        1.8,
+        0.105
+      ],
+      "size": [
+        0.065,
+        3.28,
+        0.04
+      ],
+      "material": "titanium",
+      "bevel": 0.0092,
+      "label": "Retaining rail",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        1.55,
+        0.106
+      ],
+      "size": [
+        1.8,
+        1.57,
+        0.035
+      ],
+      "material": "graphite",
+      "bevel": 0.008050000000000002,
+      "label": "Recessed service hatch shadow",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        1.55,
+        0.129
+      ],
+      "size": [
+        1.73,
+        1.5,
+        0.033
+      ],
+      "material": "titanium",
+      "bevel": 0.00759,
+      "label": "Removable maintenance cover",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.55,
+        1.55,
+        0.155
+      ],
+      "size": [
+        0.055,
+        0.28,
+        0.045
+      ],
+      "material": "graphite",
+      "bevel": 0.01,
+      "label": "Latch",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        0.48,
+        0.12
+      ],
+      "size": [
+        1.62,
+        0.38,
+        0.024
+      ],
+      "material": "rubber",
+      "bevel": 0.005520000000000001,
+      "label": "Recessed plenum",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        0.3204,
+        0.13999999999999999
+      ],
+      "size": [
+        1.4742000000000002,
+        0.018,
+        0.035
+      ],
+      "material": "titanium",
+      "bevel": 0.00414,
+      "label": "Vent louvre",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        0.37360000000000004,
+        0.13999999999999999
+      ],
+      "size": [
+        1.4742000000000002,
+        0.018,
+        0.035
+      ],
+      "material": "titanium",
+      "bevel": 0.00414,
+      "label": "Vent louvre",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        0.4268,
+        0.13999999999999999
+      ],
+      "size": [
+        1.4742000000000002,
+        0.018,
+        0.035
+      ],
+      "material": "titanium",
+      "bevel": 0.00414,
+      "label": "Vent louvre",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        0.48000000000000004,
+        0.13999999999999999
+      ],
+      "size": [
+        1.4742000000000002,
+        0.018,
+        0.035
+      ],
+      "material": "titanium",
+      "bevel": 0.00414,
+      "label": "Vent louvre",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        0.5332,
+        0.13999999999999999
+      ],
+      "size": [
+        1.4742000000000002,
+        0.018,
+        0.035
+      ],
+      "material": "titanium",
+      "bevel": 0.00414,
+      "label": "Vent louvre",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        0.5864,
+        0.13999999999999999
+      ],
+      "size": [
+        1.4742000000000002,
+        0.018,
+        0.035
+      ],
+      "material": "titanium",
+      "bevel": 0.00414,
+      "label": "Vent louvre",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        0.6396000000000001,
+        0.13999999999999999
+      ],
+      "size": [
+        1.4742000000000002,
+        0.018,
+        0.035
+      ],
+      "material": "titanium",
+      "bevel": 0.00414,
+      "label": "Vent louvre",
+      "rotationY": 0
+    },
+    {
+      "shape": "bolt",
+      "position": [
+        -1.15,
+        0.24,
+        0.12
+      ],
+      "radius": 0.026,
+      "depth": 0.014,
+      "material": "titanium",
+      "label": "Captive hex fastener",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.15,
+        0.24,
+        0.129
+      ],
+      "size": [
+        0.019,
+        0.007,
+        0.004
+      ],
+      "material": "rubber",
+      "bevel": 0,
+      "label": "Recessed drive",
+      "rotationY": 0
+    },
+    {
+      "shape": "bolt",
+      "position": [
+        -1.15,
+        3.3,
+        0.12
+      ],
+      "radius": 0.026,
+      "depth": 0.014,
+      "material": "titanium",
+      "label": "Captive hex fastener",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.15,
+        3.3,
+        0.129
+      ],
+      "size": [
+        0.019,
+        0.007,
+        0.004
+      ],
+      "material": "rubber",
+      "bevel": 0,
+      "label": "Recessed drive",
+      "rotationY": 0
+    },
+    {
+      "shape": "bolt",
+      "position": [
+        1.15,
+        0.24,
+        0.12
+      ],
+      "radius": 0.026,
+      "depth": 0.014,
+      "material": "titanium",
+      "label": "Captive hex fastener",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.15,
+        0.24,
+        0.129
+      ],
+      "size": [
+        0.019,
+        0.007,
+        0.004
+      ],
+      "material": "rubber",
+      "bevel": 0,
+      "label": "Recessed drive",
+      "rotationY": 0
+    },
+    {
+      "shape": "bolt",
+      "position": [
+        1.15,
+        3.3,
+        0.12
+      ],
+      "radius": 0.026,
+      "depth": 0.014,
+      "material": "titanium",
+      "label": "Captive hex fastener",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.15,
+        3.3,
+        0.129
+      ],
+      "size": [
+        0.019,
+        0.007,
+        0.004
+      ],
+      "material": "rubber",
+      "bevel": 0,
+      "label": "Recessed drive",
+      "rotationY": 0
+    },
+    {
+      "shape": "bolt",
+      "position": [
+        -0.76,
+        0.91,
+        0.16
+      ],
+      "radius": 0.026,
+      "depth": 0.014,
+      "material": "titanium",
+      "label": "Captive hex fastener",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.76,
+        0.91,
+        0.169
+      ],
+      "size": [
+        0.019,
+        0.007,
+        0.004
+      ],
+      "material": "rubber",
+      "bevel": 0,
+      "label": "Recessed drive",
+      "rotationY": 0
+    },
+    {
+      "shape": "bolt",
+      "position": [
+        -0.76,
+        2.18,
+        0.16
+      ],
+      "radius": 0.026,
+      "depth": 0.014,
+      "material": "titanium",
+      "label": "Captive hex fastener",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.76,
+        2.18,
+        0.169
+      ],
+      "size": [
+        0.019,
+        0.007,
+        0.004
+      ],
+      "material": "rubber",
+      "bevel": 0,
+      "label": "Recessed drive",
+      "rotationY": 0
+    },
+    {
+      "shape": "bolt",
+      "position": [
+        0.76,
+        0.91,
+        0.16
+      ],
+      "radius": 0.026,
+      "depth": 0.014,
+      "material": "titanium",
+      "label": "Captive hex fastener",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.76,
+        0.91,
+        0.169
+      ],
+      "size": [
+        0.019,
+        0.007,
+        0.004
+      ],
+      "material": "rubber",
+      "bevel": 0,
+      "label": "Recessed drive",
+      "rotationY": 0
+    },
+    {
+      "shape": "bolt",
+      "position": [
+        0.76,
+        2.18,
+        0.16
+      ],
+      "radius": 0.026,
+      "depth": 0.014,
+      "material": "titanium",
+      "label": "Captive hex fastener",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.76,
+        2.18,
+        0.169
+      ],
+      "size": [
+        0.019,
+        0.007,
+        0.004
+      ],
+      "material": "rubber",
+      "bevel": 0,
+      "label": "Recessed drive",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        3.32,
+        0.11
+      ],
+      "size": [
+        0.72,
+        0.034,
+        0.025
+      ],
+      "material": "graphite",
+      "bevel": 0.004,
+      "label": "Asset ID recess",
+      "rotationY": 0
+    }
+  ],
+  "operator-console": [
+    {
+      "shape": "profile",
+      "points": [
+        [
+          -1,
+          0.08
+        ],
+        [
+          1,
+          0.08
+        ],
+        [
+          1,
+          0.92
+        ],
+        [
+          0.85,
+          1.18
+        ],
+        [
+          -0.85,
+          1.18
+        ],
+        [
+          -1,
+          0.92
+        ]
+      ],
+      "depth": 1.29,
+      "z": 0,
+      "material": "graphite",
+      "bevel": 0.035,
+      "label": "Console monocoque",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        1.17,
+        -0.12
+      ],
+      "size": [
+        2.06,
+        0.085,
+        1.24
+      ],
+      "material": "titanium",
+      "bevel": 0.01955,
+      "label": "Operator work surface",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        1.242,
+        0.4
+      ],
+      "size": [
+        1.1,
+        0.022,
+        0.35
+      ],
+      "material": "rubber",
+      "bevel": 0.00506,
+      "label": "Sealed keyboard",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.49,
+        1.257,
+        0.3
+      ],
+      "size": [
+        0.075,
+        0.014,
+        0.056
+      ],
+      "material": "titanium",
+      "bevel": 0.003,
+      "label": "Tactile key",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.381,
+        1.257,
+        0.3
+      ],
+      "size": [
+        0.075,
+        0.014,
+        0.056
+      ],
+      "material": "titanium",
+      "bevel": 0.003,
+      "label": "Tactile key",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.272,
+        1.257,
+        0.3
+      ],
+      "size": [
+        0.075,
+        0.014,
+        0.056
+      ],
+      "material": "titanium",
+      "bevel": 0.003,
+      "label": "Tactile key",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.16299999999999998,
+        1.257,
+        0.3
+      ],
+      "size": [
+        0.075,
+        0.014,
+        0.056
+      ],
+      "material": "titanium",
+      "bevel": 0.003,
+      "label": "Tactile key",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.05399999999999999,
+        1.257,
+        0.3
+      ],
+      "size": [
+        0.075,
+        0.014,
+        0.056
+      ],
+      "material": "titanium",
+      "bevel": 0.003,
+      "label": "Tactile key",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.05500000000000005,
+        1.257,
+        0.3
+      ],
+      "size": [
+        0.075,
+        0.014,
+        0.056
+      ],
+      "material": "titanium",
+      "bevel": 0.003,
+      "label": "Tactile key",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.16400000000000003,
+        1.257,
+        0.3
+      ],
+      "size": [
+        0.075,
+        0.014,
+        0.056
+      ],
+      "material": "titanium",
+      "bevel": 0.003,
+      "label": "Tactile key",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.273,
+        1.257,
+        0.3
+      ],
+      "size": [
+        0.075,
+        0.014,
+        0.056
+      ],
+      "material": "titanium",
+      "bevel": 0.003,
+      "label": "Tactile key",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.382,
+        1.257,
+        0.3
+      ],
+      "size": [
+        0.075,
+        0.014,
+        0.056
+      ],
+      "material": "titanium",
+      "bevel": 0.003,
+      "label": "Tactile key",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.491,
+        1.257,
+        0.3
+      ],
+      "size": [
+        0.075,
+        0.014,
+        0.056
+      ],
+      "material": "titanium",
+      "bevel": 0.003,
+      "label": "Tactile key",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.49,
+        1.257,
+        0.395
+      ],
+      "size": [
+        0.075,
+        0.014,
+        0.056
+      ],
+      "material": "titanium",
+      "bevel": 0.003,
+      "label": "Tactile key",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.381,
+        1.257,
+        0.395
+      ],
+      "size": [
+        0.075,
+        0.014,
+        0.056
+      ],
+      "material": "titanium",
+      "bevel": 0.003,
+      "label": "Tactile key",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.272,
+        1.257,
+        0.395
+      ],
+      "size": [
+        0.075,
+        0.014,
+        0.056
+      ],
+      "material": "titanium",
+      "bevel": 0.003,
+      "label": "Tactile key",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.16299999999999998,
+        1.257,
+        0.395
+      ],
+      "size": [
+        0.075,
+        0.014,
+        0.056
+      ],
+      "material": "titanium",
+      "bevel": 0.003,
+      "label": "Tactile key",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.05399999999999999,
+        1.257,
+        0.395
+      ],
+      "size": [
+        0.075,
+        0.014,
+        0.056
+      ],
+      "material": "titanium",
+      "bevel": 0.003,
+      "label": "Tactile key",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.05500000000000005,
+        1.257,
+        0.395
+      ],
+      "size": [
+        0.075,
+        0.014,
+        0.056
+      ],
+      "material": "titanium",
+      "bevel": 0.003,
+      "label": "Tactile key",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.16400000000000003,
+        1.257,
+        0.395
+      ],
+      "size": [
+        0.075,
+        0.014,
+        0.056
+      ],
+      "material": "titanium",
+      "bevel": 0.003,
+      "label": "Tactile key",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.273,
+        1.257,
+        0.395
+      ],
+      "size": [
+        0.075,
+        0.014,
+        0.056
+      ],
+      "material": "titanium",
+      "bevel": 0.003,
+      "label": "Tactile key",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.382,
+        1.257,
+        0.395
+      ],
+      "size": [
+        0.075,
+        0.014,
+        0.056
+      ],
+      "material": "titanium",
+      "bevel": 0.003,
+      "label": "Tactile key",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.491,
+        1.257,
+        0.395
+      ],
+      "size": [
+        0.075,
+        0.014,
+        0.056
+      ],
+      "material": "titanium",
+      "bevel": 0.003,
+      "label": "Tactile key",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.49,
+        1.257,
+        0.49
+      ],
+      "size": [
+        0.075,
+        0.014,
+        0.056
+      ],
+      "material": "titanium",
+      "bevel": 0.003,
+      "label": "Tactile key",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.381,
+        1.257,
+        0.49
+      ],
+      "size": [
+        0.075,
+        0.014,
+        0.056
+      ],
+      "material": "titanium",
+      "bevel": 0.003,
+      "label": "Tactile key",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.272,
+        1.257,
+        0.49
+      ],
+      "size": [
+        0.075,
+        0.014,
+        0.056
+      ],
+      "material": "titanium",
+      "bevel": 0.003,
+      "label": "Tactile key",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.16299999999999998,
+        1.257,
+        0.49
+      ],
+      "size": [
+        0.075,
+        0.014,
+        0.056
+      ],
+      "material": "titanium",
+      "bevel": 0.003,
+      "label": "Tactile key",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.05399999999999999,
+        1.257,
+        0.49
+      ],
+      "size": [
+        0.075,
+        0.014,
+        0.056
+      ],
+      "material": "titanium",
+      "bevel": 0.003,
+      "label": "Tactile key",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.05500000000000005,
+        1.257,
+        0.49
+      ],
+      "size": [
+        0.075,
+        0.014,
+        0.056
+      ],
+      "material": "titanium",
+      "bevel": 0.003,
+      "label": "Tactile key",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.16400000000000003,
+        1.257,
+        0.49
+      ],
+      "size": [
+        0.075,
+        0.014,
+        0.056
+      ],
+      "material": "titanium",
+      "bevel": 0.003,
+      "label": "Tactile key",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.273,
+        1.257,
+        0.49
+      ],
+      "size": [
+        0.075,
+        0.014,
+        0.056
+      ],
+      "material": "titanium",
+      "bevel": 0.003,
+      "label": "Tactile key",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.382,
+        1.257,
+        0.49
+      ],
+      "size": [
+        0.075,
+        0.014,
+        0.056
+      ],
+      "material": "titanium",
+      "bevel": 0.003,
+      "label": "Tactile key",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.491,
+        1.257,
+        0.49
+      ],
+      "size": [
+        0.075,
+        0.014,
+        0.056
+      ],
+      "material": "titanium",
+      "bevel": 0.003,
+      "label": "Tactile key",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        1.51,
+        -0.53
+      ],
+      "size": [
+        1.79,
+        0.67,
+        0.11
+      ],
+      "material": "graphite",
+      "bevel": 0.0253,
+      "label": "Display shock housing",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        1.51,
+        -0.464
+      ],
+      "size": [
+        1.55,
+        0.48,
+        0.022
+      ],
+      "material": "display",
+      "bevel": 0.00506,
+      "label": "Monitor glass",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.94,
+        0.61,
+        0.66
+      ],
+      "size": [
+        0.055,
+        0.94,
+        0.05
+      ],
+      "material": "titanium",
+      "bevel": 0.01,
+      "label": "Removable service seam",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.94,
+        0.61,
+        0.66
+      ],
+      "size": [
+        0.055,
+        0.94,
+        0.05
+      ],
+      "material": "titanium",
+      "bevel": 0.01,
+      "label": "Removable service seam",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.45,
+        0.48,
+        0.67
+      ],
+      "size": [
+        0.68,
+        0.36,
+        0.024
+      ],
+      "material": "rubber",
+      "bevel": 0.005520000000000001,
+      "label": "Recessed plenum",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.45,
+        0.3288,
+        0.6900000000000001
+      ],
+      "size": [
+        0.6188,
+        0.018,
+        0.035
+      ],
+      "material": "titanium",
+      "bevel": 0.00414,
+      "label": "Vent louvre",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.45,
+        0.38927999999999996,
+        0.6900000000000001
+      ],
+      "size": [
+        0.6188,
+        0.018,
+        0.035
+      ],
+      "material": "titanium",
+      "bevel": 0.00414,
+      "label": "Vent louvre",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.45,
+        0.44976,
+        0.6900000000000001
+      ],
+      "size": [
+        0.6188,
+        0.018,
+        0.035
+      ],
+      "material": "titanium",
+      "bevel": 0.00414,
+      "label": "Vent louvre",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.45,
+        0.51024,
+        0.6900000000000001
+      ],
+      "size": [
+        0.6188,
+        0.018,
+        0.035
+      ],
+      "material": "titanium",
+      "bevel": 0.00414,
+      "label": "Vent louvre",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.45,
+        0.57072,
+        0.6900000000000001
+      ],
+      "size": [
+        0.6188,
+        0.018,
+        0.035
+      ],
+      "material": "titanium",
+      "bevel": 0.00414,
+      "label": "Vent louvre",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.45,
+        0.6312,
+        0.6900000000000001
+      ],
+      "size": [
+        0.6188,
+        0.018,
+        0.035
+      ],
+      "material": "titanium",
+      "bevel": 0.00414,
+      "label": "Vent louvre",
+      "rotationY": 0
+    },
+    {
+      "shape": "bolt",
+      "position": [
+        -0.88,
+        0.2,
+        0.68
+      ],
+      "radius": 0.026,
+      "depth": 0.014,
+      "material": "titanium",
+      "label": "Captive hex fastener",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.88,
+        0.2,
+        0.6890000000000001
+      ],
+      "size": [
+        0.019,
+        0.007,
+        0.004
+      ],
+      "material": "rubber",
+      "bevel": 0,
+      "label": "Recessed drive",
+      "rotationY": 0
+    },
+    {
+      "shape": "bolt",
+      "position": [
+        -0.88,
+        0.98,
+        0.68
+      ],
+      "radius": 0.026,
+      "depth": 0.014,
+      "material": "titanium",
+      "label": "Captive hex fastener",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.88,
+        0.98,
+        0.6890000000000001
+      ],
+      "size": [
+        0.019,
+        0.007,
+        0.004
+      ],
+      "material": "rubber",
+      "bevel": 0,
+      "label": "Recessed drive",
+      "rotationY": 0
+    },
+    {
+      "shape": "bolt",
+      "position": [
+        0.88,
+        0.2,
+        0.68
+      ],
+      "radius": 0.026,
+      "depth": 0.014,
+      "material": "titanium",
+      "label": "Captive hex fastener",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.88,
+        0.2,
+        0.6890000000000001
+      ],
+      "size": [
+        0.019,
+        0.007,
+        0.004
+      ],
+      "material": "rubber",
+      "bevel": 0,
+      "label": "Recessed drive",
+      "rotationY": 0
+    },
+    {
+      "shape": "bolt",
+      "position": [
+        0.88,
+        0.98,
+        0.68
+      ],
+      "radius": 0.026,
+      "depth": 0.014,
+      "material": "titanium",
+      "label": "Captive hex fastener",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.88,
+        0.98,
+        0.6890000000000001
+      ],
+      "size": [
+        0.019,
+        0.007,
+        0.004
+      ],
+      "material": "rubber",
+      "bevel": 0,
+      "label": "Recessed drive",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.43,
+        0.77,
+        0.68
+      ],
+      "size": [
+        0.59,
+        0.13,
+        0.03
+      ],
+      "material": "titanium",
+      "bevel": 0.006,
+      "label": "Instrument label plate",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.95,
+        0.67,
+        0.1
+      ],
+      "size": [
+        0.12,
+        0.9,
+        1.06
+      ],
+      "material": "composite",
+      "bevel": 0.025
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.95,
+        0.67,
+        0.1
+      ],
+      "size": [
+        0.12,
+        0.9,
+        1.06
+      ],
+      "material": "composite",
+      "bevel": 0.025
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        0.7,
+        0.658
+      ],
+      "size": [
+        1.55,
+        0.38,
+        0.035
+      ],
+      "material": "composite",
+      "bevel": 0.00875
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        0.7,
+        0.684
+      ],
+      "size": [
+        1.05,
+        0.12,
+        0.012
+      ],
+      "material": "display",
+      "bevel": 0.003
+    }
+  ],
+  "ceiling-module": [
+    {
+      "shape": "box",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "size": [
+        2.6,
+        0.17,
+        1.25
+      ],
+      "material": "graphite",
+      "bevel": 0.035,
+      "label": "Ceiling plenum",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.19,
+        -0.04,
+        0
+      ],
+      "size": [
+        0.12,
+        0.22,
+        1.25
+      ],
+      "material": "titanium",
+      "bevel": 0.018,
+      "label": "Mounting flange",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.19,
+        -0.04,
+        0
+      ],
+      "size": [
+        0.12,
+        0.22,
+        1.25
+      ],
+      "material": "titanium",
+      "bevel": 0.018,
+      "label": "Mounting flange",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        -0.105,
+        -0.46
+      ],
+      "size": [
+        2.3,
+        0.065,
+        0.18
+      ],
+      "material": "composite",
+      "bevel": 0.014950000000000001,
+      "label": "Access cassette",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        -0.105,
+        0.46
+      ],
+      "size": [
+        2.3,
+        0.065,
+        0.18
+      ],
+      "material": "composite",
+      "bevel": 0.014950000000000001,
+      "label": "Access cassette",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.97,
+        -0.12,
+        0
+      ],
+      "size": [
+        0.075,
+        0.05,
+        0.55
+      ],
+      "material": "titanium",
+      "bevel": 0.008,
+      "label": "Return air grille",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.755,
+        -0.12,
+        0
+      ],
+      "size": [
+        0.075,
+        0.05,
+        0.55
+      ],
+      "material": "titanium",
+      "bevel": 0.008,
+      "label": "Return air grille",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.54,
+        -0.12,
+        0
+      ],
+      "size": [
+        0.075,
+        0.05,
+        0.55
+      ],
+      "material": "titanium",
+      "bevel": 0.008,
+      "label": "Return air grille",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.32499999999999996,
+        -0.12,
+        0
+      ],
+      "size": [
+        0.075,
+        0.05,
+        0.55
+      ],
+      "material": "titanium",
+      "bevel": 0.008,
+      "label": "Return air grille",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.10999999999999999,
+        -0.12,
+        0
+      ],
+      "size": [
+        0.075,
+        0.05,
+        0.55
+      ],
+      "material": "titanium",
+      "bevel": 0.008,
+      "label": "Return air grille",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.10499999999999998,
+        -0.12,
+        0
+      ],
+      "size": [
+        0.075,
+        0.05,
+        0.55
+      ],
+      "material": "titanium",
+      "bevel": 0.008,
+      "label": "Return air grille",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.32000000000000006,
+        -0.12,
+        0
+      ],
+      "size": [
+        0.075,
+        0.05,
+        0.55
+      ],
+      "material": "titanium",
+      "bevel": 0.008,
+      "label": "Return air grille",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.5349999999999999,
+        -0.12,
+        0
+      ],
+      "size": [
+        0.075,
+        0.05,
+        0.55
+      ],
+      "material": "titanium",
+      "bevel": 0.008,
+      "label": "Return air grille",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.75,
+        -0.12,
+        0
+      ],
+      "size": [
+        0.075,
+        0.05,
+        0.55
+      ],
+      "material": "titanium",
+      "bevel": 0.008,
+      "label": "Return air grille",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.9650000000000001,
+        -0.12,
+        0
+      ],
+      "size": [
+        0.075,
+        0.05,
+        0.55
+      ],
+      "material": "titanium",
+      "bevel": 0.008,
+      "label": "Return air grille",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        -0.155,
+        -0.4
+      ],
+      "size": [
+        1.85,
+        0.025,
+        0.045
+      ],
+      "material": "display",
+      "bevel": 0.005,
+      "label": "Task diffuser",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        -0.13,
+        0
+      ],
+      "size": [
+        2.7,
+        0.28,
+        0.68
+      ],
+      "material": "composite",
+      "bevel": 0.025
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        -0.3,
+        0
+      ],
+      "size": [
+        2.32,
+        0.06,
+        0.42
+      ],
+      "material": "graphite",
+      "bevel": 0.015
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.95,
+        -0.34,
+        0
+      ],
+      "size": [
+        0.1,
+        0.04,
+        0.4
+      ],
+      "material": "titanium",
+      "bevel": 0.008
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.71,
+        -0.34,
+        0
+      ],
+      "size": [
+        0.1,
+        0.04,
+        0.4
+      ],
+      "material": "titanium",
+      "bevel": 0.008
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.47,
+        -0.34,
+        0
+      ],
+      "size": [
+        0.1,
+        0.04,
+        0.4
+      ],
+      "material": "titanium",
+      "bevel": 0.008
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.22999999999999998,
+        -0.34,
+        0
+      ],
+      "size": [
+        0.1,
+        0.04,
+        0.4
+      ],
+      "material": "titanium",
+      "bevel": 0.008
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.010000000000000009,
+        -0.34,
+        0
+      ],
+      "size": [
+        0.1,
+        0.04,
+        0.4
+      ],
+      "material": "titanium",
+      "bevel": 0.008
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.25,
+        -0.34,
+        0
+      ],
+      "size": [
+        0.1,
+        0.04,
+        0.4
+      ],
+      "material": "titanium",
+      "bevel": 0.008
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.49,
+        -0.34,
+        0
+      ],
+      "size": [
+        0.1,
+        0.04,
+        0.4
+      ],
+      "material": "titanium",
+      "bevel": 0.008
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.73,
+        -0.34,
+        0
+      ],
+      "size": [
+        0.1,
+        0.04,
+        0.4
+      ],
+      "material": "titanium",
+      "bevel": 0.008
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.97,
+        -0.34,
+        0
+      ],
+      "size": [
+        0.1,
+        0.04,
+        0.4
+      ],
+      "material": "titanium",
+      "bevel": 0.008
+    }
+  ],
+  "pressure-rib": [
+    {
+      "shape": "box",
+      "position": [
+        -1.86,
+        1.84,
+        0
+      ],
+      "size": [
+        0.22,
+        3.68,
+        0.38
+      ],
+      "material": "titanium",
+      "bevel": 0.025,
+      "label": "Pressure upright",
+      "rotationY": 0
+    },
+    {
+      "shape": "profile",
+      "points": [
+        [
+          -1.75,
+          2.97
+        ],
+        [
+          -1.75,
+          3.53
+        ],
+        [
+          -1.19,
+          3.53
+        ]
+      ],
+      "depth": 0.34,
+      "z": 0,
+      "material": "graphite",
+      "bevel": 0.018,
+      "label": "Knee gusset",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.86,
+        1.84,
+        0.205
+      ],
+      "size": [
+        0.11,
+        3.38,
+        0.045
+      ],
+      "material": "composite",
+      "bevel": 0.01035,
+      "label": "Removable rib cap",
+      "rotationY": 0
+    },
+    {
+      "shape": "bolt",
+      "position": [
+        -1.86,
+        0.18,
+        0.24
+      ],
+      "radius": 0.026,
+      "depth": 0.014,
+      "material": "titanium",
+      "label": "Captive hex fastener",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.86,
+        0.18,
+        0.249
+      ],
+      "size": [
+        0.019,
+        0.007,
+        0.004
+      ],
+      "material": "rubber",
+      "bevel": 0,
+      "label": "Recessed drive",
+      "rotationY": 0
+    },
+    {
+      "shape": "bolt",
+      "position": [
+        -1.86,
+        1.8,
+        0.24
+      ],
+      "radius": 0.026,
+      "depth": 0.014,
+      "material": "titanium",
+      "label": "Captive hex fastener",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.86,
+        1.8,
+        0.249
+      ],
+      "size": [
+        0.019,
+        0.007,
+        0.004
+      ],
+      "material": "rubber",
+      "bevel": 0,
+      "label": "Recessed drive",
+      "rotationY": 0
+    },
+    {
+      "shape": "bolt",
+      "position": [
+        -1.86,
+        3.35,
+        0.24
+      ],
+      "radius": 0.026,
+      "depth": 0.014,
+      "material": "titanium",
+      "label": "Captive hex fastener",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.86,
+        3.35,
+        0.249
+      ],
+      "size": [
+        0.019,
+        0.007,
+        0.004
+      ],
+      "material": "rubber",
+      "bevel": 0,
+      "label": "Recessed drive",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.86,
+        1.84,
+        0
+      ],
+      "size": [
+        0.22,
+        3.68,
+        0.38
+      ],
+      "material": "titanium",
+      "bevel": 0.025,
+      "label": "Pressure upright",
+      "rotationY": 0
+    },
+    {
+      "shape": "profile",
+      "points": [
+        [
+          1.75,
+          2.97
+        ],
+        [
+          1.75,
+          3.53
+        ],
+        [
+          1.19,
+          3.53
+        ]
+      ],
+      "depth": 0.34,
+      "z": 0,
+      "material": "graphite",
+      "bevel": 0.018,
+      "label": "Knee gusset",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.86,
+        1.84,
+        0.205
+      ],
+      "size": [
+        0.11,
+        3.38,
+        0.045
+      ],
+      "material": "composite",
+      "bevel": 0.01035,
+      "label": "Removable rib cap",
+      "rotationY": 0
+    },
+    {
+      "shape": "bolt",
+      "position": [
+        1.86,
+        0.18,
+        0.24
+      ],
+      "radius": 0.026,
+      "depth": 0.014,
+      "material": "titanium",
+      "label": "Captive hex fastener",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.86,
+        0.18,
+        0.249
+      ],
+      "size": [
+        0.019,
+        0.007,
+        0.004
+      ],
+      "material": "rubber",
+      "bevel": 0,
+      "label": "Recessed drive",
+      "rotationY": 0
+    },
+    {
+      "shape": "bolt",
+      "position": [
+        1.86,
+        1.8,
+        0.24
+      ],
+      "radius": 0.026,
+      "depth": 0.014,
+      "material": "titanium",
+      "label": "Captive hex fastener",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.86,
+        1.8,
+        0.249
+      ],
+      "size": [
+        0.019,
+        0.007,
+        0.004
+      ],
+      "material": "rubber",
+      "bevel": 0,
+      "label": "Recessed drive",
+      "rotationY": 0
+    },
+    {
+      "shape": "bolt",
+      "position": [
+        1.86,
+        3.35,
+        0.24
+      ],
+      "radius": 0.026,
+      "depth": 0.014,
+      "material": "titanium",
+      "label": "Captive hex fastener",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.86,
+        3.35,
+        0.249
+      ],
+      "size": [
+        0.019,
+        0.007,
+        0.004
+      ],
+      "material": "rubber",
+      "bevel": 0,
+      "label": "Recessed drive",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        3.54,
+        0
+      ],
+      "size": [
+        3.9,
+        0.16,
+        0.38
+      ],
+      "material": "titanium",
+      "bevel": 0.025,
+      "label": "Continuous header",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        3.44,
+        0.205
+      ],
+      "size": [
+        2.8,
+        0.05,
+        0.04
+      ],
+      "material": "graphite",
+      "bevel": 0.008,
+      "label": "Header pressure seam",
+      "rotationY": 0
+    }
+  ],
+  "sleep-berth": [
+    {
+      "shape": "box",
+      "position": [
+        0,
+        0.4,
+        0
+      ],
+      "size": [
+        3.34,
+        0.72,
+        2.54
+      ],
+      "material": "graphite",
+      "bevel": 0.065,
+      "label": "Berth foundation",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        0.76,
+        -0.05
+      ],
+      "size": [
+        2.76,
+        0.15,
+        2.06
+      ],
+      "material": "composite",
+      "bevel": 0.0345,
+      "label": "Sealed sleep mattress",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.53,
+        0.57,
+        0
+      ],
+      "size": [
+        0.18,
+        1.08,
+        2.48
+      ],
+      "material": "composite",
+      "bevel": 0.0414,
+      "label": "Berth side enclosure",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.53,
+        0.9,
+        0.15
+      ],
+      "size": [
+        0.2,
+        0.08,
+        1.8
+      ],
+      "material": "titanium",
+      "bevel": 0.0184,
+      "label": "Entry handrail",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.53,
+        0.57,
+        0
+      ],
+      "size": [
+        0.18,
+        1.08,
+        2.48
+      ],
+      "material": "composite",
+      "bevel": 0.0414,
+      "label": "Berth side enclosure",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.53,
+        0.9,
+        0.15
+      ],
+      "size": [
+        0.2,
+        0.08,
+        1.8
+      ],
+      "material": "titanium",
+      "bevel": 0.0184,
+      "label": "Entry handrail",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        1.08,
+        -1.17
+      ],
+      "size": [
+        3.3,
+        1.42,
+        0.16
+      ],
+      "material": "composite",
+      "bevel": 0.0368,
+      "label": "Life-support head enclosure",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        1.12,
+        -1.073
+      ],
+      "size": [
+        2.7,
+        0.75,
+        0.035
+      ],
+      "material": "graphite",
+      "bevel": 0.008050000000000002,
+      "label": "Acoustic head recess",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.86,
+        1.17,
+        -1.04
+      ],
+      "size": [
+        0.58,
+        0.46,
+        0.024
+      ],
+      "material": "rubber",
+      "bevel": 0.005520000000000001,
+      "label": "Recessed plenum",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.86,
+        0.9767999999999999,
+        -1.02
+      ],
+      "size": [
+        0.5277999999999999,
+        0.018,
+        0.035
+      ],
+      "material": "titanium",
+      "bevel": 0.00414,
+      "label": "Vent louvre",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.86,
+        1.05408,
+        -1.02
+      ],
+      "size": [
+        0.5277999999999999,
+        0.018,
+        0.035
+      ],
+      "material": "titanium",
+      "bevel": 0.00414,
+      "label": "Vent louvre",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.86,
+        1.13136,
+        -1.02
+      ],
+      "size": [
+        0.5277999999999999,
+        0.018,
+        0.035
+      ],
+      "material": "titanium",
+      "bevel": 0.00414,
+      "label": "Vent louvre",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.86,
+        1.20864,
+        -1.02
+      ],
+      "size": [
+        0.5277999999999999,
+        0.018,
+        0.035
+      ],
+      "material": "titanium",
+      "bevel": 0.00414,
+      "label": "Vent louvre",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.86,
+        1.28592,
+        -1.02
+      ],
+      "size": [
+        0.5277999999999999,
+        0.018,
+        0.035
+      ],
+      "material": "titanium",
+      "bevel": 0.00414,
+      "label": "Vent louvre",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.86,
+        1.3632,
+        -1.02
+      ],
+      "size": [
+        0.5277999999999999,
+        0.018,
+        0.035
+      ],
+      "material": "titanium",
+      "bevel": 0.00414,
+      "label": "Vent louvre",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.62,
+        1.16,
+        -1.04
+      ],
+      "size": [
+        0.86,
+        0.38,
+        0.035
+      ],
+      "material": "display",
+      "bevel": 0.008050000000000002,
+      "label": "Berth control monitor",
+      "rotationY": 0
+    },
+    {
+      "shape": "bolt",
+      "position": [
+        -1.42,
+        0.38,
+        1.26
+      ],
+      "radius": 0.026,
+      "depth": 0.014,
+      "material": "titanium",
+      "label": "Captive hex fastener",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.42,
+        0.38,
+        1.269
+      ],
+      "size": [
+        0.019,
+        0.007,
+        0.004
+      ],
+      "material": "rubber",
+      "bevel": 0,
+      "label": "Recessed drive",
+      "rotationY": 0
+    },
+    {
+      "shape": "bolt",
+      "position": [
+        1.42,
+        0.38,
+        1.26
+      ],
+      "radius": 0.026,
+      "depth": 0.014,
+      "material": "titanium",
+      "label": "Captive hex fastener",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.42,
+        0.38,
+        1.269
+      ],
+      "size": [
+        0.019,
+        0.007,
+        0.004
+      ],
+      "material": "rubber",
+      "bevel": 0,
+      "label": "Recessed drive",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        0.32,
+        1.265
+      ],
+      "size": [
+        2.75,
+        0.31,
+        0.014
+      ],
+      "material": "titanium",
+      "bevel": 0.00322,
+      "label": "Under-berth storage drawer",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        0.37,
+        1.27
+      ],
+      "size": [
+        0.42,
+        0.04,
+        0.01
+      ],
+      "material": "rubber",
+      "bevel": 0.0023,
+      "label": "Drawer pull",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        1.7,
+        -1.09
+      ],
+      "size": [
+        2.55,
+        0.22,
+        0.28
+      ],
+      "material": "composite",
+      "bevel": 0.025
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        0.31,
+        1.16
+      ],
+      "size": [
+        2.5,
+        0.35,
+        0.16
+      ],
+      "material": "composite",
+      "bevel": 0.025
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        0.34,
+        1.25
+      ],
+      "size": [
+        1.85,
+        0.07,
+        0.025
+      ],
+      "material": "display",
+      "bevel": 0.005
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        1.85,
+        -0.28
+      ],
+      "size": [
+        3.2,
+        0.15,
+        1.96
+      ],
+      "material": "composite",
+      "bevel": 0.025
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.52,
+        1.42,
+        -0.2
+      ],
+      "size": [
+        0.14,
+        0.76,
+        1.8
+      ],
+      "material": "titanium",
+      "bevel": 0.025
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.52,
+        1.42,
+        -0.2
+      ],
+      "size": [
+        0.14,
+        0.76,
+        1.8
+      ],
+      "material": "titanium",
+      "bevel": 0.025
+    }
+  ],
+  "life-support": [
+    {
+      "shape": "box",
+      "position": [
+        0,
+        1.2,
+        0
+      ],
+      "size": [
+        2.58,
+        2.34,
+        0.82
+      ],
+      "material": "graphite",
+      "bevel": 0.045,
+      "label": "Equipment rack housing",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.66,
+        1.27,
+        0.427
+      ],
+      "size": [
+        1.16,
+        2.13,
+        0.055
+      ],
+      "material": "composite",
+      "bevel": 0.01265,
+      "label": "Service door",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.30000000000000004,
+        1.25,
+        0.469
+      ],
+      "size": [
+        0.055,
+        0.41,
+        0.05
+      ],
+      "material": "titanium",
+      "bevel": 0.011500000000000002,
+      "label": "Pressure latch",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.66,
+        0.45,
+        0.47
+      ],
+      "size": [
+        0.82,
+        0.4,
+        0.024
+      ],
+      "material": "rubber",
+      "bevel": 0.005520000000000001,
+      "label": "Recessed plenum",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.66,
+        0.28200000000000003,
+        0.49
+      ],
+      "size": [
+        0.7462,
+        0.018,
+        0.035
+      ],
+      "material": "titanium",
+      "bevel": 0.00414,
+      "label": "Vent louvre",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.66,
+        0.34920000000000007,
+        0.49
+      ],
+      "size": [
+        0.7462,
+        0.018,
+        0.035
+      ],
+      "material": "titanium",
+      "bevel": 0.00414,
+      "label": "Vent louvre",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.66,
+        0.41640000000000005,
+        0.49
+      ],
+      "size": [
+        0.7462,
+        0.018,
+        0.035
+      ],
+      "material": "titanium",
+      "bevel": 0.00414,
+      "label": "Vent louvre",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.66,
+        0.48360000000000003,
+        0.49
+      ],
+      "size": [
+        0.7462,
+        0.018,
+        0.035
+      ],
+      "material": "titanium",
+      "bevel": 0.00414,
+      "label": "Vent louvre",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.66,
+        0.5508000000000001,
+        0.49
+      ],
+      "size": [
+        0.7462,
+        0.018,
+        0.035
+      ],
+      "material": "titanium",
+      "bevel": 0.00414,
+      "label": "Vent louvre",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.66,
+        0.618,
+        0.49
+      ],
+      "size": [
+        0.7462,
+        0.018,
+        0.035
+      ],
+      "material": "titanium",
+      "bevel": 0.00414,
+      "label": "Vent louvre",
+      "rotationY": 0
+    },
+    {
+      "shape": "bolt",
+      "position": [
+        -1.13,
+        0.29,
+        0.47
+      ],
+      "radius": 0.026,
+      "depth": 0.014,
+      "material": "titanium",
+      "label": "Captive hex fastener",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.13,
+        0.29,
+        0.479
+      ],
+      "size": [
+        0.019,
+        0.007,
+        0.004
+      ],
+      "material": "rubber",
+      "bevel": 0,
+      "label": "Recessed drive",
+      "rotationY": 0
+    },
+    {
+      "shape": "bolt",
+      "position": [
+        -1.13,
+        2.13,
+        0.47
+      ],
+      "radius": 0.026,
+      "depth": 0.014,
+      "material": "titanium",
+      "label": "Captive hex fastener",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.13,
+        2.13,
+        0.479
+      ],
+      "size": [
+        0.019,
+        0.007,
+        0.004
+      ],
+      "material": "rubber",
+      "bevel": 0,
+      "label": "Recessed drive",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.66,
+        1.27,
+        0.427
+      ],
+      "size": [
+        1.16,
+        2.13,
+        0.055
+      ],
+      "material": "composite",
+      "bevel": 0.01265,
+      "label": "Service door",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.02,
+        1.25,
+        0.469
+      ],
+      "size": [
+        0.055,
+        0.41,
+        0.05
+      ],
+      "material": "titanium",
+      "bevel": 0.011500000000000002,
+      "label": "Pressure latch",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.66,
+        0.45,
+        0.47
+      ],
+      "size": [
+        0.82,
+        0.4,
+        0.024
+      ],
+      "material": "rubber",
+      "bevel": 0.005520000000000001,
+      "label": "Recessed plenum",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.66,
+        0.28200000000000003,
+        0.49
+      ],
+      "size": [
+        0.7462,
+        0.018,
+        0.035
+      ],
+      "material": "titanium",
+      "bevel": 0.00414,
+      "label": "Vent louvre",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.66,
+        0.34920000000000007,
+        0.49
+      ],
+      "size": [
+        0.7462,
+        0.018,
+        0.035
+      ],
+      "material": "titanium",
+      "bevel": 0.00414,
+      "label": "Vent louvre",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.66,
+        0.41640000000000005,
+        0.49
+      ],
+      "size": [
+        0.7462,
+        0.018,
+        0.035
+      ],
+      "material": "titanium",
+      "bevel": 0.00414,
+      "label": "Vent louvre",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.66,
+        0.48360000000000003,
+        0.49
+      ],
+      "size": [
+        0.7462,
+        0.018,
+        0.035
+      ],
+      "material": "titanium",
+      "bevel": 0.00414,
+      "label": "Vent louvre",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.66,
+        0.5508000000000001,
+        0.49
+      ],
+      "size": [
+        0.7462,
+        0.018,
+        0.035
+      ],
+      "material": "titanium",
+      "bevel": 0.00414,
+      "label": "Vent louvre",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.66,
+        0.618,
+        0.49
+      ],
+      "size": [
+        0.7462,
+        0.018,
+        0.035
+      ],
+      "material": "titanium",
+      "bevel": 0.00414,
+      "label": "Vent louvre",
+      "rotationY": 0
+    },
+    {
+      "shape": "bolt",
+      "position": [
+        0.19000000000000006,
+        0.29,
+        0.47
+      ],
+      "radius": 0.026,
+      "depth": 0.014,
+      "material": "titanium",
+      "label": "Captive hex fastener",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.19000000000000006,
+        0.29,
+        0.479
+      ],
+      "size": [
+        0.019,
+        0.007,
+        0.004
+      ],
+      "material": "rubber",
+      "bevel": 0,
+      "label": "Recessed drive",
+      "rotationY": 0
+    },
+    {
+      "shape": "bolt",
+      "position": [
+        0.19000000000000006,
+        2.13,
+        0.47
+      ],
+      "radius": 0.026,
+      "depth": 0.014,
+      "material": "titanium",
+      "label": "Captive hex fastener",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.19000000000000006,
+        2.13,
+        0.479
+      ],
+      "size": [
+        0.019,
+        0.007,
+        0.004
+      ],
+      "material": "rubber",
+      "bevel": 0,
+      "label": "Recessed drive",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.65,
+        1.72,
+        0.47
+      ],
+      "size": [
+        0.7,
+        0.37,
+        0.025
+      ],
+      "material": "display",
+      "bevel": 0.005750000000000001,
+      "label": "Life support telemetry",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.65,
+        1.74,
+        0.47
+      ],
+      "size": [
+        0.6,
+        0.05,
+        0.03
+      ],
+      "material": "titanium",
+      "bevel": 0.004,
+      "label": "Research inventory tag",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        1.3,
+        0.46
+      ],
+      "size": [
+        1.65,
+        0.85,
+        0.11
+      ],
+      "material": "composite",
+      "bevel": 0.025
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        1.5,
+        0.53
+      ],
+      "size": [
+        1.3,
+        0.24,
+        0.025
+      ],
+      "material": "display",
+      "bevel": 0.006
+    }
+  ],
+  "hydro-tray": [
+    {
+      "shape": "box",
+      "position": [
+        0,
+        0.1,
+        0
+      ],
+      "size": [
+        2.34,
+        0.12,
+        0.68
+      ],
+      "material": "titanium",
+      "bevel": 0.025,
+      "label": "Nutrient tray",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        0.167,
+        0
+      ],
+      "size": [
+        2.15,
+        0.025,
+        0.51
+      ],
+      "material": "rubber",
+      "bevel": 0.005750000000000001,
+      "label": "Root bed liner",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.8,
+        0.19,
+        0
+      ],
+      "size": [
+        0.58,
+        0.025,
+        0.44
+      ],
+      "material": "graphite",
+      "bevel": 0.005750000000000001,
+      "label": "Removable growth cassette",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.8,
+        0.21,
+        -0.14
+      ],
+      "size": [
+        0.47,
+        0.015,
+        0.045
+      ],
+      "material": "composite",
+      "bevel": 0.00345,
+      "label": "Grow channels",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.8,
+        0.21,
+        0.14
+      ],
+      "size": [
+        0.47,
+        0.015,
+        0.045
+      ],
+      "material": "composite",
+      "bevel": 0.00345,
+      "label": "Grow channels",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        0.19,
+        0
+      ],
+      "size": [
+        0.58,
+        0.025,
+        0.44
+      ],
+      "material": "graphite",
+      "bevel": 0.005750000000000001,
+      "label": "Removable growth cassette",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        0.21,
+        -0.14
+      ],
+      "size": [
+        0.47,
+        0.015,
+        0.045
+      ],
+      "material": "composite",
+      "bevel": 0.00345,
+      "label": "Grow channels",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        0.21,
+        0.14
+      ],
+      "size": [
+        0.47,
+        0.015,
+        0.045
+      ],
+      "material": "composite",
+      "bevel": 0.00345,
+      "label": "Grow channels",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.8,
+        0.19,
+        0
+      ],
+      "size": [
+        0.58,
+        0.025,
+        0.44
+      ],
+      "material": "graphite",
+      "bevel": 0.005750000000000001,
+      "label": "Removable growth cassette",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.8,
+        0.21,
+        -0.14
+      ],
+      "size": [
+        0.47,
+        0.015,
+        0.045
+      ],
+      "material": "composite",
+      "bevel": 0.00345,
+      "label": "Grow channels",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.8,
+        0.21,
+        0.14
+      ],
+      "size": [
+        0.47,
+        0.015,
+        0.045
+      ],
+      "material": "composite",
+      "bevel": 0.00345,
+      "label": "Grow channels",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.11,
+        0.36,
+        -0.29
+      ],
+      "size": [
+        0.1,
+        0.72,
+        0.1
+      ],
+      "material": "titanium",
+      "bevel": 0.015,
+      "label": "Rack upright",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.11,
+        0.36,
+        -0.29
+      ],
+      "size": [
+        0.1,
+        0.72,
+        0.1
+      ],
+      "material": "titanium",
+      "bevel": 0.015,
+      "label": "Rack upright",
+      "rotationY": 0
+    }
+  ],
+  "floor-cassette": [
+    {
+      "shape": "box",
+      "position": [
+        0,
+        -0.008,
+        0
+      ],
+      "size": [
+        3.35,
+        0.016,
+        2.8
+      ],
+      "material": "graphite",
+      "bevel": 0.003,
+      "label": "Industrial deck cassette",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.55,
+        0.005,
+        0
+      ],
+      "size": [
+        0.1,
+        0.008,
+        2.66
+      ],
+      "material": "titanium",
+      "bevel": 0.00184,
+      "label": "Deck retaining edge",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.55,
+        0.005,
+        0
+      ],
+      "size": [
+        0.1,
+        0.008,
+        2.66
+      ],
+      "material": "titanium",
+      "bevel": 0.00184,
+      "label": "Deck retaining edge",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.76,
+        0.003,
+        -1.24
+      ],
+      "size": [
+        1.1,
+        0.008,
+        0.023
+      ],
+      "material": "titanium",
+      "bevel": 0,
+      "label": "Anti-slip tread",
+      "rotationY": 0.16
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.76,
+        0.003,
+        -1.24
+      ],
+      "size": [
+        1.1,
+        0.008,
+        0.023
+      ],
+      "material": "titanium",
+      "bevel": 0,
+      "label": "Anti-slip tread",
+      "rotationY": -0.16
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.76,
+        0.003,
+        -1.075
+      ],
+      "size": [
+        1.1,
+        0.008,
+        0.023
+      ],
+      "material": "titanium",
+      "bevel": 0,
+      "label": "Anti-slip tread",
+      "rotationY": 0.16
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.76,
+        0.003,
+        -1.075
+      ],
+      "size": [
+        1.1,
+        0.008,
+        0.023
+      ],
+      "material": "titanium",
+      "bevel": 0,
+      "label": "Anti-slip tread",
+      "rotationY": -0.16
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.76,
+        0.003,
+        -0.9099999999999999
+      ],
+      "size": [
+        1.1,
+        0.008,
+        0.023
+      ],
+      "material": "titanium",
+      "bevel": 0,
+      "label": "Anti-slip tread",
+      "rotationY": 0.16
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.76,
+        0.003,
+        -0.9099999999999999
+      ],
+      "size": [
+        1.1,
+        0.008,
+        0.023
+      ],
+      "material": "titanium",
+      "bevel": 0,
+      "label": "Anti-slip tread",
+      "rotationY": -0.16
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.76,
+        0.003,
+        -0.745
+      ],
+      "size": [
+        1.1,
+        0.008,
+        0.023
+      ],
+      "material": "titanium",
+      "bevel": 0,
+      "label": "Anti-slip tread",
+      "rotationY": 0.16
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.76,
+        0.003,
+        -0.745
+      ],
+      "size": [
+        1.1,
+        0.008,
+        0.023
+      ],
+      "material": "titanium",
+      "bevel": 0,
+      "label": "Anti-slip tread",
+      "rotationY": -0.16
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.76,
+        0.003,
+        -0.58
+      ],
+      "size": [
+        1.1,
+        0.008,
+        0.023
+      ],
+      "material": "titanium",
+      "bevel": 0,
+      "label": "Anti-slip tread",
+      "rotationY": 0.16
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.76,
+        0.003,
+        -0.58
+      ],
+      "size": [
+        1.1,
+        0.008,
+        0.023
+      ],
+      "material": "titanium",
+      "bevel": 0,
+      "label": "Anti-slip tread",
+      "rotationY": -0.16
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.76,
+        0.003,
+        -0.4149999999999999
+      ],
+      "size": [
+        1.1,
+        0.008,
+        0.023
+      ],
+      "material": "titanium",
+      "bevel": 0,
+      "label": "Anti-slip tread",
+      "rotationY": 0.16
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.76,
+        0.003,
+        -0.4149999999999999
+      ],
+      "size": [
+        1.1,
+        0.008,
+        0.023
+      ],
+      "material": "titanium",
+      "bevel": 0,
+      "label": "Anti-slip tread",
+      "rotationY": -0.16
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.76,
+        0.003,
+        -0.25
+      ],
+      "size": [
+        1.1,
+        0.008,
+        0.023
+      ],
+      "material": "titanium",
+      "bevel": 0,
+      "label": "Anti-slip tread",
+      "rotationY": 0.16
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.76,
+        0.003,
+        -0.25
+      ],
+      "size": [
+        1.1,
+        0.008,
+        0.023
+      ],
+      "material": "titanium",
+      "bevel": 0,
+      "label": "Anti-slip tread",
+      "rotationY": -0.16
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.76,
+        0.003,
+        -0.08499999999999996
+      ],
+      "size": [
+        1.1,
+        0.008,
+        0.023
+      ],
+      "material": "titanium",
+      "bevel": 0,
+      "label": "Anti-slip tread",
+      "rotationY": 0.16
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.76,
+        0.003,
+        -0.08499999999999996
+      ],
+      "size": [
+        1.1,
+        0.008,
+        0.023
+      ],
+      "material": "titanium",
+      "bevel": 0,
+      "label": "Anti-slip tread",
+      "rotationY": -0.16
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.76,
+        0.003,
+        0.08000000000000007
+      ],
+      "size": [
+        1.1,
+        0.008,
+        0.023
+      ],
+      "material": "titanium",
+      "bevel": 0,
+      "label": "Anti-slip tread",
+      "rotationY": 0.16
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.76,
+        0.003,
+        0.08000000000000007
+      ],
+      "size": [
+        1.1,
+        0.008,
+        0.023
+      ],
+      "material": "titanium",
+      "bevel": 0,
+      "label": "Anti-slip tread",
+      "rotationY": -0.16
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.76,
+        0.003,
+        0.2450000000000001
+      ],
+      "size": [
+        1.1,
+        0.008,
+        0.023
+      ],
+      "material": "titanium",
+      "bevel": 0,
+      "label": "Anti-slip tread",
+      "rotationY": 0.16
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.76,
+        0.003,
+        0.2450000000000001
+      ],
+      "size": [
+        1.1,
+        0.008,
+        0.023
+      ],
+      "material": "titanium",
+      "bevel": 0,
+      "label": "Anti-slip tread",
+      "rotationY": -0.16
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.76,
+        0.003,
+        0.41000000000000014
+      ],
+      "size": [
+        1.1,
+        0.008,
+        0.023
+      ],
+      "material": "titanium",
+      "bevel": 0,
+      "label": "Anti-slip tread",
+      "rotationY": 0.16
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.76,
+        0.003,
+        0.41000000000000014
+      ],
+      "size": [
+        1.1,
+        0.008,
+        0.023
+      ],
+      "material": "titanium",
+      "bevel": 0,
+      "label": "Anti-slip tread",
+      "rotationY": -0.16
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.76,
+        0.003,
+        0.5750000000000002
+      ],
+      "size": [
+        1.1,
+        0.008,
+        0.023
+      ],
+      "material": "titanium",
+      "bevel": 0,
+      "label": "Anti-slip tread",
+      "rotationY": 0.16
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.76,
+        0.003,
+        0.5750000000000002
+      ],
+      "size": [
+        1.1,
+        0.008,
+        0.023
+      ],
+      "material": "titanium",
+      "bevel": 0,
+      "label": "Anti-slip tread",
+      "rotationY": -0.16
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.76,
+        0.003,
+        0.74
+      ],
+      "size": [
+        1.1,
+        0.008,
+        0.023
+      ],
+      "material": "titanium",
+      "bevel": 0,
+      "label": "Anti-slip tread",
+      "rotationY": 0.16
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.76,
+        0.003,
+        0.74
+      ],
+      "size": [
+        1.1,
+        0.008,
+        0.023
+      ],
+      "material": "titanium",
+      "bevel": 0,
+      "label": "Anti-slip tread",
+      "rotationY": -0.16
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.76,
+        0.003,
+        0.905
+      ],
+      "size": [
+        1.1,
+        0.008,
+        0.023
+      ],
+      "material": "titanium",
+      "bevel": 0,
+      "label": "Anti-slip tread",
+      "rotationY": 0.16
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.76,
+        0.003,
+        0.905
+      ],
+      "size": [
+        1.1,
+        0.008,
+        0.023
+      ],
+      "material": "titanium",
+      "bevel": 0,
+      "label": "Anti-slip tread",
+      "rotationY": -0.16
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.76,
+        0.003,
+        1.07
+      ],
+      "size": [
+        1.1,
+        0.008,
+        0.023
+      ],
+      "material": "titanium",
+      "bevel": 0,
+      "label": "Anti-slip tread",
+      "rotationY": 0.16
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.76,
+        0.003,
+        1.07
+      ],
+      "size": [
+        1.1,
+        0.008,
+        0.023
+      ],
+      "material": "titanium",
+      "bevel": 0,
+      "label": "Anti-slip tread",
+      "rotationY": -0.16
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.76,
+        0.003,
+        1.235
+      ],
+      "size": [
+        1.1,
+        0.008,
+        0.023
+      ],
+      "material": "titanium",
+      "bevel": 0,
+      "label": "Anti-slip tread",
+      "rotationY": 0.16
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.76,
+        0.003,
+        1.235
+      ],
+      "size": [
+        1.1,
+        0.008,
+        0.023
+      ],
+      "material": "titanium",
+      "bevel": 0,
+      "label": "Anti-slip tread",
+      "rotationY": -0.16
+    }
+  ],
+  "green-airlock": [
+    {
+      "shape": "box",
+      "position": [
+        -1.78,
+        1.58,
+        0
+      ],
+      "size": [
+        0.26,
+        3.16,
+        0.44
+      ],
+      "material": "graphite",
+      "bevel": 0.035,
+      "label": "Airlock machined jamb",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.67,
+        1.51,
+        0
+      ],
+      "size": [
+        0.04,
+        2.98,
+        0.27
+      ],
+      "material": "rubber",
+      "bevel": 0.008,
+      "label": "Pressure seal",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.78,
+        1.58,
+        0
+      ],
+      "size": [
+        0.26,
+        3.16,
+        0.44
+      ],
+      "material": "graphite",
+      "bevel": 0.035,
+      "label": "Airlock machined jamb",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.67,
+        1.51,
+        0
+      ],
+      "size": [
+        0.04,
+        2.98,
+        0.27
+      ],
+      "material": "rubber",
+      "bevel": 0.008,
+      "label": "Pressure seal",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        3.22,
+        0
+      ],
+      "size": [
+        3.8,
+        0.36,
+        0.55
+      ],
+      "material": "titanium",
+      "bevel": 0.04,
+      "label": "Airlock header extrusion",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.78,
+        1.56,
+        -0.245
+      ],
+      "size": [
+        0.19,
+        2.95,
+        0.045
+      ],
+      "material": "titanium",
+      "bevel": 0.01035,
+      "label": "Strip armoured bezel",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.78,
+        1.56,
+        -0.271
+      ],
+      "size": [
+        0.13,
+        2.72,
+        0.026
+      ],
+      "material": "green",
+      "bevel": 0.00414,
+      "label": "Emerald light guide",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.863,
+        1.56,
+        -0.269
+      ],
+      "size": [
+        0.045,
+        2.81,
+        0.02
+      ],
+      "material": "reflection",
+      "bevel": 0.0046,
+      "label": "Green reflected trim",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.78,
+        2.96,
+        -0.275
+      ],
+      "size": [
+        0.075,
+        0.045,
+        0.02
+      ],
+      "material": "green",
+      "bevel": 0.0046,
+      "label": "Access status indicator",
+      "rotationY": 0
+    },
+    {
+      "shape": "bolt",
+      "position": [
+        -1.78,
+        0.14,
+        -0.275
+      ],
+      "radius": 0.026,
+      "depth": 0.014,
+      "material": "titanium",
+      "label": "Captive hex fastener",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.78,
+        0.14,
+        -0.266
+      ],
+      "size": [
+        0.019,
+        0.007,
+        0.004
+      ],
+      "material": "rubber",
+      "bevel": 0,
+      "label": "Recessed drive",
+      "rotationY": 0
+    },
+    {
+      "shape": "bolt",
+      "position": [
+        -1.78,
+        3.04,
+        -0.275
+      ],
+      "radius": 0.026,
+      "depth": 0.014,
+      "material": "titanium",
+      "label": "Captive hex fastener",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.78,
+        3.04,
+        -0.266
+      ],
+      "size": [
+        0.019,
+        0.007,
+        0.004
+      ],
+      "material": "rubber",
+      "bevel": 0,
+      "label": "Recessed drive",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.78,
+        1.56,
+        -0.245
+      ],
+      "size": [
+        0.19,
+        2.95,
+        0.045
+      ],
+      "material": "titanium",
+      "bevel": 0.01035,
+      "label": "Strip armoured bezel",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.78,
+        1.56,
+        -0.271
+      ],
+      "size": [
+        0.13,
+        2.72,
+        0.026
+      ],
+      "material": "green",
+      "bevel": 0.00414,
+      "label": "Emerald light guide",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.863,
+        1.56,
+        -0.269
+      ],
+      "size": [
+        0.045,
+        2.81,
+        0.02
+      ],
+      "material": "reflection",
+      "bevel": 0.0046,
+      "label": "Green reflected trim",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.78,
+        2.96,
+        -0.275
+      ],
+      "size": [
+        0.075,
+        0.045,
+        0.02
+      ],
+      "material": "green",
+      "bevel": 0.0046,
+      "label": "Access status indicator",
+      "rotationY": 0
+    },
+    {
+      "shape": "bolt",
+      "position": [
+        1.78,
+        0.14,
+        -0.275
+      ],
+      "radius": 0.026,
+      "depth": 0.014,
+      "material": "titanium",
+      "label": "Captive hex fastener",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.78,
+        0.14,
+        -0.266
+      ],
+      "size": [
+        0.019,
+        0.007,
+        0.004
+      ],
+      "material": "rubber",
+      "bevel": 0,
+      "label": "Recessed drive",
+      "rotationY": 0
+    },
+    {
+      "shape": "bolt",
+      "position": [
+        1.78,
+        3.04,
+        -0.275
+      ],
+      "radius": 0.026,
+      "depth": 0.014,
+      "material": "titanium",
+      "label": "Captive hex fastener",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.78,
+        3.04,
+        -0.266
+      ],
+      "size": [
+        0.019,
+        0.007,
+        0.004
+      ],
+      "material": "rubber",
+      "bevel": 0,
+      "label": "Recessed drive",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        3.22,
+        -0.295
+      ],
+      "size": [
+        3.45,
+        0.16,
+        0.045
+      ],
+      "material": "graphite",
+      "bevel": 0.01035,
+      "label": "Header diffuser bezel",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        3.22,
+        -0.341
+      ],
+      "size": [
+        3.29,
+        0.12,
+        0.019
+      ],
+      "material": "green",
+      "bevel": 0.00437,
+      "label": "Header light guide",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        3.32,
+        -0.315
+      ],
+      "size": [
+        3.34,
+        0.035,
+        0.021
+      ],
+      "material": "reflection",
+      "bevel": 0.00483,
+      "label": "Header reflected machining",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.35,
+        0.016,
+        -0.24
+      ],
+      "size": [
+        0.38,
+        0.012,
+        0.1
+      ],
+      "material": "reflection",
+      "bevel": 0.002,
+      "label": "Threshold contact reflection",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.35,
+        0.023,
+        -0.24
+      ],
+      "size": [
+        0.34,
+        0.012,
+        0.07
+      ],
+      "material": "green",
+      "bevel": 0.0027600000000000003,
+      "label": "Threshold marker",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.35,
+        0.016,
+        -0.24
+      ],
+      "size": [
+        0.38,
+        0.012,
+        0.1
+      ],
+      "material": "reflection",
+      "bevel": 0.002,
+      "label": "Threshold contact reflection",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.35,
+        0.023,
+        -0.24
+      ],
+      "size": [
+        0.34,
+        0.012,
+        0.07
+      ],
+      "material": "green",
+      "bevel": 0.0027600000000000003,
+      "label": "Threshold marker",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.78,
+        1.56,
+        0.245
+      ],
+      "size": [
+        0.19,
+        2.95,
+        0.045
+      ],
+      "material": "titanium",
+      "bevel": 0.01035,
+      "label": "Strip armoured bezel",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.78,
+        1.56,
+        0.271
+      ],
+      "size": [
+        0.13,
+        2.72,
+        0.026
+      ],
+      "material": "green",
+      "bevel": 0.00414,
+      "label": "Emerald light guide",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.863,
+        1.56,
+        0.269
+      ],
+      "size": [
+        0.045,
+        2.81,
+        0.02
+      ],
+      "material": "reflection",
+      "bevel": 0.0046,
+      "label": "Green reflected trim",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.78,
+        2.96,
+        0.275
+      ],
+      "size": [
+        0.075,
+        0.045,
+        0.02
+      ],
+      "material": "green",
+      "bevel": 0.0046,
+      "label": "Access status indicator",
+      "rotationY": 0
+    },
+    {
+      "shape": "bolt",
+      "position": [
+        -1.78,
+        0.14,
+        0.275
+      ],
+      "radius": 0.026,
+      "depth": 0.014,
+      "material": "titanium",
+      "label": "Captive hex fastener",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.78,
+        0.14,
+        0.28400000000000003
+      ],
+      "size": [
+        0.019,
+        0.007,
+        0.004
+      ],
+      "material": "rubber",
+      "bevel": 0,
+      "label": "Recessed drive",
+      "rotationY": 0
+    },
+    {
+      "shape": "bolt",
+      "position": [
+        -1.78,
+        3.04,
+        0.275
+      ],
+      "radius": 0.026,
+      "depth": 0.014,
+      "material": "titanium",
+      "label": "Captive hex fastener",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.78,
+        3.04,
+        0.28400000000000003
+      ],
+      "size": [
+        0.019,
+        0.007,
+        0.004
+      ],
+      "material": "rubber",
+      "bevel": 0,
+      "label": "Recessed drive",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.78,
+        1.56,
+        0.245
+      ],
+      "size": [
+        0.19,
+        2.95,
+        0.045
+      ],
+      "material": "titanium",
+      "bevel": 0.01035,
+      "label": "Strip armoured bezel",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.78,
+        1.56,
+        0.271
+      ],
+      "size": [
+        0.13,
+        2.72,
+        0.026
+      ],
+      "material": "green",
+      "bevel": 0.00414,
+      "label": "Emerald light guide",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.863,
+        1.56,
+        0.269
+      ],
+      "size": [
+        0.045,
+        2.81,
+        0.02
+      ],
+      "material": "reflection",
+      "bevel": 0.0046,
+      "label": "Green reflected trim",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.78,
+        2.96,
+        0.275
+      ],
+      "size": [
+        0.075,
+        0.045,
+        0.02
+      ],
+      "material": "green",
+      "bevel": 0.0046,
+      "label": "Access status indicator",
+      "rotationY": 0
+    },
+    {
+      "shape": "bolt",
+      "position": [
+        1.78,
+        0.14,
+        0.275
+      ],
+      "radius": 0.026,
+      "depth": 0.014,
+      "material": "titanium",
+      "label": "Captive hex fastener",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.78,
+        0.14,
+        0.28400000000000003
+      ],
+      "size": [
+        0.019,
+        0.007,
+        0.004
+      ],
+      "material": "rubber",
+      "bevel": 0,
+      "label": "Recessed drive",
+      "rotationY": 0
+    },
+    {
+      "shape": "bolt",
+      "position": [
+        1.78,
+        3.04,
+        0.275
+      ],
+      "radius": 0.026,
+      "depth": 0.014,
+      "material": "titanium",
+      "label": "Captive hex fastener",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.78,
+        3.04,
+        0.28400000000000003
+      ],
+      "size": [
+        0.019,
+        0.007,
+        0.004
+      ],
+      "material": "rubber",
+      "bevel": 0,
+      "label": "Recessed drive",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        3.22,
+        0.295
+      ],
+      "size": [
+        3.45,
+        0.16,
+        0.045
+      ],
+      "material": "graphite",
+      "bevel": 0.01035,
+      "label": "Header diffuser bezel",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        3.22,
+        0.341
+      ],
+      "size": [
+        3.29,
+        0.12,
+        0.019
+      ],
+      "material": "green",
+      "bevel": 0.00437,
+      "label": "Header light guide",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        3.32,
+        0.315
+      ],
+      "size": [
+        3.34,
+        0.035,
+        0.021
+      ],
+      "material": "reflection",
+      "bevel": 0.00483,
+      "label": "Header reflected machining",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.35,
+        0.016,
+        0.24
+      ],
+      "size": [
+        0.38,
+        0.012,
+        0.1
+      ],
+      "material": "reflection",
+      "bevel": 0.002,
+      "label": "Threshold contact reflection",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.35,
+        0.023,
+        0.24
+      ],
+      "size": [
+        0.34,
+        0.012,
+        0.07
+      ],
+      "material": "green",
+      "bevel": 0.0027600000000000003,
+      "label": "Threshold marker",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.35,
+        0.016,
+        0.24
+      ],
+      "size": [
+        0.38,
+        0.012,
+        0.1
+      ],
+      "material": "reflection",
+      "bevel": 0.002,
+      "label": "Threshold contact reflection",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.35,
+        0.023,
+        0.24
+      ],
+      "size": [
+        0.34,
+        0.012,
+        0.07
+      ],
+      "material": "green",
+      "bevel": 0.0027600000000000003,
+      "label": "Threshold marker",
+      "rotationY": 0
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.82,
+        1.6,
+        -0.32
+      ],
+      "size": [
+        0.28,
+        2.82,
+        0.08
+      ],
+      "material": "titanium",
+      "bevel": 0.02
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.82,
+        1.6,
+        -0.371
+      ],
+      "size": [
+        0.18,
+        2.65,
+        0.022
+      ],
+      "material": "green",
+      "bevel": 0.0055
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.82,
+        1.6,
+        -0.32
+      ],
+      "size": [
+        0.28,
+        2.82,
+        0.08
+      ],
+      "material": "titanium",
+      "bevel": 0.02
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.82,
+        1.6,
+        -0.371
+      ],
+      "size": [
+        0.18,
+        2.65,
+        0.022
+      ],
+      "material": "green",
+      "bevel": 0.0055
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        3.31,
+        -0.32
+      ],
+      "size": [
+        3.85,
+        0.25,
+        0.09
+      ],
+      "material": "titanium",
+      "bevel": 0.0225
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        3.25,
+        -0.38
+      ],
+      "size": [
+        3.5,
+        0.15,
+        0.022
+      ],
+      "material": "green",
+      "bevel": 0.0055
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.82,
+        1.6,
+        0.32
+      ],
+      "size": [
+        0.28,
+        2.82,
+        0.08
+      ],
+      "material": "titanium",
+      "bevel": 0.02
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.82,
+        1.6,
+        0.371
+      ],
+      "size": [
+        0.18,
+        2.65,
+        0.022
+      ],
+      "material": "green",
+      "bevel": 0.0055
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.82,
+        1.6,
+        0.32
+      ],
+      "size": [
+        0.28,
+        2.82,
+        0.08
+      ],
+      "material": "titanium",
+      "bevel": 0.02
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.82,
+        1.6,
+        0.371
+      ],
+      "size": [
+        0.18,
+        2.65,
+        0.022
+      ],
+      "material": "green",
+      "bevel": 0.0055
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        3.31,
+        0.32
+      ],
+      "size": [
+        3.85,
+        0.25,
+        0.09
+      ],
+      "material": "titanium",
+      "bevel": 0.0225
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        3.25,
+        0.38
+      ],
+      "size": [
+        3.5,
+        0.15,
+        0.022
+      ],
+      "material": "green",
+      "bevel": 0.0055
+    }
+  ],
+  "exterior-facade": [
+    {
+      "shape": "box",
+      "position": [
+        0,
+        2.4,
+        0
+      ],
+      "size": [
+        2.9,
+        4.8,
+        0.16
+      ],
+      "material": "graphite",
+      "bevel": 0.025
+    },
+    {
+      "shape": "profile",
+      "points": [
+        [
+          -1.43,
+          0.25
+        ],
+        [
+          1.43,
+          0.25
+        ],
+        [
+          1.43,
+          3.65
+        ],
+        [
+          1.08,
+          4.55
+        ],
+        [
+          -1.08,
+          4.55
+        ],
+        [
+          -1.43,
+          3.65
+        ]
+      ],
+      "depth": 0.24,
+      "z": 0.16,
+      "material": "composite",
+      "bevel": 0.035
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        0.66,
+        0.33
+      ],
+      "size": [
+        2.5,
+        0.44,
+        0.2
+      ],
+      "material": "titanium",
+      "bevel": 0.025
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        2.45,
+        0.305
+      ],
+      "size": [
+        1.98,
+        1.05,
+        0.08
+      ],
+      "material": "graphite",
+      "bevel": 0.02
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        2.45,
+        0.36
+      ],
+      "size": [
+        1.7,
+        0.75,
+        0.08
+      ],
+      "material": "titanium",
+      "bevel": 0.02
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        4.72,
+        0.24
+      ],
+      "size": [
+        2.98,
+        0.24,
+        0.58
+      ],
+      "material": "composite",
+      "bevel": 0.025
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        4.47,
+        0.49
+      ],
+      "size": [
+        2.55,
+        0.055,
+        0.035
+      ],
+      "material": "graphite",
+      "bevel": 0.00875
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        2.21,
+        0.415
+      ],
+      "size": [
+        1.45,
+        0.055,
+        0.04
+      ],
+      "material": "graphite",
+      "bevel": 0.008
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        2.45,
+        0.415
+      ],
+      "size": [
+        1.45,
+        0.055,
+        0.04
+      ],
+      "material": "graphite",
+      "bevel": 0.008
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        2.6900000000000004,
+        0.415
+      ],
+      "size": [
+        1.45,
+        0.055,
+        0.04
+      ],
+      "material": "graphite",
+      "bevel": 0.008
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        1.3,
+        0.32
+      ],
+      "size": [
+        0.95,
+        0.14,
+        0.035
+      ],
+      "material": "reflection",
+      "bevel": 0.00875
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.36,
+        2.45,
+        0.22
+      ],
+      "size": [
+        0.18,
+        4.7,
+        0.4
+      ],
+      "material": "titanium",
+      "bevel": 0.025
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.36,
+        2.45,
+        0.22
+      ],
+      "size": [
+        0.18,
+        4.7,
+        0.4
+      ],
+      "material": "titanium",
+      "bevel": 0.025
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        4.99,
+        0.2
+      ],
+      "size": [
+        2.98,
+        0.3,
+        0.72
+      ],
+      "material": "composite",
+      "bevel": 0.025
+    }
+  ],
+  "entrance-crown": [
+    {
+      "shape": "profile",
+      "points": [
+        [
+          -2.18,
+          3.32
+        ],
+        [
+          2.18,
+          3.32
+        ],
+        [
+          2.18,
+          3.67
+        ],
+        [
+          1.83,
+          4.04
+        ],
+        [
+          -1.83,
+          4.04
+        ],
+        [
+          -2.18,
+          3.67
+        ]
+      ],
+      "depth": 0.7,
+      "z": 0,
+      "material": "composite",
+      "bevel": 0.035
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        3.66,
+        0.37
+      ],
+      "size": [
+        3.25,
+        0.32,
+        0.05
+      ],
+      "material": "graphite",
+      "bevel": 0.0125
+    },
+    {
+      "shape": "box",
+      "position": [
+        -2.08,
+        1.65,
+        0
+      ],
+      "size": [
+        0.22,
+        3.3,
+        0.64
+      ],
+      "material": "titanium",
+      "bevel": 0.025
+    },
+    {
+      "shape": "box",
+      "position": [
+        -2.08,
+        1.65,
+        0.34
+      ],
+      "size": [
+        0.13,
+        2.8,
+        0.04
+      ],
+      "material": "reflection",
+      "bevel": 0.01
+    },
+    {
+      "shape": "box",
+      "position": [
+        2.08,
+        1.65,
+        0
+      ],
+      "size": [
+        0.22,
+        3.3,
+        0.64
+      ],
+      "material": "titanium",
+      "bevel": 0.025
+    },
+    {
+      "shape": "box",
+      "position": [
+        2.08,
+        1.65,
+        0.34
+      ],
+      "size": [
+        0.13,
+        2.8,
+        0.04
+      ],
+      "material": "reflection",
+      "bevel": 0.01
+    }
+  ],
+  "door-leaf": [
+    {
+      "shape": "box",
+      "position": [
+        0,
+        1.52,
+        0
+      ],
+      "size": [
+        1.65,
+        2.98,
+        0.11
+      ],
+      "material": "rubber",
+      "bevel": 0.012
+    },
+    {
+      "shape": "profile",
+      "points": [
+        [
+          -0.79,
+          0.07
+        ],
+        [
+          0.79,
+          0.07
+        ],
+        [
+          0.79,
+          2.97
+        ],
+        [
+          -0.79,
+          2.97
+        ]
+      ],
+      "depth": 0.035,
+      "z": -0.065,
+      "material": "titanium",
+      "bevel": 0.008
+    },
+    {
+      "shape": "profile",
+      "points": [
+        [
+          -0.65,
+          0.26
+        ],
+        [
+          0.46,
+          0.26
+        ],
+        [
+          0.65,
+          0.48
+        ],
+        [
+          0.65,
+          2.72
+        ],
+        [
+          -0.46,
+          2.72
+        ],
+        [
+          -0.65,
+          2.5
+        ]
+      ],
+      "depth": 0.012,
+      "z": -0.087,
+      "material": "composite",
+      "bevel": 0.004
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        0.55,
+        -0.093
+      ],
+      "size": [
+        1.15,
+        0.045,
+        0.004
+      ],
+      "material": "graphite",
+      "bevel": 0.001
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        2.45,
+        -0.093
+      ],
+      "size": [
+        1.15,
+        0.045,
+        0.004
+      ],
+      "material": "graphite",
+      "bevel": 0.001
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.54,
+        1.5,
+        -0.093
+      ],
+      "size": [
+        0.1,
+        0.82,
+        0.004
+      ],
+      "material": "reflection",
+      "bevel": 0.001
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        2.18,
+        -0.093
+      ],
+      "size": [
+        0.7,
+        0.16,
+        0.004
+      ],
+      "material": "graphite",
+      "bevel": 0.001
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.71,
+        0.2,
+        -0.093
+      ],
+      "size": [
+        0.055,
+        0.055,
+        0.004
+      ],
+      "material": "rubber",
+      "bevel": 0.001
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.71,
+        2.83,
+        -0.093
+      ],
+      "size": [
+        0.055,
+        0.055,
+        0.004
+      ],
+      "material": "rubber",
+      "bevel": 0.001
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.71,
+        0.2,
+        -0.093
+      ],
+      "size": [
+        0.055,
+        0.055,
+        0.004
+      ],
+      "material": "rubber",
+      "bevel": 0.001
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.71,
+        2.83,
+        -0.093
+      ],
+      "size": [
+        0.055,
+        0.055,
+        0.004
+      ],
+      "material": "rubber",
+      "bevel": 0.001
+    },
+    {
+      "shape": "profile",
+      "points": [
+        [
+          -0.79,
+          0.07
+        ],
+        [
+          0.79,
+          0.07
+        ],
+        [
+          0.79,
+          2.97
+        ],
+        [
+          -0.79,
+          2.97
+        ]
+      ],
+      "depth": 0.035,
+      "z": 0.065,
+      "material": "titanium",
+      "bevel": 0.008
+    },
+    {
+      "shape": "profile",
+      "points": [
+        [
+          -0.65,
+          0.26
+        ],
+        [
+          0.46,
+          0.26
+        ],
+        [
+          0.65,
+          0.48
+        ],
+        [
+          0.65,
+          2.72
+        ],
+        [
+          -0.46,
+          2.72
+        ],
+        [
+          -0.65,
+          2.5
+        ]
+      ],
+      "depth": 0.012,
+      "z": 0.087,
+      "material": "composite",
+      "bevel": 0.004
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        0.55,
+        0.093
+      ],
+      "size": [
+        1.15,
+        0.045,
+        0.004
+      ],
+      "material": "graphite",
+      "bevel": 0.001
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        2.45,
+        0.093
+      ],
+      "size": [
+        1.15,
+        0.045,
+        0.004
+      ],
+      "material": "graphite",
+      "bevel": 0.001
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.54,
+        1.5,
+        0.093
+      ],
+      "size": [
+        0.1,
+        0.82,
+        0.004
+      ],
+      "material": "reflection",
+      "bevel": 0.001
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        2.18,
+        0.093
+      ],
+      "size": [
+        0.7,
+        0.16,
+        0.004
+      ],
+      "material": "graphite",
+      "bevel": 0.001
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.71,
+        0.2,
+        0.093
+      ],
+      "size": [
+        0.055,
+        0.055,
+        0.004
+      ],
+      "material": "rubber",
+      "bevel": 0.001
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.71,
+        2.83,
+        0.093
+      ],
+      "size": [
+        0.055,
+        0.055,
+        0.004
+      ],
+      "material": "rubber",
+      "bevel": 0.001
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.71,
+        0.2,
+        0.093
+      ],
+      "size": [
+        0.055,
+        0.055,
+        0.004
+      ],
+      "material": "rubber",
+      "bevel": 0.001
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.71,
+        2.83,
+        0.093
+      ],
+      "size": [
+        0.055,
+        0.055,
+        0.004
+      ],
+      "material": "rubber",
+      "bevel": 0.001
+    }
+  ],
+  "control-cladding": [
+    {
+      "shape": "profile",
+      "points": [
+        [
+          -1.35,
+          0.1
+        ],
+        [
+          1.35,
+          0.1
+        ],
+        [
+          1.35,
+          3.7
+        ],
+        [
+          1.12,
+          3.98
+        ],
+        [
+          -1.12,
+          3.98
+        ],
+        [
+          -1.35,
+          3.7
+        ]
+      ],
+      "depth": 0.09,
+      "z": 0,
+      "material": "composite",
+      "bevel": 0.035
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        0.55,
+        0.06
+      ],
+      "size": [
+        2.45,
+        0.55,
+        0.06
+      ],
+      "material": "titanium",
+      "bevel": 0.015
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        3.45,
+        0.06
+      ],
+      "size": [
+        2.4,
+        0.6,
+        0.06
+      ],
+      "material": "graphite",
+      "bevel": 0.015
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.65,
+        3.45,
+        0.11
+      ],
+      "size": [
+        0.12,
+        0.4,
+        0.04
+      ],
+      "material": "titanium",
+      "bevel": 0.008
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.32,
+        3.45,
+        0.11
+      ],
+      "size": [
+        0.12,
+        0.4,
+        0.04
+      ],
+      "material": "titanium",
+      "bevel": 0.008
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        3.45,
+        0.11
+      ],
+      "size": [
+        0.12,
+        0.4,
+        0.04
+      ],
+      "material": "titanium",
+      "bevel": 0.008
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.32,
+        3.45,
+        0.11
+      ],
+      "size": [
+        0.12,
+        0.4,
+        0.04
+      ],
+      "material": "titanium",
+      "bevel": 0.008
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.65,
+        3.45,
+        0.11
+      ],
+      "size": [
+        0.12,
+        0.4,
+        0.04
+      ],
+      "material": "titanium",
+      "bevel": 0.008
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        2.85,
+        0.07
+      ],
+      "size": [
+        2.42,
+        0.045,
+        0.04
+      ],
+      "material": "display",
+      "bevel": 0.008
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.3,
+        2,
+        0.1
+      ],
+      "size": [
+        0.09,
+        3.9,
+        0.18
+      ],
+      "material": "titanium",
+      "bevel": 0.0225
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.3,
+        2,
+        0.1
+      ],
+      "size": [
+        0.09,
+        3.9,
+        0.18
+      ],
+      "material": "titanium",
+      "bevel": 0.0225
+    }
+  ],
+  "external-service": [
+    {
+      "shape": "profile",
+      "points": [
+        [
+          -1.1,
+          0
+        ],
+        [
+          1.1,
+          0
+        ],
+        [
+          1.1,
+          1.2
+        ],
+        [
+          0.8,
+          1.5
+        ],
+        [
+          -0.8,
+          1.5
+        ],
+        [
+          -1.1,
+          1.2
+        ]
+      ],
+      "depth": 0.68,
+      "z": 0.34,
+      "material": "composite",
+      "bevel": 0.035
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        0.72,
+        0.7
+      ],
+      "size": [
+        1.75,
+        0.9,
+        0.09
+      ],
+      "material": "graphite",
+      "bevel": 0.0225
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        0.42,
+        0.77
+      ],
+      "size": [
+        1.55,
+        0.055,
+        0.08
+      ],
+      "material": "titanium",
+      "bevel": 0.01
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        0.57,
+        0.77
+      ],
+      "size": [
+        1.55,
+        0.055,
+        0.08
+      ],
+      "material": "titanium",
+      "bevel": 0.01
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        0.72,
+        0.77
+      ],
+      "size": [
+        1.55,
+        0.055,
+        0.08
+      ],
+      "material": "titanium",
+      "bevel": 0.01
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        0.87,
+        0.77
+      ],
+      "size": [
+        1.55,
+        0.055,
+        0.08
+      ],
+      "material": "titanium",
+      "bevel": 0.01
+    },
+    {
+      "shape": "box",
+      "position": [
+        0,
+        1.02,
+        0.77
+      ],
+      "size": [
+        1.55,
+        0.055,
+        0.08
+      ],
+      "material": "titanium",
+      "bevel": 0.01
+    }
+  ],
+  "corridor-guides": [
+    {
+      "shape": "box",
+      "position": [
+        -0.99,
+        3.37,
+        -6.535
+      ],
+      "size": [
+        0.28,
+        0.12,
+        17.03
+      ],
+      "material": "titanium",
+      "bevel": 0.008
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.99,
+        3.295,
+        -6.535
+      ],
+      "size": [
+        0.13,
+        0.035,
+        17.03
+      ],
+      "material": "green",
+      "bevel": 0.008
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.095,
+        3.3,
+        -6.535
+      ],
+      "size": [
+        0.045,
+        0.025,
+        17.03
+      ],
+      "material": "reflection",
+      "bevel": 0.00625
+    },
+    {
+      "shape": "box",
+      "position": [
+        -0.885,
+        3.3,
+        -6.535
+      ],
+      "size": [
+        0.045,
+        0.025,
+        17.03
+      ],
+      "material": "reflection",
+      "bevel": 0.00625
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.69,
+        1.65,
+        -6.535
+      ],
+      "size": [
+        0.1,
+        0.24,
+        17.03
+      ],
+      "material": "titanium",
+      "bevel": 0.008
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.628,
+        1.65,
+        -6.535
+      ],
+      "size": [
+        0.025,
+        0.105,
+        17.03
+      ],
+      "material": "green",
+      "bevel": 0.00625
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.632,
+        1.5579999999999998,
+        -6.535
+      ],
+      "size": [
+        0.018,
+        0.052,
+        17.03
+      ],
+      "material": "reflection",
+      "bevel": 0.0045
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.632,
+        1.742,
+        -6.535
+      ],
+      "size": [
+        0.018,
+        0.052,
+        17.03
+      ],
+      "material": "reflection",
+      "bevel": 0.0045
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.57,
+        0.055,
+        -1.3
+      ],
+      "size": [
+        0.055,
+        0.014,
+        0.55
+      ],
+      "material": "green",
+      "bevel": 0.003
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.57,
+        0.046,
+        -1.3
+      ],
+      "size": [
+        0.11,
+        0.012,
+        0.65
+      ],
+      "material": "reflection",
+      "bevel": 0.003
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.57,
+        0.055,
+        -4.8
+      ],
+      "size": [
+        0.055,
+        0.014,
+        0.55
+      ],
+      "material": "green",
+      "bevel": 0.003
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.57,
+        0.046,
+        -4.8
+      ],
+      "size": [
+        0.11,
+        0.012,
+        0.65
+      ],
+      "material": "reflection",
+      "bevel": 0.003
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.57,
+        0.055,
+        -8.3
+      ],
+      "size": [
+        0.055,
+        0.014,
+        0.55
+      ],
+      "material": "green",
+      "bevel": 0.003
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.57,
+        0.046,
+        -8.3
+      ],
+      "size": [
+        0.11,
+        0.012,
+        0.65
+      ],
+      "material": "reflection",
+      "bevel": 0.003
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.57,
+        0.055,
+        -11.8
+      ],
+      "size": [
+        0.055,
+        0.014,
+        0.55
+      ],
+      "material": "green",
+      "bevel": 0.003
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.57,
+        0.046,
+        -11.8
+      ],
+      "size": [
+        0.11,
+        0.012,
+        0.65
+      ],
+      "material": "reflection",
+      "bevel": 0.003
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.57,
+        0.055,
+        -15.3
+      ],
+      "size": [
+        0.055,
+        0.014,
+        0.55
+      ],
+      "material": "green",
+      "bevel": 0.003
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.57,
+        0.046,
+        -15.3
+      ],
+      "size": [
+        0.11,
+        0.012,
+        0.65
+      ],
+      "material": "reflection",
+      "bevel": 0.003
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.63,
+        2.45,
+        1.8
+      ],
+      "size": [
+        0.1,
+        1.65,
+        0.1
+      ],
+      "material": "titanium",
+      "bevel": 0.008
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.565,
+        2.45,
+        1.8
+      ],
+      "size": [
+        0.025,
+        1.65,
+        0.045
+      ],
+      "material": "green",
+      "bevel": 0.00625
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.3,
+        3.3,
+        1.8
+      ],
+      "size": [
+        0.65,
+        0.035,
+        0.07
+      ],
+      "material": "green",
+      "bevel": 0.008
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.63,
+        2.45,
+        -14.9
+      ],
+      "size": [
+        0.1,
+        1.65,
+        0.1
+      ],
+      "material": "titanium",
+      "bevel": 0.008
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.565,
+        2.45,
+        -14.9
+      ],
+      "size": [
+        0.025,
+        1.65,
+        0.045
+      ],
+      "material": "green",
+      "bevel": 0.00625
+    },
+    {
+      "shape": "box",
+      "position": [
+        -1.3,
+        3.3,
+        -14.9
+      ],
+      "size": [
+        0.65,
+        0.035,
+        0.07
+      ],
+      "material": "green",
+      "bevel": 0.008
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.99,
+        3.37,
+        -6.535
+      ],
+      "size": [
+        0.28,
+        0.12,
+        17.03
+      ],
+      "material": "titanium",
+      "bevel": 0.008
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.99,
+        3.295,
+        -6.535
+      ],
+      "size": [
+        0.13,
+        0.035,
+        17.03
+      ],
+      "material": "green",
+      "bevel": 0.008
+    },
+    {
+      "shape": "box",
+      "position": [
+        0.885,
+        3.3,
+        -6.535
+      ],
+      "size": [
+        0.045,
+        0.025,
+        17.03
+      ],
+      "material": "reflection",
+      "bevel": 0.00625
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.095,
+        3.3,
+        -6.535
+      ],
+      "size": [
+        0.045,
+        0.025,
+        17.03
+      ],
+      "material": "reflection",
+      "bevel": 0.00625
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.69,
+        1.65,
+        -6.535
+      ],
+      "size": [
+        0.1,
+        0.24,
+        17.03
+      ],
+      "material": "titanium",
+      "bevel": 0.008
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.628,
+        1.65,
+        -6.535
+      ],
+      "size": [
+        0.025,
+        0.105,
+        17.03
+      ],
+      "material": "green",
+      "bevel": 0.00625
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.632,
+        1.5579999999999998,
+        -6.535
+      ],
+      "size": [
+        0.018,
+        0.052,
+        17.03
+      ],
+      "material": "reflection",
+      "bevel": 0.0045
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.632,
+        1.742,
+        -6.535
+      ],
+      "size": [
+        0.018,
+        0.052,
+        17.03
+      ],
+      "material": "reflection",
+      "bevel": 0.0045
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.57,
+        0.055,
+        -1.3
+      ],
+      "size": [
+        0.055,
+        0.014,
+        0.55
+      ],
+      "material": "green",
+      "bevel": 0.003
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.57,
+        0.046,
+        -1.3
+      ],
+      "size": [
+        0.11,
+        0.012,
+        0.65
+      ],
+      "material": "reflection",
+      "bevel": 0.003
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.57,
+        0.055,
+        -4.8
+      ],
+      "size": [
+        0.055,
+        0.014,
+        0.55
+      ],
+      "material": "green",
+      "bevel": 0.003
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.57,
+        0.046,
+        -4.8
+      ],
+      "size": [
+        0.11,
+        0.012,
+        0.65
+      ],
+      "material": "reflection",
+      "bevel": 0.003
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.57,
+        0.055,
+        -8.3
+      ],
+      "size": [
+        0.055,
+        0.014,
+        0.55
+      ],
+      "material": "green",
+      "bevel": 0.003
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.57,
+        0.046,
+        -8.3
+      ],
+      "size": [
+        0.11,
+        0.012,
+        0.65
+      ],
+      "material": "reflection",
+      "bevel": 0.003
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.57,
+        0.055,
+        -11.8
+      ],
+      "size": [
+        0.055,
+        0.014,
+        0.55
+      ],
+      "material": "green",
+      "bevel": 0.003
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.57,
+        0.046,
+        -11.8
+      ],
+      "size": [
+        0.11,
+        0.012,
+        0.65
+      ],
+      "material": "reflection",
+      "bevel": 0.003
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.57,
+        0.055,
+        -15.3
+      ],
+      "size": [
+        0.055,
+        0.014,
+        0.55
+      ],
+      "material": "green",
+      "bevel": 0.003
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.57,
+        0.046,
+        -15.3
+      ],
+      "size": [
+        0.11,
+        0.012,
+        0.65
+      ],
+      "material": "reflection",
+      "bevel": 0.003
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.63,
+        2.45,
+        1.8
+      ],
+      "size": [
+        0.1,
+        1.65,
+        0.1
+      ],
+      "material": "titanium",
+      "bevel": 0.008
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.565,
+        2.45,
+        1.8
+      ],
+      "size": [
+        0.025,
+        1.65,
+        0.045
+      ],
+      "material": "green",
+      "bevel": 0.00625
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.3,
+        3.3,
+        1.8
+      ],
+      "size": [
+        0.65,
+        0.035,
+        0.07
+      ],
+      "material": "green",
+      "bevel": 0.008
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.63,
+        2.45,
+        -14.9
+      ],
+      "size": [
+        0.1,
+        1.65,
+        0.1
+      ],
+      "material": "titanium",
+      "bevel": 0.008
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.565,
+        2.45,
+        -14.9
+      ],
+      "size": [
+        0.025,
+        1.65,
+        0.045
+      ],
+      "material": "green",
+      "bevel": 0.00625
+    },
+    {
+      "shape": "box",
+      "position": [
+        1.3,
+        3.3,
+        -14.9
+      ],
+      "size": [
+        0.65,
+        0.035,
+        0.07
+      ],
+      "material": "green",
+      "bevel": 0.008
+    }
+  ]
+}

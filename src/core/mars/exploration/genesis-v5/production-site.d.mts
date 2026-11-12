@@ -1,0 +1,10 @@
+import type {Area} from './colony-occupancy.mjs';
+import type {GenesisPlacement,GenesisDoorOpenState} from './3d/production-collision-adapter.mjs';
+import type {CampusPlan} from './3d/campus-layout.mjs';
+import type {MarsCollisionObstacle} from '../components/BobuCharacterController';
+export const ARES_GENESIS_CAMPUS_ENABLED: boolean;
+export const ARES_GENESIS_PRODUCTION_SITE: null | {placement:GenesisPlacement;occupied:MarsCollisionObstacle[];occupancyComplete:boolean;routesReserved:boolean;placementReserved:boolean;legalRegions:Area[];protectedRoutes:Area[];reservedCells:Area[]};
+export type ProductionCampusSite={placement:GenesisPlacement;rootY:number;floorWorldY:number;rampEndY:number;surfaceAtLocal:(x:number,z:number)=>number;plan:CampusPlan;envelope:MarsCollisionObstacle};
+export function prepareProductionCampus(input:{placement:GenesisPlacement;sample:(x:number,z:number)=>number;occupied:MarsCollisionObstacle[];occupancyComplete:boolean;routesReserved:boolean;placementReserved:boolean;legalRegions:Area[];protectedRoutes:Area[];reservedCells:Area[]}):ProductionCampusSite;
+export function productionCampusObstacles(site:ProductionCampusSite,doors:GenesisDoorOpenState):MarsCollisionObstacle[];
+export function productionCampusFloor(site:ProductionCampusSite,x:number,z:number):number|null;
