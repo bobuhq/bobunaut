@@ -15,3 +15,9 @@ test('missing inventories, changed footprint, absent entitlement and conflicts b
   const c=certificate();Object.assign(c.site,patch);assert.throws(()=>validateGenesisCertificate(c,context));
  }
 });
+test('exact surveyed allocation passes but a micrometre of missing entitlement fails',()=>{
+ const c=certificate();c.site.legalRegions=[{kind:'box',x:-530.5,z:-210.5,halfWidth:54.7,halfDepth:67.7}];
+ assert.doesNotThrow(()=>validateGenesisCertificate(c,context));
+ c.site.legalRegions[0].halfWidth-=.000001;
+ assert.throws(()=>validateGenesisCertificate(c,context),/footprint blocked/);
+});
