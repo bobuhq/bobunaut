@@ -1,0 +1,30 @@
+.flight-overlay{position:fixed;inset:0;width:100vw;height:100dvh;box-sizing:border-box;z-index:100;pointer-events:none;color:#edfbff;font:12px system-ui}
+.flight-hud{position:absolute;top:max(10px,env(safe-area-inset-top));left:max(10px,env(safe-area-inset-left));right:max(10px,env(safe-area-inset-right));display:flex;justify-content:space-between;align-items:flex-start;gap:20px;pointer-events:none;font-variant-numeric:tabular-nums}
+.flight-panel{box-sizing:border-box;background:#07151bcf;border:1px solid #5bb6cd77;border-radius:8px;padding:12px;width:240px;max-width:calc(50% - 10px);text-shadow:0 1px 2px #000}
+.flight-altitude{display:flex;flex-direction:column;gap:5px}
+.flight-eyebrow{font-weight:700;letter-spacing:.08em}.flight-distance{font-size:42px;line-height:1.1;color:#b5f9ff}.flight-distance small{font-size:20px}.flight-datum{font-size:10px;color:#b8cdd7}.flight-status{font-size:11px;color:#9df6cc;overflow-wrap:anywhere}
+.flight-altitude[data-near-ground=true]{border-color:#edbc62}.flight-altitude[data-near-ground=true] .flight-distance{color:#ffda93}
+.flight-systems dl{margin:8px 0;display:grid;gap:4px}.flight-systems dl div{display:flex;justify-content:space-between;gap:6px}.flight-systems dt{font-size:10px;color:#b8cdd7}.flight-systems dd{margin:0;text-align:right;overflow-wrap:anywhere}
+.flight-systems details{pointer-events:auto;font-size:10px;max-height:20dvh;overflow:auto}.flight-systems summary{cursor:pointer}.flight-systems a{color:#b5f9ff}.flight-systems button{display:block;margin-top:6px;min-height:32px}
+.flight-reticle{position:absolute;left:50%;top:46%;font-size:32px;color:#80ffda;text-shadow:0 1px 4px #000;pointer-events:none}
+@media(max-width:600px){.flight-hud{gap:12px}.flight-panel{padding:8px;max-width:calc(50% - 6px);font-size:10px}.flight-distance{font-size:30px}.flight-eyebrow{font-size:10px}.flight-datum{font-size:9px}.flight-stick{width:80px;height:80px}.flight-buttons{grid-template-columns:repeat(2,minmax(64px,88px));gap:4px}.flight-buttons button{min-height:44px;font-size:9px}.flight-touch{gap:6px}.flight-look{padding:8px!important;font-size:9px;max-width:60px}}
+@media(max-height:500px){.flight-panel{padding:6px;width:220px}.flight-distance{font-size:28px}.flight-altitude{gap:2px}.flight-systems dl{gap:1px;margin:3px 0}.flight-stick{width:72px;height:72px}.flight-buttons{grid-template-columns:repeat(4,minmax(54px,80px));gap:4px}.flight-buttons button{min-height:36px;font-size:9px}.flight-touch{bottom:max(8px,env(safe-area-inset-bottom));gap:6px}.flight-look{padding:8px!important;font-size:9px}}
+
+/* Walking-preview chrome is redundant during flight and overlaps touch controls. */
+.flight-mode>.phase9-header,.flight-mode>.phase9-navigation,.flight-mode>.phase9-badges,.flight-mode>.phase9-report,.flight-mode>output,.flight-mode>div:not(:first-child){display:none}
+@media(max-width:600px){.flight-look{position:absolute;left:0;bottom:94px;max-width:76px;box-sizing:border-box}}
+
+/* V5: reserve the central 50% sightline at every viewport width. */
+.flight-panel{width:min(240px,calc(25vw - 12px));max-width:calc(25vw - 12px);overflow-wrap:anywhere}
+@media(max-width:600px){.flight-panel{padding:5px;font-size:9px}.flight-distance{font-size:clamp(15px,4.5vw,22px)}.flight-distance small{font-size:11px}.flight-eyebrow{font-size:9px}.flight-systems dl div{flex-direction:column;gap:0}.flight-systems dd{text-align:left}.flight-datum{font-size:8px}}
+
+/* V6: body-level portal cannot inherit canvas/Html transforms or host hiding rules. */
+#ares-flight-viewport{position:fixed;inset:0;z-index:100;pointer-events:none;transform:none;contain:layout style}
+#ares-flight-viewport .flight-hud{position:fixed;inset:0;display:block}
+#ares-flight-viewport .flight-panel{position:absolute;top:max(10px,env(safe-area-inset-top));width:min(240px,calc(25vw - 12px));max-width:calc(25vw - 12px)}
+#ares-flight-viewport .flight-altitude{left:max(10px,env(safe-area-inset-left))}
+#ares-flight-viewport .flight-systems{right:max(10px,env(safe-area-inset-right))}
+
+#ares-flight-viewport .flight-altitude{max-width:calc(25vw - max(10px,env(safe-area-inset-left)) - 2px)}
+#ares-flight-viewport .flight-systems{max-width:calc(25vw - max(10px,env(safe-area-inset-right)) - 2px)}
+@media(max-width:600px){.flight-diagnostic{display:none}}

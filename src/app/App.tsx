@@ -45,9 +45,9 @@ const BuildMars = lazyWithRecovery(() =>
   })),
 );
 
-const MarsExploreWorld = lazyWithRecovery(() =>
-  import("../core/mars/exploration/MarsExploreWorld").then((module) => ({
-    default: module.MarsExploreWorld,
+const AresFlightGateway = lazyWithRecovery(() =>
+  import("../core/mars/exploration/AresFlightGateway").then((module) => ({
+    default: module.AresFlightGateway,
   })),
 );
 
@@ -224,7 +224,7 @@ export function App() {
           <Route path="/mars" element={<BuildMars />} />
           <Route
             path="/mars/explore"
-            element={<MarsExploreWorld />}
+            element={<AresFlightGateway />}
           />
           <Route
             path="/mars/advertiser"

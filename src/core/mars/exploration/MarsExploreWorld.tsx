@@ -1,3 +1,6 @@
+import { AresFlightSession } from "./flight/AresFlightSession";
+import { AresParkedSpacecraft } from "./AresParkedSpacecraft";
+import type { FlightHandoff } from "./flight/handoff.mjs";
 import { AresGenesisCampusIntegration, useAresGenesisCampusIntegration } from "./genesis-v5/AresGenesisCampusIntegration";
 import {
   Suspense,
@@ -228,6 +231,9 @@ function MarsExploreScene({
       null,
     );
 
+  const [landedHandoff, setLandedHandoff] = useState<FlightHandoff | null>(null);
+  const flying = new URLSearchParams(window.location.search).get("flightEntry") === "1" && landedHandoff === null;
+
   const bobuStairStateRef =
     useRef(false);
 
@@ -324,6 +330,8 @@ function MarsExploreScene({
       {/* Genesis V10 stays hidden until the authoritative placement check approves. */}
       <AresGenesisCampusIntegration integration={genesisProduction} targetRef={bobuRef} />
       <AresGroundDust />
+      {landedHandoff && <AresParkedSpacecraft position={landedHandoff.ship} yaw={landedHandoff.yaw} />}
+      {flying && <AresFlightSession onEntry={setLandedHandoff} />}
       <AresExplorationLandmarks
         targetRef={bobuRef}
         onNavigation={
@@ -401,7 +409,7 @@ function MarsExploreScene({
 
 
 
-      <BobuCharacterController
+      {!flying && <BobuCharacterController
         characterRef={bobuRef}
         stairStateRef={
           bobuStairStateRef
@@ -409,11 +417,7 @@ function MarsExploreScene({
         analogMovementRef={
           analogMovementRef
         }
-        startPosition={[
-          0,
-          0,
-          0,
-        ]}
+        startPosition={landedHandoff?.spawn ?? [0, 0, 0]}
         collisionObstacles={[
           ...MARS_SURFACE_ROCK_COLLISION_OBSTACLES,
           ...ARES_COMMAND_HUB_COLLISION_OBSTACLES,
@@ -429,11 +433,11 @@ function MarsExploreScene({
             bobuStairStateRef
           }
         />
-      </BobuCharacterController>
+      </BobuCharacterController>}
 
-      <MarsFollowCamera
+      {!flying && <MarsFollowCamera
         targetRef={bobuRef}
-      />
+      />}
 
       <AresColonyBuildings
         refreshKey={
