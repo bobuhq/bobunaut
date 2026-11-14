@@ -1,0 +1,94 @@
+{
+  "schema": 1,
+  "project": "pvemtnmeewyaqgindocs",
+  "observed_at": "2026-11-14T19:59:31.979224+00:00",
+  "owner_enrolled": true,
+  "epoch": 0,
+  "counts": {
+    "colonies": 1,
+    "building_records": 7,
+    "active_buildings": 3,
+    "landmarks": 3,
+    "enabled_missions": 4,
+    "proposals": 0,
+    "decisions": 0,
+    "certificates": 0,
+    "external_routes": 0
+  },
+  "landmarks": [
+    {
+      "id": "ares-depression-01",
+      "x": 527.1,
+      "z": -225.9,
+      "extent": null
+    },
+    {
+      "id": "ares-escarpment-01",
+      "x": 225.9,
+      "z": -426.7,
+      "extent": null
+    },
+    {
+      "id": "ares-ridge-01",
+      "x": -125.5,
+      "z": -276.1,
+      "extent": null
+    }
+  ],
+  "missions": [
+    {
+      "id": "ares-echo-01",
+      "x": -92,
+      "z": 44,
+      "radius": 6
+    },
+    {
+      "id": "ares-fracture-02",
+      "x": 76,
+      "z": -58,
+      "radius": 6
+    },
+    {
+      "id": "ares-relay-03",
+      "x": -112,
+      "z": -74,
+      "radius": 6
+    },
+    {
+      "id": "ares-scar-04",
+      "x": 94,
+      "z": 82,
+      "radius": 6
+    }
+  ],
+  "buildings": [
+    {
+      "id": "0ce7c2a8-08d3-4b32-ad9b-c56e1a915d38",
+      "building_key": "water",
+      "grid_x": 6,
+      "grid_z": 6,
+      "rotation_y": 90,
+      "width": 3,
+      "depth": 3
+    },
+    {
+      "id": "37c781c6-e5c3-4dea-a435-8fd14fb55b8e",
+      "building_key": "command_hub",
+      "grid_x": 0,
+      "grid_z": 0,
+      "rotation_y": 0,
+      "width": 4,
+      "depth": 4
+    },
+    {
+      "id": "e5678fed-e5fe-4d4f-a8a5-72a092cef3e1",
+      "building_key": "habitat",
+      "grid_x": 0,
+      "grid_z": -3,
+      "rotation_y": 180,
+      "width": 3,
+      "depth": 3
+    }
+  ],
+  "productionWritesPerformed": false
+}
