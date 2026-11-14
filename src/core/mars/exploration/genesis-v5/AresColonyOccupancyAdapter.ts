@@ -1,3 +1,5 @@
+import release from '../../genesis-release.json';
+import {validateGenesisCertificate} from './certification.mjs';
 import { supabase } from '../../../../lib/supabase';
 import {getMarsCommandHubProgressionForColony} from '../../MarsCommandHubProgressionService';
 import {getMyMarsColonyBase} from '../../MarsColonyBaseService';
@@ -54,6 +56,7 @@ export async function reviewAresGenesisPlacement() {
   if (place.x !== -516 || place.z !== -213 || place.rotationY !== 0) throw Error('Unrecognized Genesis footprint');
   if (v.occupancyComplete !== true || v.routesReserved !== true || v.placementReserved !== true) throw Error('Incomplete certification');
   for (const list of ['occupied','protectedRoutes','reservedCells','legalRegions']) if (!Array.isArray(v[list])) throw Error('Missing certified geometry: '+list);
+  validateGenesisCertificate(result,{colonyId:occupancy.colonyId,releaseDigest:release.sha256});
   return {status:'approved' as const,revision:result.revision,expiresAt,site:v,occupancy};
  } catch (error) {
   return {...blockedPlacementReview(occupancy), occupancy,

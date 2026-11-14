@@ -32,9 +32,12 @@ export function useAresGenesisCampusIntegration(){
  useEffect(()=>{
   if(!ARES_GENESIS_CAMPUS_ENABLED)return;
   let active=true;
+  let polling=false;
   let expiryTimer:ReturnType<typeof setTimeout>|undefined;
   const revoke=()=>{if(!active)return;setSceneReady(false);setSite(null);setPlacementStatus('PLACEMENT_BLOCKED');};
   const poll=async()=>{
+   if(polling)return;
+   polling=true;
    try {
     const review=await reviewAresGenesisPlacement();
     if(!active)return;
@@ -55,6 +58,7 @@ export function useAresGenesisCampusIntegration(){
     await Promise.all([loadBase(),loadCampus()]);
     if(active&&Date.now()<expiresAt-15000){setSite(next);setPlacementStatus('READY');}
    } catch(error) {console.warn('PLACEMENT_BLOCKED',error);revoke();}
+   finally {polling=false;}
   };
   void poll();
   const repeat=setInterval(()=>{void poll();},12000);

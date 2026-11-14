@@ -60,6 +60,7 @@ type BobuCharacterControllerProps = {
   boundary?: number;
   characterRef?: React.RefObject<THREE.Group | null>;
   collisionObstacles?: MarsCollisionObstacle[];
+  walkableSurface?: (terrain: AresGenesisTerrainData, x: number, z: number) => number | null;
   stairStateRef?: React.MutableRefObject<boolean>;
   analogMovementRef?: React.MutableRefObject<MarsAnalogMovement>;
 };
@@ -88,6 +89,7 @@ export function BobuCharacterController({
     ARES_GENESIS_SAFE_BOUNDARY_METERS,
   characterRef,
   collisionObstacles = [],
+  walkableSurface,
   stairStateRef,
   analogMovementRef,
 }: BobuCharacterControllerProps) {
@@ -625,10 +627,12 @@ export function BobuCharacterController({
           value !== null,
       );
 
+      const campusGround = walkableSurface?.(terrain, group.position.x, group.position.z);
       const groundHeight =
         Math.max(
           terrainGround,
           ...hubGroundSamples,
+          typeof campusGround === "number" && Number.isFinite(campusGround) ? campusGround : -Infinity,
         ) + 0.09;
 
       if (!groundedRef.current) {

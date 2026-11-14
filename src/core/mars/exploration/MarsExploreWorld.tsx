@@ -237,7 +237,7 @@ function MarsExploreScene({
   const bobuStairStateRef =
     useRef(false);
 
-  // Genesis V10 production integration: fail-closed without backend approval.
+  // Genesis V11 production integration: fail-closed without backend approval.
   const genesisProduction = useAresGenesisCampusIntegration();
 
   const [
@@ -327,7 +327,7 @@ function MarsExploreScene({
 
       <MarsExplorationTerrain />
       <MarsSurfaceRocks />
-      {/* Genesis V10 stays hidden until the authoritative placement check approves. */}
+      {/* Genesis V11 stays hidden until the authoritative placement check approves. */}
       <AresGenesisCampusIntegration integration={genesisProduction} targetRef={bobuRef} />
       <AresGroundDust />
       {landedHandoff && <AresParkedSpacecraft position={landedHandoff.ship} yaw={landedHandoff.yaw} />}
@@ -410,6 +410,7 @@ function MarsExploreScene({
 
 
       {!flying && <BobuCharacterController
+        walkableSurface={genesisProduction.walkableSurface}
         characterRef={bobuRef}
         stairStateRef={
           bobuStairStateRef
@@ -421,6 +422,7 @@ function MarsExploreScene({
         collisionObstacles={[
           ...MARS_SURFACE_ROCK_COLLISION_OBSTACLES,
           ...ARES_COMMAND_HUB_COLLISION_OBSTACLES,
+          ...genesisProduction.obstacles,
           {
             x: 18,
             z: -28,
@@ -436,6 +438,8 @@ function MarsExploreScene({
       </BobuCharacterController>}
 
       {!flying && <MarsFollowCamera
+        interiorAt={genesisProduction.interiorAt}
+        constrainCamera={genesisProduction.constrainCamera}
         targetRef={bobuRef}
       />}
 

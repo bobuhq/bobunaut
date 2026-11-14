@@ -7,13 +7,17 @@
     "dev": "vite",
     "build": "tsc -b && vite build && node scripts/create-pages-routes.mjs",
     "preview": "vite preview",
-    "test:x-oauth": "node scripts/build-x-oauth-migration.mjs --check && node --test tests/x-oauth/*.test.mjs && deno test --allow-env supabase/functions/claim-x-reward/index.test.ts supabase/functions/_shared/x-oauth-retry.test.ts supabase/functions/_shared/x-follow-verifier-v2.test.ts",
-    "test:x-oauth:sql": "node scripts/test-x-oauth-sql.mjs"
+    "test:x-oauth": "node scripts/build-x-oauth-migration.mjs --check && node --test tests/x-oauth/*.test.mjs && deno test --config tests/x-oauth/deno.json --frozen --allow-env supabase/functions/claim-x-reward/index.test.ts supabase/functions/_shared/x-oauth-retry.test.ts supabase/functions/_shared/x-follow-verifier-v2.test.ts",
+    "test:x-oauth:sql": "node scripts/test-x-oauth-sql.mjs",
+    "test:genesis": "node scripts/genesis-release-manifest.mjs && node scripts/genesis-source-evidence.mjs && node --test tests/genesis-v11/*.test.mjs && node tests/genesis-v10/release-safety.mjs && node --test tests/ares-flight/*.test.mjs tests/mars/*.test.mjs",
+    "test:release": "npm run test:security && npm run test:genesis && npm run test:x-oauth && node --test tests/solana/*.test.mjs && node scripts/test-mars-pixel-coordinate-engine.mjs && npm run build",
+    "test:security": "npm audit --audit-level=moderate",
+    "test:genesis:sql": "node scripts/test-genesis-postgres.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.8",
     "@react-three/fiber": "^9.7.0",
-    "@solana/web3.js": "^1.98.4",
+    "@solana/web3.js": "1.98.4",
     "@supabase/supabase-js": "^2.110.8",
     "buffer": "^6.0.3",
     "framer-motion": "^12.23.0",
@@ -27,6 +31,7 @@
     "zustand": "^5.0.5"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.16",
     "@tailwindcss/vite": "^4.1.7",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
@@ -36,5 +41,10 @@
     "tailwindcss": "^4.1.7",
     "typescript": "~5.8.3",
     "vite": "^6.3.5"
+  },
+  "overrides": {
+    "@solana/web3.js": {
+      "jayson": "5.0.0"
+    }
   }
 }
