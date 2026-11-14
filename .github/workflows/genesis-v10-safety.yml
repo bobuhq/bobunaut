@@ -1,0 +1,84 @@
+name: Genesis V10 Safety
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'src/core/mars/exploration/genesis-v5/**'
+      - 'src/core/mars/exploration/MarsExploreWorld.tsx'
+      - 'public/mars/ares-genesis/**'
+      - 'tests/genesis-v10/**'
+      - '.github/workflows/genesis-v10-safety.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  genesis-safety:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Normalize npm registry URLs for CI
+        shell: bash
+        run: |
+          node <<'JS'
+          const fs = require('node:fs');
+          const path = 'package-lock.json';
+          const lock = JSON.parse(fs.readFileSync(path, 'utf8'));
+          const oldPrefix =
+            'https://packages.applied-caas-gateway1.internal.api.openai.org/artifactory/api/npm/npm-public/';
+          const newPrefix = 'https://registry.npmjs.org/';
+          let changed = 0;
+
+          for (const pkg of Object.values(lock.packages || {})) {
+            if (typeof pkg.resolved !== 'string') continue;
+            if (pkg.resolved.startsWith(oldPrefix)) {
+              pkg.resolved = newPrefix + pkg.resolved.slice(oldPrefix.length);
+              changed++;
+            } else if (pkg.resolved.includes('applied-caas-gateway')) {
+              throw new Error('Unexpected private registry URL');
+            }
+          }
+
+          if (changed === 0) {
+            throw new Error('Expected registry URLs not found');
+          }
+
+          fs.writeFileSync(path, JSON.stringify(lock, null, 2) + '\n');
+          console.log('CI_REGISTRY_URLS_NORMALIZED:', changed);
+          JS
+
+      - name: Install dependencies
+        shell: bash
+        run: |
+          npm ci --registry=https://registry.npmjs.org/ --no-audit --no-fund
+
+      - name: Genesis fail-closed safety tests
+        run: node tests/genesis-v10/release-safety.mjs
+
+      - name: Production build
+        run: npm run build
+
+      - name: Verify no hardcoded site approval
+        run: |
+          node --input-type=module <<'JS'
+          import assert from 'node:assert/strict';
+          import {
+            ARES_GENESIS_PRODUCTION_SITE
+          } from './src/core/mars/exploration/genesis-v5/production-site.mjs';
+
+          assert.equal(ARES_GENESIS_PRODUCTION_SITE, null);
+          console.log('NO_HARDCODED_SITE_APPROVAL_PASS');
+          JS

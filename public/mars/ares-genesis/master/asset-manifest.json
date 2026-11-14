@@ -1,0 +1,83 @@
+{
+  "pipeline": "Three.js ExtrudeGeometry fallback; deterministic original bevelled kit",
+  "files": {
+    "genesis-cinematic-kit.glb": {
+      "bytes": 2894304,
+      "primitives": 52
+    },
+    "genesis-exterior.glb": {
+      "bytes": 1994860,
+      "primitives": 4
+    },
+    "genesis-door-leaf.glb": {
+      "bytes": 195680,
+      "primitives": 5
+    },
+    "genesis-green-airlock.glb": {
+      "bytes": 262928,
+      "primitives": 5
+    }
+  },
+  "assets": {
+    "wall-cassette": {
+      "materialPrimitives": 4,
+      "triangles": 1080,
+      "components": 32
+    },
+    "master-exterior": {
+      "materialPrimitives": 4,
+      "triangles": 19720,
+      "components": 374
+    },
+    "control-cladding": {
+      "materialPrimitives": 4,
+      "triangles": 508,
+      "components": 11
+    },
+    "ceiling-module": {
+      "materialPrimitives": 4,
+      "triangles": 1188,
+      "components": 27
+    },
+    "operator-console": {
+      "materialPrimitives": 5,
+      "triangles": 904,
+      "components": 20
+    },
+    "sleep-berth": {
+      "materialPrimitives": 4,
+      "triangles": 528,
+      "components": 12
+    },
+    "life-support": {
+      "materialPrimitives": 5,
+      "triangles": 528,
+      "components": 12
+    },
+    "research-bench": {
+      "materialPrimitives": 4,
+      "triangles": 580,
+      "components": 14
+    },
+    "hydro-support": {
+      "materialPrimitives": 4,
+      "triangles": 484,
+      "components": 11
+    },
+    "hydro-tray": {
+      "materialPrimitives": 4,
+      "triangles": 572,
+      "components": 13
+    },
+    "door-leaf": {
+      "materialPrimitives": 5,
+      "triangles": 972,
+      "components": 21
+    },
+    "green-airlock": {
+      "materialPrimitives": 5,
+      "triangles": 1672,
+      "components": 38
+    }
+  }
+}

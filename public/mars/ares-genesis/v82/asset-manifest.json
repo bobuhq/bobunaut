@@ -1,0 +1,60 @@
+{
+  "pipeline": "Three.js ExtrudeGeometry fallback; Blender Metal startup crash",
+  "files": {
+    "genesis-cinematic-kit.glb": {
+      "bytes": 1038448,
+      "primitives": 37
+    },
+    "genesis-green-airlock.glb": {
+      "bytes": 284100,
+      "primitives": 5
+    }
+  },
+  "assets": {
+    "wall-cassette": {
+      "materialPrimitives": 4,
+      "triangles": 1080,
+      "components": 32
+    },
+    "operator-console": {
+      "materialPrimitives": 4,
+      "triangles": 2180,
+      "components": 53
+    },
+    "ceiling-module": {
+      "materialPrimitives": 4,
+      "triangles": 704,
+      "components": 16
+    },
+    "pressure-rib": {
+      "materialPrimitives": 4,
+      "triangles": 592,
+      "components": 20
+    },
+    "sleep-berth": {
+      "materialPrimitives": 5,
+      "triangles": 880,
+      "components": 22
+    },
+    "life-support": {
+      "materialPrimitives": 5,
+      "triangles": 1100,
+      "components": 29
+    },
+    "hydro-tray": {
+      "materialPrimitives": 4,
+      "triangles": 572,
+      "components": 13
+    },
+    "floor-cassette": {
+      "materialPrimitives": 2,
+      "triangles": 516,
+      "components": 35
+    },
+    "green-airlock": {
+      "materialPrimitives": 5,
+      "triangles": 1892,
+      "components": 51
+    }
+  }
+}
