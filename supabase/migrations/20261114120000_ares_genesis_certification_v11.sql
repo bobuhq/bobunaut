@@ -195,7 +195,7 @@ for each row execute function public.guard_ares_genesis_certificate_v11();
 
 -- Compatibility RPC name retained for the deployed host. No caller colony ID,
 -- auth override, client approval flag, data mutation or approval fallback.
-create function public.get_ares_genesis_placement_v10()
+create or replace function public.get_ares_genesis_placement_v10()
 returns jsonb language plpgsql stable security definer
 set search_path = pg_catalog, public
 as $$
