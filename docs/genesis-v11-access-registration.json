@@ -1,0 +1,14 @@
+{
+  "id": "68b98383-06aa-4e6e-9f23-81c967dc0a31",
+  "created_at": "2026-11-14T20:25:51.978+00:00",
+  "registered": true,
+  "observed_at": "2026-11-14T20:26:50.8124+00:00",
+  "valid_until": "2026-11-15T19:25:51.978+00:00",
+  "evidence_uri": "https://pvemtnmeewyaqgindocs.supabase.co/rest/v1/rpc/get_ares_genesis_owner_proposal_v11?proposal=68b98383-06aa-4e6e-9f23-81c967dc0a31#/inventory/evidenceArchive/content",
+  "archive_bytes": 163956,
+  "decision_count": 0,
+  "evidence_digest": "1eec48242fce9a50716c0abcba2c0f80ddb7118aaeac1b664d5835aececbbf29",
+  "snapshot_matches": true,
+  "certificate_count": 0,
+  "archive_digest_matches": true
+}

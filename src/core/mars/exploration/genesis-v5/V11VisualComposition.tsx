@@ -40,16 +40,16 @@ export function Dish({spec,surface}:{spec:typeof towers[number];surface:Surface}
  <group position={[spec.x,y,spec.z]} scale={2.15}><primitive object={kit.scene}/></group></group>;
 }
 function Arc({points,radius=.035}:{points:THREE.Vector3[];radius?:number}){
- const kit=useMemo(()=>({geo:new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points),48,radius,6,false),mat:new THREE.MeshBasicMaterial({color:'#19caff',toneMapped:false,transparent:true,opacity:.95})}),[points,radius]);
- useFrame(({clock})=>{kit.mat.opacity=.86+.14*Math.sin(clock.elapsedTime*.65);});
+ const kit=useMemo(()=>({geo:new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points),48,radius,6,false),mat:new THREE.MeshStandardMaterial({color:'#8ba9b8',metalness:.7,roughness:.3,emissive:'#19caff',emissiveIntensity:.2})}),[points,radius]);
+ useFrame(({clock})=>{kit.mat.emissiveIntensity=.18+.04*Math.sin(clock.elapsedTime*.65);});
  useEffect(()=>()=>{kit.geo.dispose();kit.mat.dispose();},[kit]);return <mesh geometry={kit.geo} material={kit.mat}/>;
 }
 export function GreenhouseGarden({deck,position=greenhouse}:{deck:number;position?:{x:number;z:number}}){
  const kit=useMemo(()=>{
- const ribs=Array.from({length:7},(_,i)=>Array.from({length:33},(_,j)=>{const t=j*Math.PI/32;return new THREE.Vector3(-8.6+i*2.87,1+5.45*Math.sin(t),4.4*Math.cos(t));}));
+ const ribs=Array.from({length:7},(_,i)=>Array.from({length:33},(_,j)=>{const t=j*Math.PI/32;return new THREE.Vector3(-8.6+i*2.87,1+5.3*Math.sin(t),4.4*Math.cos(t));}));
  return {ribs};},[]);
  return <group name="blue-transparent-greenhouse-garden" position={[position.x,deck,position.z]}>
- {kit.ribs.map((p,i)=><Arc key={i} points={p} radius={.055}/>)}
+ {kit.ribs.map((p,i)=><Arc key={i} points={p} radius={.085}/>)}
  {[-3,0,3].map(z=><group key={z} position={[0,0,z]}><mesh position={[0,.65,0]}><boxGeometry args={[15,.24,1.25]}/><meshStandardMaterial color="#4c6970"/></mesh><mesh position={[0,.81,.64]}><boxGeometry args={[15,.055,.055]}/><meshBasicMaterial color="#1acfff" toneMapped={false}/></mesh>
  {Array.from({length:12},(_,i)=><group key={i} position={[-6.9+i*1.25,.95,0]}><mesh><cylinderGeometry args={[.28,.22,.35,8]}/><meshStandardMaterial color="#726350"/></mesh>{[-1,1].map(side=><mesh key={side} position={[side*.22,.55,0]} rotation={[0,0,side*-.6]} scale={[.27,.65,.25]}><sphereGeometry args={[1,8,6]}/><meshBasicMaterial color={i%2?'#70c83b':'#a2de46'}/></mesh>)}</group>)}
  </group>)}

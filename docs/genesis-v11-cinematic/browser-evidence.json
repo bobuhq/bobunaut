@@ -1,0 +1,64 @@
+{
+  "baseline": "35dd957ee6f01b1d562b816d3ad68de0b4063a1c",
+  "releaseDigest": "e18890bf682fadcb9b710fcec1d617bfd9c34ed909e71b4521215b5c12e2a60c",
+  "scope": "Offline actual-component render on repository terrain; complete original Hub component; null interaction target; backend disabled; no authenticated gameplay or production certification",
+  "errors": [],
+  "consoleErrors": [
+    "Failed to load resource: net::ERR_UNSAFE_PORT",
+    "Failed to load Command Hub upgrade: {message: TypeError: Failed to fetch, details: TypeError: Failed to fetch\n    at http://127.0.0.1…rade (http://127.0.0.1:53113/before.js:121361:24), hint: , code: }",
+    "Failed to load resource: net::ERR_UNSAFE_PORT",
+    "Failed to load Command Hub upgrade: {message: TypeError: Failed to fetch, details: TypeError: Failed to fetch\n    at http://127.0.0.1…rade (http://127.0.0.1:53113/before.js:121361:24), hint: , code: }",
+    "Failed to load resource: net::ERR_UNSAFE_PORT",
+    "Failed to load Command Hub upgrade: {message: TypeError: Failed to fetch, details: TypeError: Failed to fetch\n    at http://127.0.0.1…rade (http://127.0.0.1:53113/before.js:121361:24), hint: , code: }",
+    "Failed to load resource: net::ERR_UNSAFE_PORT",
+    "Failed to load Command Hub upgrade: {message: TypeError: Failed to fetch, details: TypeError: Failed to fetch\n    at http://127.0.0.1…grade (http://127.0.0.1:53113/after.js:121563:24), hint: , code: }",
+    "Failed to load resource: net::ERR_UNSAFE_PORT",
+    "Failed to load Command Hub upgrade: {message: TypeError: Failed to fetch, details: TypeError: Failed to fetch\n    at http://127.0.0.1…grade (http://127.0.0.1:53113/after.js:121563:24), hint: , code: }",
+    "Failed to load resource: net::ERR_UNSAFE_PORT",
+    "Failed to load Command Hub upgrade: {message: TypeError: Failed to fetch, details: TypeError: Failed to fetch\n    at http://127.0.0.1…grade (http://127.0.0.1:53113/after.js:121563:24), hint: , code: }"
+  ],
+  "results": [
+    {
+      "phase": "before",
+      "view": "overview",
+      "drawCalls": 1080,
+      "triangles": 135698,
+      "architectureBatches": 0
+    },
+    {
+      "phase": "before",
+      "view": "approach",
+      "drawCalls": 328,
+      "triangles": 63460,
+      "architectureBatches": 0
+    },
+    {
+      "phase": "before",
+      "view": "greenhouse",
+      "drawCalls": 730,
+      "triangles": 100570,
+      "architectureBatches": 0
+    },
+    {
+      "phase": "after",
+      "view": "overview",
+      "drawCalls": 1102,
+      "triangles": 153058,
+      "architectureBatches": 5
+    },
+    {
+      "phase": "after",
+      "view": "approach",
+      "drawCalls": 341,
+      "triangles": 76784,
+      "architectureBatches": 5
+    },
+    {
+      "phase": "after",
+      "view": "greenhouse",
+      "drawCalls": 750,
+      "triangles": 117926,
+      "architectureBatches": 5
+    }
+  ]
+}

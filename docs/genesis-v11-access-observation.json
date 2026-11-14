@@ -1,0 +1,259 @@
+{
+  "snapshot": {
+    "epoch": 0,
+    "colonies": [
+      {
+        "id": "4e7e19d7-ba4c-42eb-9466-50f84fe38b65",
+        "name": "Bobu Genesis",
+        "status": "active",
+        "created_at": "2026-08-20T11:25:46.816381+00:00",
+        "updated_at": "2026-08-31T07:34:20.280701+00:00",
+        "colony_code": "CLY-4E7E19D7BA4C",
+        "member_count": 1,
+        "specialization": "general",
+        "leader_builder_id": "b0254257-5633-4050-a90d-59160c631e7a",
+        "founder_builder_id": "b0254257-5633-4050-a90d-59160c631e7a",
+        "total_contribution": 650
+      }
+    ],
+    "buildings": [
+      {
+        "id": "04234a84-4446-46ae-a06d-7103705ef511",
+        "level": 1,
+        "grid_x": 4,
+        "grid_z": -2,
+        "status": "archived",
+        "colony_id": "4e7e19d7-ba4c-42eb-9466-50f84fe38b65",
+        "rotation_y": 90,
+        "updated_at": "2026-08-29T08:55:00.435839+00:00",
+        "building_key": "energy",
+        "constructed_at": "2026-08-22T19:31:41.842622+00:00"
+      },
+      {
+        "id": "0ce7c2a8-08d3-4b32-ad9b-c56e1a915d38",
+        "level": 1,
+        "grid_x": 6,
+        "grid_z": 6,
+        "status": "active",
+        "colony_id": "4e7e19d7-ba4c-42eb-9466-50f84fe38b65",
+        "rotation_y": 90,
+        "updated_at": "2026-09-13T09:58:53.762996+00:00",
+        "building_key": "water",
+        "constructed_at": "2026-09-13T09:58:53.762996+00:00"
+      },
+      {
+        "id": "1af88cf0-f674-4ec8-9d1e-cd4e4c14f2d2",
+        "level": 1,
+        "grid_x": 10,
+        "grid_z": -7,
+        "status": "archived",
+        "colony_id": "4e7e19d7-ba4c-42eb-9466-50f84fe38b65",
+        "rotation_y": 180,
+        "updated_at": "2026-08-29T08:55:00.435839+00:00",
+        "building_key": "science_lab",
+        "constructed_at": "2026-08-22T19:32:29.464937+00:00"
+      },
+      {
+        "id": "2f06b2a6-ec5a-4bbd-a859-ba9aa0bc24c8",
+        "level": 1,
+        "grid_x": -11,
+        "grid_z": -6,
+        "status": "archived",
+        "colony_id": "4e7e19d7-ba4c-42eb-9466-50f84fe38b65",
+        "rotation_y": 90,
+        "updated_at": "2026-08-29T08:55:00.435839+00:00",
+        "building_key": "water",
+        "constructed_at": "2026-08-22T19:32:03.469314+00:00"
+      },
+      {
+        "id": "37c781c6-e5c3-4dea-a435-8fd14fb55b8e",
+        "level": 2,
+        "grid_x": 0,
+        "grid_z": 0,
+        "status": "active",
+        "colony_id": "4e7e19d7-ba4c-42eb-9466-50f84fe38b65",
+        "rotation_y": 0,
+        "updated_at": "2026-08-30T16:50:09.38712+00:00",
+        "building_key": "command_hub",
+        "constructed_at": "2026-08-20T11:25:46.816381+00:00"
+      },
+      {
+        "id": "39db5ac8-304e-42a8-a0fd-9668f7690f24",
+        "level": 1,
+        "grid_x": 0,
+        "grid_z": 0,
+        "status": "archived",
+        "colony_id": "4e7e19d7-ba4c-42eb-9466-50f84fe38b65",
+        "rotation_y": 0,
+        "updated_at": "2026-08-29T08:55:00.435839+00:00",
+        "building_key": "habitat",
+        "constructed_at": "2026-08-23T06:05:41.908528+00:00"
+      },
+      {
+        "id": "e5678fed-e5fe-4d4f-a8a5-72a092cef3e1",
+        "level": 1,
+        "grid_x": 0,
+        "grid_z": -3,
+        "status": "active",
+        "colony_id": "4e7e19d7-ba4c-42eb-9466-50f84fe38b65",
+        "rotation_y": 180,
+        "updated_at": "2026-08-31T09:08:18.39404+00:00",
+        "building_key": "habitat",
+        "constructed_at": "2026-08-31T09:08:18.39404+00:00"
+      }
+    ],
+    "landmarks": [
+      {
+        "title": "Ares Basin",
+        "world_x": 527.1,
+        "world_z": -225.9,
+        "is_active": true,
+        "created_at": "2026-08-30T16:11:18.821345+00:00",
+        "sector_key": "ares",
+        "landmark_key": "ares-depression-01",
+        "classification": "DEPRESSION"
+      },
+      {
+        "title": "Ares Escarpment",
+        "world_x": 225.9,
+        "world_z": -426.7,
+        "is_active": true,
+        "created_at": "2026-08-30T16:11:18.821345+00:00",
+        "sector_key": "ares",
+        "landmark_key": "ares-escarpment-01",
+        "classification": "ESCARPMENT"
+      },
+      {
+        "title": "Ares Ridge",
+        "world_x": -125.5,
+        "world_z": -276.1,
+        "is_active": true,
+        "created_at": "2026-08-30T16:11:18.821345+00:00",
+        "sector_key": "ares",
+        "landmark_key": "ares-ridge-01",
+        "classification": "RIDGE"
+      }
+    ],
+    "definitions": [
+      {
+        "name": "Command Hub",
+        "category": "core",
+        "max_level": 10,
+        "created_at": "2026-08-19T22:47:51.276038+00:00",
+        "updated_at": "2026-08-22T08:13:31.319516+00:00",
+        "description": "Central operational command structure of a Mars Colony.",
+        "building_key": "command_hub",
+        "display_order": 1,
+        "footprint_depth": 4,
+        "footprint_width": 4
+      },
+      {
+        "name": "Energy",
+        "category": "infrastructure",
+        "max_level": 10,
+        "created_at": "2026-08-19T22:47:51.276038+00:00",
+        "updated_at": "2026-08-22T08:13:31.319516+00:00",
+        "description": "Primary Colony power generation and distribution infrastructure.",
+        "building_key": "energy",
+        "display_order": 3,
+        "footprint_depth": 3,
+        "footprint_width": 3
+      },
+      {
+        "name": "Habitat",
+        "category": "life_support",
+        "max_level": 10,
+        "created_at": "2026-08-19T22:47:51.276038+00:00",
+        "updated_at": "2026-08-22T08:13:31.319516+00:00",
+        "description": "Residential and crew-support infrastructure for Colony Builders.",
+        "building_key": "habitat",
+        "display_order": 2,
+        "footprint_depth": 3,
+        "footprint_width": 3
+      },
+      {
+        "name": "Science Lab",
+        "category": "science",
+        "max_level": 10,
+        "created_at": "2026-08-19T22:47:51.276038+00:00",
+        "updated_at": "2026-08-22T08:13:31.319516+00:00",
+        "description": "Research and scientific development infrastructure.",
+        "building_key": "science_lab",
+        "display_order": 5,
+        "footprint_depth": 3,
+        "footprint_width": 3
+      },
+      {
+        "name": "Water",
+        "category": "life_support",
+        "max_level": 10,
+        "created_at": "2026-08-19T22:47:51.276038+00:00",
+        "updated_at": "2026-08-22T08:13:31.319516+00:00",
+        "description": "Water extraction, storage, recycling, and distribution infrastructure.",
+        "building_key": "water",
+        "display_order": 4,
+        "footprint_depth": 3,
+        "footprint_width": 3
+      }
+    ],
+    "mission_catalog": [
+      {
+        "title": "Echo Beneath Ares",
+        "enabled": true,
+        "briefing": "Command sensors detected a repeating subsurface signal beyond the primary survey zone. Reach the coordinates and investigate the source.",
+        "target_x": -92,
+        "target_z": 44,
+        "reward_gp": 150,
+        "created_at": "2026-08-29T21:52:22.017799+00:00",
+        "sector_key": "ares",
+        "updated_at": "2026-08-30T12:09:22.976362+00:00",
+        "mission_key": "ares-echo-01",
+        "target_radius": 6
+      },
+      {
+        "title": "The Silent Fracture",
+        "enabled": true,
+        "briefing": "A narrow surface fracture is producing an intermittent electromagnetic signature. Reach the marked zone and investigate the source.",
+        "target_x": 76,
+        "target_z": -58,
+        "reward_gp": 150,
+        "created_at": "2026-08-30T12:09:22.976362+00:00",
+        "sector_key": "ares",
+        "updated_at": "2026-08-30T12:09:22.976362+00:00",
+        "mission_key": "ares-fracture-02",
+        "target_radius": 6
+      },
+      {
+        "title": "Buried Relay",
+        "enabled": true,
+        "briefing": "Command detected a weak repeating transmission beneath the Ares regolith. Locate the buried signal and complete a field scan.",
+        "target_x": -112,
+        "target_z": -74,
+        "reward_gp": 150,
+        "created_at": "2026-08-30T12:09:22.976362+00:00",
+        "sector_key": "ares",
+        "updated_at": "2026-08-30T12:09:22.976362+00:00",
+        "mission_key": "ares-relay-03",
+        "target_radius": 6
+      },
+      {
+        "title": "The Cold Scar",
+        "enabled": true,
+        "briefing": "Thermal sensors identified an unusual low-temperature signature beyond the primary landing corridor. Reach the site and investigate.",
+        "target_x": 94,
+        "target_z": 82,
+        "reward_gp": 150,
+        "created_at": "2026-08-30T12:09:22.976362+00:00",
+        "sector_key": "ares",
+        "updated_at": "2026-08-30T12:09:22.976362+00:00",
+        "mission_key": "ares-scar-04",
+        "target_radius": 6
+      }
+    ]
+  },
+  "observed_at": "2026-11-14T20:12:48.176773+00:00",
+  "flight_progression": {"command_hub_level":2,"map_min":-8,"map_max":8,"source":"fresh production mars_command_hub_progression joined to active command_hub level"},
+  "owner_enrolled": true,
+  "proposal_count": 0,
+  "existing_routes": []
+}
