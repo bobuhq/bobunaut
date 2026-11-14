@@ -2,7 +2,7 @@
   "schema": 1,
   "scope": "repository geometry only; not production certification",
   "productionCertified": false,
-  "releaseDigest": "20e604ae9e75614f5b9ad03a22b5cc024938ad10ea5dd461c0b10d565187b923",
+  "releaseDigest": "b078b759d517ad9bb12489b13274d84d4471c2561cf962be8dcdd5ac8b9bdf98",
   "sourceDigests": {
     "src/core/mars/exploration/engine/AresGenesisTerrainData.ts": "adbe51a6aefd27b8de4e317886754a72607a006eb9d33ba1388b9bbf19f1cc30",
     "public/mars/ares-genesis/ares-genesis-height-16.bin": "62b26ba12a7da83b2ddf58d46398231deacb993a996321b89db078bf364b47aa",
@@ -12,18 +12,210 @@
     "src/core/mars/exploration/colony/AresColonyCoordinateSystem.ts": "b0dc6681e41515eb82f599a305dc0e3339d6680057090a33872cdcb38138ee47",
     "src/core/mars/exploration/landmarks/AresExplorationLandmarks.tsx": "b271d32d4cb90f48d4d36c54aca6bb143154280ff6af2feae7c9104eb1cb1b19",
     "supabase/migrations/20260830170000_create_ares_landmark_discovery_v1.sql": "8c7fda53ad51f764a794af1c4fe514eed3771e132cda78e74a9161eb44e36320",
-    "src/core/mars/exploration/MarsExploreWorld.tsx": "64f54364eda05d8162232a4f78b0684ed7fa7b6a0ad6afd74e59b438376650ec",
+    "src/core/mars/exploration/MarsExploreWorld.tsx": "3baaa7873e98becb92c77bdfcd6dbbf243dbdacb8e350e0cd74849f6c5adb19e",
     "supabase/migrations/20260830005000_create_ares_hidden_mission_engine_v1.sql": "af7ae123417a097c97600fb4d574a84bd7f993eded61ba2cd21ae47fd6f93d78",
     "src/core/mars/exploration/guidance/AresGuidanceSystem.tsx": "e854c9edbff73b1beea4a26f42e33491ee47837c4d964099fe5cb35b7e7c892d"
   },
-  "envelope": {
-    "id": "v11-full-reservation",
-    "kind": "box",
-    "x": -530.5,
-    "z": -210.5,
-    "halfWidth": 54.70000000000002,
-    "halfDepth": 67.69999999999999
+  "layout": "integrated-command-hub-v11",
+  "placement": {
+    "x": -44,
+    "z": -68,
+    "rotationY": 0
   },
+  "reservations": [
+    {
+      "id": "greenhouse",
+      "kind": "box",
+      "x": -78,
+      "z": -72,
+      "halfWidth": 10.1,
+      "halfDepth": 6.1
+    },
+    {
+      "id": "habitat",
+      "kind": "box",
+      "x": -23,
+      "z": -63,
+      "halfWidth": 7.6,
+      "halfDepth": 7.6
+    },
+    {
+      "id": "relay-yellow",
+      "kind": "box",
+      "x": -104,
+      "z": -60,
+      "halfWidth": 4.6,
+      "halfDepth": 4.6
+    },
+    {
+      "id": "relay-red",
+      "kind": "box",
+      "x": -8,
+      "z": -100,
+      "halfWidth": 4.6,
+      "halfDepth": 4.6
+    },
+    {
+      "id": "relay-green",
+      "kind": "box",
+      "x": -8,
+      "z": -20,
+      "halfWidth": 4.6,
+      "halfDepth": 4.6
+    },
+    {
+      "id": "hub-approach",
+      "kind": "box",
+      "x": -44,
+      "z": -50.5,
+      "halfWidth": 1.7999999999999998,
+      "halfDepth": 6.1
+    },
+    {
+      "id": "courtyard",
+      "kind": "box",
+      "x": -42,
+      "z": -47,
+      "halfWidth": 6.6,
+      "halfDepth": 5.6
+    },
+    {
+      "id": "west-walk",
+      "kind": "box",
+      "x": -74,
+      "z": -45,
+      "halfWidth": 30.6,
+      "halfDepth": 1.7999999999999998
+    },
+    {
+      "id": "greenhouse-walk",
+      "kind": "box",
+      "x": -78,
+      "z": -55,
+      "halfWidth": 1.7999999999999998,
+      "halfDepth": 10.6
+    },
+    {
+      "id": "west-relay-walk",
+      "kind": "box",
+      "x": -104,
+      "z": -50,
+      "halfWidth": 1.7999999999999998,
+      "halfDepth": 5.6
+    },
+    {
+      "id": "research-walk",
+      "kind": "box",
+      "x": -26,
+      "z": -53,
+      "halfWidth": 18.6,
+      "halfDepth": 1.7999999999999998
+    },
+    {
+      "id": "research-approach",
+      "kind": "box",
+      "x": -23,
+      "z": -54,
+      "halfWidth": 1.7999999999999998,
+      "halfDepth": 1.6
+    },
+    {
+      "id": "east-walk",
+      "kind": "box",
+      "x": -3,
+      "z": -53,
+      "halfWidth": 5.6,
+      "halfDepth": 1.7999999999999998
+    },
+    {
+      "id": "east-service-walk",
+      "kind": "box",
+      "x": 2,
+      "z": -76.5,
+      "halfWidth": 1.7999999999999998,
+      "halfDepth": 24.1
+    },
+    {
+      "id": "rear-relay-walk",
+      "kind": "box",
+      "x": -0.5,
+      "z": -100,
+      "halfWidth": 3.1,
+      "halfDepth": 1.7999999999999998
+    },
+    {
+      "id": "front-service-walk",
+      "kind": "box",
+      "x": 2,
+      "z": -36.5,
+      "halfWidth": 1.7999999999999998,
+      "halfDepth": 17.1
+    },
+    {
+      "id": "front-relay-walk",
+      "kind": "box",
+      "x": -0.5,
+      "z": -20,
+      "halfWidth": 3.1,
+      "halfDepth": 1.7999999999999998
+    },
+    {
+      "id": "lamp-0",
+      "kind": "box",
+      "x": -46,
+      "z": -50,
+      "halfWidth": 0.76,
+      "halfDepth": 0.76
+    },
+    {
+      "id": "lamp-1",
+      "kind": "box",
+      "x": -38,
+      "z": -44,
+      "halfWidth": 0.76,
+      "halfDepth": 0.76
+    },
+    {
+      "id": "lamp-2",
+      "kind": "box",
+      "x": -66,
+      "z": -43,
+      "halfWidth": 0.76,
+      "halfDepth": 0.76
+    },
+    {
+      "id": "lamp-3",
+      "kind": "box",
+      "x": -86,
+      "z": -43,
+      "halfWidth": 0.76,
+      "halfDepth": 0.76
+    },
+    {
+      "id": "lamp-4",
+      "kind": "box",
+      "x": -20,
+      "z": -55,
+      "halfWidth": 0.76,
+      "halfDepth": 0.76
+    },
+    {
+      "id": "lamp-5",
+      "kind": "box",
+      "x": 4,
+      "z": -66,
+      "halfWidth": 0.76,
+      "halfDepth": 0.76
+    },
+    {
+      "id": "lamp-6",
+      "kind": "box",
+      "x": 4,
+      "z": -28,
+      "halfWidth": 0.76,
+      "halfDepth": 0.76
+    }
+  ],
   "knownFixedObstacleCount": 532,
   "knownFixedConflicts": [],
   "landmarks": [
@@ -58,11 +250,34 @@
       "campusOverlapsSurveyPoint": false
     }
   ],
+  "observedProductionGeometry": {
+    "source": "docs/genesis-v11-integrated-live-geometry.json",
+    "sha256": "88e048adea465ea31d7cfacf707cfc27222a78c9467591792884b5545c82c610",
+    "buildingCount": 3,
+    "missionCount": 4,
+    "conflicts": []
+  },
   "terrainGeometry": {
     "passed": true,
-    "rootY": 15.243417130930986,
-    "floorWorldY": 16.443417130930985,
-    "rampEndY": 15.3880198848526
+    "rootY": 0,
+    "sites": [
+      {
+        "id": "greenhouse",
+        "x": -78,
+        "z": -72,
+        "relief": 1.1840637752430254,
+        "slope": 5.291502538022917,
+        "deck": 12.430490950111214
+      },
+      {
+        "id": "habitat",
+        "x": -23,
+        "z": -63,
+        "relief": 1.44841825518467,
+        "slope": 6.708900891918628,
+        "deck": 8.829864743299007
+      }
+    ]
   },
   "missingAuthority": [
     "current production world/colony snapshot",

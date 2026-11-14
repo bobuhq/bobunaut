@@ -39,3 +39,17 @@ test('actual follow camera constrains the final eye position after smoothing',()
  const mounted=mount('MarsFollowCamera.tsx','MarsFollowCamera',{targetRef:{current:group},interiorAt:()=>true,constrainCamera:(look,eye)=>{constrained++;assert.equal(look.x,-516);eye.copy(look).add(new THREE.Vector3(0,0,1));}},{'../commandhub/AresCommandHubCollision':{ARES_COMMAND_HUB_POSITION:{x:-44,z:-68},ARES_COMMAND_HUB_WIDTH:16,ARES_COMMAND_HUB_DEPTH:18}});
  mounted.frame();assert.equal(constrained,1);assert.equal(mounted.camera.position.x,-516);assert.equal(mounted.camera.position.z,-212);
 });
+test('actual controller consumes the integrated campus paving sampled from shipped ARES terrain',async()=>{
+ const {collectGenesisSourceEvidence}=await import('../../scripts/genesis-source-evidence.mjs');
+ const {prepareIntegratedCampus,integratedCampusFloor,integratedReservations,HUB_PLACEMENT,INTEGRATED_LAYOUT}=await import('../../src/core/mars/exploration/genesis-v5/integrated-campus.mjs');
+ const {sourceGeometry:g}=collectGenesisSourceEvidence({includeGeometry:true});
+ const site=prepareIntegratedCampus({layout:INTEGRATED_LAYOUT,placement:HUB_PLACEMENT,reservations:integratedReservations(),legalRegions:integratedReservations(),occupied:[...g.fixed,...g.observedBuildings,...g.observedMissions],protectedRoutes:[],reservedCells:[],occupancyComplete:true,routesReserved:true,placementReserved:true,sample:g.sample});
+ const group=new THREE.Group();group.position.set(-44,0,-47);
+ const mounted=mount('BobuCharacterController.tsx','BobuCharacterController',{characterRef:{current:group},collisionObstacles:site.obstacles,walkableSurface:(_,x,z)=>integratedCampusFloor(site,x,z)},{
+  '../engine/AresGenesisTerrainData':{ARES_GENESIS_SAFE_BOUNDARY_METERS:6350,loadAresGenesisTerrainData:async()=>({}),sampleAresGenesisRenderedSurfaceMeters:(_,x,z)=>g.sample(x,z)},
+  '../commandhub/AresCommandHubWalkableSurface':{isAresCommandHubStairPosition:()=>false,sampleAresCommandHubWalkableSurfaceMeters:()=>null},
+  '../engine/MarsCharacterMovement':{createEmptyMarsMovementInput:()=>({}),getMarsMovementDirection:()=>new THREE.Vector3(),getMarsFacingAngle:()=>0},
+ });
+ await Promise.resolve();mounted.frame();assert.equal(group.position.y,g.sample(-44,-47)+.035+.09);
+ assert.equal(group.position.x,-44);assert.equal(group.position.z,-47);
+});

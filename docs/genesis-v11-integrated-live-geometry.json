@@ -1,0 +1,17 @@
+{
+  "scope": "Read-only engineering observation; not production authority or a complete world snapshot",
+  "project_ref": "pvemtnmeewyaqgindocs",
+  "observed_date": "2026-11-14",
+  "source": "Connected Supabase SELECT of active building grid coordinates, definitions and enabled mission geometry",
+  "buildings": [
+    {"id":"observed-command-hub","building_key":"command_hub","grid_x":0,"grid_z":0,"rotation_y":0,"width":4,"depth":4},
+    {"id":"observed-player-habitat","building_key":"habitat","grid_x":0,"grid_z":-3,"rotation_y":180,"width":3,"depth":3},
+    {"id":"observed-player-water","building_key":"water","grid_x":6,"grid_z":6,"rotation_y":90,"width":3,"depth":3}
+  ],
+  "missions": [
+    {"id":"ares-echo-01","kind":"circle","x":-92,"z":44,"radius":6},
+    {"id":"ares-fracture-02","kind":"circle","x":76,"z":-58,"radius":6},
+    {"id":"ares-relay-03","kind":"circle","x":-112,"z":-74,"radius":6},
+    {"id":"ares-scar-04","kind":"circle","x":94,"z":82,"radius":6}
+  ]
+}

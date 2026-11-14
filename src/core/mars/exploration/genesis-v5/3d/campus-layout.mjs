@@ -7,7 +7,7 @@ export const CAMPUS_ASSETS = [
  {id:'comms',file:'comms-dish-7b129a.glb',x:19,z:-49,width:9,depth:9,scale:1.8,height:6.4078,label:'05 / DEEP SPACE RELAY'},
 ];
 export function campusEnabled(search) { return new URLSearchParams(search).get('campus') === '1'; }
-export function createCampusPlan(surface, assets = CAMPUS_ASSETS) {
+export function createCampusPlan(surface, assets = CAMPUS_ASSETS, includeLegacyPaths = true) {
  const sites=assets.map(asset=>{
   const heights=[];let slope=0;
   for(let ix=0;ix<=asset.width*2;ix++)for(let iz=0;iz<=asset.depth*2;iz++){
@@ -22,6 +22,7 @@ export function createCampusPlan(surface, assets = CAMPUS_ASSETS) {
   const feet=[-1,1].flatMap(sx=>[-1,1].map(sz=>{const x=asset.x+sx*(asset.width/2-.6),z=asset.z+sz*(asset.depth/2-.6);return {x,z,ground:surface(x,z)};}));
   return {...asset,min,max,slope,deck,feet};
  });
+ if(!includeLegacyPaths)return {sites,path:[],colliders:sites.map(s=>({id:'campus-'+s.id,category:'structure',xMin:s.x-s.width/2,xMax:s.x+s.width/2,zMin:s.z-s.depth/2,zMax:s.z+s.depth/2,yMin:s.min-.15,yMax:s.deck+s.height}))};
  // A surface service spine skirts the outboard edge; buildings are sealed exterior assets.
  const path=[];
  for(let z=-60;z<=22;z+=1){const y=surface(33,z);if(y===null||!Number.isFinite(y))throw Error('Campus path outside terrain');path.push({x:33,z,y});}

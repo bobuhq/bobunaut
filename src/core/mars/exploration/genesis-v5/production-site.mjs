@@ -1,3 +1,4 @@
+// Standalone legacy preview geometry. The live Hub integration uses integrated-campus.mjs.
 import {createV11CampusPlan} from './v11-campus-plan.mjs';
 import {towers} from './v11-composition.mjs';
 import {v11PavingFloor} from './v11-movement.mjs';

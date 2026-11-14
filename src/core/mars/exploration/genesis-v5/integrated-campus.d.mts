@@ -1,0 +1,12 @@
+import type {CampusAsset,CampusPlan} from './3d/campus-layout.mjs';
+import type {Area} from './colony-occupancy.mjs';
+export const INTEGRATED_LAYOUT:string;
+export const HUB_PLACEMENT:{x:number;z:number;rotationY:0};
+export const INTEGRATED_ASSETS:CampusAsset[];
+export const INTEGRATED_RELAYS:{id:string;x:number;z:number;color:string;period:number;amplitude:number;phase:number;base:number;pitch:number}[];
+export const INTEGRATED_PAVING:{id:string;kind:'box';x:number;z:number;halfWidth:number;halfDepth:number}[];
+export type IntegratedCampusSite={placement:typeof HUB_PLACEMENT;layout:string;rootY:number;plan:CampusPlan;reservations:Area[];surfaceAtLocal:(x:number,z:number)=>number;obstacles:Area[];lamps:Area[];cameraSolids:CampusPlan['colliders']};
+export function integratedReservations():Area[];
+export function checkIntegratedFootprint(site:any):Area[];
+export function prepareIntegratedCampus(input:any):IntegratedCampusSite;
+export function integratedCampusFloor(site:IntegratedCampusSite,x:number,z:number):number|null;

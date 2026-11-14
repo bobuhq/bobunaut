@@ -8,7 +8,7 @@ import ts from 'typescript';
 import {buildSync} from 'esbuild';
 import {areasOverlap} from '../src/core/mars/exploration/genesis-v5/colony-occupancy.mjs';
 import {v11WorldFootprint} from '../src/core/mars/exploration/genesis-v5/v11-footprint.mjs';
-import {prepareProductionCampus} from '../src/core/mars/exploration/genesis-v5/production-site.mjs';
+import {prepareIntegratedCampus,HUB_PLACEMENT,INTEGRATED_LAYOUT,integratedReservations} from '../src/core/mars/exploration/genesis-v5/integrated-campus.mjs';
 const sources={
  terrain:'src/core/mars/exploration/engine/AresGenesisTerrainData.ts',
  height:'public/mars/ares-genesis/ares-genesis-height-16.bin',
@@ -23,6 +23,8 @@ const sources={
  guidance:'src/core/mars/exploration/guidance/AresGuidanceSystem.tsx',
 };
 export function collectGenesisSourceEvidence({includeGeometry=false}={}){
+ const observed=JSON.parse(readFileSync('docs/genesis-v11-integrated-live-geometry.json','utf8'));
+ const observedBuildings=observed.buildings.map(b=>{const swap=[90,270].includes(b.rotation_y),w=swap?b.depth:b.width,d=swap?b.width:b.depth;return {id:b.id,kind:'box',x:-50.75+(b.grid_x+(w-1)/2)*4.5,z:-74.75+(b.grid_z+(d-1)/2)*4.5,halfWidth:w*2.25+.6,halfDepth:d*2.25+.6};});
  const dir=mkdtempSync(join(tmpdir(),'bobu-source-evidence-'));
  try{
   const modules={};
@@ -56,7 +58,7 @@ export function collectGenesisSourceEvidence({includeGeometry=false}={}){
   }
   readWorld(worldAst);
   if(!worldPoints.length)throw Error('Host fixed collision declarations unavailable');
-  const placement={x:-516,z:-213,rotationY:0},envelope=v11WorldFootprint(placement);
+  const placement=HUB_PLACEMENT,reservations=integratedReservations();
   const rocks=modules.rocks.MARS_SURFACE_ROCK_COLLISION_OBSTACLES.map((o,i)=>({...o,kind:'circle',id:'surface-rock-'+i}));
   const hub={...modules.hub.ARES_COMMAND_HUB_POSITION,kind:'box',id:'original-command-hub-visual',halfWidth:modules.hub.ARES_COMMAND_HUB_WIDTH/2+.6,halfDepth:modules.hub.ARES_COMMAND_HUB_DEPTH/2+.6};
   const fixed=[...rocks,hub,...worldPoints];
@@ -65,15 +67,16 @@ export function collectGenesisSourceEvidence({includeGeometry=false}={}){
   const terrain={width:m.ARES_GENESIS_HEIGHT_WIDTH,height:m.ARES_GENESIS_HEIGHT_HEIGHT,elevations:Float32Array.from({length:bytes.length/2},(_,i)=>m.ARES_GENESIS_MIN_ELEVATION_METERS+bytes.readUInt16LE(i*2)/65535*(m.ARES_GENESIS_MAX_ELEVATION_METERS-m.ARES_GENESIS_MIN_ELEVATION_METERS))};
   // Deliberately local geometry-only fixture. No completeness/entitlement claim
   // is exported, and no live approval endpoint is contacted.
-  const site=prepareProductionCampus({placement,sample:(x,z)=>m.sampleAresGenesisRenderedSurfaceMeters(terrain,x,z),occupied:fixed,occupancyComplete:true,routesReserved:true,placementReserved:true,protectedRoutes:[],reservedCells:[],legalRegions:[{kind:'box',x:envelope.x,z:envelope.z,halfWidth:envelope.halfWidth+1,halfDepth:envelope.halfDepth+1}]});
+  const site=prepareIntegratedCampus({layout:INTEGRATED_LAYOUT,reservations,placement,sample:(x,z)=>m.sampleAresGenesisRenderedSurfaceMeters(terrain,x,z),occupied:[...fixed,...observedBuildings,...observed.missions],occupancyComplete:true,routesReserved:true,placementReserved:true,protectedRoutes:[],reservedCells:[],legalRegions:reservations});
   return {
    schema:1,scope:'repository geometry only; not production certification',productionCertified:false,
-   ...(includeGeometry?{sourceGeometry:{fixed,hubWalkable:modules.hubWalkable,colonyMapping:modules.colonyMapping,sample:(x,z)=>m.sampleAresGenesisRenderedSurfaceMeters(terrain,x,z)}}:{}),
+   ...(includeGeometry?{sourceGeometry:{fixed,observedBuildings,observedMissions:observed.missions,hubWalkable:modules.hubWalkable,colonyMapping:modules.colonyMapping,sample:(x,z)=>m.sampleAresGenesisRenderedSurfaceMeters(terrain,x,z)}}:{}),
    releaseDigest:JSON.parse(readFileSync('src/core/mars/genesis-release.json','utf8')).sha256,
    sourceDigests:Object.fromEntries(Object.values(sources).map(path=>[path,createHash('sha256').update(readFileSync(path)).digest('hex')])),
-   envelope,knownFixedObstacleCount:fixed.length,knownFixedConflicts:fixed.filter(o=>areasOverlap(envelope,o)).map(o=>o.id),
-   landmarks:landmarks.map(l=>({...l,surveyRadius:surveyDistance,campusOverlapsSurveyPoint:areasOverlap(envelope,{kind:'circle',x:l.x,z:l.z,radius:surveyDistance})})),
-   terrainGeometry:{passed:true,rootY:site.rootY,floorWorldY:site.floorWorldY,rampEndY:site.rampEndY},
+   layout:INTEGRATED_LAYOUT,placement,reservations,knownFixedObstacleCount:fixed.length,knownFixedConflicts:fixed.filter(o=>reservations.some(a=>areasOverlap(a,o))).map(o=>o.id),
+   landmarks:landmarks.map(l=>({...l,surveyRadius:surveyDistance,campusOverlapsSurveyPoint:reservations.some(a=>areasOverlap(a,{kind:'circle',x:l.x,z:l.z,radius:surveyDistance}))})),
+   observedProductionGeometry:{source:'docs/genesis-v11-integrated-live-geometry.json',sha256:createHash('sha256').update(readFileSync('docs/genesis-v11-integrated-live-geometry.json')).digest('hex'),buildingCount:observedBuildings.length,missionCount:observed.missions.length,conflicts:[...observedBuildings,...observed.missions].filter(o=>reservations.some(a=>areasOverlap(a,o))).map(o=>o.id)},
+   terrainGeometry:{passed:true,rootY:site.rootY,sites:site.plan.sites.map(s=>({id:s.id,x:s.x-44,z:s.z-68,relief:s.max-s.min,slope:s.slope,deck:s.deck}))},
    missingAuthority:['current production world/colony snapshot','approved complete external walking/entrance route and dynamic mission inventory','legal campus entitlement','trusted reviewer evidence archive and service-issued certificate for this release','production/staging schema, lease and device validation'],
   };
  }finally{rmSync(dir,{recursive:true,force:true});}
