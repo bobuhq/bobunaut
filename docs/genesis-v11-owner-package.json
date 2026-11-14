@@ -1,0 +1,195 @@
+{
+  "schema": "bobu.genesis.v11.owner-review.v1",
+  "status": "incomplete",
+  "owner": "BOBU",
+  "externalAuthorityRequired": false,
+  "archive": {
+    "commit": "d884aae87722d9c6a8212d0a97f983bf2a6df1aa",
+    "sha256": "0e44930390b45be52f77c5e1d2419bb4c5963618cf997cf47d0dd54725c9c2f3"
+  },
+  "placement": {
+    "x": -516,
+    "z": -213,
+    "rotationY": 0
+  },
+  "allocation": {
+    "kind": "box",
+    "x": -530.5,
+    "z": -210.5,
+    "halfWidth": 54.7,
+    "halfDepth": 67.7,
+    "xMin": -585.2,
+    "xMax": -475.8,
+    "zMin": -278.2,
+    "zMax": -142.8
+  },
+  "mapping": {
+    "origin_x": -50.75,
+    "origin_z": -74.75,
+    "scale": 4.5,
+    "yaw": 0,
+    "contract": "world center = origin + (grid + (effective footprint - 1)/2) * scale; rotate footprint dimensions once",
+    "source": "src/core/mars/exploration/colony/AresColonyCoordinateSystem.ts"
+  },
+  "terrain": {
+    "source": "src/core/mars/exploration/engine/AresGenesisTerrainData.ts",
+    "heightSha256": "62b26ba12a7da83b2ddf58d46398231deacb993a996321b89db078bf364b47aa",
+    "safeBoundaryMeters": 6350,
+    "visualVerticalScale": 3
+  },
+  "geometry": {
+    "schema": 1,
+    "scope": "repository geometry only; not production certification",
+    "productionCertified": false,
+    "releaseDigest": "20e604ae9e75614f5b9ad03a22b5cc024938ad10ea5dd461c0b10d565187b923",
+    "sourceDigests": {
+      "src/core/mars/exploration/engine/AresGenesisTerrainData.ts": "adbe51a6aefd27b8de4e317886754a72607a006eb9d33ba1388b9bbf19f1cc30",
+      "public/mars/ares-genesis/ares-genesis-height-16.bin": "62b26ba12a7da83b2ddf58d46398231deacb993a996321b89db078bf364b47aa",
+      "src/core/mars/exploration/components/MarsSurfaceRocks.tsx": "561eb4b5c2bbfe745767e75aae4506369cd23e73f804a5da3941a1d10e945899",
+      "src/core/mars/exploration/commandhub/AresCommandHubCollision.ts": "b875ecb664b7fc0765fc38a4a0cc8ed17d555840ac692eee076e23b684fadc5a",
+      "src/core/mars/exploration/commandhub/AresCommandHubWalkableSurface.ts": "2d7d0eb2703e7e951bc3ab7419f523939eff02f0fb1a60620d855aca118018b7",
+      "src/core/mars/exploration/colony/AresColonyCoordinateSystem.ts": "b0dc6681e41515eb82f599a305dc0e3339d6680057090a33872cdcb38138ee47",
+      "src/core/mars/exploration/landmarks/AresExplorationLandmarks.tsx": "b271d32d4cb90f48d4d36c54aca6bb143154280ff6af2feae7c9104eb1cb1b19",
+      "supabase/migrations/20260830170000_create_ares_landmark_discovery_v1.sql": "8c7fda53ad51f764a794af1c4fe514eed3771e132cda78e74a9161eb44e36320",
+      "src/core/mars/exploration/MarsExploreWorld.tsx": "64f54364eda05d8162232a4f78b0684ed7fa7b6a0ad6afd74e59b438376650ec",
+      "supabase/migrations/20260830005000_create_ares_hidden_mission_engine_v1.sql": "af7ae123417a097c97600fb4d574a84bd7f993eded61ba2cd21ae47fd6f93d78",
+      "src/core/mars/exploration/guidance/AresGuidanceSystem.tsx": "e854c9edbff73b1beea4a26f42e33491ee47837c4d964099fe5cb35b7e7c892d"
+    },
+    "envelope": {
+      "id": "v11-full-reservation",
+      "kind": "box",
+      "x": -530.5,
+      "z": -210.5,
+      "halfWidth": 54.70000000000002,
+      "halfDepth": 67.69999999999999
+    },
+    "knownFixedObstacleCount": 532,
+    "knownFixedConflicts": [],
+    "landmarks": [
+      {
+        "id": "ares-ridge-01",
+        "kind": "RIDGE",
+        "title": "Ares Ridge",
+        "x": -125.5,
+        "z": -276.1,
+        "description": "Local terrain prominence identified from the Ares Genesis elevation field.",
+        "surveyRadius": 4,
+        "campusOverlapsSurveyPoint": false
+      },
+      {
+        "id": "ares-depression-01",
+        "kind": "DEPRESSION",
+        "title": "Ares Basin",
+        "x": 527.1,
+        "z": -225.9,
+        "description": "Local terrain depression identified from the Ares Genesis elevation field.",
+        "surveyRadius": 4,
+        "campusOverlapsSurveyPoint": false
+      },
+      {
+        "id": "ares-escarpment-01",
+        "kind": "ESCARPMENT",
+        "title": "Ares Escarpment",
+        "x": 225.9,
+        "z": -426.7,
+        "description": "Steep terrain zone identified from the Ares Genesis elevation field.",
+        "surveyRadius": 4,
+        "campusOverlapsSurveyPoint": false
+      }
+    ],
+    "terrainGeometry": {
+      "passed": true,
+      "rootY": 15.243417130930986,
+      "floorWorldY": 16.443417130930985,
+      "rampEndY": 15.3880198848526
+    },
+    "missingAuthority": [
+      "current production world/colony snapshot",
+      "approved complete external walking/entrance route and dynamic mission inventory",
+      "legal campus entitlement",
+      "trusted reviewer evidence archive and service-issued certificate for this release",
+      "production/staging schema, lease and device validation"
+    ]
+  },
+  "entrances": [
+    {
+      "id": "surface",
+      "world": [
+        -516,
+        -199.8
+      ],
+      "halfWidth": 1.65,
+      "halfDepth": 0.095
+    },
+    {
+      "id": "surface",
+      "world": [
+        -516,
+        -203.98
+      ],
+      "halfWidth": 1.65,
+      "halfDepth": 0.095
+    },
+    {
+      "id": "hub",
+      "world": [
+        -516,
+        -222.02
+      ],
+      "halfWidth": 1.8,
+      "halfDepth": 0.095
+    },
+    {
+      "id": "habitat",
+      "world": [
+        -516,
+        -239.05
+      ],
+      "halfWidth": 1.7,
+      "halfDepth": 0.095
+    }
+  ],
+  "campusRamp": {
+    "worldStart": [
+      -516,
+      -199.8
+    ],
+    "worldEnd": [
+      -516,
+      -187
+    ],
+    "walkableHalfWidth": 2.05,
+    "scope": "inside campus allocation; excluded from external blocker list"
+  },
+  "protected_routes_v5": [
+    {
+      "sector_code": "ARES",
+      "route_key": "command-hub-existing-stairs",
+      "route_kind": "entrance",
+      "bounds": {
+        "xMin": -45.8,
+        "xMax": -42.2,
+        "zMin": -59,
+        "zMax": -57.2
+      },
+      "source": "src/core/mars/exploration/commandhub/AresCommandHubWalkableSurface.ts",
+      "source_digest": "2d7d0eb2703e7e951bc3ab7419f523939eff02f0fb1a60620d855aca118018b7",
+      "status": "pending",
+      "scope": "authored stair area only; does not establish connecting corridor"
+    }
+  ],
+  "requiredOwnerDecisions": [
+    "Approve allocation for the existing colony, without changing progression/building ownership",
+    "Confirm coordinate mapping and full world coverage",
+    "Supply or explicitly approve complete external walking, landing-access, service, emergency and mission-access corridors with exact bounds and source/provenance",
+    "Confirm full landmark structure extents beyond the 4m survey radius; survey radius alone is insufficient",
+    "Enroll the genuine authenticated BOBU owner identity through the database operator"
+  ],
+  "blockers": [
+    "External corridor extents are not present in source; no complete route inventory can be recovered",
+    "Landing search is dynamic; local artistic green zone is not a production landing entitlement",
+    "Fresh complete production occupancy and protected-landmark inventory must be attached before issuance",
+    "Authenticated owner approval, archived verification evidence and genuine player-session live test remain required"
+  ],
+  "packageSha256": "e84bef8b2036a52aa0db97caf1ce31a14cf7e35319b05c782d4705d6d153860f"
+}

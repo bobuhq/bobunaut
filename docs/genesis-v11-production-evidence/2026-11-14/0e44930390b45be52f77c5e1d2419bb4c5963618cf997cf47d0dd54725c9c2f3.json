@@ -1,0 +1,170 @@
+{
+  "authority_counts": {
+    "entitlement": 0,
+    "mapping": 0,
+    "occupancy": 0,
+    "protected_routes": 0,
+    "site_authority": 0,
+    "v11_certificates": 0,
+    "world": 0
+  },
+  "certificate_issued": false,
+  "deployment": {
+    "artifact_digest": "sha256:7efc70409411f6532b970a300e94332dd35919b2a6301ecf0ba90962d3835702",
+    "artifact_expires_at": "2026-11-15T08:39:19Z",
+    "artifact_id": 14106585995,
+    "artifact_name": "github-pages",
+    "commit": "d06b940812616d9889ad8ce26fe06068caf547b3",
+    "conclusion": "success",
+    "url": "https://github.com/bobuhq/bobunaut/actions/runs/43576769230"
+  },
+  "existing_evidence": [
+    {
+      "complete_world_coverage": false,
+      "expired": true,
+      "expires_at": "2026-11-13T21:46:58.495683+00:00",
+      "id": "cef048c2-f3d7-47ef-989d-9f4b7f17a78c",
+      "operator_evidence": "UNVERIFIED_LOCAL_SOURCE_SNAPSHOT_PENDING_INDEPENDENT_SERVER_VALIDATION",
+      "route_count": 0,
+      "server_verified": false,
+      "source_revision": "f3b67c7603c11b66e491eeab976c297880dd4603",
+      "status": "pending"
+    }
+  ],
+  "geometry_check": {
+    "audit": "GENESIS_V10_GEOMETRY_V3",
+    "authority": "READ_ONLY_DIAGNOSTIC",
+    "buildings": {
+      "active": 3,
+      "collisions": 0,
+      "invalid": 0
+    },
+    "geometry_precheck_pass": true,
+    "landmarks": {
+      "active": 3,
+      "invalid": 0,
+      "nearby_centers": 0
+    },
+    "missions": {
+      "active": 4,
+      "invalid": 0,
+      "protected_conflicts": 0
+    },
+    "production_authorized": false,
+    "remaining_blockers": [
+      "WORLD_COORDINATE_CONTRACT_UNCERTIFIED",
+      "LANDMARK_EXTENTS_UNVERIFIED",
+      "PROTECTED_EXTERNAL_ROUTES_MISSING",
+      "COMPLETE_WORLD_SNAPSHOT_MISSING",
+      "ATOMIC_RESERVATION_NOT_CERTIFIED"
+    ],
+    "scope": {
+      "ares_assignments": 1,
+      "colonies": 1,
+      "single_colony_scope_valid": true
+    },
+    "world_certified": false
+  },
+  "observed_at": "2026-11-14T18:35:08.88988+00:00",
+  "project_ref": "pvemtnmeewyaqgindocs",
+  "readiness": {
+    "active_site_authorities": 0,
+    "current_world_count": 0,
+    "fully_authorized": false,
+    "occupancy_count": 0,
+    "pending_evidence_count": 1,
+    "release_gate_enabled": false,
+    "world_count": 0
+  },
+  "release_digest": "c0bac75b50e908200a52277e416c618855466598f9ca70efe29b8dcefce6ad41",
+  "role_checks": {
+    "anon_can_call": false,
+    "authenticated_can_call": true,
+    "service_can_delete": false,
+    "service_can_insert": true,
+    "service_can_truncate": false
+  },
+  "schema": "bobu.genesis.v11.production-observation.v1",
+  "scope": {
+    "archive_semantics": "Content-addressed Git evidence, verifiable by commit and SHA-256; not an independently notarized attestation or a WORM-retention guarantee",
+    "certificate_decision": "WITHHELD: required authority and evidence checks did not pass",
+    "database_operations": "read-only SELECT observations; no certificate or authority writes",
+    "entitlement": "Ares sector membership exists, but no campus entitlement record exists",
+    "player_authentication": "No authenticated player session was supplied or impersonated; authenticated approval was not tested",
+    "raw_snapshot_publication": "Only the server-computed snapshot hash, byte length and aggregate counts are published; raw player records are excluded",
+    "route_verification": "No authoritative route records exist to verify; no candidate route was invented"
+  },
+  "served_release": {
+    "anonymous_rpc": {
+      "body": {
+        "code": "42501",
+        "details": null,
+        "hint": null,
+        "message": "permission denied for function get_ares_genesis_placement_v10"
+      },
+      "http_status": 401,
+      "identity": "anonymous publishable key only",
+      "url": "https://pvemtnmeewyaqgindocs.supabase.co/rest/v1/rpc/get_ares_genesis_placement_v10"
+    },
+    "checked_at": "2026-11-14T18:34:24.077775+00:00",
+    "deployed_release_manifest": {
+      "files": 581,
+      "schema": 1,
+      "sha256": "c0bac75b50e908200a52277e416c618855466598f9ca70efe29b8dcefce6ad41"
+    },
+    "deployment_commit": "d06b940812616d9889ad8ce26fe06068caf547b3",
+    "reads": [
+      {
+        "bytes": 192089,
+        "sha256": "d6261171ce2a96330b32c6af24b0d8087830300b74bdcd20ae286d8f150fe189",
+        "status": 200,
+        "url": "https://bobunaut.com/assets/index-DHPhgMRB.js"
+      },
+      {
+        "bytes": 1230,
+        "sha256": "8cf2a522ce7a2c5607082efef76c4c81274480907068e09e93ad19c6ba37f9dd",
+        "status": 200,
+        "url": "https://bobunaut.com/assets/AresFlightGateway-yG1BPWqL.js"
+      },
+      {
+        "bytes": 262136,
+        "sha256": "b4dfde73ef49f37e7e73cfd5d126cc59dff8f2ca40c1fd7c3e44ac18f4d8edf2",
+        "status": 200,
+        "url": "https://bobunaut.com/assets/MarsExploreWorld-wo_y5CVt.js"
+      },
+      {
+        "bytes": 114,
+        "sha256": "1f511f92f36082b07745a1a2747b512abac6e8b9ad309346c15307fa82f7d99e",
+        "status": 200,
+        "url": "https://raw.githubusercontent.com/bobuhq/bobunaut/d06b940812616d9889ad8ce26fe06068caf547b3/src/core/mars/genesis-release.json"
+      },
+      {
+        "bytes": 131072,
+        "sha256": "62b26ba12a7da83b2ddf58d46398231deacb993a996321b89db078bf364b47aa",
+        "status": 200,
+        "url": "https://bobunaut.com/mars/ares-genesis/ares-genesis-height-16.bin"
+      }
+    ],
+    "release_digest_present_in_served_world": true,
+    "terrain_read": {
+      "bytes": 131072,
+      "sha256": "62b26ba12a7da83b2ddf58d46398231deacb993a996321b89db078bf364b47aa",
+      "status": 200,
+      "url": "https://bobunaut.com/mars/ares-genesis/ares-genesis-height-16.bin"
+    },
+    "v10_rpc_referenced_in_served_world": true
+  },
+  "snapshot": {
+    "bytes": 6717,
+    "counts": {
+      "building_records": 7,
+      "colonies": 1,
+      "landmarks": 3,
+      "mission_catalog": 4
+    },
+    "encoding": "UTF-8 PostgreSQL jsonb::text",
+    "epoch": 0,
+    "sha256": "dbbd098e6b5b65ab52d0f56a6f2b4bf22ee4298e142d286824a627cf3c866845"
+  },
+  "verdict": "NOT_CERTIFIED"
+}

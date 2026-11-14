@@ -1,5 +1,7 @@
 # Genesis V11 certification and release
 
+Current owner-activation follow-up: [owner workflow and exact remaining gates](GENESIS-V11-OWNER-ACTIVATION.md). The original release notes below describe the prior implementation; the deployed-code status was subsequently confirmed in the archived production evidence. The new owner workflow is not deployed or activated.
+
 **SERVER_CERTIFIED: false. PRODUCTION_AUTHORIZED: false.**
 The code is prepared for review. No production migration, certificate issuance, player mutation, merge or activation has been performed. Publishing the branch and opening a PR do not authorize activation.
 

@@ -17,7 +17,10 @@ export function checkV11Footprint(placement,{obstacles,protectedRoutes,reservedC
  for(const list of [obstacles,protectedRoutes,reservedCells,legalRegions])if(!Array.isArray(list))throw Error('Incomplete geometry');
  const area=v11WorldFootprint(placement);
  const conflicts=[...obstacles,...protectedRoutes,...reservedCells].filter(o=>areasOverlap(area,o));
- const contained=legalRegions.some(r=>r.kind==='box'&&[r.x,r.z,r.halfWidth,r.halfDepth].every(Number.isFinite)&&r.halfWidth>0&&r.halfDepth>0&&Math.abs(area.x-r.x)+area.halfWidth<=r.halfWidth&&Math.abs(area.z-r.z)+area.halfDepth<=r.halfDepth);
+ // Floating-point translation can add a few ULPs to an exact surveyed boundary.
+ // This tolerance is numerical only (under 1e-11 m at the V11 site).
+ const tolerance=Number.EPSILON*Math.max(1,Math.abs(area.x),Math.abs(area.z))*8;
+ const contained=legalRegions.some(r=>r.kind==='box'&&[r.x,r.z,r.halfWidth,r.halfDepth].every(Number.isFinite)&&r.halfWidth>0&&r.halfDepth>0&&Math.abs(area.x-r.x)+area.halfWidth<=r.halfWidth+tolerance&&Math.abs(area.z-r.z)+area.halfDepth<=r.halfDepth+tolerance);
  if(!contained||conflicts.length)throw Error('V11 footprint blocked');
  return area;
 }

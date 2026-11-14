@@ -14,17 +14,19 @@ const sources={
  height:'public/mars/ares-genesis/ares-genesis-height-16.bin',
  rocks:'src/core/mars/exploration/components/MarsSurfaceRocks.tsx',
  hub:'src/core/mars/exploration/commandhub/AresCommandHubCollision.ts',
+ hubWalkable:'src/core/mars/exploration/commandhub/AresCommandHubWalkableSurface.ts',
+ colonyMapping:'src/core/mars/exploration/colony/AresColonyCoordinateSystem.ts',
  landmarks:'src/core/mars/exploration/landmarks/AresExplorationLandmarks.tsx',
  landmarkCatalog:'supabase/migrations/20260830170000_create_ares_landmark_discovery_v1.sql',
  world:'src/core/mars/exploration/MarsExploreWorld.tsx',
  missionCatalog:'supabase/migrations/20260830005000_create_ares_hidden_mission_engine_v1.sql',
  guidance:'src/core/mars/exploration/guidance/AresGuidanceSystem.tsx',
 };
-export function collectGenesisSourceEvidence(){
+export function collectGenesisSourceEvidence({includeGeometry=false}={}){
  const dir=mkdtempSync(join(tmpdir(),'bobu-source-evidence-'));
  try{
   const modules={};
-  for(const key of ['terrain','rocks','hub']){
+  for(const key of ['terrain','rocks','hub','hubWalkable','colonyMapping']){
    const file=join(dir,key+'.cjs');
    buildSync({entryPoints:[sources[key]],outfile:file,bundle:true,platform:'node',format:'cjs',logLevel:'silent'});
    modules[key]=createRequire(import.meta.url)(file);
@@ -66,6 +68,7 @@ export function collectGenesisSourceEvidence(){
   const site=prepareProductionCampus({placement,sample:(x,z)=>m.sampleAresGenesisRenderedSurfaceMeters(terrain,x,z),occupied:fixed,occupancyComplete:true,routesReserved:true,placementReserved:true,protectedRoutes:[],reservedCells:[],legalRegions:[{kind:'box',x:envelope.x,z:envelope.z,halfWidth:envelope.halfWidth+1,halfDepth:envelope.halfDepth+1}]});
   return {
    schema:1,scope:'repository geometry only; not production certification',productionCertified:false,
+   ...(includeGeometry?{sourceGeometry:{fixed,hubWalkable:modules.hubWalkable,colonyMapping:modules.colonyMapping,sample:(x,z)=>m.sampleAresGenesisRenderedSurfaceMeters(terrain,x,z)}}:{}),
    releaseDigest:JSON.parse(readFileSync('src/core/mars/genesis-release.json','utf8')).sha256,
    sourceDigests:Object.fromEntries(Object.values(sources).map(path=>[path,createHash('sha256').update(readFileSync(path)).digest('hex')])),
    envelope,knownFixedObstacleCount:fixed.length,knownFixedConflicts:fixed.filter(o=>areasOverlap(envelope,o)).map(o=>o.id),
