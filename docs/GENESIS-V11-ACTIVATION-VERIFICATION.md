@@ -1,3 +1,5 @@
+> Historical verification of the earlier distant layout. Superseded for current activation by [the integrated campus report](GENESIS-V11-INTEGRATED-CAMPUS.md). Do not use this historical digest or allocation to certify the integrated campus.
+
 # V11 owner activation verification — 2026-11-14
 
 **Production activation: NOT VERIFIED. No production writes or certificate issuance.**

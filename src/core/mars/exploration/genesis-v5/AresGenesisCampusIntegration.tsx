@@ -1,16 +1,19 @@
-import {Component, type ReactNode, lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, type RefObject} from 'react';
+import {Component, type ReactNode, lazy, Suspense, useCallback, useEffect, useMemo, useState} from 'react';
 import * as THREE from 'three';
-import {ARES_GENESIS_CAMPUS_ENABLED, prepareProductionCampus, productionCampusFloor, productionCampusObstacles, type ProductionCampusSite} from './production-site.mjs';
+import {ARES_GENESIS_CAMPUS_ENABLED} from './production-site.mjs';
+import {prepareIntegratedCampus,integratedCampusFloor,integratedReservations,type IntegratedCampusSite} from './integrated-campus.mjs';
+import {areasOverlap} from './colony-occupancy.mjs';
+import {SPACECRAFT_RADIUS} from './spacecraft-v3.mjs';
 import {loadAresGenesisTerrainData, sampleAresGenesisRenderedSurfaceMeters} from '../engine/AresGenesisTerrainData';
 import {MARS_SURFACE_ROCK_COLLISION_OBSTACLES} from '../components/MarsSurfaceRocks';
 import {genesisWorldToLocal, genesisLocalToWorld} from './3d/production-collision-adapter.mjs';
-import {cameraSolids, constrainGenesisEye} from './3d/interior-camera.mjs';
+import {constrainGenesisEye} from './3d/interior-camera.mjs';
 import {reviewAresGenesisPlacement} from './AresColonyOccupancyAdapter';
 
-const loadBase=()=>import('./3d/GenesisV5Experience');
-const loadCampus=()=>import('./V11ResearchCampus');
-const Base=lazy(()=>loadBase().then(m=>({default:m.GenesisSharedBaseScene})));
-const Campus=lazy(()=>loadCampus().then(m=>({default:m.MarsResearchCampus})));
+const flightReservation=integratedReservations().map(r=>({...r,groundOnly:true}));
+const noFlightReservation:typeof flightReservation=[];
+const loadCampus=()=>import('./IntegratedResearchCampus');
+const Campus=lazy(()=>loadCampus().then(m=>({default:m.IntegratedResearchCampus})));
 
 /** Asset/render failures leave the original Hub selected. */
 class CampusLoadBoundary extends Component<{children:ReactNode;onFailure:()=>void},{failed:boolean}> {
@@ -21,20 +24,20 @@ class CampusLoadBoundary extends Component<{children:ReactNode;onFailure:()=>voi
 }
 
 /** Host-owned controller/camera extension. No player, renderer, lights or service calls. */
-export function useAresGenesisCampusIntegration(){
+export function useAresGenesisCampusIntegration(parkedShip?:[number,number,number]){
  const [sceneReady,setSceneReady]=useState(false);
  const markSceneReady=useCallback(()=>setSceneReady(true),[]);
- const [site,setSite]=useState<ProductionCampusSite|null>(null);
+ const [site,setSite]=useState<IntegratedCampusSite|null>(null);
  const [placementStatus,setPlacementStatus]=useState<'PLACEMENT_BLOCKED'|'READY'>('PLACEMENT_BLOCKED');
  const markSceneFailed=useCallback(()=>{setSceneReady(false);setSite(null);setPlacementStatus('PLACEMENT_BLOCKED');},[]);
- const [doors,setDoors]=useState({surface:false,hub:false,habitat:false});
- const doorStateRef=useRef({surface:0,hub:0,habitat:0});
+ const parkedClear=!parkedShip||!flightReservation.some(r=>areasOverlap(r,{id:'parked-ares-v6',kind:'circle',x:parkedShip[0],z:parkedShip[2],radius:SPACECRAFT_RADIUS+3}));
  useEffect(()=>{
   if(!ARES_GENESIS_CAMPUS_ENABLED)return;
   let active=true;
   let polling=false;
   let expiryTimer:ReturnType<typeof setTimeout>|undefined;
   const revoke=()=>{if(!active)return;setSceneReady(false);setSite(null);setPlacementStatus('PLACEMENT_BLOCKED');};
+  if(!parkedClear){revoke();return;}
   const poll=async()=>{
    if(polling)return;
    polling=true;
@@ -48,14 +51,15 @@ export function useAresGenesisCampusIntegration(){
     if(expiryTimer)clearTimeout(expiryTimer);
     expiryTimer=setTimeout(revoke,Math.max(0,expiresAt-Date.now()-15000));
     const terrain=await loadAresGenesisTerrainData();
-    const next=prepareProductionCampus({
-     ...(approved as Parameters<typeof prepareProductionCampus>[0]),
-     sample:(x,z)=>sampleAresGenesisRenderedSurfaceMeters(terrain,x,z),
-     occupied:[...(approved.occupied as Parameters<typeof prepareProductionCampus>[0]['occupied']),
+    const next=prepareIntegratedCampus({
+     ...approved,
+     sample:(x:number,z:number)=>sampleAresGenesisRenderedSurfaceMeters(terrain,x,z),
+     occupied:[...(approved.occupied as {x:number;z:number;radius:number}[]),
+      ...(parkedShip?[{id:'parked-ares-v6',kind:'circle',x:parkedShip[0],z:parkedShip[2],radius:SPACECRAFT_RADIUS+3}]:[]),
       ...MARS_SURFACE_ROCK_COLLISION_OBSTACLES.map(o=>({...o,kind:'circle' as const})),
       {kind:'circle' as const,x:18,z:-28,radius:1.35}]
     });
-    await Promise.all([loadBase(),loadCampus()]);
+    await loadCampus();
     if(active&&Date.now()<expiresAt-15000){setSite(next);setPlacementStatus('READY');}
    } catch(error) {console.warn('PLACEMENT_BLOCKED',error);revoke();}
    finally {polling=false;}
@@ -63,22 +67,24 @@ export function useAresGenesisCampusIntegration(){
   void poll();
   const repeat=setInterval(()=>{void poll();},12000);
   return ()=>{active=false;clearInterval(repeat);if(expiryTimer)clearTimeout(expiryTimer);};
- },[]);
- const obstacles=useMemo(()=>site && sceneReady?productionCampusObstacles(site,doors):[],[site,doors,sceneReady]);
- const floor=useCallback((_terrain:unknown,x:number,z:number)=>site?productionCampusFloor(site,x,z):null,[site]);
- const onDoorStateChange=useCallback((id:keyof typeof doors,open:boolean)=>setDoors(current=>current[id]===open?current:{...current,[id]:open}),[]);
+ },[parkedShip,parkedClear]);
+ const obstacles=useMemo(()=>site && sceneReady && parkedClear?site.obstacles:[],[site,parkedClear,sceneReady]);
+ const floor=useCallback((_terrain:unknown,x:number,z:number)=>site?integratedCampusFloor(site,x,z):null,[site]);
+
  const constrainCamera=useCallback((look:THREE.Vector3,eye:THREE.Vector3)=>{
   if(!site)return;
   const point=(p:THREE.Vector3)=>{const [x,z]=genesisWorldToLocal(p.x,p.z,site.placement);return {x,y:p.y-site.rootY,z};};
-  const localEye=point(eye);constrainGenesisEye(point(look),localEye,[...cameraSolids(doorStateRef.current),...site.plan.colliders]);
+  const localEye=point(eye);constrainGenesisEye(point(look),localEye,site.cameraSolids);
   const [x,z]=genesisLocalToWorld(localEye.x,localEye.z,site.placement);eye.set(x,localEye.y+site.rootY,z);
  },[site]);
- const interiorAt=useCallback((x:number,z:number)=>site!==null && sceneReady && productionCampusFloor(site,x,z)!==null && (()=>{const [lx,lz]=genesisWorldToLocal(x,z,site.placement);return Math.abs(lx)<7 && lz>-37 && lz<13.2;})(),[site,sceneReady]);
- return {interiorAt,markSceneFailed,markSceneReady,replacementReady:ARES_GENESIS_CAMPUS_ENABLED && placementStatus==='READY' && site!==null && sceneReady,site,placementStatus,obstacles,walkableSurface:site && sceneReady?floor:undefined,constrainCamera:site && sceneReady?constrainCamera:undefined,doorStateRef,onDoorStateChange};
+ // Existing Hub interior and stairs remain owned by MarsFollowCamera/Hub sampler.
+ const interiorAt=useCallback(()=>false,[]);
+ const flightObstacles=useMemo(()=>site&&sceneReady&&parkedClear?[...flightReservation,...site.obstacles]:noFlightReservation,[site,sceneReady,parkedClear]);
+ return {flightObstacles,interiorAt,markSceneFailed,markSceneReady,campusReady:ARES_GENESIS_CAMPUS_ENABLED && placementStatus==='READY' && site!==null && sceneReady && parkedClear,site:parkedClear?site:null,placementStatus,obstacles,walkableSurface:site && sceneReady && parkedClear?floor:undefined,constrainCamera:site && sceneReady && parkedClear?constrainCamera:undefined};
 }
 function SceneCommitted({onReady}:{onReady:()=>void}){useEffect(onReady,[onReady]);return null;}
-export function AresGenesisCampusIntegration({integration,targetRef}:{integration:ReturnType<typeof useAresGenesisCampusIntegration>;targetRef:RefObject<THREE.Group|null>}){
- const {site,doorStateRef,onDoorStateChange}=integration;
+export function AresGenesisCampusIntegration({integration}:{integration:ReturnType<typeof useAresGenesisCampusIntegration>}){
+ const {site}=integration;
  if(!ARES_GENESIS_CAMPUS_ENABLED || integration.placementStatus==='PLACEMENT_BLOCKED' || !site)return null;
- return <CampusLoadBoundary onFailure={integration.markSceneFailed}><Suspense fallback={null}><group visible={integration.replacementReady}><SceneCommitted onReady={integration.markSceneReady}/><Base position={[site.placement.x,site.rootY,site.placement.z]} rotationY={site.placement.rotationY*Math.PI/180} targetRef={targetRef} doorStateRef={doorStateRef} onDoorStateChange={onDoorStateChange} surfaceAtLocal={site.surfaceAtLocal} rampEndLocalY={site.rampEndY-site.rootY}/><group position={[site.placement.x,site.rootY,site.placement.z]} rotation={[0,site.placement.rotationY*Math.PI/180,0]}><Campus surface={site.surfaceAtLocal}/></group></group></Suspense></CampusLoadBoundary>;
+ return <CampusLoadBoundary onFailure={integration.markSceneFailed}><Suspense fallback={null}><group visible={integration.campusReady}><SceneCommitted onReady={integration.markSceneReady}/><Campus site={site}/></group></Suspense></CampusLoadBoundary>;
 }

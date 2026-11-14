@@ -238,7 +238,7 @@ function MarsExploreScene({
     useRef(false);
 
   // Genesis V11 production integration: fail-closed without backend approval.
-  const genesisProduction = useAresGenesisCampusIntegration();
+  const genesisProduction = useAresGenesisCampusIntegration(landedHandoff?.ship);
 
   const [
     hiddenMission,
@@ -328,10 +328,10 @@ function MarsExploreScene({
       <MarsExplorationTerrain />
       <MarsSurfaceRocks />
       {/* Genesis V11 stays hidden until the authoritative placement check approves. */}
-      <AresGenesisCampusIntegration integration={genesisProduction} targetRef={bobuRef} />
+      <AresGenesisCampusIntegration integration={genesisProduction} />
       <AresGroundDust />
       {landedHandoff && <AresParkedSpacecraft position={landedHandoff.ship} yaw={landedHandoff.yaw} />}
-      {flying && <AresFlightSession onEntry={setLandedHandoff} />}
+      {flying && <AresFlightSession onEntry={setLandedHandoff} campusObstacles={genesisProduction.flightObstacles} />}
       <AresExplorationLandmarks
         targetRef={bobuRef}
         onNavigation={

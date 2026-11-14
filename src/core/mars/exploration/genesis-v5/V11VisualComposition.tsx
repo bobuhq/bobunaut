@@ -9,7 +9,7 @@ type Surface=(x:number,z:number)=>number|null;
 import {createV11CampusPlan} from './v11-campus-plan.mjs';
 export {createV11CampusPlan} from './v11-campus-plan.mjs';
 
-function Dish({spec,surface}:{spec:typeof towers[number];surface:Surface}){
+export function Dish({spec,surface}:{spec:typeof towers[number];surface:Surface}){
  const gltf=useLoader(GLTFLoader,'/mars/ares-genesis/campus/comms-dish-7b129a.glb');
  const kit=useMemo(()=>{
  const scene=gltf.scene.clone(true),az=scene.getObjectByName('dish-azimuth')!,el=scene.getObjectByName('dish-elevation')!;
@@ -44,11 +44,11 @@ function Arc({points,radius=.035}:{points:THREE.Vector3[];radius?:number}){
  useFrame(({clock})=>{kit.mat.opacity=.86+.14*Math.sin(clock.elapsedTime*.65);});
  useEffect(()=>()=>{kit.geo.dispose();kit.mat.dispose();},[kit]);return <mesh geometry={kit.geo} material={kit.mat}/>;
 }
-function GreenhouseGarden({deck}:{deck:number}){
+export function GreenhouseGarden({deck,position=greenhouse}:{deck:number;position?:{x:number;z:number}}){
  const kit=useMemo(()=>{
  const ribs=Array.from({length:7},(_,i)=>Array.from({length:33},(_,j)=>{const t=j*Math.PI/32;return new THREE.Vector3(-8.6+i*2.87,1+5.45*Math.sin(t),4.4*Math.cos(t));}));
  return {ribs};},[]);
- return <group name="blue-transparent-greenhouse-garden" position={[greenhouse.x,deck,greenhouse.z]}>
+ return <group name="blue-transparent-greenhouse-garden" position={[position.x,deck,position.z]}>
  {kit.ribs.map((p,i)=><Arc key={i} points={p} radius={.055}/>)}
  {[-3,0,3].map(z=><group key={z} position={[0,0,z]}><mesh position={[0,.65,0]}><boxGeometry args={[15,.24,1.25]}/><meshStandardMaterial color="#4c6970"/></mesh><mesh position={[0,.81,.64]}><boxGeometry args={[15,.055,.055]}/><meshBasicMaterial color="#1acfff" toneMapped={false}/></mesh>
  {Array.from({length:12},(_,i)=><group key={i} position={[-6.9+i*1.25,.95,0]}><mesh><cylinderGeometry args={[.28,.22,.35,8]}/><meshStandardMaterial color="#726350"/></mesh>{[-1,1].map(side=><mesh key={side} position={[side*.22,.55,0]} rotation={[0,0,side*-.6]} scale={[.27,.65,.25]}><sphereGeometry args={[1,8,6]}/><meshBasicMaterial color={i%2?'#70c83b':'#a2de46'}/></mesh>)}</group>)}

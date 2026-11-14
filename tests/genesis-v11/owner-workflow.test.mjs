@@ -7,8 +7,8 @@ const migration='supabase/migrations/20261114184238_ares_genesis_owner_approval_
 test('source recovery exposes exact allocation without inventing external routes or authority',()=>{
  const p=buildOwnerPackage();assert.equal(p.status,'incomplete');assert.equal(p.externalAuthorityRequired,false);
  assert.equal(p.protected_routes_v5.length,1);assert.equal(p.protected_routes_v5[0].status,'pending');
- assert.deepEqual(p.campusRamp.worldEnd,[-516,-187]);assert.equal(p.geometry.knownFixedConflicts.length,0);
- assert.equal(p.allocation.xMin,-585.2);assert.equal(p.mapping.scale,4.5);
+ assert.deepEqual(p.placement,{x:-44,z:-68,rotationY:0});assert.equal(p.geometry.knownFixedConflicts.length,0);
+ assert(Array.isArray(p.allocation));assert.equal(p.mapping.scale,4.5);
 });
 test('owner identity, immutable exact proposal, issuance and live RPC remain separate gates',async()=>{
  const db=new PGlite();
@@ -64,23 +64,4 @@ test('owner identity, immutable exact proposal, issuance and live RPC remain sep
  await db.exec('reset role; update public.mars_colony_buildings set grid_x=1; set role authenticated');
  assert.equal((await db.query('select public.get_ares_genesis_placement_v10() as r')).rows[0].r.status,'blocked');
  }finally{await db.close();}
-});
-
-test('offline verifier checks actual shipped geometry and rejects a route through the campus',async()=>{
- const {collectGenesisSourceEvidence}=await import('../../scripts/genesis-source-evidence.mjs');
- const {verifyOwnerProposal}=await import('../../scripts/genesis-verify-owner-proposal.mjs');
- const source=collectGenesisSourceEvidence({includeGeometry:true}),pkg=buildOwnerPackage();
- const r=pkg.protected_routes_v5[0],bounds=r.bounds;
- // Synthetic world scope, using genuine source geometry. No production authority.
- const p={id:'synthetic',colony_id:'fixture',release_digest:source.releaseDigest,world_snapshot:{colonies:[{id:'fixture'}],buildings:[],definitions:[],landmarks:[],mission_catalog:[]},inventory:{completeWorldCoverage:true,externalRoutesComplete:true,landmarkExtentsVerified:true,mapping:{origin_x:-50.75,origin_z:-74.75,scale:4.5,yaw:0},terrainDigest:source.sourceDigests['public/mars/ares-genesis/ares-genesis-height-16.bin'],landmarkExtents:[],routes:[{...r,...bounds}]},site:{ownerProposalId:'synthetic',placement:pkg.placement,occupancyComplete:true,routesReserved:true,placementReserved:true,occupied:source.sourceGeometry.fixed,reservedCells:[],legalRegions:[{kind:'box',x:-530.5,z:-210.5,halfWidth:54.7,halfDepth:67.7}],protectedRoutes:[{id:r.route_key,kind:'box',x:(bounds.xMin+bounds.xMax)/2,z:(bounds.zMin+bounds.zMax)/2,halfWidth:(bounds.xMax-bounds.xMin)/2,halfDepth:(bounds.zMax-bounds.zMin)/2}]}};
- assert.equal(verifyOwnerProposal(p).geometryValidated,true);
- // Mission interaction areas protect campus placement but remain accessible on foot.
- p.world_snapshot.mission_catalog=[{mission_key:'fixture-mission',enabled:true,target_x:-44,target_z:-57.2,target_radius:6}];
- p.site.occupied.push({id:'fixture-mission',kind:'circle',x:-44,z:-57.2,radius:6});
- assert.equal(verifyOwnerProposal(p).geometryValidated,true);
- p.inventory.routes[0].xMin=-550;p.inventory.routes[0].xMax=-510;
- p.site.protectedRoutes[0].x=-530;p.site.protectedRoutes[0].halfWidth=20;
- p.inventory.routes[0].zMin=-230;p.inventory.routes[0].zMax=-190;
- p.site.protectedRoutes[0].z=-210;p.site.protectedRoutes[0].halfDepth=20;
- assert.throws(()=>verifyOwnerProposal(p),/intersects campus/);
 });

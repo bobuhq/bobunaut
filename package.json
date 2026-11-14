@@ -12,7 +12,7 @@
     "test:genesis": "node scripts/genesis-release-manifest.mjs && node scripts/genesis-source-evidence.mjs && node scripts/genesis-owner-package.mjs && node --test tests/genesis-v11/*.test.mjs && node tests/genesis-v10/release-safety.mjs && node --test tests/ares-flight/*.test.mjs tests/mars/*.test.mjs",
     "test:release": "npm run test:security && npm run test:genesis && npm run test:x-oauth && node --test tests/solana/*.test.mjs && node scripts/test-mars-pixel-coordinate-engine.mjs && npm run build",
     "test:security": "npm audit --audit-level=moderate",
-    "test:genesis:sql": "node scripts/test-genesis-postgres.mjs"
+    "test:genesis:sql": "node scripts/test-genesis-postgres.mjs && node scripts/test-genesis-integrated-postgres.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.8",

@@ -53,7 +53,7 @@ export async function reviewAresGenesisPlacement() {
   const p = v.placement;
   if (!p || typeof p !== 'object' || Array.isArray(p)) throw Error('Missing placement');
   const place = p as Record<string,unknown>;
-  if (place.x !== -516 || place.z !== -213 || place.rotationY !== 0) throw Error('Unrecognized Genesis footprint');
+  if (place.x !== -44 || place.z !== -68 || place.rotationY !== 0) throw Error('Unrecognized Genesis footprint');
   if (v.occupancyComplete !== true || v.routesReserved !== true || v.placementReserved !== true) throw Error('Incomplete certification');
   for (const list of ['occupied','protectedRoutes','reservedCells','legalRegions']) if (!Array.isArray(v[list])) throw Error('Missing certified geometry: '+list);
   validateGenesisCertificate(result,{colonyId:occupancy.colonyId,releaseDigest:release.sha256});

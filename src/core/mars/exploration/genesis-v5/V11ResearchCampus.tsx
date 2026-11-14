@@ -15,7 +15,7 @@ function Asset({site}:{site:CampusSite}){
  useEffect(()=>()=>kit.owned.forEach(m=>m.dispose()),[kit]);
  return <group position={[site.x,site.deck,site.z]} scale={site.scale}><primitive object={kit.scene}/></group>;
 }
-function CampusAssets({plan}:{plan:CampusPlan}){
+export function CampusAssets({plan}:{plan:CampusPlan}){
  return <group name="v11-preserved-campus-assets">{plan.sites.map(s=><group key={s.id}><Asset site={s}/><mesh position={[s.x,s.deck-.09,s.z]}><boxGeometry args={[s.width,.18,s.depth]}/><meshStandardMaterial color="#74675d" roughness={.65}/></mesh>{s.feet.map((f,i)=><mesh key={i} position={[f.x,(f.ground+s.deck)/2-.1,f.z]}><cylinderGeometry args={[.3,.5,Math.max(.15,s.deck-f.ground),8]}/><meshStandardMaterial color="#62574e"/></mesh>)}</group>)}</group>;
 }
 

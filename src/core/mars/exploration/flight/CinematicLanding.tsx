@@ -80,7 +80,7 @@ export function CinematicLanding({flight=false,obstacles=[],onAresEntry}:{flight
  const [terrain,setTerrain]=useState<Awaited<ReturnType<typeof loadAresGenesisTerrainData>>|null>(null);
  useEffect(()=>{let live=true;loadAresGenesisTerrainData().then(t=>{if(live)setTerrain(t);}).catch(console.error);return()=>{live=false;audio.stopLanding();};},[]);
  const data=useMemo(()=>{if(!terrain)return null;const surface=(x:number,z:number)=>sample(terrain,x,z);const support=inspectSupport(surface);return {support};},[terrain]);
- useEffect(()=>{if(flight&&terrain){controller.current=new FlightV2((x:number,z:number)=>sample(terrain,x,z),obstacles,ARES_GENESIS_SAFE_BOUNDARY_METERS);gear.current=controller.current.gear;}},[flight,terrain,obstacles]);
+ useEffect(()=>{if(flight&&terrain){controller.current=new FlightV2((x:number,z:number)=>sample(terrain,x,z),obstacles,ARES_GENESIS_SAFE_BOUNDARY_METERS);gear.current=controller.current.gear;}},[flight,terrain]);
  const gear=useRef(new LandingGear()),ship=useRef<THREE.Group>(null),pads=useRef<(THREE.Mesh|null)[]>([]),lights=useRef<(THREE.SpotLight|null)[]>([]),preDust=useRef<THREE.Group>(null),prePuffs=useRef<(THREE.Mesh|null)[]>([]),cloud=useRef<THREE.Group>(null),label=useRef<HTMLDivElement>(null);
  const dustBurst=useRef(new LandingDust()),puffs=useRef<(THREE.Mesh|null)[]>([]);
  const landingTarget=useMemo(()=>{const target=new THREE.Object3D();target.name='xenon-ground-world-target';return target;},[]);

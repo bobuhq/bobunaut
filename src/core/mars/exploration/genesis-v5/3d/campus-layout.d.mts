@@ -6,6 +6,6 @@ export type CampusSite = CampusAsset & {min:number;max:number;slope:number;deck:
 export type CampusPlan = {sites:CampusSite[];path:{x:number;z:number;y:number}[];colliders:{id:string;category:string;xMin:number;xMax:number;zMin:number;zMax:number;yMin:number;yMax:number}[]};
 export const CAMPUS_ASSETS: CampusAsset[];
 export function campusEnabled(search:string):boolean;
-export function createCampusPlan(surface:Surface, assets?:CampusAsset[]):CampusPlan;
+export function createCampusPlan(surface:Surface, assets?:CampusAsset[],includeLegacyPaths?:boolean):CampusPlan;
 export function campusWorldObstacles(plan:CampusPlan,placement:GenesisPlacement,transform:(x:number,z:number,p:GenesisPlacement)=>[number,number]):MarsCollisionObstacle[];
 export function validateCampusOccupancy(plan:CampusPlan,placement:GenesisPlacement,transform:(x:number,z:number,p:GenesisPlacement)=>[number,number],occupied:MarsCollisionObstacle[]):boolean;
