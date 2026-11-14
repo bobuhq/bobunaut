@@ -32,6 +32,9 @@ jobs:
       - name: Install locked dependencies
         run: npm ci
 
+      - name: Dependency security gate
+        run: npm run test:security
+
       - name: Genesis certification and ARES regression checks
         run: npm run test:genesis
 

@@ -18,6 +18,8 @@ import {
 
 type MarsFollowCameraProps = {
   targetRef: React.RefObject<THREE.Group | null>;
+  interiorAt?: (x: number, z: number) => boolean;
+  constrainCamera?: (look: THREE.Vector3, eye: THREE.Vector3) => void;
 };
 
 const OUTDOOR_CAMERA_HORIZONTAL_DISTANCE = 6.5;
@@ -84,6 +86,8 @@ const INDOOR_CAMERA_FOV = 48;
 
 export function MarsFollowCamera({
   targetRef,
+  interiorAt,
+  constrainCamera,
 }: MarsFollowCameraProps) {
   const {
     gl,
@@ -303,7 +307,7 @@ export function MarsFollowCamera({
       const insideCommandHub =
         isInsideAresCommandHub(
           worldPosition.current,
-        );
+        ) || interiorAt?.(worldPosition.current.x, worldPosition.current.z) === true;
 
       const cameraRadius =
         insideCommandHub
@@ -379,6 +383,7 @@ export function MarsFollowCamera({
         worldPosition.current.z,
       );
 
+      constrainCamera?.(lookTarget.current, camera.position);
       camera.lookAt(
         lookTarget.current,
       );

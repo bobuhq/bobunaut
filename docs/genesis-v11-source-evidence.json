@@ -1,0 +1,72 @@
+{
+  "schema": 1,
+  "scope": "repository geometry only; not production certification",
+  "productionCertified": false,
+  "releaseDigest": "e6962505c69afd8190de47326254798e636ef33e01f0ab5dc809052ab45a1820",
+  "sourceDigests": {
+    "src/core/mars/exploration/engine/AresGenesisTerrainData.ts": "adbe51a6aefd27b8de4e317886754a72607a006eb9d33ba1388b9bbf19f1cc30",
+    "public/mars/ares-genesis/ares-genesis-height-16.bin": "62b26ba12a7da83b2ddf58d46398231deacb993a996321b89db078bf364b47aa",
+    "src/core/mars/exploration/components/MarsSurfaceRocks.tsx": "561eb4b5c2bbfe745767e75aae4506369cd23e73f804a5da3941a1d10e945899",
+    "src/core/mars/exploration/commandhub/AresCommandHubCollision.ts": "b875ecb664b7fc0765fc38a4a0cc8ed17d555840ac692eee076e23b684fadc5a",
+    "src/core/mars/exploration/landmarks/AresExplorationLandmarks.tsx": "b271d32d4cb90f48d4d36c54aca6bb143154280ff6af2feae7c9104eb1cb1b19",
+    "supabase/migrations/20260830170000_create_ares_landmark_discovery_v1.sql": "8c7fda53ad51f764a794af1c4fe514eed3771e132cda78e74a9161eb44e36320",
+    "src/core/mars/exploration/MarsExploreWorld.tsx": "64f54364eda05d8162232a4f78b0684ed7fa7b6a0ad6afd74e59b438376650ec",
+    "supabase/migrations/20260830005000_create_ares_hidden_mission_engine_v1.sql": "af7ae123417a097c97600fb4d574a84bd7f993eded61ba2cd21ae47fd6f93d78",
+    "src/core/mars/exploration/guidance/AresGuidanceSystem.tsx": "e854c9edbff73b1beea4a26f42e33491ee47837c4d964099fe5cb35b7e7c892d"
+  },
+  "envelope": {
+    "id": "v11-full-reservation",
+    "kind": "box",
+    "x": -530.5,
+    "z": -210.5,
+    "halfWidth": 54.70000000000002,
+    "halfDepth": 67.69999999999999
+  },
+  "knownFixedObstacleCount": 532,
+  "knownFixedConflicts": [],
+  "landmarks": [
+    {
+      "id": "ares-ridge-01",
+      "kind": "RIDGE",
+      "title": "Ares Ridge",
+      "x": -125.5,
+      "z": -276.1,
+      "description": "Local terrain prominence identified from the Ares Genesis elevation field.",
+      "surveyRadius": 4,
+      "campusOverlapsSurveyPoint": false
+    },
+    {
+      "id": "ares-depression-01",
+      "kind": "DEPRESSION",
+      "title": "Ares Basin",
+      "x": 527.1,
+      "z": -225.9,
+      "description": "Local terrain depression identified from the Ares Genesis elevation field.",
+      "surveyRadius": 4,
+      "campusOverlapsSurveyPoint": false
+    },
+    {
+      "id": "ares-escarpment-01",
+      "kind": "ESCARPMENT",
+      "title": "Ares Escarpment",
+      "x": 225.9,
+      "z": -426.7,
+      "description": "Steep terrain zone identified from the Ares Genesis elevation field.",
+      "surveyRadius": 4,
+      "campusOverlapsSurveyPoint": false
+    }
+  ],
+  "terrainGeometry": {
+    "passed": true,
+    "rootY": 15.243417130930986,
+    "floorWorldY": 16.443417130930985,
+    "rampEndY": 15.3880198848526
+  },
+  "missingAuthority": [
+    "current production world/colony snapshot",
+    "approved complete external walking/entrance route and dynamic mission inventory",
+    "legal campus entitlement",
+    "trusted reviewer evidence archive and service-issued certificate for this release",
+    "production/staging schema, lease and device validation"
+  ]
+}

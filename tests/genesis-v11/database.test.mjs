@@ -6,22 +6,7 @@ import {PGlite} from '@electric-sql/pglite';
 test('certification migration enforces auth, service ownership, freshness, revocation and data preservation',async()=>{
  const db=new PGlite();
  try {
- await db.exec(`
- create role anon; create role authenticated; create role service_role bypassrls;
- create schema auth;
- create function auth.uid() returns uuid language sql stable as
- $$ select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;
- grant usage on schema auth to authenticated;
- grant execute on function auth.uid() to authenticated;
- create table public.mars_colonies(id uuid primary key, name text);
- create table public.mars_building_definitions(building_key text primary key, footprint_width int, footprint_depth int);
- create table public.mars_colony_buildings(id uuid primary key, colony_id uuid, building_key text, grid_x int, grid_z int default 0, rotation_y int default 0, status text default 'active');
- create table public.mars_colony_memberships(builder_id uuid, colony_id uuid, status text);
- insert into public.mars_colonies values ('00000000-0000-0000-0000-000000000001','Preserved colony');
- insert into public.mars_building_definitions values ('command_hub',4,4);
- insert into public.mars_colony_buildings(id,colony_id,building_key,grid_x) values ('00000000-0000-0000-0000-000000000002','00000000-0000-0000-0000-000000000001','command_hub',0);
- insert into public.mars_colony_memberships values ('00000000-0000-0000-0000-000000000003','00000000-0000-0000-0000-000000000001','active');
- `);
+ await db.exec(readFileSync('tests/genesis-v11/fixture.sql','utf8'));
  const snapshot=async()=>(await db.query('select public.ares_genesis_world_snapshot_v11() as value')).rows[0].value;
  const before=(await db.query('select * from public.mars_colony_buildings')).rows;
  await db.exec(readFileSync('supabase/migrations/20261114120000_ares_genesis_certification_v11.sql','utf8'));
@@ -46,9 +31,14 @@ test('certification migration enforces auth, service ownership, freshness, revoc
  await assert.rejects(issue(world,missing),/check constraint/);
  await db.exec('set role service_role');
  await issue();
+ await assert.rejects(db.exec('delete from public.ares_genesis_certificates_v11'),/permission denied/);
+ await assert.rejects(db.exec('truncate public.ares_genesis_certificates_v11'),/permission denied/);
  await db.exec('reset role; set role authenticated');
  assert.equal((await review()).status,'approved');
- await assert.rejects(db.exec('reset role; update public.mars_building_definitions set footprint_width=5'),/ARES_GENESIS_RESERVED/);
+ await db.exec('reset role');
+ await assert.rejects(db.exec('update public.mars_building_definitions set footprint_width=5'),/ARES_GENESIS_RESERVED/);
+ await assert.rejects(db.exec("insert into public.mars_landmark_catalog values ('fixture',-530,-210)"),/ARES_GENESIS_RESERVED/);
+ await assert.rejects(db.exec("insert into public.mars_hidden_mission_catalog values ('fixture',-530,-210)"),/ARES_GENESIS_RESERVED/);
  await db.exec('set role authenticated');
  await db.exec("select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-000000000004',false)");
  assert.equal((await review()).status,'blocked');
@@ -60,7 +50,7 @@ test('certification migration enforces auth, service ownership, freshness, revoc
  assert.equal((await review()).status,'blocked');
  await db.exec('update public.mars_colony_buildings set grid_x=0');
  assert.equal((await review()).status,'blocked','ABA world changes must remain blocked');
- await db.exec('update public.ares_genesis_certificates_v11 set revoked_at=statement_timestamp()');
+ await db.exec("update public.ares_genesis_certificates_v11 set revoked_at=statement_timestamp()-interval '1 year'");
  assert.equal((await review()).status,'blocked');
  await assert.rejects(db.exec('update public.mars_colony_buildings set grid_x=-108,grid_z=-32'),/ARES_GENESIS_RESERVED/);
  await assert.rejects(db.exec('update public.ares_genesis_certificates_v11 set revoked_at=null'),/immutable/);

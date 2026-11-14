@@ -12,7 +12,11 @@ on:
       - 'tests/ares-flight/**'
       - 'tests/mars/**'
       - 'supabase/migrations/**'
-      - 'scripts/genesis-release-manifest.mjs'
+      - 'scripts/**'
+      - 'tests/solana/**'
+      - 'tests/x-oauth/**'
+      - 'supabase/functions/**'
+      - 'docs/genesis-v11-source-evidence.json'
       - 'package*.json'
       - 'vite.config.ts'
       - 'tsconfig.app.json'
@@ -38,16 +42,18 @@ jobs:
           node-version: '24'
           cache: npm
 
+      - name: Setup Deno for locked Edge Function tests
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.9.5
+
       - name: Install dependencies
         shell: bash
         run: |
           npm ci --registry=https://registry.npmjs.org/ --no-fund
 
-      - name: Genesis fail-closed safety tests
-        run: npm run test:genesis
-
-      - name: Production build
-        run: npm run build
+      - name: Complete release checks including audit and production build
+        run: npm run test:release
 
       - name: Verify no hardcoded site approval
         run: |

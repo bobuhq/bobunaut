@@ -29,7 +29,7 @@ create table public.ares_genesis_certificates_v11 (
 create unique index ares_genesis_one_world_reservation_v11
   on public.ares_genesis_certificates_v11 ((true)) where revoked_at is null;
 alter table public.ares_genesis_certificates_v11 enable row level security;
-revoke all on public.ares_genesis_certificates_v11 from public, anon, authenticated;
+revoke all on public.ares_genesis_certificates_v11 from public, anon, authenticated, service_role;
 grant select, insert, update on public.ares_genesis_certificates_v11 to service_role;
 
 -- Monotonic epoch prevents an old certificate becoming valid again when
@@ -61,6 +61,11 @@ create trigger ares_genesis_definition_epoch_v11 after insert or update or delet
 create trigger ares_genesis_colony_epoch_v11 after insert or update or delete or truncate
   on public.mars_colonies for each statement execute function public.bump_ares_genesis_world_epoch_v11();
 
+create trigger ares_genesis_landmark_epoch_v11 after insert or update or delete or truncate
+  on public.mars_landmark_catalog for each statement execute function public.bump_ares_genesis_world_epoch_v11();
+create trigger ares_genesis_mission_epoch_v11 after insert or update or delete or truncate
+  on public.mars_hidden_mission_catalog for each statement execute function public.bump_ares_genesis_world_epoch_v11();
+
 -- Conservative global snapshot: every colony's building and catalog state.
 -- Any change, including unrelated upgrades, invalidates the certificate.
 -- External fixed geometry, terrain, protected routes and entitlement evidence
@@ -72,6 +77,8 @@ as $$
   select jsonb_build_object(
     'buildings', coalesce((select jsonb_agg(to_jsonb(b) order by b.id) from public.mars_colony_buildings b), '[]'::jsonb),
     'definitions', coalesce((select jsonb_agg(to_jsonb(d) order by d.building_key) from public.mars_building_definitions d), '[]'::jsonb),
+    'landmarks', coalesce((select jsonb_agg(to_jsonb(l) order by l.landmark_key) from public.mars_landmark_catalog l), '[]'::jsonb),
+    'mission_catalog', coalesce((select jsonb_agg(to_jsonb(m) order by m.mission_key) from public.mars_hidden_mission_catalog m), '[]'::jsonb),
     'epoch', (select epoch from public.ares_genesis_world_epoch_v11 where singleton),
     'colonies', coalesce((select jsonb_agg(to_jsonb(c) order by c.id) from public.mars_colonies c), '[]'::jsonb)
   );
@@ -142,6 +149,11 @@ revoke all on function public.guard_ares_genesis_catalog_v11() from public, anon
 create trigger guard_ares_genesis_catalog_v11 before insert or update or delete or truncate
   on public.mars_building_definitions for each statement execute function public.guard_ares_genesis_catalog_v11();
 
+create trigger guard_ares_genesis_landmark_catalog_v11 before insert or update or delete or truncate
+  on public.mars_landmark_catalog for each statement execute function public.guard_ares_genesis_catalog_v11();
+create trigger guard_ares_genesis_mission_catalog_v11 before insert or update or delete or truncate
+  on public.mars_hidden_mission_catalog for each statement execute function public.guard_ares_genesis_catalog_v11();
+
 -- Serialize issuance against world mutations. Certificate history is immutable;
 -- service operators can revoke and then insert a newly reviewed certificate.
 create function public.guard_ares_genesis_certificate_v11()
@@ -154,10 +166,12 @@ begin
        or old.revoked_at is not null or new.revoked_at is null then
       raise exception 'Certificates are immutable; revoke and recertify';
     end if;
+    -- Revocation time is server-owned so a caller cannot bypass lease draining.
+    new.revoked_at := statement_timestamp();
     return new;
   end if;
   lock table public.mars_colony_buildings, public.mars_building_definitions,
-    public.mars_colonies in share mode;
+    public.mars_colonies, public.mars_landmark_catalog, public.mars_hidden_mission_catalog in share mode;
   if new.issued_at > statement_timestamp()
      or new.expires_at <= statement_timestamp() + interval '30 seconds'
      or new.world_snapshot <> public.ares_genesis_world_snapshot_v11() then
