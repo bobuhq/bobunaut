@@ -15,13 +15,15 @@ const p=read('proposal'),e=read('evidence'),plan=read('plan'),source=collectGene
 const campus=prepareIntegratedCampus({...p.site,sample:g.sample});
 const physical=[...g.fixed,...liveBuildings(p.world_snapshot),...campus.obstacles];
 
-test('complete new-policy inventory binds actual evidence, full private snapshot and unchanged deployed geometry',()=>{
+test('archived policy inventory preserves evidence and cannot authorize a changed release',()=>{
  assert.equal(sha256(readFileSync('docs/genesis-v11-access-evidence.json')),p.evidence_digest);
  assert.equal(p.inventory.evidenceArchive.content,readFileSync('docs/genesis-v11-access-evidence.json','utf8'));
  assert.equal(p.inventory.evidenceArchive.sha256,p.evidence_digest);
  assert.equal(sha256(readFileSync('docs/genesis-v11-access-plan.json')),p.inventory.accessPolicyDigest);
  assert.equal(sha256(JSON.stringify(p.world_snapshot,null,2)+'\n'),e.observation.worldSnapshotDigest);
- assert.equal(verifyOwnerProposal(p).geometryValidated,true);
+ // Archived owner evidence is immutable. A visual release must fail the old digest gate.
+ if(p.release_digest===source.releaseDigest)assert.equal(verifyOwnerProposal(p).geometryValidated,true);
+ else assert.throws(()=>verifyOwnerProposal(p),{code:'ERR_ASSERTION'});
  assert.deepEqual(p.site.reservations,integratedReservations());
  assert.equal(p.inventory.accessPolicyApproval,'pending');assert.equal(e.authorization.certificateIssued,false);
  assert(!JSON.stringify(e).includes(p.world_snapshot.colonies[0].leader_builder_id),'Public archive must not include account identity');

@@ -8,8 +8,11 @@ function Asset({site}:{site:CampusSite}){
  const kit=useMemo(()=>{
  const scene=gltf.scene.clone(true),owned:THREE.Material[]=[];
  // Clone every changed material: shared GLTF cache and V10 remain untouched.
- if(site.id==='greenhouse')scene.traverse(o=>{if(o instanceof THREE.Mesh){
- const m=new THREE.MeshPhysicalMaterial({color:'#38baff',transparent:true,opacity:o.name==='shell'?.12:.20,depthWrite:false,roughness:.14,metalness:.12,side:THREE.DoubleSide});owned.push(m);o.material=m;o.renderOrder=2;
+ scene.traverse(o=>{if(o instanceof THREE.Mesh){
+ if(site.id==='greenhouse'){
+ const glass=o.name==='shell'||o.name==='glazing'||o.name==='hatch-glass';
+ const m=new THREE.MeshPhysicalMaterial({color:glass?'#71c6d9':'#aab9c1',transparent:glass,opacity:glass?.16:1,depthWrite:!glass,roughness:glass?.16:.4,metalness:glass?.15:.65,side:THREE.DoubleSide});owned.push(m);o.material=m;if(glass)o.renderOrder=2;
+ }else{const m=new THREE.MeshStandardMaterial({color:'#8296a4',metalness:.55,roughness:.44});owned.push(m);o.material=m;}
  }});
  return {scene,owned};},[gltf,site.id]);
  useEffect(()=>()=>kit.owned.forEach(m=>m.dispose()),[kit]);
