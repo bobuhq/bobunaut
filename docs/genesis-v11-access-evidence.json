@@ -1,0 +1,5111 @@
+{
+  "schema": "bobu.genesis.v11.access-evidence",
+  "observation": {
+    "observedAt": "2026-11-14T20:12:48.176773+00:00",
+    "worldSnapshotDigest": "98d68e8252478c5e05ac6134bcf89528d1589600595819dc6396e1882390907c",
+    "epoch": 0,
+    "ownerEnrollmentVerified": true,
+    "counts": {
+      "colonies": 1,
+      "buildingRecords": 7,
+      "activeBuildings": 3,
+      "landmarks": 3,
+      "missions": 4,
+      "existingExternalRoutes": 0
+    },
+    "buildings": [
+      {
+        "id": "0ce7c2a8-08d3-4b32-ad9b-c56e1a915d38",
+        "kind": "box",
+        "x": -19.25,
+        "z": -43.25,
+        "halfWidth": 7.35,
+        "halfDepth": 7.35
+      },
+      {
+        "id": "37c781c6-e5c3-4dea-a435-8fd14fb55b8e",
+        "kind": "box",
+        "x": -44,
+        "z": -68,
+        "halfWidth": 9.6,
+        "halfDepth": 9.6
+      },
+      {
+        "id": "e5678fed-e5fe-4d4f-a8a5-72a092cef3e1",
+        "kind": "box",
+        "x": -46.25,
+        "z": -83.75,
+        "halfWidth": 7.35,
+        "halfDepth": 7.35
+      }
+    ],
+    "missions": [
+      {
+        "id": "ares-echo-01",
+        "kind": "circle",
+        "x": -92,
+        "z": 44,
+        "radius": 6
+      },
+      {
+        "id": "ares-fracture-02",
+        "kind": "circle",
+        "x": 76,
+        "z": -58,
+        "radius": 6
+      },
+      {
+        "id": "ares-relay-03",
+        "kind": "circle",
+        "x": -112,
+        "z": -74,
+        "radius": 6
+      },
+      {
+        "id": "ares-scar-04",
+        "kind": "circle",
+        "x": 94,
+        "z": 82,
+        "radius": 6
+      }
+    ],
+    "landmarks": [
+      {
+        "id": "ares-depression-01",
+        "kind": "circle",
+        "x": 527.1,
+        "z": -225.9,
+        "radius": 30
+      },
+      {
+        "id": "ares-escarpment-01",
+        "kind": "circle",
+        "x": 225.9,
+        "z": -426.7,
+        "radius": 30
+      },
+      {
+        "id": "ares-ridge-01",
+        "kind": "circle",
+        "x": -125.5,
+        "z": -276.1,
+        "radius": 30
+      }
+    ],
+    "flightProgression": {
+      "command_hub_level": 2,
+      "map_min": -8,
+      "map_max": 8,
+      "source": "fresh production mars_command_hub_progression joined to active command_hub level"
+    }
+  },
+  "plan": {
+    "schema": "bobu.genesis.v11.new-access-policy",
+    "status": "engineering-verified; pending authenticated owner access-policy decision",
+    "landAllocation": "previously approved; unchanged",
+    "designation": "ALL routes and 30m landmark zones are NEW proposed owner policy; no historical protection asserted",
+    "observedAt": "2026-11-14T20:12:48.176773+00:00",
+    "coverage": {
+      "globalSnapshot": true,
+      "allActiveBuildings": true,
+      "allFixedSourceObstacles": true,
+      "allEnabledMissions": [
+        "ares-echo-01",
+        "ares-fracture-02",
+        "ares-relay-03",
+        "ares-scar-04"
+      ],
+      "allActiveLandmarks": [
+        "ares-depression-01",
+        "ares-escarpment-01",
+        "ares-ridge-01"
+      ],
+      "legacyExternalRoutes": 0,
+      "additionalExternalRoutes": "Only this enumerated new network is designated; no unrecorded historical routes claimed"
+    },
+    "corridor": {
+      "halfWidth": 0.75,
+      "fullWidth": 1.5,
+      "capsuleRadius": 0.48,
+      "slopeLimitDegrees": 12
+    },
+    "externalInterface": {
+      "point": [
+        -42,
+        -40.5
+      ],
+      "campusConnector": [
+        [
+          -44,
+          -57.2
+        ],
+        [
+          -44,
+          -50.5
+        ],
+        [
+          -42,
+          -50.5
+        ],
+        [
+          -42,
+          -40.5
+        ]
+      ],
+      "connectorMaxTerrainSlopeDegrees": 8.00401999488994,
+      "seam": "External 1.5m corridor starts at Z -41.25; reserved courtyard extends to Z -41.4; the 0.15m transition is explicitly included in the validated campus connector, not asserted to be a preexisting protected row"
+    },
+    "internalPaving": [
+      {
+        "id": "hub-approach",
+        "kind": "box",
+        "x": -44,
+        "z": -50.5,
+        "halfWidth": 1.2,
+        "halfDepth": 5.5,
+        "designation": "existing-campus-paving-reused; not an external blocker"
+      },
+      {
+        "id": "courtyard",
+        "kind": "box",
+        "x": -42,
+        "z": -47,
+        "halfWidth": 6,
+        "halfDepth": 5,
+        "designation": "existing-campus-paving-reused; not an external blocker"
+      },
+      {
+        "id": "west-walk",
+        "kind": "box",
+        "x": -74,
+        "z": -45,
+        "halfWidth": 30,
+        "halfDepth": 1.2,
+        "designation": "existing-campus-paving-reused; not an external blocker"
+      },
+      {
+        "id": "greenhouse-walk",
+        "kind": "box",
+        "x": -78,
+        "z": -55,
+        "halfWidth": 1.2,
+        "halfDepth": 10,
+        "designation": "existing-campus-paving-reused; not an external blocker"
+      },
+      {
+        "id": "west-relay-walk",
+        "kind": "box",
+        "x": -104,
+        "z": -50,
+        "halfWidth": 1.2,
+        "halfDepth": 5,
+        "designation": "existing-campus-paving-reused; not an external blocker"
+      },
+      {
+        "id": "research-walk",
+        "kind": "box",
+        "x": -26,
+        "z": -53,
+        "halfWidth": 18,
+        "halfDepth": 1.2,
+        "designation": "existing-campus-paving-reused; not an external blocker"
+      },
+      {
+        "id": "research-approach",
+        "kind": "box",
+        "x": -23,
+        "z": -54,
+        "halfWidth": 1.2,
+        "halfDepth": 1,
+        "designation": "existing-campus-paving-reused; not an external blocker"
+      },
+      {
+        "id": "east-walk",
+        "kind": "box",
+        "x": -3,
+        "z": -53,
+        "halfWidth": 5,
+        "halfDepth": 1.2,
+        "designation": "existing-campus-paving-reused; not an external blocker"
+      },
+      {
+        "id": "east-service-walk",
+        "kind": "box",
+        "x": 2,
+        "z": -76.5,
+        "halfWidth": 1.2,
+        "halfDepth": 23.5,
+        "designation": "existing-campus-paving-reused; not an external blocker"
+      },
+      {
+        "id": "rear-relay-walk",
+        "kind": "box",
+        "x": -0.5,
+        "z": -100,
+        "halfWidth": 2.5,
+        "halfDepth": 1.2,
+        "designation": "existing-campus-paving-reused; not an external blocker"
+      },
+      {
+        "id": "front-service-walk",
+        "kind": "box",
+        "x": 2,
+        "z": -36.5,
+        "halfWidth": 1.2,
+        "halfDepth": 16.5,
+        "designation": "existing-campus-paving-reused; not an external blocker"
+      },
+      {
+        "id": "front-relay-walk",
+        "kind": "box",
+        "x": -0.5,
+        "z": -20,
+        "halfWidth": 2.5,
+        "halfDepth": 1.2,
+        "designation": "existing-campus-paving-reused; not an external blocker"
+      }
+    ],
+    "landmarkZones": [
+      {
+        "id": "ares-depression-01",
+        "kind": "circle",
+        "x": 527.1,
+        "z": -225.9,
+        "radius": 30,
+        "observedSurveyRadius": 4,
+        "policyBasis": "30m preservation zone around observed catalog point: 4m survey area plus 26m no-build/no-land buffer; not a surveyed geological perimeter; pedestrian surveying remains permitted"
+      },
+      {
+        "id": "ares-escarpment-01",
+        "kind": "circle",
+        "x": 225.9,
+        "z": -426.7,
+        "radius": 30,
+        "observedSurveyRadius": 4,
+        "policyBasis": "30m preservation zone around observed catalog point: 4m survey area plus 26m no-build/no-land buffer; not a surveyed geological perimeter; pedestrian surveying remains permitted"
+      },
+      {
+        "id": "ares-ridge-01",
+        "kind": "circle",
+        "x": -125.5,
+        "z": -276.1,
+        "radius": 30,
+        "observedSurveyRadius": 4,
+        "policyBasis": "30m preservation zone around observed catalog point: 4m survey area plus 26m no-build/no-land buffer; not a surveyed geological perimeter; pedestrian surveying remains permitted"
+      }
+    ],
+    "paths": [
+      {
+        "id": "ares-echo-01",
+        "kind": "walking",
+        "point": [
+          -92,
+          44
+        ],
+        "radius": 6,
+        "points": [
+          [
+            -42,
+            -40.5
+          ],
+          [
+            -42,
+            40.5
+          ],
+          [
+            -88,
+            40.5
+          ]
+        ],
+        "validation": {
+          "capsuleSamples": 1272,
+          "capsuleRadius": 0.48,
+          "targetDistanceMeters": 5.315072906367325,
+          "passed": true
+        }
+      },
+      {
+        "id": "ares-fracture-02",
+        "kind": "walking",
+        "point": [
+          76,
+          -58
+        ],
+        "radius": 6,
+        "points": [
+          [
+            -42,
+            -40.5
+          ],
+          [
+            -27.5,
+            -40.5
+          ],
+          [
+            -27.5,
+            -14.5
+          ],
+          [
+            49,
+            -14.5
+          ],
+          [
+            49,
+            -54.5
+          ],
+          [
+            72,
+            -54.5
+          ]
+        ],
+        "validation": {
+          "capsuleSamples": 1805,
+          "capsuleRadius": 0.48,
+          "targetDistanceMeters": 5.315072906367325,
+          "passed": true
+        }
+      },
+      {
+        "id": "ares-relay-03",
+        "kind": "walking",
+        "point": [
+          -112,
+          -74
+        ],
+        "radius": 6,
+        "points": [
+          [
+            -42,
+            -40.5
+          ],
+          [
+            -110,
+            -40.5
+          ],
+          [
+            -110,
+            -69
+          ]
+        ],
+        "validation": {
+          "capsuleSamples": 967,
+          "capsuleRadius": 0.48,
+          "targetDistanceMeters": 5.385164807134505,
+          "passed": true
+        }
+      },
+      {
+        "id": "ares-scar-04",
+        "kind": "walking",
+        "point": [
+          94,
+          82
+        ],
+        "radius": 6,
+        "points": [
+          [
+            -42,
+            -40.5
+          ],
+          [
+            -42,
+            77.5
+          ],
+          [
+            91,
+            77.5
+          ]
+        ],
+        "validation": {
+          "capsuleSamples": 2512,
+          "capsuleRadius": 0.48,
+          "targetDistanceMeters": 5.408326913195984,
+          "passed": true
+        }
+      },
+      {
+        "id": "landing-access",
+        "kind": "landing_access",
+        "point": [
+          82,
+          130
+        ],
+        "radius": 0.5,
+        "points": [
+          [
+            -42,
+            -40.5
+          ],
+          [
+            -42,
+            99
+          ],
+          [
+            82,
+            99
+          ],
+          [
+            82,
+            130
+          ]
+        ],
+        "validation": {
+          "capsuleSamples": 2948,
+          "capsuleRadius": 0.48,
+          "targetDistanceMeters": 0,
+          "passed": true
+        }
+      }
+    ],
+    "entrance": {
+      "id": "hub-stair-interface",
+      "kind": "box",
+      "x": -44,
+      "z": -57.8125,
+      "halfWidth": 0.75,
+      "halfDepth": 1.1875,
+      "sourceStairs": {
+        "xMin": -45.8,
+        "xMax": -42.2,
+        "zMin": -59,
+        "zMax": -57.2,
+        "stepCount": 4
+      },
+      "policy": "Central 1.5m walking strip on retained stairs and terrain interface; existing four steps retained, not graded into a ramp",
+      "validation": {
+        "actualSourceCollidersValidated": true,
+        "capsuleRadius": 0.48,
+        "stairCount": 4,
+        "stairDepth": 1.8,
+        "maxSampledStepHeightMeters": 0.3101891624903974,
+        "sourceWalkableHeightRange": [
+          8.713403346682815,
+          9.643970834154006
+        ],
+        "terrainTailMaxSlopeDegrees": 8.004019994885823,
+        "stairs": "Existing stepped access, not a 12-degree terrain ramp; source step sampler retained"
+      }
+    },
+    "landing": {
+      "center": {
+        "x": 65,
+        "z": 130
+      },
+      "yaw": 0,
+      "actualV6Handoff": {
+        "x": 72.4,
+        "z": 130
+      },
+      "disembarkPoint": {
+        "x": 82,
+        "z": 130
+      },
+      "conditionalConnector": {
+        "from": [
+          72.4,
+          130
+        ],
+        "to": [
+          82,
+          130
+        ],
+        "designation": "Temporary access from actual source-defined starboard stair endpoint to the corridor outside the 13m parked-craft safety envelope; only the disembarking craft is exempt along its own exit, never other landing craft"
+      },
+      "support": {
+        "valid": true,
+        "highest": -7.778397812405676,
+        "heights": [
+          -7.854175313748812,
+          -8.404696122133279,
+          -8.351781407956071,
+          -7.980113304010961
+        ],
+        "slopes": [
+          3.478835256086482,
+          2.7966932086124587,
+          2.13907146291285,
+          2.712735720505222
+        ],
+        "padHighest": [
+          -7.793383461560248,
+          -8.355845814999924,
+          -8.314430212820518,
+          -7.93273172419833
+        ],
+        "relief": 0.7770220559021626,
+        "tilt": 2.626701486920707,
+        "reason": "verified-local-support"
+      },
+      "policy": "Example only; no permanent pad or landing entitlement. For every proposed landing/parking pose revalidate 10m full craft radius + 3m safety against all physical obstacles, 24 campus reservations, all NEW corridors, mission areas and 30m landmark zones, plus actual parked craft; preserve V6 perimeter, support, four pads, relief <=0.8m, pad slope <=6deg, tilt <=5deg, and live handoff. Recompute ground access from a nonintersecting disembark point or reject the landing. No low descent/parking over pedestrian corridors. Physical overflight constraints unchanged.",
+      "runtimeStatus": "New external exclusions are policy proposed for owner review; the deployed integration currently supplies only its existing campus exclusions. This artifact does not claim new runtime enforcement.",
+      "progressionExclusion": {
+        "id": "progression-building-grid",
+        "kind": "box",
+        "x": -50.75,
+        "z": -74.75,
+        "halfWidth": 38.25,
+        "halfDepth": 38.25
+      },
+      "scope": "One currently verified example plus mandatory per-touchdown dynamic revalidation; no assertion that all possible poses are safe"
+    },
+    "validation": {
+      "passed": true,
+      "routeRectangleCount": 14,
+      "gridMeters": 0.25,
+      "samples": 31264,
+      "exactRenderedTriangleChecks": 169,
+      "maxSlopeDegrees": 11.88653171390711
+    },
+    "sourceDigests": {
+      "src/core/mars/exploration/engine/AresGenesisTerrainData.ts": "adbe51a6aefd27b8de4e317886754a72607a006eb9d33ba1388b9bbf19f1cc30",
+      "public/mars/ares-genesis/ares-genesis-height-16.bin": "62b26ba12a7da83b2ddf58d46398231deacb993a996321b89db078bf364b47aa",
+      "src/core/mars/exploration/components/MarsSurfaceRocks.tsx": "561eb4b5c2bbfe745767e75aae4506369cd23e73f804a5da3941a1d10e945899",
+      "src/core/mars/exploration/commandhub/AresCommandHubCollision.ts": "b875ecb664b7fc0765fc38a4a0cc8ed17d555840ac692eee076e23b684fadc5a",
+      "src/core/mars/exploration/commandhub/AresCommandHubWalkableSurface.ts": "2d7d0eb2703e7e951bc3ab7419f523939eff02f0fb1a60620d855aca118018b7",
+      "src/core/mars/exploration/colony/AresColonyCoordinateSystem.ts": "b0dc6681e41515eb82f599a305dc0e3339d6680057090a33872cdcb38138ee47",
+      "src/core/mars/exploration/landmarks/AresExplorationLandmarks.tsx": "b271d32d4cb90f48d4d36c54aca6bb143154280ff6af2feae7c9104eb1cb1b19",
+      "supabase/migrations/20260830170000_create_ares_landmark_discovery_v1.sql": "8c7fda53ad51f764a794af1c4fe514eed3771e132cda78e74a9161eb44e36320",
+      "src/core/mars/exploration/MarsExploreWorld.tsx": "3baaa7873e98becb92c77bdfcd6dbbf243dbdacb8e350e0cd74849f6c5adb19e",
+      "supabase/migrations/20260830005000_create_ares_hidden_mission_engine_v1.sql": "af7ae123417a097c97600fb4d574a84bd7f993eded61ba2cd21ae47fd6f93d78",
+      "src/core/mars/exploration/guidance/AresGuidanceSystem.tsx": "e854c9edbff73b1beea4a26f42e33491ee47837c4d964099fe5cb35b7e7c892d",
+      "scripts/genesis-access-plan.mjs": "e0775dcbe263791857967278829ab397882cba523edf4cdefebbef05db6c4831",
+      "src/core/mars/exploration/genesis-v5/flight-v2.mjs": "b6d894ea1acd287528f23a3ec6e8ab951aea209a718a1e30a3357be896fbc989",
+      "src/core/mars/exploration/genesis-v5/green-landing-zone.mjs": "aeabfc2f4bcdc80b1478e1b64df99e38db92d4973d52f8aa565591321cbc8620",
+      "src/core/mars/exploration/genesis-v5/spacecraft-v3.mjs": "286b3cc28d7cf5ba9b596689d057791c0f3c18e4610fc91c022129098e74d8cd",
+      "src/core/mars/exploration/flight/handoff.mjs": "a0b056e0dca4ef061cdbec24b8e95e71aa4b0d71c2a1472e6ad23980b6081e51",
+      "src/core/mars/exploration/flight/disembark-v1.mjs": "6584953f3fddc26300a9b394dd2d7228f4db9cc56430ab8ffca87d320c1ef814",
+      "src/core/mars/exploration/flight/CinematicLanding.tsx": "7c4d891d48d873628d93abe99cc95492139f3ceb642a3187a35a24ba7198d38a",
+      "src/core/mars/exploration/flight/AresFlightSession.tsx": "5282fe2e207b4b81bf81a67e8fd82bfbc5696c082fc4570724ec9199857cb8ba",
+      "src/core/mars/exploration/genesis-v5/AresColonyOccupancyAdapter.ts": "fe2403a445304591683ad5af5a9795b0d13e9c8d58b7ada824aefb872111bb93"
+    },
+    "releaseDigest": "b078b759d517ad9bb12489b13274d84d4471c2561cf962be8dcdd5ac8b9bdf98",
+    "landmarkAccess": "Protection zones only. No newly designated path to landmark survey centers, and no claim of survey-center reachability; surveying remains permitted under existing gameplay rules."
+  },
+  "inventory": {
+    "completeWorldCoverage": true,
+    "externalRoutesComplete": true,
+    "geometryValidated": true,
+    "landmarkExtentsVerified": true,
+    "completenessScope": "Complete NEW owner-defined access policy for the observed global snapshot and all declared fixed source obstacles; not historical corridor recovery or owner approval",
+    "mapping": {
+      "origin_x": -50.75,
+      "origin_z": -74.75,
+      "scale": 4.5,
+      "yaw": 0
+    },
+    "terrainDigest": "62b26ba12a7da83b2ddf58d46398231deacb993a996321b89db078bf364b47aa",
+    "sourceRevision": "b4f04394e4928a0e4e758545649a4fcdaa5526f1",
+    "routes": [
+      {
+        "route_key": "hub-stair-interface",
+        "route_kind": "entrance",
+        "xMin": -44.75,
+        "xMax": -43.25,
+        "zMin": -59,
+        "zMax": -56.625,
+        "source_digest": "12e9c4f770fae6510a758c430d5f0f3606099cd1ac878d898b3afe1d2b61fe3c",
+        "designation": "new-owner-policy"
+      },
+      {
+        "route_key": "ares-echo-01-001",
+        "route_kind": "walking",
+        "xMin": -42.75,
+        "xMax": -41.25,
+        "zMin": -41.25,
+        "zMax": 41.25,
+        "source_digest": "12e9c4f770fae6510a758c430d5f0f3606099cd1ac878d898b3afe1d2b61fe3c",
+        "designation": "new-owner-policy"
+      },
+      {
+        "route_key": "ares-echo-01-002",
+        "route_kind": "walking",
+        "xMin": -88.75,
+        "xMax": -41.25,
+        "zMin": 39.75,
+        "zMax": 41.25,
+        "source_digest": "12e9c4f770fae6510a758c430d5f0f3606099cd1ac878d898b3afe1d2b61fe3c",
+        "designation": "new-owner-policy"
+      },
+      {
+        "route_key": "ares-fracture-02-001",
+        "route_kind": "walking",
+        "xMin": -42.75,
+        "xMax": -26.75,
+        "zMin": -41.25,
+        "zMax": -39.75,
+        "source_digest": "12e9c4f770fae6510a758c430d5f0f3606099cd1ac878d898b3afe1d2b61fe3c",
+        "designation": "new-owner-policy"
+      },
+      {
+        "route_key": "ares-fracture-02-002",
+        "route_kind": "walking",
+        "xMin": -28.25,
+        "xMax": -26.75,
+        "zMin": -41.25,
+        "zMax": -13.75,
+        "source_digest": "12e9c4f770fae6510a758c430d5f0f3606099cd1ac878d898b3afe1d2b61fe3c",
+        "designation": "new-owner-policy"
+      },
+      {
+        "route_key": "ares-fracture-02-003",
+        "route_kind": "walking",
+        "xMin": -28.25,
+        "xMax": 49.75,
+        "zMin": -15.25,
+        "zMax": -13.75,
+        "source_digest": "12e9c4f770fae6510a758c430d5f0f3606099cd1ac878d898b3afe1d2b61fe3c",
+        "designation": "new-owner-policy"
+      },
+      {
+        "route_key": "ares-fracture-02-004",
+        "route_kind": "walking",
+        "xMin": 48.25,
+        "xMax": 49.75,
+        "zMin": -55.25,
+        "zMax": -13.75,
+        "source_digest": "12e9c4f770fae6510a758c430d5f0f3606099cd1ac878d898b3afe1d2b61fe3c",
+        "designation": "new-owner-policy"
+      },
+      {
+        "route_key": "ares-fracture-02-005",
+        "route_kind": "walking",
+        "xMin": 48.25,
+        "xMax": 72.75,
+        "zMin": -55.25,
+        "zMax": -53.75,
+        "source_digest": "12e9c4f770fae6510a758c430d5f0f3606099cd1ac878d898b3afe1d2b61fe3c",
+        "designation": "new-owner-policy"
+      },
+      {
+        "route_key": "ares-relay-03-001",
+        "route_kind": "walking",
+        "xMin": -110.75,
+        "xMax": -41.25,
+        "zMin": -41.25,
+        "zMax": -39.75,
+        "source_digest": "12e9c4f770fae6510a758c430d5f0f3606099cd1ac878d898b3afe1d2b61fe3c",
+        "designation": "new-owner-policy"
+      },
+      {
+        "route_key": "ares-relay-03-002",
+        "route_kind": "walking",
+        "xMin": -110.75,
+        "xMax": -109.25,
+        "zMin": -69.75,
+        "zMax": -39.75,
+        "source_digest": "12e9c4f770fae6510a758c430d5f0f3606099cd1ac878d898b3afe1d2b61fe3c",
+        "designation": "new-owner-policy"
+      },
+      {
+        "route_key": "ares-scar-04-001",
+        "route_kind": "walking",
+        "xMin": -42.75,
+        "xMax": -41.25,
+        "zMin": -41.25,
+        "zMax": 78.25,
+        "source_digest": "12e9c4f770fae6510a758c430d5f0f3606099cd1ac878d898b3afe1d2b61fe3c",
+        "designation": "new-owner-policy"
+      },
+      {
+        "route_key": "ares-scar-04-002",
+        "route_kind": "walking",
+        "xMin": -42.75,
+        "xMax": 91.75,
+        "zMin": 76.75,
+        "zMax": 78.25,
+        "source_digest": "12e9c4f770fae6510a758c430d5f0f3606099cd1ac878d898b3afe1d2b61fe3c",
+        "designation": "new-owner-policy"
+      },
+      {
+        "route_key": "landing-access-001",
+        "route_kind": "landing_access",
+        "xMin": -42.75,
+        "xMax": -41.25,
+        "zMin": -41.25,
+        "zMax": 99.75,
+        "source_digest": "12e9c4f770fae6510a758c430d5f0f3606099cd1ac878d898b3afe1d2b61fe3c",
+        "designation": "new-owner-policy"
+      },
+      {
+        "route_key": "landing-access-002",
+        "route_kind": "landing_access",
+        "xMin": -42.75,
+        "xMax": 82.75,
+        "zMin": 98.25,
+        "zMax": 99.75,
+        "source_digest": "12e9c4f770fae6510a758c430d5f0f3606099cd1ac878d898b3afe1d2b61fe3c",
+        "designation": "new-owner-policy"
+      },
+      {
+        "route_key": "landing-access-003",
+        "route_kind": "landing_access",
+        "xMin": 81.25,
+        "xMax": 82.75,
+        "zMin": 98.25,
+        "zMax": 130.75,
+        "source_digest": "12e9c4f770fae6510a758c430d5f0f3606099cd1ac878d898b3afe1d2b61fe3c",
+        "designation": "new-owner-policy"
+      }
+    ],
+    "landmarkExtents": [
+      {
+        "id": "ares-depression-01",
+        "kind": "circle",
+        "x": 527.1,
+        "z": -225.9,
+        "radius": 30
+      },
+      {
+        "id": "ares-escarpment-01",
+        "kind": "circle",
+        "x": 225.9,
+        "z": -426.7,
+        "radius": 30
+      },
+      {
+        "id": "ares-ridge-01",
+        "kind": "circle",
+        "x": -125.5,
+        "z": -276.1,
+        "radius": 30
+      }
+    ],
+    "accessPolicyDigest": "12e9c4f770fae6510a758c430d5f0f3606099cd1ac878d898b3afe1d2b61fe3c",
+    "accessPolicyApproval": "pending",
+    "landAllocationApproval": "already approved; unchanged",
+    "runtimeEnforcementOfNewFlightExclusions": false
+  },
+  "site": {
+    "ownerProposalId": "68b98383-06aa-4e6e-9f23-81c967dc0a31",
+    "layout": "integrated-command-hub-v11",
+    "placement": {
+      "x": -44,
+      "z": -68,
+      "rotationY": 0
+    },
+    "reservations": [
+      {
+        "id": "greenhouse",
+        "kind": "box",
+        "x": -78,
+        "z": -72,
+        "halfWidth": 10.1,
+        "halfDepth": 6.1
+      },
+      {
+        "id": "habitat",
+        "kind": "box",
+        "x": -23,
+        "z": -63,
+        "halfWidth": 7.6,
+        "halfDepth": 7.6
+      },
+      {
+        "id": "relay-yellow",
+        "kind": "box",
+        "x": -104,
+        "z": -60,
+        "halfWidth": 4.6,
+        "halfDepth": 4.6
+      },
+      {
+        "id": "relay-red",
+        "kind": "box",
+        "x": -8,
+        "z": -100,
+        "halfWidth": 4.6,
+        "halfDepth": 4.6
+      },
+      {
+        "id": "relay-green",
+        "kind": "box",
+        "x": -8,
+        "z": -20,
+        "halfWidth": 4.6,
+        "halfDepth": 4.6
+      },
+      {
+        "id": "hub-approach",
+        "kind": "box",
+        "x": -44,
+        "z": -50.5,
+        "halfWidth": 1.7999999999999998,
+        "halfDepth": 6.1
+      },
+      {
+        "id": "courtyard",
+        "kind": "box",
+        "x": -42,
+        "z": -47,
+        "halfWidth": 6.6,
+        "halfDepth": 5.6
+      },
+      {
+        "id": "west-walk",
+        "kind": "box",
+        "x": -74,
+        "z": -45,
+        "halfWidth": 30.6,
+        "halfDepth": 1.7999999999999998
+      },
+      {
+        "id": "greenhouse-walk",
+        "kind": "box",
+        "x": -78,
+        "z": -55,
+        "halfWidth": 1.7999999999999998,
+        "halfDepth": 10.6
+      },
+      {
+        "id": "west-relay-walk",
+        "kind": "box",
+        "x": -104,
+        "z": -50,
+        "halfWidth": 1.7999999999999998,
+        "halfDepth": 5.6
+      },
+      {
+        "id": "research-walk",
+        "kind": "box",
+        "x": -26,
+        "z": -53,
+        "halfWidth": 18.6,
+        "halfDepth": 1.7999999999999998
+      },
+      {
+        "id": "research-approach",
+        "kind": "box",
+        "x": -23,
+        "z": -54,
+        "halfWidth": 1.7999999999999998,
+        "halfDepth": 1.6
+      },
+      {
+        "id": "east-walk",
+        "kind": "box",
+        "x": -3,
+        "z": -53,
+        "halfWidth": 5.6,
+        "halfDepth": 1.7999999999999998
+      },
+      {
+        "id": "east-service-walk",
+        "kind": "box",
+        "x": 2,
+        "z": -76.5,
+        "halfWidth": 1.7999999999999998,
+        "halfDepth": 24.1
+      },
+      {
+        "id": "rear-relay-walk",
+        "kind": "box",
+        "x": -0.5,
+        "z": -100,
+        "halfWidth": 3.1,
+        "halfDepth": 1.7999999999999998
+      },
+      {
+        "id": "front-service-walk",
+        "kind": "box",
+        "x": 2,
+        "z": -36.5,
+        "halfWidth": 1.7999999999999998,
+        "halfDepth": 17.1
+      },
+      {
+        "id": "front-relay-walk",
+        "kind": "box",
+        "x": -0.5,
+        "z": -20,
+        "halfWidth": 3.1,
+        "halfDepth": 1.7999999999999998
+      },
+      {
+        "id": "lamp-0",
+        "kind": "box",
+        "x": -46,
+        "z": -50,
+        "halfWidth": 0.76,
+        "halfDepth": 0.76
+      },
+      {
+        "id": "lamp-1",
+        "kind": "box",
+        "x": -38,
+        "z": -44,
+        "halfWidth": 0.76,
+        "halfDepth": 0.76
+      },
+      {
+        "id": "lamp-2",
+        "kind": "box",
+        "x": -66,
+        "z": -43,
+        "halfWidth": 0.76,
+        "halfDepth": 0.76
+      },
+      {
+        "id": "lamp-3",
+        "kind": "box",
+        "x": -86,
+        "z": -43,
+        "halfWidth": 0.76,
+        "halfDepth": 0.76
+      },
+      {
+        "id": "lamp-4",
+        "kind": "box",
+        "x": -20,
+        "z": -55,
+        "halfWidth": 0.76,
+        "halfDepth": 0.76
+      },
+      {
+        "id": "lamp-5",
+        "kind": "box",
+        "x": 4,
+        "z": -66,
+        "halfWidth": 0.76,
+        "halfDepth": 0.76
+      },
+      {
+        "id": "lamp-6",
+        "kind": "box",
+        "x": 4,
+        "z": -28,
+        "halfWidth": 0.76,
+        "halfDepth": 0.76
+      }
+    ],
+    "legalRegions": [
+      {
+        "id": "greenhouse",
+        "kind": "box",
+        "x": -78,
+        "z": -72,
+        "halfWidth": 10.1,
+        "halfDepth": 6.1
+      },
+      {
+        "id": "habitat",
+        "kind": "box",
+        "x": -23,
+        "z": -63,
+        "halfWidth": 7.6,
+        "halfDepth": 7.6
+      },
+      {
+        "id": "relay-yellow",
+        "kind": "box",
+        "x": -104,
+        "z": -60,
+        "halfWidth": 4.6,
+        "halfDepth": 4.6
+      },
+      {
+        "id": "relay-red",
+        "kind": "box",
+        "x": -8,
+        "z": -100,
+        "halfWidth": 4.6,
+        "halfDepth": 4.6
+      },
+      {
+        "id": "relay-green",
+        "kind": "box",
+        "x": -8,
+        "z": -20,
+        "halfWidth": 4.6,
+        "halfDepth": 4.6
+      },
+      {
+        "id": "hub-approach",
+        "kind": "box",
+        "x": -44,
+        "z": -50.5,
+        "halfWidth": 1.7999999999999998,
+        "halfDepth": 6.1
+      },
+      {
+        "id": "courtyard",
+        "kind": "box",
+        "x": -42,
+        "z": -47,
+        "halfWidth": 6.6,
+        "halfDepth": 5.6
+      },
+      {
+        "id": "west-walk",
+        "kind": "box",
+        "x": -74,
+        "z": -45,
+        "halfWidth": 30.6,
+        "halfDepth": 1.7999999999999998
+      },
+      {
+        "id": "greenhouse-walk",
+        "kind": "box",
+        "x": -78,
+        "z": -55,
+        "halfWidth": 1.7999999999999998,
+        "halfDepth": 10.6
+      },
+      {
+        "id": "west-relay-walk",
+        "kind": "box",
+        "x": -104,
+        "z": -50,
+        "halfWidth": 1.7999999999999998,
+        "halfDepth": 5.6
+      },
+      {
+        "id": "research-walk",
+        "kind": "box",
+        "x": -26,
+        "z": -53,
+        "halfWidth": 18.6,
+        "halfDepth": 1.7999999999999998
+      },
+      {
+        "id": "research-approach",
+        "kind": "box",
+        "x": -23,
+        "z": -54,
+        "halfWidth": 1.7999999999999998,
+        "halfDepth": 1.6
+      },
+      {
+        "id": "east-walk",
+        "kind": "box",
+        "x": -3,
+        "z": -53,
+        "halfWidth": 5.6,
+        "halfDepth": 1.7999999999999998
+      },
+      {
+        "id": "east-service-walk",
+        "kind": "box",
+        "x": 2,
+        "z": -76.5,
+        "halfWidth": 1.7999999999999998,
+        "halfDepth": 24.1
+      },
+      {
+        "id": "rear-relay-walk",
+        "kind": "box",
+        "x": -0.5,
+        "z": -100,
+        "halfWidth": 3.1,
+        "halfDepth": 1.7999999999999998
+      },
+      {
+        "id": "front-service-walk",
+        "kind": "box",
+        "x": 2,
+        "z": -36.5,
+        "halfWidth": 1.7999999999999998,
+        "halfDepth": 17.1
+      },
+      {
+        "id": "front-relay-walk",
+        "kind": "box",
+        "x": -0.5,
+        "z": -20,
+        "halfWidth": 3.1,
+        "halfDepth": 1.7999999999999998
+      },
+      {
+        "id": "lamp-0",
+        "kind": "box",
+        "x": -46,
+        "z": -50,
+        "halfWidth": 0.76,
+        "halfDepth": 0.76
+      },
+      {
+        "id": "lamp-1",
+        "kind": "box",
+        "x": -38,
+        "z": -44,
+        "halfWidth": 0.76,
+        "halfDepth": 0.76
+      },
+      {
+        "id": "lamp-2",
+        "kind": "box",
+        "x": -66,
+        "z": -43,
+        "halfWidth": 0.76,
+        "halfDepth": 0.76
+      },
+      {
+        "id": "lamp-3",
+        "kind": "box",
+        "x": -86,
+        "z": -43,
+        "halfWidth": 0.76,
+        "halfDepth": 0.76
+      },
+      {
+        "id": "lamp-4",
+        "kind": "box",
+        "x": -20,
+        "z": -55,
+        "halfWidth": 0.76,
+        "halfDepth": 0.76
+      },
+      {
+        "id": "lamp-5",
+        "kind": "box",
+        "x": 4,
+        "z": -66,
+        "halfWidth": 0.76,
+        "halfDepth": 0.76
+      },
+      {
+        "id": "lamp-6",
+        "kind": "box",
+        "x": 4,
+        "z": -28,
+        "halfWidth": 0.76,
+        "halfDepth": 0.76
+      }
+    ],
+    "occupied": [
+      {
+        "x": 318.46661878462334,
+        "z": 240.3121324072039,
+        "radius": 1.3032468492369587,
+        "kind": "circle",
+        "id": "surface-rock-0"
+      },
+      {
+        "x": -256.12535324575214,
+        "z": -191.4919676712137,
+        "radius": 2.5938900115805725,
+        "kind": "circle",
+        "id": "surface-rock-1"
+      },
+      {
+        "x": 284.0695518872157,
+        "z": -379.140267077403,
+        "radius": 2.954571267072039,
+        "kind": "circle",
+        "id": "surface-rock-2"
+      },
+      {
+        "x": -320.3277123898098,
+        "z": 202.17852966581634,
+        "radius": 1.1170068349792837,
+        "kind": "circle",
+        "id": "surface-rock-3"
+      },
+      {
+        "x": -9.580405626149817,
+        "z": -439.54528932352986,
+        "radius": 2.5823691111249274,
+        "kind": "circle",
+        "id": "surface-rock-4"
+      },
+      {
+        "x": -305.99948280145355,
+        "z": -230.6100164262271,
+        "radius": 0.7639423653385916,
+        "kind": "circle",
+        "id": "surface-rock-5"
+      },
+      {
+        "x": 65.83343400592015,
+        "z": -110.08323768191985,
+        "radius": 1.2031632125110285,
+        "kind": "circle",
+        "id": "surface-rock-6"
+      },
+      {
+        "x": 440.5523179570209,
+        "z": -265.60346833892663,
+        "radius": 3.2097164402477225,
+        "kind": "circle",
+        "id": "surface-rock-7"
+      },
+      {
+        "x": -235.81271379878038,
+        "z": -278.80634412690824,
+        "radius": 1.8254717369670121,
+        "kind": "circle",
+        "id": "surface-rock-8"
+      },
+      {
+        "x": 326.8186616737357,
+        "z": -250.27262048687535,
+        "radius": 4.634638293511038,
+        "kind": "circle",
+        "id": "surface-rock-9"
+      },
+      {
+        "x": 361.17593503409586,
+        "z": -292.8853379627853,
+        "radius": 1.1461928754620645,
+        "kind": "circle",
+        "id": "surface-rock-10"
+      },
+      {
+        "x": 440.379220478589,
+        "z": 150.1777454483514,
+        "radius": 1.6432382343152758,
+        "kind": "circle",
+        "id": "surface-rock-11"
+      },
+      {
+        "x": -21.06668107738236,
+        "z": -115.68408371012058,
+        "radius": 4.617570507108897,
+        "kind": "circle",
+        "id": "surface-rock-12"
+      },
+      {
+        "x": -94.23912155339877,
+        "z": 425.1747657579189,
+        "radius": 2.156855151123298,
+        "kind": "circle",
+        "id": "surface-rock-13"
+      },
+      {
+        "x": 244.752142145634,
+        "z": -18.59644478460789,
+        "radius": 5.091206271360647,
+        "kind": "circle",
+        "id": "surface-rock-14"
+      },
+      {
+        "x": 114.29670972788414,
+        "z": -393.0020228202532,
+        "radius": 3.5352974297000186,
+        "kind": "circle",
+        "id": "surface-rock-15"
+      },
+      {
+        "x": 377.02460458169446,
+        "z": 339.7326084711789,
+        "radius": 1.3234801106663638,
+        "kind": "circle",
+        "id": "surface-rock-16"
+      },
+      {
+        "x": -165.87934692120646,
+        "z": -144.59463525896092,
+        "radius": 0.8188579100079049,
+        "kind": "circle",
+        "id": "surface-rock-17"
+      },
+      {
+        "x": -467.89195374541134,
+        "z": 161.4062925927036,
+        "radius": 1.4704586726815396,
+        "kind": "circle",
+        "id": "surface-rock-18"
+      },
+      {
+        "x": -413.2826925436299,
+        "z": -11.380111511770343,
+        "radius": 4.432470489849563,
+        "kind": "circle",
+        "id": "surface-rock-19"
+      },
+      {
+        "x": -158.3165256251186,
+        "z": 92.91245250208841,
+        "radius": 4.191270679909439,
+        "kind": "circle",
+        "id": "surface-rock-20"
+      },
+      {
+        "x": -173.95465142073272,
+        "z": -122.06054336472741,
+        "radius": 0.955381520285039,
+        "kind": "circle",
+        "id": "surface-rock-21"
+      },
+      {
+        "x": 163.4774956547379,
+        "z": -163.23875026073307,
+        "radius": 1.75666098789702,
+        "kind": "circle",
+        "id": "surface-rock-22"
+      },
+      {
+        "x": 166.8084504879309,
+        "z": 349.178037617768,
+        "radius": 1.1785303562265408,
+        "kind": "circle",
+        "id": "surface-rock-23"
+      },
+      {
+        "x": 93.00674616454349,
+        "z": 218.87438604679534,
+        "radius": 1.143123939685664,
+        "kind": "circle",
+        "id": "surface-rock-24"
+      },
+      {
+        "x": 188.76743172992275,
+        "z": -185.2425637008568,
+        "radius": 3.9077219073664113,
+        "kind": "circle",
+        "id": "surface-rock-25"
+      },
+      {
+        "x": -442.11453498675365,
+        "z": -164.21959011566625,
+        "radius": 1.5227038142309008,
+        "kind": "circle",
+        "id": "surface-rock-26"
+      },
+      {
+        "x": 182.32679684594856,
+        "z": -44.72633879424507,
+        "radius": 2.307737185185743,
+        "kind": "circle",
+        "id": "surface-rock-27"
+      },
+      {
+        "x": 152.51398213308687,
+        "z": -444.754078323087,
+        "radius": 4.4761180416481325,
+        "kind": "circle",
+        "id": "surface-rock-28"
+      },
+      {
+        "x": 174.1182495357608,
+        "z": 112.16616518909441,
+        "radius": 2.6625405835043487,
+        "kind": "circle",
+        "id": "surface-rock-29"
+      },
+      {
+        "x": 455.74802154695993,
+        "z": 76.35730081680373,
+        "radius": 2.4468584394043034,
+        "kind": "circle",
+        "id": "surface-rock-30"
+      },
+      {
+        "x": 400.23106968235527,
+        "z": 253.0784096566965,
+        "radius": 1.7954548112217763,
+        "kind": "circle",
+        "id": "surface-rock-31"
+      },
+      {
+        "x": -229.25954543465062,
+        "z": -56.938376632772226,
+        "radius": 4.826617153969625,
+        "kind": "circle",
+        "id": "surface-rock-32"
+      },
+      {
+        "x": -235.71451058214015,
+        "z": -444.6539339094314,
+        "radius": 0.9581982336833512,
+        "kind": "circle",
+        "id": "surface-rock-33"
+      },
+      {
+        "x": 35.717735853479326,
+        "z": 343.20895443565337,
+        "radius": 0.8168873594337702,
+        "kind": "circle",
+        "id": "surface-rock-34"
+      },
+      {
+        "x": -114.73380101444795,
+        "z": -350.58091994629535,
+        "radius": 0.6516298467571626,
+        "kind": "circle",
+        "id": "surface-rock-35"
+      },
+      {
+        "x": 419.1236547442415,
+        "z": 255.8604182897381,
+        "radius": 0.6564544080326568,
+        "kind": "circle",
+        "id": "surface-rock-36"
+      },
+      {
+        "x": 74.03297096677409,
+        "z": -72.3025935236614,
+        "radius": 2.3264888679950886,
+        "kind": "circle",
+        "id": "surface-rock-37"
+      },
+      {
+        "x": -14.843869542371985,
+        "z": 258.85724397883934,
+        "radius": 3.9642098293078663,
+        "kind": "circle",
+        "id": "surface-rock-38"
+      },
+      {
+        "x": -497.9862417688299,
+        "z": 50.08694199302461,
+        "radius": 2.4124082074035096,
+        "kind": "circle",
+        "id": "surface-rock-39"
+      },
+      {
+        "x": -428.5939750346712,
+        "z": 131.1164588608111,
+        "radius": 0.677040560106801,
+        "kind": "circle",
+        "id": "surface-rock-40"
+      },
+      {
+        "x": -427.7950288895359,
+        "z": 25.476547619556364,
+        "radius": 1.8951490539975075,
+        "kind": "circle",
+        "id": "surface-rock-41"
+      },
+      {
+        "x": -12.1515996709092,
+        "z": -314.9352990851226,
+        "radius": 0.6581483212281077,
+        "kind": "circle",
+        "id": "surface-rock-42"
+      },
+      {
+        "x": -69.71980076899658,
+        "z": 469.23116408385357,
+        "radius": 4.636169892896712,
+        "kind": "circle",
+        "id": "surface-rock-43"
+      },
+      {
+        "x": 409.49698659925406,
+        "z": -123.44171403544901,
+        "radius": 1.7395378862186353,
+        "kind": "circle",
+        "id": "surface-rock-44"
+      },
+      {
+        "x": 138.512840244352,
+        "z": -329.7300000695627,
+        "radius": 2.9612665289301408,
+        "kind": "circle",
+        "id": "surface-rock-45"
+      },
+      {
+        "x": -178.19898689792078,
+        "z": -162.783946992845,
+        "radius": 0.767973154277836,
+        "kind": "circle",
+        "id": "surface-rock-46"
+      },
+      {
+        "x": 284.91279916160255,
+        "z": 7.455908070581576,
+        "radius": 0.6969654675935621,
+        "kind": "circle",
+        "id": "surface-rock-47"
+      },
+      {
+        "x": -136.76281413254478,
+        "z": -366.1891552302029,
+        "radius": 3.364493089712975,
+        "kind": "circle",
+        "id": "surface-rock-48"
+      },
+      {
+        "x": -334.3011883496874,
+        "z": -387.2152566270758,
+        "radius": 0.8230679209675684,
+        "kind": "circle",
+        "id": "surface-rock-49"
+      },
+      {
+        "x": -476.48853568027005,
+        "z": 55.73062100508831,
+        "radius": 1.3654527535583652,
+        "kind": "circle",
+        "id": "surface-rock-50"
+      },
+      {
+        "x": 92.1019662745673,
+        "z": 307.4275762666271,
+        "radius": 1.0184804726669185,
+        "kind": "circle",
+        "id": "surface-rock-51"
+      },
+      {
+        "x": 130.91419673815778,
+        "z": 404.6342682702551,
+        "radius": 1.2201162549000362,
+        "kind": "circle",
+        "id": "surface-rock-52"
+      },
+      {
+        "x": 11.724817554173514,
+        "z": 342.66405952284373,
+        "radius": 2.6059411849872767,
+        "kind": "circle",
+        "id": "surface-rock-53"
+      },
+      {
+        "x": -32.895441706256115,
+        "z": -478.3292758929607,
+        "radius": 4.6796619979264715,
+        "kind": "circle",
+        "id": "surface-rock-54"
+      },
+      {
+        "x": -145.12465586097593,
+        "z": 343.8958463305298,
+        "radius": 1.2228056798094293,
+        "kind": "circle",
+        "id": "surface-rock-55"
+      },
+      {
+        "x": 98.94031165052868,
+        "z": 401.4710071455854,
+        "radius": 4.2366952803383935,
+        "kind": "circle",
+        "id": "surface-rock-56"
+      },
+      {
+        "x": -104.47371638138978,
+        "z": -237.59191431725657,
+        "radius": 3.13144272339041,
+        "kind": "circle",
+        "id": "surface-rock-57"
+      },
+      {
+        "x": 352.32547372240066,
+        "z": -370.2565347312576,
+        "radius": 0.9504969930505216,
+        "kind": "circle",
+        "id": "surface-rock-58"
+      },
+      {
+        "x": 373.1042958181564,
+        "z": 243.41768563941704,
+        "radius": 1.0716476100189969,
+        "kind": "circle",
+        "id": "surface-rock-59"
+      },
+      {
+        "x": 447.9441370213499,
+        "z": 11.489539168190683,
+        "radius": 4.95310728175732,
+        "kind": "circle",
+        "id": "surface-rock-60"
+      },
+      {
+        "x": -54.22741135450693,
+        "z": 98.75179218009092,
+        "radius": 3.111423564920618,
+        "kind": "circle",
+        "id": "surface-rock-61"
+      },
+      {
+        "x": -151.1571156892366,
+        "z": 5.19642619862282,
+        "radius": 2.830205757486155,
+        "kind": "circle",
+        "id": "surface-rock-62"
+      },
+      {
+        "x": -19.44630476790282,
+        "z": -154.78661495049946,
+        "radius": 4.283102355975288,
+        "kind": "circle",
+        "id": "surface-rock-63"
+      },
+      {
+        "x": -309.65083891401997,
+        "z": -177.03778397636705,
+        "radius": 1.8599517122522888,
+        "kind": "circle",
+        "id": "surface-rock-64"
+      },
+      {
+        "x": 175.5438144536535,
+        "z": 335.0743299854905,
+        "radius": 1.743062447396083,
+        "kind": "circle",
+        "id": "surface-rock-65"
+      },
+      {
+        "x": 163.386924563053,
+        "z": -165.81939494574868,
+        "radius": 2.757171149416299,
+        "kind": "circle",
+        "id": "surface-rock-66"
+      },
+      {
+        "x": 222.96789670390737,
+        "z": -246.11935520393206,
+        "radius": 0.9133968317173689,
+        "kind": "circle",
+        "id": "surface-rock-67"
+      },
+      {
+        "x": 456.2826364867958,
+        "z": -33.52982007081057,
+        "radius": 4.19392123979156,
+        "kind": "circle",
+        "id": "surface-rock-68"
+      },
+      {
+        "x": 337.32316161419544,
+        "z": 251.77248695102253,
+        "radius": 4.845337488313499,
+        "kind": "circle",
+        "id": "surface-rock-69"
+      },
+      {
+        "x": -427.85160088976636,
+        "z": 152.94614154935715,
+        "radius": 1.9615361969701333,
+        "kind": "circle",
+        "id": "surface-rock-70"
+      },
+      {
+        "x": 36.11929506011341,
+        "z": -30.465086540494944,
+        "radius": 0.7888393422829,
+        "kind": "circle",
+        "id": "surface-rock-71"
+      },
+      {
+        "x": -6.628059150915606,
+        "z": 55.93383487544166,
+        "radius": 1.9988643479367612,
+        "kind": "circle",
+        "id": "surface-rock-72"
+      },
+      {
+        "x": -134.51094395072053,
+        "z": 110.35646600549313,
+        "radius": 2.0628138425917917,
+        "kind": "circle",
+        "id": "surface-rock-73"
+      },
+      {
+        "x": 348.39003820647844,
+        "z": 96.37667304272692,
+        "radius": 1.5847977408040594,
+        "kind": "circle",
+        "id": "surface-rock-74"
+      },
+      {
+        "x": 3.9542075872871463,
+        "z": 232.49074608391683,
+        "radius": 2.7186801324783567,
+        "kind": "circle",
+        "id": "surface-rock-75"
+      },
+      {
+        "x": -249.05660880434286,
+        "z": 280.6985910963092,
+        "radius": 3.2203249615593275,
+        "kind": "circle",
+        "id": "surface-rock-76"
+      },
+      {
+        "x": -115.93332783111012,
+        "z": -308.52485174919906,
+        "radius": 3.6742977829544268,
+        "kind": "circle",
+        "id": "surface-rock-77"
+      },
+      {
+        "x": 311.84056397477497,
+        "z": 358.49984260724887,
+        "radius": 4.82282745051437,
+        "kind": "circle",
+        "id": "surface-rock-78"
+      },
+      {
+        "x": 12.154363796727166,
+        "z": 47.69336350132253,
+        "radius": 4.0860013485871365,
+        "kind": "circle",
+        "id": "surface-rock-79"
+      },
+      {
+        "x": -273.9049475124289,
+        "z": -250.6005571768332,
+        "radius": 4.335929564049937,
+        "kind": "circle",
+        "id": "surface-rock-80"
+      },
+      {
+        "x": -256.9848758380699,
+        "z": -82.63084094684682,
+        "radius": 3.0881502487390535,
+        "kind": "circle",
+        "id": "surface-rock-81"
+      },
+      {
+        "x": -246.76586686257318,
+        "z": -111.97135470498272,
+        "radius": 3.1580575033556393,
+        "kind": "circle",
+        "id": "surface-rock-82"
+      },
+      {
+        "x": -313.48834000410653,
+        "z": -0.36521245508404726,
+        "radius": 2.5302361686851103,
+        "kind": "circle",
+        "id": "surface-rock-83"
+      },
+      {
+        "x": -75.7323746961331,
+        "z": 213.40599742697052,
+        "radius": 1.8560583621113564,
+        "kind": "circle",
+        "id": "surface-rock-84"
+      },
+      {
+        "x": -296.19574502461563,
+        "z": -162.2991390206515,
+        "radius": 4.336224300636046,
+        "kind": "circle",
+        "id": "surface-rock-85"
+      },
+      {
+        "x": -221.0699257326226,
+        "z": 411.5453485584287,
+        "radius": 1.0163530549928244,
+        "kind": "circle",
+        "id": "surface-rock-86"
+      },
+      {
+        "x": 141.7727978918815,
+        "z": -468.41685841573036,
+        "radius": 4.05157105122998,
+        "kind": "circle",
+        "id": "surface-rock-87"
+      },
+      {
+        "x": -239.54432606988743,
+        "z": -269.4395993862521,
+        "radius": 1.0806811699688217,
+        "kind": "circle",
+        "id": "surface-rock-88"
+      },
+      {
+        "x": -58.79776103718884,
+        "z": 361.38461820836557,
+        "radius": 1.700887419998016,
+        "kind": "circle",
+        "id": "surface-rock-89"
+      },
+      {
+        "x": -169.13531947922215,
+        "z": -436.6818554707798,
+        "radius": 4.675467686618935,
+        "kind": "circle",
+        "id": "surface-rock-90"
+      },
+      {
+        "x": 118.30145946463318,
+        "z": -257.91994724473847,
+        "radius": 0.7979637374004795,
+        "kind": "circle",
+        "id": "surface-rock-91"
+      },
+      {
+        "x": 81.77319077564454,
+        "z": -93.47820638704869,
+        "radius": 0.9749204998222825,
+        "kind": "circle",
+        "id": "surface-rock-92"
+      },
+      {
+        "x": 356.7927053326068,
+        "z": -73.51002262469953,
+        "radius": 1.525046096000661,
+        "kind": "circle",
+        "id": "surface-rock-93"
+      },
+      {
+        "x": 18.28931098763688,
+        "z": 71.21825029238187,
+        "radius": 2.425260982591026,
+        "kind": "circle",
+        "id": "surface-rock-94"
+      },
+      {
+        "x": 407.4288756840269,
+        "z": -275.3856737229431,
+        "radius": 1.1364985535877177,
+        "kind": "circle",
+        "id": "surface-rock-95"
+      },
+      {
+        "x": 211.3376188991877,
+        "z": -18.60915833927756,
+        "radius": 0.9821499692725637,
+        "kind": "circle",
+        "id": "surface-rock-96"
+      },
+      {
+        "x": -383.17173591913826,
+        "z": 335.53894697127134,
+        "radius": 0.8338692002031325,
+        "kind": "circle",
+        "id": "surface-rock-97"
+      },
+      {
+        "x": -150.2601719120727,
+        "z": -1.7273860429731398,
+        "radius": 2.3074354163074338,
+        "kind": "circle",
+        "id": "surface-rock-98"
+      },
+      {
+        "x": -78.75277140393291,
+        "z": 201.08090406352144,
+        "radius": 0.9908082933683887,
+        "kind": "circle",
+        "id": "surface-rock-99"
+      },
+      {
+        "x": 301.4397276405838,
+        "z": -274.88228450210823,
+        "radius": 1.1823811159874265,
+        "kind": "circle",
+        "id": "surface-rock-100"
+      },
+      {
+        "x": 206.4580067335587,
+        "z": 15.660891417307324,
+        "radius": 4.6036000962392825,
+        "kind": "circle",
+        "id": "surface-rock-101"
+      },
+      {
+        "x": 462.4133168174618,
+        "z": 140.58996416377397,
+        "radius": 1.6849251483176422,
+        "kind": "circle",
+        "id": "surface-rock-102"
+      },
+      {
+        "x": 463.41352023815364,
+        "z": -103.87731463452354,
+        "radius": 1.1933780628585904,
+        "kind": "circle",
+        "id": "surface-rock-103"
+      },
+      {
+        "x": 254.40870264141358,
+        "z": -152.15507480880532,
+        "radius": 2.952873561236758,
+        "kind": "circle",
+        "id": "surface-rock-104"
+      },
+      {
+        "x": -94.30418812555207,
+        "z": -225.68972819783383,
+        "radius": 2.2259701279746835,
+        "kind": "circle",
+        "id": "surface-rock-105"
+      },
+      {
+        "x": -210.29227697857363,
+        "z": -441.24587038467877,
+        "radius": 2.7679033516763485,
+        "kind": "circle",
+        "id": "surface-rock-106"
+      },
+      {
+        "x": 485.54178382752417,
+        "z": 146.47748606804683,
+        "radius": 2.725207946018304,
+        "kind": "circle",
+        "id": "surface-rock-107"
+      },
+      {
+        "x": 482.3359835606122,
+        "z": 23.24035165585232,
+        "radius": 2.5246018433031487,
+        "kind": "circle",
+        "id": "surface-rock-108"
+      },
+      {
+        "x": 7.632676100315118,
+        "z": -331.99743902504764,
+        "radius": 4.659728275395447,
+        "kind": "circle",
+        "id": "surface-rock-109"
+      },
+      {
+        "x": -255.74945524228443,
+        "z": 218.6081344134487,
+        "radius": 2.3041524141390815,
+        "kind": "circle",
+        "id": "surface-rock-110"
+      },
+      {
+        "x": -19.157976970618954,
+        "z": -376.9229330920501,
+        "radius": 3.5603523296459882,
+        "kind": "circle",
+        "id": "surface-rock-111"
+      },
+      {
+        "x": 143.4663729442462,
+        "z": -211.31296753716902,
+        "radius": 1.9806195254017487,
+        "kind": "circle",
+        "id": "surface-rock-112"
+      },
+      {
+        "x": -231.4022304377634,
+        "z": -78.64154067778944,
+        "radius": 0.8273101965384828,
+        "kind": "circle",
+        "id": "surface-rock-113"
+      },
+      {
+        "x": 284.88054541357974,
+        "z": -306.89592326249476,
+        "radius": 1.5210566341399072,
+        "kind": "circle",
+        "id": "surface-rock-114"
+      },
+      {
+        "x": 433.41569131593536,
+        "z": 164.7533921783108,
+        "radius": 1.4478605691704076,
+        "kind": "circle",
+        "id": "surface-rock-115"
+      },
+      {
+        "x": 413.8147473213328,
+        "z": -44.88003191660975,
+        "radius": 1.5102042924501355,
+        "kind": "circle",
+        "id": "surface-rock-116"
+      },
+      {
+        "x": -17.25713135119109,
+        "z": 55.84262789801218,
+        "radius": 1.9740902715511623,
+        "kind": "circle",
+        "id": "surface-rock-117"
+      },
+      {
+        "x": -305.5396585918971,
+        "z": 70.78181605621465,
+        "radius": 1.4389810197276267,
+        "kind": "circle",
+        "id": "surface-rock-118"
+      },
+      {
+        "x": -401.71817294982435,
+        "z": -287.35693448973944,
+        "radius": 2.1759315273567896,
+        "kind": "circle",
+        "id": "surface-rock-119"
+      },
+      {
+        "x": 304.3606861324471,
+        "z": -107.69842520194537,
+        "radius": 4.247626077894996,
+        "kind": "circle",
+        "id": "surface-rock-120"
+      },
+      {
+        "x": 327.42492898751175,
+        "z": -246.8960342413723,
+        "radius": 1.2912071368183862,
+        "kind": "circle",
+        "id": "surface-rock-121"
+      },
+      {
+        "x": 241.7893956622579,
+        "z": -164.32796915904282,
+        "radius": 1.1603948035862055,
+        "kind": "circle",
+        "id": "surface-rock-122"
+      },
+      {
+        "x": 170.2349623794603,
+        "z": -287.1391952554316,
+        "radius": 1.1675978277853267,
+        "kind": "circle",
+        "id": "surface-rock-123"
+      },
+      {
+        "x": -452.143334887665,
+        "z": 62.887751534295674,
+        "radius": 0.6902394433594123,
+        "kind": "circle",
+        "id": "surface-rock-124"
+      },
+      {
+        "x": 285.03512121760315,
+        "z": -262.9820442823482,
+        "radius": 3.172111883439525,
+        "kind": "circle",
+        "id": "surface-rock-125"
+      },
+      {
+        "x": 114.80961986482447,
+        "z": -477.49211863901564,
+        "radius": 4.513076695189748,
+        "kind": "circle",
+        "id": "surface-rock-126"
+      },
+      {
+        "x": 376.9377464139712,
+        "z": 71.20828141899864,
+        "radius": 4.298105152577541,
+        "kind": "circle",
+        "id": "surface-rock-127"
+      },
+      {
+        "x": -131.44686196437817,
+        "z": 383.25647647023237,
+        "radius": 2.511135699400663,
+        "kind": "circle",
+        "id": "surface-rock-128"
+      },
+      {
+        "x": 151.07634234819488,
+        "z": -296.6644302527155,
+        "radius": 2.0494094754750245,
+        "kind": "circle",
+        "id": "surface-rock-129"
+      },
+      {
+        "x": 126.11489329519698,
+        "z": 39.59772028244477,
+        "radius": 2.9450141780994605,
+        "kind": "circle",
+        "id": "surface-rock-130"
+      },
+      {
+        "x": 89.50278915977844,
+        "z": 410.6863181445642,
+        "radius": 4.553993660018562,
+        "kind": "circle",
+        "id": "surface-rock-131"
+      },
+      {
+        "x": 96.9836080628337,
+        "z": 94.28619413818448,
+        "radius": 2.5137375665780164,
+        "kind": "circle",
+        "id": "surface-rock-132"
+      },
+      {
+        "x": -4.974854466817276,
+        "z": -376.1560199967099,
+        "radius": 1.702759709612135,
+        "kind": "circle",
+        "id": "surface-rock-133"
+      },
+      {
+        "x": 115.25116013847925,
+        "z": 391.55433081499774,
+        "radius": 3.7085906891509466,
+        "kind": "circle",
+        "id": "surface-rock-134"
+      },
+      {
+        "x": -237.75547731214488,
+        "z": -161.15463857511597,
+        "radius": 0.8792070408129182,
+        "kind": "circle",
+        "id": "surface-rock-135"
+      },
+      {
+        "x": 147.87368529671895,
+        "z": -179.7610811454638,
+        "radius": 4.303378119839788,
+        "kind": "circle",
+        "id": "surface-rock-136"
+      },
+      {
+        "x": 35.37038012110823,
+        "z": 222.84517329507634,
+        "radius": 2.6982002635156452,
+        "kind": "circle",
+        "id": "surface-rock-137"
+      },
+      {
+        "x": 312.99450911542084,
+        "z": 61.49700498753847,
+        "radius": 3.101629061709828,
+        "kind": "circle",
+        "id": "surface-rock-138"
+      },
+      {
+        "x": 25.329087838924114,
+        "z": -299.51155847020533,
+        "radius": 2.7716391748339313,
+        "kind": "circle",
+        "id": "surface-rock-139"
+      },
+      {
+        "x": 381.6625299362291,
+        "z": -23.661363031111545,
+        "radius": 0.7263900667083152,
+        "kind": "circle",
+        "id": "surface-rock-140"
+      },
+      {
+        "x": 218.6484855181696,
+        "z": -274.77284761216754,
+        "radius": 1.8557186783733284,
+        "kind": "circle",
+        "id": "surface-rock-141"
+      },
+      {
+        "x": 111.25679368359525,
+        "z": 478.70018693176314,
+        "radius": 1.1651043942528563,
+        "kind": "circle",
+        "id": "surface-rock-142"
+      },
+      {
+        "x": 308.785161163004,
+        "z": 227.11556388502208,
+        "radius": 2.0643744405183195,
+        "kind": "circle",
+        "id": "surface-rock-143"
+      },
+      {
+        "x": -154.4714264070802,
+        "z": 430.2610489341632,
+        "radius": 1.8146809986387453,
+        "kind": "circle",
+        "id": "surface-rock-144"
+      },
+      {
+        "x": -25.302006536483496,
+        "z": -429.3361443431374,
+        "radius": 1.3967562566508758,
+        "kind": "circle",
+        "id": "surface-rock-145"
+      },
+      {
+        "x": 124.79143836707848,
+        "z": 403.9913919347278,
+        "radius": 3.1274838963472673,
+        "kind": "circle",
+        "id": "surface-rock-146"
+      },
+      {
+        "x": -427.53991157451213,
+        "z": 185.8275705329344,
+        "radius": 3.6222882263329836,
+        "kind": "circle",
+        "id": "surface-rock-147"
+      },
+      {
+        "x": -157.31145949992194,
+        "z": -210.9603328360458,
+        "radius": 2.3270409748583125,
+        "kind": "circle",
+        "id": "surface-rock-148"
+      },
+      {
+        "x": 263.92965978588285,
+        "z": -352.9012293042993,
+        "radius": 3.1390550008102744,
+        "kind": "circle",
+        "id": "surface-rock-149"
+      },
+      {
+        "x": -320.20204675999787,
+        "z": 113.50449857590874,
+        "radius": 2.720226658165288,
+        "kind": "circle",
+        "id": "surface-rock-150"
+      },
+      {
+        "x": 359.75742606259416,
+        "z": -253.8439251484774,
+        "radius": 0.781078117763786,
+        "kind": "circle",
+        "id": "surface-rock-151"
+      },
+      {
+        "x": 246.83732201416143,
+        "z": -220.23402235254756,
+        "radius": 0.748677956529751,
+        "kind": "circle",
+        "id": "surface-rock-152"
+      },
+      {
+        "x": 128.98490466074801,
+        "z": 440.4661219495749,
+        "radius": 1.5378106683328323,
+        "kind": "circle",
+        "id": "surface-rock-153"
+      },
+      {
+        "x": -134.11372556799898,
+        "z": -300.9392262943061,
+        "radius": 1.6204577004602694,
+        "kind": "circle",
+        "id": "surface-rock-154"
+      },
+      {
+        "x": -463.39569013188174,
+        "z": -176.15886261287142,
+        "radius": 3.406656886135748,
+        "kind": "circle",
+        "id": "surface-rock-155"
+      },
+      {
+        "x": 115.19265711381624,
+        "z": -93.85248916239063,
+        "radius": 1.2111588679525707,
+        "kind": "circle",
+        "id": "surface-rock-156"
+      },
+      {
+        "x": 84.92757595711402,
+        "z": -373.51352712084184,
+        "radius": 0.873610528698543,
+        "kind": "circle",
+        "id": "surface-rock-157"
+      },
+      {
+        "x": -81.68256387794662,
+        "z": 308.7152600298931,
+        "radius": 3.4619848303055063,
+        "kind": "circle",
+        "id": "surface-rock-158"
+      },
+      {
+        "x": -82.73191258504697,
+        "z": 401.71074831612367,
+        "radius": 3.002464406136948,
+        "kind": "circle",
+        "id": "surface-rock-159"
+      },
+      {
+        "x": -261.08390090438166,
+        "z": -189.89213472248238,
+        "radius": 4.38544662586801,
+        "kind": "circle",
+        "id": "surface-rock-160"
+      },
+      {
+        "x": -260.4068146918243,
+        "z": -341.88629809829473,
+        "radius": 1.1886953874980415,
+        "kind": "circle",
+        "id": "surface-rock-161"
+      },
+      {
+        "x": -459.9329210671913,
+        "z": -87.05932234761417,
+        "radius": 2.559944598141766,
+        "kind": "circle",
+        "id": "surface-rock-162"
+      },
+      {
+        "x": -144.51683611376416,
+        "z": 268.0702743502221,
+        "radius": 2.142974310930274,
+        "kind": "circle",
+        "id": "surface-rock-163"
+      },
+      {
+        "x": -279.8809275687507,
+        "z": 408.5347323618542,
+        "radius": 0.8184658018651765,
+        "kind": "circle",
+        "id": "surface-rock-164"
+      },
+      {
+        "x": 481.13735861822255,
+        "z": 11.198074986200757,
+        "radius": 3.194222122441387,
+        "kind": "circle",
+        "id": "surface-rock-165"
+      },
+      {
+        "x": 187.5599016175547,
+        "z": 388.08034484732747,
+        "radius": 2.054227085267337,
+        "kind": "circle",
+        "id": "surface-rock-166"
+      },
+      {
+        "x": -196.9407042132892,
+        "z": 132.98034275282072,
+        "radius": 2.4658648974606763,
+        "kind": "circle",
+        "id": "surface-rock-167"
+      },
+      {
+        "x": 365.09040020132005,
+        "z": 120.31716263130605,
+        "radius": 3.462376020261699,
+        "kind": "circle",
+        "id": "surface-rock-168"
+      },
+      {
+        "x": 64.14837620016668,
+        "z": -239.3434444892472,
+        "radius": 0.6494233991770368,
+        "kind": "circle",
+        "id": "surface-rock-169"
+      },
+      {
+        "x": 193.89824105369107,
+        "z": -459.37138153786344,
+        "radius": 1.1147983773939425,
+        "kind": "circle",
+        "id": "surface-rock-170"
+      },
+      {
+        "x": -139.60467569168657,
+        "z": 457.6283111996063,
+        "radius": 3.0258929815488544,
+        "kind": "circle",
+        "id": "surface-rock-171"
+      },
+      {
+        "x": -325.1303500033197,
+        "z": -314.64207195851196,
+        "radius": 1.2355043238221974,
+        "kind": "circle",
+        "id": "surface-rock-172"
+      },
+      {
+        "x": 38.78115658690829,
+        "z": -173.65161734537583,
+        "radius": 1.075176646890459,
+        "kind": "circle",
+        "id": "surface-rock-173"
+      },
+      {
+        "x": -75.6507381956234,
+        "z": -188.8041828558792,
+        "radius": 1.0550916359450397,
+        "kind": "circle",
+        "id": "surface-rock-174"
+      },
+      {
+        "x": -309.29042637277496,
+        "z": 122.33227885175704,
+        "radius": 4.2752822016352185,
+        "kind": "circle",
+        "id": "surface-rock-175"
+      },
+      {
+        "x": -318.7528846079409,
+        "z": 297.2391060469794,
+        "radius": 1.7310748201876491,
+        "kind": "circle",
+        "id": "surface-rock-176"
+      },
+      {
+        "x": 49.0652185682839,
+        "z": 457.0694830727956,
+        "radius": 2.986283117061525,
+        "kind": "circle",
+        "id": "surface-rock-177"
+      },
+      {
+        "x": -510.9224578133846,
+        "z": -7.568864101692547,
+        "radius": 1.4441925401756799,
+        "kind": "circle",
+        "id": "surface-rock-178"
+      },
+      {
+        "x": 67.0184884237515,
+        "z": 268.9882024300007,
+        "radius": 2.059830315052548,
+        "kind": "circle",
+        "id": "surface-rock-179"
+      },
+      {
+        "x": -15.432319998494087,
+        "z": 281.1679793378349,
+        "radius": 2.5778457177167344,
+        "kind": "circle",
+        "id": "surface-rock-180"
+      },
+      {
+        "x": 92.18648789475046,
+        "z": 133.21296208287617,
+        "radius": 5.096779571172849,
+        "kind": "circle",
+        "id": "surface-rock-181"
+      },
+      {
+        "x": -211.00270872686718,
+        "z": -334.6997543254369,
+        "radius": 1.6318929966818847,
+        "kind": "circle",
+        "id": "surface-rock-182"
+      },
+      {
+        "x": 65.26946160881485,
+        "z": 472.92094481663275,
+        "radius": 0.8143998597357637,
+        "kind": "circle",
+        "id": "surface-rock-183"
+      },
+      {
+        "x": 299.719988470867,
+        "z": -167.48011734519056,
+        "radius": 2.3224687668713817,
+        "kind": "circle",
+        "id": "surface-rock-184"
+      },
+      {
+        "x": -159.82514148749107,
+        "z": -265.81972495051906,
+        "radius": 3.0938275989510107,
+        "kind": "circle",
+        "id": "surface-rock-185"
+      },
+      {
+        "x": 261.87728545691056,
+        "z": -281.04950217177884,
+        "radius": 2.085542263459994,
+        "kind": "circle",
+        "id": "surface-rock-186"
+      },
+      {
+        "x": 89.6126127722269,
+        "z": 358.4914274661776,
+        "radius": 2.183317645076687,
+        "kind": "circle",
+        "id": "surface-rock-187"
+      },
+      {
+        "x": -245.20876976270415,
+        "z": -446.2484295852706,
+        "radius": 1.6741522759668395,
+        "kind": "circle",
+        "id": "surface-rock-188"
+      },
+      {
+        "x": -158.672898091694,
+        "z": -262.246215667211,
+        "radius": 0.7566292280556178,
+        "kind": "circle",
+        "id": "surface-rock-189"
+      },
+      {
+        "x": 123.35703432885447,
+        "z": -378.4463735944961,
+        "radius": 2.184403552396878,
+        "kind": "circle",
+        "id": "surface-rock-190"
+      },
+      {
+        "x": -369.7015119956058,
+        "z": 170.20470733205036,
+        "radius": 0.770944127928437,
+        "kind": "circle",
+        "id": "surface-rock-191"
+      },
+      {
+        "x": 34.963124067512204,
+        "z": -433.4499545150491,
+        "radius": 1.2824594793269166,
+        "kind": "circle",
+        "id": "surface-rock-192"
+      },
+      {
+        "x": 9.07856457815277,
+        "z": -4.629293877983339,
+        "radius": 1.2058275666121292,
+        "kind": "circle",
+        "id": "surface-rock-193"
+      },
+      {
+        "x": -443.6899242697561,
+        "z": -156.30752722113016,
+        "radius": 1.980570574837882,
+        "kind": "circle",
+        "id": "surface-rock-194"
+      },
+      {
+        "x": 142.0186343912399,
+        "z": -156.06165816899102,
+        "radius": 2.7889627680284073,
+        "kind": "circle",
+        "id": "surface-rock-195"
+      },
+      {
+        "x": -164.3654927668505,
+        "z": -351.0274496689742,
+        "radius": 4.130470551322329,
+        "kind": "circle",
+        "id": "surface-rock-196"
+      },
+      {
+        "x": 117.63178400251789,
+        "z": -394.13938099442225,
+        "radius": 0.708319914107807,
+        "kind": "circle",
+        "id": "surface-rock-197"
+      },
+      {
+        "x": -35.33437754274058,
+        "z": 482.3361989901143,
+        "radius": 3.1671155283125265,
+        "kind": "circle",
+        "id": "surface-rock-198"
+      },
+      {
+        "x": 320.4747282803765,
+        "z": 80.02365376997383,
+        "radius": 1.9216940600231889,
+        "kind": "circle",
+        "id": "surface-rock-199"
+      },
+      {
+        "x": -292.66918580205794,
+        "z": -45.60876424396203,
+        "radius": 2.988760329760939,
+        "kind": "circle",
+        "id": "surface-rock-200"
+      },
+      {
+        "x": 312.92372410825857,
+        "z": -201.34307606846576,
+        "radius": 0.8631364572906705,
+        "kind": "circle",
+        "id": "surface-rock-201"
+      },
+      {
+        "x": 176.02599859971926,
+        "z": 331.9603523121629,
+        "radius": 2.7301106353854854,
+        "kind": "circle",
+        "id": "surface-rock-202"
+      },
+      {
+        "x": -481.9221035331775,
+        "z": 94.42466020923341,
+        "radius": 0.711743348604793,
+        "kind": "circle",
+        "id": "surface-rock-203"
+      },
+      {
+        "x": -482.42974658014685,
+        "z": -140.26459702051145,
+        "radius": 1.8552342292062476,
+        "kind": "circle",
+        "id": "surface-rock-204"
+      },
+      {
+        "x": 117.09436462214121,
+        "z": -301.1137557049552,
+        "radius": 5.237734867893057,
+        "kind": "circle",
+        "id": "surface-rock-205"
+      },
+      {
+        "x": 54.35861134701994,
+        "z": 32.30237063358761,
+        "radius": 3.9103695128741176,
+        "kind": "circle",
+        "id": "surface-rock-206"
+      },
+      {
+        "x": -269.48114154958375,
+        "z": -371.6262037619409,
+        "radius": 1.0159726757183085,
+        "kind": "circle",
+        "id": "surface-rock-207"
+      },
+      {
+        "x": 5.403115976821713,
+        "z": 85.68286564056962,
+        "radius": 5.096549719233824,
+        "kind": "circle",
+        "id": "surface-rock-208"
+      },
+      {
+        "x": -470.6227743496468,
+        "z": -160.63935622641486,
+        "radius": 3.298212642399373,
+        "kind": "circle",
+        "id": "surface-rock-209"
+      },
+      {
+        "x": 373.64492786418566,
+        "z": 313.5095102222923,
+        "radius": 0.6530657497062604,
+        "kind": "circle",
+        "id": "surface-rock-210"
+      },
+      {
+        "x": 21.51885141567718,
+        "z": 338.5287336322742,
+        "radius": 1.0162247551532142,
+        "kind": "circle",
+        "id": "surface-rock-211"
+      },
+      {
+        "x": 226.51645628451092,
+        "z": -257.15729350556103,
+        "radius": 0.70711074122901,
+        "kind": "circle",
+        "id": "surface-rock-212"
+      },
+      {
+        "x": -142.45370699306775,
+        "z": 287.61765804581705,
+        "radius": 2.480550966101446,
+        "kind": "circle",
+        "id": "surface-rock-213"
+      },
+      {
+        "x": 144.7713885915216,
+        "z": 442.5152811431402,
+        "radius": 3.0639216370973177,
+        "kind": "circle",
+        "id": "surface-rock-214"
+      },
+      {
+        "x": 307.072393424718,
+        "z": 162.34689572350817,
+        "radius": 2.862444491494922,
+        "kind": "circle",
+        "id": "surface-rock-215"
+      },
+      {
+        "x": 153.0654326207562,
+        "z": 175.5584760528423,
+        "radius": 0.9269936934298972,
+        "kind": "circle",
+        "id": "surface-rock-216"
+      },
+      {
+        "x": -72.07456451845741,
+        "z": -387.957868401923,
+        "radius": 1.6301026916036665,
+        "kind": "circle",
+        "id": "surface-rock-217"
+      },
+      {
+        "x": 25.819448148257315,
+        "z": 502.88793536935003,
+        "radius": 2.7523085917897356,
+        "kind": "circle",
+        "id": "surface-rock-218"
+      },
+      {
+        "x": 114.50237279225003,
+        "z": 82.18883508436474,
+        "radius": 4.136171194938404,
+        "kind": "circle",
+        "id": "surface-rock-219"
+      },
+      {
+        "x": 159.94098641369754,
+        "z": -123.33154600611714,
+        "radius": 3.478086949402325,
+        "kind": "circle",
+        "id": "surface-rock-220"
+      },
+      {
+        "x": -99.9735087134649,
+        "z": 228.36520259293937,
+        "radius": 3.939435403646842,
+        "kind": "circle",
+        "id": "surface-rock-221"
+      },
+      {
+        "x": -224.75595924379581,
+        "z": -99.40485777409023,
+        "radius": 2.1087241263916825,
+        "kind": "circle",
+        "id": "surface-rock-222"
+      },
+      {
+        "x": 78.01093759610187,
+        "z": 309.401740590216,
+        "radius": 1.8331039868150574,
+        "kind": "circle",
+        "id": "surface-rock-223"
+      },
+      {
+        "x": -447.0497924169432,
+        "z": -122.91906255947947,
+        "radius": 0.8136627063139135,
+        "kind": "circle",
+        "id": "surface-rock-224"
+      },
+      {
+        "x": 118.09308457984217,
+        "z": 118.43883482586318,
+        "radius": 2.011305286235774,
+        "kind": "circle",
+        "id": "surface-rock-225"
+      },
+      {
+        "x": -327.5137056061174,
+        "z": -284.17643234456443,
+        "radius": 1.4156524050233645,
+        "kind": "circle",
+        "id": "surface-rock-226"
+      },
+      {
+        "x": -8.41889868525873,
+        "z": 373.3964575009232,
+        "radius": 1.7621301179769302,
+        "kind": "circle",
+        "id": "surface-rock-227"
+      },
+      {
+        "x": -210.4620656195787,
+        "z": 259.1733072149705,
+        "radius": 1.70986433198769,
+        "kind": "circle",
+        "id": "surface-rock-228"
+      },
+      {
+        "x": 147.1651953660843,
+        "z": 412.9443636037976,
+        "radius": 0.9382464052697728,
+        "kind": "circle",
+        "id": "surface-rock-229"
+      },
+      {
+        "x": -129.4273858015809,
+        "z": -422.9570410799304,
+        "radius": 2.948865555095623,
+        "kind": "circle",
+        "id": "surface-rock-230"
+      },
+      {
+        "x": -264.56720410727723,
+        "z": 123.80575153675305,
+        "radius": 1.9055437702481473,
+        "kind": "circle",
+        "id": "surface-rock-231"
+      },
+      {
+        "x": -259.95177404594983,
+        "z": -9.023831819362611,
+        "radius": 0.7958495000533474,
+        "kind": "circle",
+        "id": "surface-rock-232"
+      },
+      {
+        "x": 239.88092785784582,
+        "z": 20.66807503922751,
+        "radius": 0.8932541950128845,
+        "kind": "circle",
+        "id": "surface-rock-233"
+      },
+      {
+        "x": 9.077945947700709,
+        "z": 145.89660454505275,
+        "radius": 1.0196993934177556,
+        "kind": "circle",
+        "id": "surface-rock-234"
+      },
+      {
+        "x": -158.48523811532132,
+        "z": 281.92079692749695,
+        "radius": 1.332160031342175,
+        "kind": "circle",
+        "id": "surface-rock-235"
+      },
+      {
+        "x": -217.09204437381882,
+        "z": -274.2650576620855,
+        "radius": 1.4786639361055032,
+        "kind": "circle",
+        "id": "surface-rock-236"
+      },
+      {
+        "x": 222.7320806742679,
+        "z": -125.61474216534143,
+        "radius": 3.1559694502325204,
+        "kind": "circle",
+        "id": "surface-rock-237"
+      },
+      {
+        "x": -116.35085317663801,
+        "z": -235.72952116443844,
+        "radius": 2.337990312806328,
+        "kind": "circle",
+        "id": "surface-rock-238"
+      },
+      {
+        "x": 507.1245047191405,
+        "z": 26.860746262704353,
+        "radius": 3.343427522578907,
+        "kind": "circle",
+        "id": "surface-rock-239"
+      },
+      {
+        "x": 246.64631618728782,
+        "z": 421.7224126633379,
+        "radius": 0.9894474994062432,
+        "kind": "circle",
+        "id": "surface-rock-240"
+      },
+      {
+        "x": 405.11216274786545,
+        "z": -27.38622103911432,
+        "radius": 1.0723450342347798,
+        "kind": "circle",
+        "id": "surface-rock-241"
+      },
+      {
+        "x": -325.2447302377677,
+        "z": -264.79864042037826,
+        "radius": 0.7133559722347944,
+        "kind": "circle",
+        "id": "surface-rock-242"
+      },
+      {
+        "x": -152.89646689790158,
+        "z": 240.27910561437682,
+        "radius": 1.8805131179569752,
+        "kind": "circle",
+        "id": "surface-rock-243"
+      },
+      {
+        "x": 351.50000282197453,
+        "z": 345.407338490795,
+        "radius": 1.2187438810271631,
+        "kind": "circle",
+        "id": "surface-rock-244"
+      },
+      {
+        "x": -355.58760628308937,
+        "z": -371.36750540087513,
+        "radius": 3.6980676074982983,
+        "kind": "circle",
+        "id": "surface-rock-245"
+      },
+      {
+        "x": -232.40119004947857,
+        "z": 316.1495161859414,
+        "radius": 0.6922257978428312,
+        "kind": "circle",
+        "id": "surface-rock-246"
+      },
+      {
+        "x": -183.18341591272636,
+        "z": 139.61094328333397,
+        "radius": 2.0661911707600824,
+        "kind": "circle",
+        "id": "surface-rock-247"
+      },
+      {
+        "x": -279.9707148711378,
+        "z": 187.7715338532506,
+        "radius": 2.3284399898162937,
+        "kind": "circle",
+        "id": "surface-rock-248"
+      },
+      {
+        "x": -63.64031322416557,
+        "z": 406.14395023510605,
+        "radius": 3.5172093909933144,
+        "kind": "circle",
+        "id": "surface-rock-249"
+      },
+      {
+        "x": 136.5717463056078,
+        "z": -383.3892367692475,
+        "radius": 2.3593556557748783,
+        "kind": "circle",
+        "id": "surface-rock-250"
+      },
+      {
+        "x": -390.0590830893681,
+        "z": 202.75969782501298,
+        "radius": 3.9186938265303515,
+        "kind": "circle",
+        "id": "surface-rock-251"
+      },
+      {
+        "x": 12.865193449325647,
+        "z": 338.0182377205712,
+        "radius": 3.4617269086860514,
+        "kind": "circle",
+        "id": "surface-rock-252"
+      },
+      {
+        "x": 98.76291327010154,
+        "z": -358.48331869654675,
+        "radius": 0.7077876328847394,
+        "kind": "circle",
+        "id": "surface-rock-253"
+      },
+      {
+        "x": -136.8572035579755,
+        "z": -460.9714942608424,
+        "radius": 3.7133771703670346,
+        "kind": "circle",
+        "id": "surface-rock-254"
+      },
+      {
+        "x": 249.3195175407826,
+        "z": 452.2177675205768,
+        "radius": 1.3440274936753749,
+        "kind": "circle",
+        "id": "surface-rock-255"
+      },
+      {
+        "x": 454.011122487901,
+        "z": -234.425493393232,
+        "radius": 4.3504646037126955,
+        "kind": "circle",
+        "id": "surface-rock-256"
+      },
+      {
+        "x": 295.01381458015425,
+        "z": -316.41520260830595,
+        "radius": 1.517961557080034,
+        "kind": "circle",
+        "id": "surface-rock-257"
+      },
+      {
+        "x": -283.60435983214444,
+        "z": 167.45119310326163,
+        "radius": 2.6018768347171446,
+        "kind": "circle",
+        "id": "surface-rock-258"
+      },
+      {
+        "x": 45.98587475615181,
+        "z": 33.16922867833734,
+        "radius": 0.9550008792923963,
+        "kind": "circle",
+        "id": "surface-rock-259"
+      },
+      {
+        "x": 274.0354685743641,
+        "z": -368.76193950395265,
+        "radius": 4.000744011245335,
+        "kind": "circle",
+        "id": "surface-rock-260"
+      },
+      {
+        "x": 353.7020014182511,
+        "z": -306.2224822155585,
+        "radius": 0.6995917548405249,
+        "kind": "circle",
+        "id": "surface-rock-261"
+      },
+      {
+        "x": -68.02511470967816,
+        "z": -396.3534249622878,
+        "radius": 0.9850458458735306,
+        "kind": "circle",
+        "id": "surface-rock-262"
+      },
+      {
+        "x": 92.02207477755309,
+        "z": -455.8204394699222,
+        "radius": 3.555365177192061,
+        "kind": "circle",
+        "id": "surface-rock-263"
+      },
+      {
+        "x": 509.7039620232803,
+        "z": -99.73099702588597,
+        "radius": 1.071559955342897,
+        "kind": "circle",
+        "id": "surface-rock-264"
+      },
+      {
+        "x": -51.964536248099,
+        "z": -53.28466704833387,
+        "radius": 1.861230469396805,
+        "kind": "circle",
+        "id": "surface-rock-265"
+      },
+      {
+        "x": 256.4419628367076,
+        "z": -353.9720094942305,
+        "radius": 3.4547455296641667,
+        "kind": "circle",
+        "id": "surface-rock-266"
+      },
+      {
+        "x": -422.5187723634978,
+        "z": 140.21552933216074,
+        "radius": 2.1718646154826926,
+        "kind": "circle",
+        "id": "surface-rock-267"
+      },
+      {
+        "x": -225.1349097173335,
+        "z": 88.97900264626125,
+        "radius": 3.0374094468378012,
+        "kind": "circle",
+        "id": "surface-rock-268"
+      },
+      {
+        "x": -149.07611133711504,
+        "z": 455.16350681126147,
+        "radius": 1.4257378292048821,
+        "kind": "circle",
+        "id": "surface-rock-269"
+      },
+      {
+        "x": 54.43241984023247,
+        "z": 318.23735523786684,
+        "radius": 1.391012994089642,
+        "kind": "circle",
+        "id": "surface-rock-270"
+      },
+      {
+        "x": 57.89352345234026,
+        "z": -48.86288881061013,
+        "radius": 3.2572805273309955,
+        "kind": "circle",
+        "id": "surface-rock-271"
+      },
+      {
+        "x": -11.358417012269058,
+        "z": -380.2751333540532,
+        "radius": 1.887016719475165,
+        "kind": "circle",
+        "id": "surface-rock-272"
+      },
+      {
+        "x": -404.460574955706,
+        "z": -29.321715110560252,
+        "radius": 4.507934048582527,
+        "kind": "circle",
+        "id": "surface-rock-273"
+      },
+      {
+        "x": 290.545375841352,
+        "z": -323.30094612912256,
+        "radius": 0.6671372743558519,
+        "kind": "circle",
+        "id": "surface-rock-274"
+      },
+      {
+        "x": -336.1969339306917,
+        "z": -381.4286342073654,
+        "radius": 5.205869883731805,
+        "kind": "circle",
+        "id": "surface-rock-275"
+      },
+      {
+        "x": -418.98891521154786,
+        "z": -43.53360907970761,
+        "radius": 0.8416953873645504,
+        "kind": "circle",
+        "id": "surface-rock-276"
+      },
+      {
+        "x": -254.21513981694412,
+        "z": 224.69606655579327,
+        "radius": 1.2449122804376611,
+        "kind": "circle",
+        "id": "surface-rock-277"
+      },
+      {
+        "x": -273.1888882304552,
+        "z": -318.4066526896879,
+        "radius": 5.8333741092546765,
+        "kind": "circle",
+        "id": "surface-rock-278"
+      },
+      {
+        "x": -164.19711855382104,
+        "z": -193.456997700081,
+        "radius": 1.9430579427753216,
+        "kind": "circle",
+        "id": "surface-rock-279"
+      },
+      {
+        "x": -369.46886811816825,
+        "z": 247.40168033413505,
+        "radius": 3.568371483592063,
+        "kind": "circle",
+        "id": "surface-rock-280"
+      },
+      {
+        "x": -190.73628288181771,
+        "z": 251.1539192215623,
+        "radius": 0.7628569431921143,
+        "kind": "circle",
+        "id": "surface-rock-281"
+      },
+      {
+        "x": 99.38960671283077,
+        "z": 143.27128782218313,
+        "radius": 2.242564947610886,
+        "kind": "circle",
+        "id": "surface-rock-282"
+      },
+      {
+        "x": -19.825763056820033,
+        "z": 498.6897036884908,
+        "radius": 0.9559375884299117,
+        "kind": "circle",
+        "id": "surface-rock-283"
+      },
+      {
+        "x": 234.0376233526218,
+        "z": 135.23551598191864,
+        "radius": 3.9049381316575196,
+        "kind": "circle",
+        "id": "surface-rock-284"
+      },
+      {
+        "x": 109.64422890664066,
+        "z": 283.91834200969896,
+        "radius": 5.103560475564635,
+        "kind": "circle",
+        "id": "surface-rock-285"
+      },
+      {
+        "x": -104.56625684618612,
+        "z": 457.8796865087455,
+        "radius": 1.4244214091893057,
+        "kind": "circle",
+        "id": "surface-rock-286"
+      },
+      {
+        "x": -399.61288171196657,
+        "z": 179.7653447118453,
+        "radius": 1.408088187713893,
+        "kind": "circle",
+        "id": "surface-rock-287"
+      },
+      {
+        "x": -188.58038244145936,
+        "z": 287.50606967126674,
+        "radius": 1.6780905072865013,
+        "kind": "circle",
+        "id": "surface-rock-288"
+      },
+      {
+        "x": -169.61020114364342,
+        "z": 124.46787681855363,
+        "radius": 1.7802369149638095,
+        "kind": "circle",
+        "id": "surface-rock-289"
+      },
+      {
+        "x": -91.04974452778221,
+        "z": 69.1185195662831,
+        "radius": 1.173647289151331,
+        "kind": "circle",
+        "id": "surface-rock-290"
+      },
+      {
+        "x": -218.09621867148834,
+        "z": 388.63117566150135,
+        "radius": 1.137069477786918,
+        "kind": "circle",
+        "id": "surface-rock-291"
+      },
+      {
+        "x": 43.903968592278545,
+        "z": 440.3692889747353,
+        "radius": 2.3172889652164024,
+        "kind": "circle",
+        "id": "surface-rock-292"
+      },
+      {
+        "x": 225.32281937116625,
+        "z": 121.25017182123813,
+        "radius": 3.632370501395925,
+        "kind": "circle",
+        "id": "surface-rock-293"
+      },
+      {
+        "x": 280.1826215790746,
+        "z": 282.5142527947678,
+        "radius": 1.0758911991204427,
+        "kind": "circle",
+        "id": "surface-rock-294"
+      },
+      {
+        "x": -286.56642311642975,
+        "z": 408.9351864317156,
+        "radius": 1.0158820368132577,
+        "kind": "circle",
+        "id": "surface-rock-295"
+      },
+      {
+        "x": 12.6071326682495,
+        "z": -490.9808831472467,
+        "radius": 1.46443570038893,
+        "kind": "circle",
+        "id": "surface-rock-296"
+      },
+      {
+        "x": 418.73334715945157,
+        "z": -58.3449226098689,
+        "radius": 1.1484841064853022,
+        "kind": "circle",
+        "id": "surface-rock-297"
+      },
+      {
+        "x": -424.92890172378094,
+        "z": 97.56745721718998,
+        "radius": 3.300387760481951,
+        "kind": "circle",
+        "id": "surface-rock-298"
+      },
+      {
+        "x": 107.9083227938659,
+        "z": 458.5425883358485,
+        "radius": 0.7698487927173583,
+        "kind": "circle",
+        "id": "surface-rock-299"
+      },
+      {
+        "x": -492.02876819368305,
+        "z": 114.69757287284054,
+        "radius": 2.7796875127548195,
+        "kind": "circle",
+        "id": "surface-rock-300"
+      },
+      {
+        "x": -269.6571956571011,
+        "z": -61.03711722048169,
+        "radius": 4.731550159160765,
+        "kind": "circle",
+        "id": "surface-rock-301"
+      },
+      {
+        "x": 260.50850186513134,
+        "z": 17.732680089388214,
+        "radius": 1.23289761182294,
+        "kind": "circle",
+        "id": "surface-rock-302"
+      },
+      {
+        "x": -282.1738351574173,
+        "z": -84.8967323255858,
+        "radius": 0.7179743816371359,
+        "kind": "circle",
+        "id": "surface-rock-303"
+      },
+      {
+        "x": -504.43639488415045,
+        "z": -64.33792932313379,
+        "radius": 3.7077376039969523,
+        "kind": "circle",
+        "id": "surface-rock-304"
+      },
+      {
+        "x": -452.67110014049223,
+        "z": -161.00407413849882,
+        "radius": 2.8646607511546796,
+        "kind": "circle",
+        "id": "surface-rock-305"
+      },
+      {
+        "x": -268.78458918132384,
+        "z": -288.5392416268658,
+        "radius": 0.9479606356077592,
+        "kind": "circle",
+        "id": "surface-rock-306"
+      },
+      {
+        "x": -388.1473423734858,
+        "z": 25.910504185664948,
+        "radius": 2.60013627028575,
+        "kind": "circle",
+        "id": "surface-rock-307"
+      },
+      {
+        "x": 397.8785021187598,
+        "z": 315.82534149644295,
+        "radius": 0.6698725199993284,
+        "kind": "circle",
+        "id": "surface-rock-308"
+      },
+      {
+        "x": 95.54079895113087,
+        "z": 4.788591532010353,
+        "radius": 1.949735142003215,
+        "kind": "circle",
+        "id": "surface-rock-309"
+      },
+      {
+        "x": -62.62438269240184,
+        "z": 428.7345598426563,
+        "radius": 4.070482631022111,
+        "kind": "circle",
+        "id": "surface-rock-310"
+      },
+      {
+        "x": 143.26904433061944,
+        "z": 121.96807383364515,
+        "radius": 2.971917258582162,
+        "kind": "circle",
+        "id": "surface-rock-311"
+      },
+      {
+        "x": -16.60016379543639,
+        "z": -82.14518098192711,
+        "radius": 2.8626648367335137,
+        "kind": "circle",
+        "id": "surface-rock-312"
+      },
+      {
+        "x": -306.93933192147085,
+        "z": -351.5593001576585,
+        "radius": 2.672780080431805,
+        "kind": "circle",
+        "id": "surface-rock-313"
+      },
+      {
+        "x": 107.96785994006906,
+        "z": -233.4393861216127,
+        "radius": 3.204579060822424,
+        "kind": "circle",
+        "id": "surface-rock-314"
+      },
+      {
+        "x": 96.12169372383951,
+        "z": -303.5003890651527,
+        "radius": 2.506048659901024,
+        "kind": "circle",
+        "id": "surface-rock-315"
+      },
+      {
+        "x": 242.9115706833118,
+        "z": -109.28442737809698,
+        "radius": 3.753492365183775,
+        "kind": "circle",
+        "id": "surface-rock-316"
+      },
+      {
+        "x": 192.37714637395374,
+        "z": 239.65893455617532,
+        "radius": 2.824132856876555,
+        "kind": "circle",
+        "id": "surface-rock-317"
+      },
+      {
+        "x": -25.62819352119395,
+        "z": -464.83457757122034,
+        "radius": 1.9656924928516701,
+        "kind": "circle",
+        "id": "surface-rock-318"
+      },
+      {
+        "x": 30.407144003482873,
+        "z": -179.43261973715684,
+        "radius": 3.6277609486293008,
+        "kind": "circle",
+        "id": "surface-rock-319"
+      },
+      {
+        "x": -209.80873618811896,
+        "z": 39.87692381897786,
+        "radius": 3.5952672399733285,
+        "kind": "circle",
+        "id": "surface-rock-320"
+      },
+      {
+        "x": 371.7913119750658,
+        "z": 91.4107611453193,
+        "radius": 1.3963350185375125,
+        "kind": "circle",
+        "id": "surface-rock-321"
+      },
+      {
+        "x": -396.3181456242175,
+        "z": 7.050158435198248,
+        "radius": 4.49918476774513,
+        "kind": "circle",
+        "id": "surface-rock-322"
+      },
+      {
+        "x": 379.2285265309064,
+        "z": -129.56085701599721,
+        "radius": 1.3175098950475277,
+        "kind": "circle",
+        "id": "surface-rock-323"
+      },
+      {
+        "x": -374.43874082485,
+        "z": 346.39357220531997,
+        "radius": 0.6640435393077152,
+        "kind": "circle",
+        "id": "surface-rock-324"
+      },
+      {
+        "x": -452.93176568142997,
+        "z": -124.81595294956644,
+        "radius": 3.6556868314489153,
+        "kind": "circle",
+        "id": "surface-rock-325"
+      },
+      {
+        "x": 56.10682065257857,
+        "z": -485.9193968769915,
+        "radius": 2.7252424053299915,
+        "kind": "circle",
+        "id": "surface-rock-326"
+      },
+      {
+        "x": -208.02070638155075,
+        "z": -467.48008120027316,
+        "radius": 0.8297879352419308,
+        "kind": "circle",
+        "id": "surface-rock-327"
+      },
+      {
+        "x": -265.86279394801903,
+        "z": -380.91923676167613,
+        "radius": 0.868548400125819,
+        "kind": "circle",
+        "id": "surface-rock-328"
+      },
+      {
+        "x": 110.3555005357814,
+        "z": -489.9601659044228,
+        "radius": 2.8930152010942356,
+        "kind": "circle",
+        "id": "surface-rock-329"
+      },
+      {
+        "x": 2.881574735852822,
+        "z": 463.57773012676086,
+        "radius": 1.2468952127271065,
+        "kind": "circle",
+        "id": "surface-rock-330"
+      },
+      {
+        "x": 450.4561179277083,
+        "z": 258.57756606473487,
+        "radius": 4.6208437335661845,
+        "kind": "circle",
+        "id": "surface-rock-331"
+      },
+      {
+        "x": 23.8413158580728,
+        "z": 68.90330161446327,
+        "radius": 1.9389019075313434,
+        "kind": "circle",
+        "id": "surface-rock-332"
+      },
+      {
+        "x": -392.5904412483915,
+        "z": 318.3731910952686,
+        "radius": 2.552259718548612,
+        "kind": "circle",
+        "id": "surface-rock-333"
+      },
+      {
+        "x": -250.9243587362626,
+        "z": -285.73115667874185,
+        "radius": 2.980804862024746,
+        "kind": "circle",
+        "id": "surface-rock-334"
+      },
+      {
+        "x": 18.854896667018448,
+        "z": 56.369460348128534,
+        "radius": 2.6257013796494895,
+        "kind": "circle",
+        "id": "surface-rock-335"
+      },
+      {
+        "x": 280.09262173339886,
+        "z": -251.28696787375802,
+        "radius": 0.8594885413189433,
+        "kind": "circle",
+        "id": "surface-rock-336"
+      },
+      {
+        "x": 227.0521029815735,
+        "z": -259.65243868939575,
+        "radius": 3.7319833071079795,
+        "kind": "circle",
+        "id": "surface-rock-337"
+      },
+      {
+        "x": 174.45811834531656,
+        "z": -470.931826750788,
+        "radius": 0.6733191853130986,
+        "kind": "circle",
+        "id": "surface-rock-338"
+      },
+      {
+        "x": -396.66811164584976,
+        "z": 242.21227736246462,
+        "radius": 1.1581869118922656,
+        "kind": "circle",
+        "id": "surface-rock-339"
+      },
+      {
+        "x": 162.4363382028829,
+        "z": 475.0813824873654,
+        "radius": 1.8882552315442536,
+        "kind": "circle",
+        "id": "surface-rock-340"
+      },
+      {
+        "x": -323.91789399322226,
+        "z": 394.962386857714,
+        "radius": 1.867037299308315,
+        "kind": "circle",
+        "id": "surface-rock-341"
+      },
+      {
+        "x": -401.9776543343157,
+        "z": -131.43073361165833,
+        "radius": 2.950601228557144,
+        "kind": "circle",
+        "id": "surface-rock-342"
+      },
+      {
+        "x": -167.61121444088192,
+        "z": 61.778324793564664,
+        "radius": 4.399442587143138,
+        "kind": "circle",
+        "id": "surface-rock-343"
+      },
+      {
+        "x": -188.64299866207938,
+        "z": 271.06384559038173,
+        "radius": 1.1318839979073947,
+        "kind": "circle",
+        "id": "surface-rock-344"
+      },
+      {
+        "x": -91.07705163071415,
+        "z": -52.8963984596289,
+        "radius": 3.0498579894239235,
+        "kind": "circle",
+        "id": "surface-rock-345"
+      },
+      {
+        "x": -172.6494359763638,
+        "z": 474.6411450131305,
+        "radius": 2.834444171713241,
+        "kind": "circle",
+        "id": "surface-rock-346"
+      },
+      {
+        "x": 51.23379995950686,
+        "z": -307.9215812181099,
+        "radius": 4.165658826807874,
+        "kind": "circle",
+        "id": "surface-rock-347"
+      },
+      {
+        "x": -306.0085024445459,
+        "z": -338.78131000366875,
+        "radius": 0.7761779253726838,
+        "kind": "circle",
+        "id": "surface-rock-348"
+      },
+      {
+        "x": -202.78220107748194,
+        "z": -105.13523815521468,
+        "radius": 1.2790635024343597,
+        "kind": "circle",
+        "id": "surface-rock-349"
+      },
+      {
+        "x": -286.64776291754947,
+        "z": -367.8063926089011,
+        "radius": 4.021172681016207,
+        "kind": "circle",
+        "id": "surface-rock-350"
+      },
+      {
+        "x": -280.2780733460667,
+        "z": -323.15549074549557,
+        "radius": 2.318941821997879,
+        "kind": "circle",
+        "id": "surface-rock-351"
+      },
+      {
+        "x": 198.07915455088894,
+        "z": 353.60428239568046,
+        "radius": 2.2646368122215805,
+        "kind": "circle",
+        "id": "surface-rock-352"
+      },
+      {
+        "x": 419.4961706032821,
+        "z": 170.05237808503946,
+        "radius": 0.6854673576857094,
+        "kind": "circle",
+        "id": "surface-rock-353"
+      },
+      {
+        "x": 341.15047789159814,
+        "z": 227.15525333786184,
+        "radius": 3.9254533542474856,
+        "kind": "circle",
+        "id": "surface-rock-354"
+      },
+      {
+        "x": 3.8526796168553195,
+        "z": -183.83477997987748,
+        "radius": 3.2901275845439084,
+        "kind": "circle",
+        "id": "surface-rock-355"
+      },
+      {
+        "x": 392.5257711879977,
+        "z": -73.34669188478499,
+        "radius": 2.658678019923241,
+        "kind": "circle",
+        "id": "surface-rock-356"
+      },
+      {
+        "x": 320.5376684001254,
+        "z": 225.20561021294958,
+        "radius": 1.266615884597373,
+        "kind": "circle",
+        "id": "surface-rock-357"
+      },
+      {
+        "x": 204.83263175424005,
+        "z": 10.072716605971141,
+        "radius": 1.3257881381080847,
+        "kind": "circle",
+        "id": "surface-rock-358"
+      },
+      {
+        "x": 186.5925927359282,
+        "z": 142.24197398356716,
+        "radius": 2.8708476254221105,
+        "kind": "circle",
+        "id": "surface-rock-359"
+      },
+      {
+        "x": 226.7920746696861,
+        "z": -250.52867874349968,
+        "radius": 2.282415360654445,
+        "kind": "circle",
+        "id": "surface-rock-360"
+      },
+      {
+        "x": 26.807252085319494,
+        "z": -422.96977285957394,
+        "radius": 1.3567835362200251,
+        "kind": "circle",
+        "id": "surface-rock-361"
+      },
+      {
+        "x": -36.21184430927787,
+        "z": 361.2089361519404,
+        "radius": 1.1900364219454178,
+        "kind": "circle",
+        "id": "surface-rock-362"
+      },
+      {
+        "x": 68.23900577099396,
+        "z": 233.3354159201035,
+        "radius": 0.8436992691444921,
+        "kind": "circle",
+        "id": "surface-rock-363"
+      },
+      {
+        "x": -441.25853248263553,
+        "z": -80.55010396324376,
+        "radius": 3.4080215653344785,
+        "kind": "circle",
+        "id": "surface-rock-364"
+      },
+      {
+        "x": 16.164056254394414,
+        "z": -294.7737073401643,
+        "radius": 0.7912149617533312,
+        "kind": "circle",
+        "id": "surface-rock-365"
+      },
+      {
+        "x": 72.06392871741168,
+        "z": 442.9665773272728,
+        "radius": 1.0153733354426253,
+        "kind": "circle",
+        "id": "surface-rock-366"
+      },
+      {
+        "x": 153.69493612011,
+        "z": -368.7714895948324,
+        "radius": 0.983956321842523,
+        "kind": "circle",
+        "id": "surface-rock-367"
+      },
+      {
+        "x": -211.90551978243698,
+        "z": -134.96933293934947,
+        "radius": 2.174424123773853,
+        "kind": "circle",
+        "id": "surface-rock-368"
+      },
+      {
+        "x": -29.112699921565223,
+        "z": -76.67075393587864,
+        "radius": 3.5161844589297147,
+        "kind": "circle",
+        "id": "surface-rock-369"
+      },
+      {
+        "x": -229.39131185235615,
+        "z": 205.4667912174394,
+        "radius": 1.5103151131542618,
+        "kind": "circle",
+        "id": "surface-rock-370"
+      },
+      {
+        "x": -33.908457292803185,
+        "z": 239.7979427491832,
+        "radius": 2.0636184736578866,
+        "kind": "circle",
+        "id": "surface-rock-371"
+      },
+      {
+        "x": -172.02076925103057,
+        "z": -144.41586286625588,
+        "radius": 2.15484367151646,
+        "kind": "circle",
+        "id": "surface-rock-372"
+      },
+      {
+        "x": 54.02359336010296,
+        "z": 40.680482454570196,
+        "radius": 0.9930604648043397,
+        "kind": "circle",
+        "id": "surface-rock-373"
+      },
+      {
+        "x": 299.7873954296453,
+        "z": 71.17408287366982,
+        "radius": 2.8953485331690234,
+        "kind": "circle",
+        "id": "surface-rock-374"
+      },
+      {
+        "x": -118.15474072657418,
+        "z": 116.05586520543466,
+        "radius": 0.8395027142002672,
+        "kind": "circle",
+        "id": "surface-rock-375"
+      },
+      {
+        "x": 68.49710600143221,
+        "z": -292.6063893219517,
+        "radius": 1.1498495375790576,
+        "kind": "circle",
+        "id": "surface-rock-376"
+      },
+      {
+        "x": 166.07696498670194,
+        "z": 125.73845583412898,
+        "radius": 0.9997255564318412,
+        "kind": "circle",
+        "id": "surface-rock-377"
+      },
+      {
+        "x": -74.9146062739536,
+        "z": -324.1406172320797,
+        "radius": 2.653386059680679,
+        "kind": "circle",
+        "id": "surface-rock-378"
+      },
+      {
+        "x": 152.4773060417034,
+        "z": -381.7703471393289,
+        "radius": 1.1132972832313959,
+        "kind": "circle",
+        "id": "surface-rock-379"
+      },
+      {
+        "x": -240.92273983151955,
+        "z": 340.50107794291836,
+        "radius": 0.8616311530314186,
+        "kind": "circle",
+        "id": "surface-rock-380"
+      },
+      {
+        "x": 256.5450808945285,
+        "z": 85.76119984339778,
+        "radius": 0.8512910112310718,
+        "kind": "circle",
+        "id": "surface-rock-381"
+      },
+      {
+        "x": -154.0619106448472,
+        "z": -99.23729672623124,
+        "radius": 1.856266398384696,
+        "kind": "circle",
+        "id": "surface-rock-382"
+      },
+      {
+        "x": -175.87367947285847,
+        "z": -395.1312977565543,
+        "radius": 1.7924818866046017,
+        "kind": "circle",
+        "id": "surface-rock-383"
+      },
+      {
+        "x": 341.07840681570707,
+        "z": 126.91652378422071,
+        "radius": 3.032391771647863,
+        "kind": "circle",
+        "id": "surface-rock-384"
+      },
+      {
+        "x": 142.70423668869228,
+        "z": -326.1583527519337,
+        "radius": 4.665316641826924,
+        "kind": "circle",
+        "id": "surface-rock-385"
+      },
+      {
+        "x": 256.76528005969396,
+        "z": -223.88915606874488,
+        "radius": 2.7899768779931162,
+        "kind": "circle",
+        "id": "surface-rock-386"
+      },
+      {
+        "x": -192.387498118813,
+        "z": 152.11727201802685,
+        "radius": 3.6529210026434398,
+        "kind": "circle",
+        "id": "surface-rock-387"
+      },
+      {
+        "x": 333.3016045936024,
+        "z": -293.9570033814263,
+        "radius": 1.1561512935905696,
+        "kind": "circle",
+        "id": "surface-rock-388"
+      },
+      {
+        "x": -334.21980025365457,
+        "z": 222.30700631951345,
+        "radius": 4.301154601599076,
+        "kind": "circle",
+        "id": "surface-rock-389"
+      },
+      {
+        "x": -181.4609421961966,
+        "z": -434.37369247218874,
+        "radius": 1.4224557226834351,
+        "kind": "circle",
+        "id": "surface-rock-390"
+      },
+      {
+        "x": -113.5600987800466,
+        "z": -29.22368443572407,
+        "radius": 3.2119767847880554,
+        "kind": "circle",
+        "id": "surface-rock-391"
+      },
+      {
+        "x": 168.89172441301284,
+        "z": -411.22713128704703,
+        "radius": 3.8589521651569765,
+        "kind": "circle",
+        "id": "surface-rock-392"
+      },
+      {
+        "x": 495.47869755796927,
+        "z": 104.31590471476301,
+        "radius": 2.9391871344448024,
+        "kind": "circle",
+        "id": "surface-rock-393"
+      },
+      {
+        "x": -15.223818143849067,
+        "z": -84.5803495199128,
+        "radius": 0.8592533004998042,
+        "kind": "circle",
+        "id": "surface-rock-394"
+      },
+      {
+        "x": -127.33334116765997,
+        "z": -33.95567342280382,
+        "radius": 0.659712515258818,
+        "kind": "circle",
+        "id": "surface-rock-395"
+      },
+      {
+        "x": 25.679072593243042,
+        "z": 0.06802404438873363,
+        "radius": 0.9720255295294342,
+        "kind": "circle",
+        "id": "surface-rock-396"
+      },
+      {
+        "x": -177.3394544009681,
+        "z": 320.4413466809351,
+        "radius": 3.771559632720282,
+        "kind": "circle",
+        "id": "surface-rock-397"
+      },
+      {
+        "x": -151.57563684361546,
+        "z": 443.37275002302476,
+        "radius": 1.7282240866677783,
+        "kind": "circle",
+        "id": "surface-rock-398"
+      },
+      {
+        "x": 191.58367590158704,
+        "z": 147.9297593621405,
+        "radius": 1.0815508893909276,
+        "kind": "circle",
+        "id": "surface-rock-399"
+      },
+      {
+        "x": 110.21966366179635,
+        "z": -106.52895125723002,
+        "radius": 1.2910012347806257,
+        "kind": "circle",
+        "id": "surface-rock-400"
+      },
+      {
+        "x": -58.23455082790735,
+        "z": 483.90443954740294,
+        "radius": 4.450733350547662,
+        "kind": "circle",
+        "id": "surface-rock-401"
+      },
+      {
+        "x": 217.51463461518816,
+        "z": -101.9920830036133,
+        "radius": 0.6849462462114309,
+        "kind": "circle",
+        "id": "surface-rock-402"
+      },
+      {
+        "x": 53.43280526873992,
+        "z": -63.76138884634983,
+        "radius": 3.4044562960500104,
+        "kind": "circle",
+        "id": "surface-rock-403"
+      },
+      {
+        "x": 359.3249511543895,
+        "z": -235.98381915909087,
+        "radius": 3.927930811158579,
+        "kind": "circle",
+        "id": "surface-rock-404"
+      },
+      {
+        "x": -115.78772662157685,
+        "z": 150.47528704078994,
+        "radius": 5.160161680543613,
+        "kind": "circle",
+        "id": "surface-rock-405"
+      },
+      {
+        "x": -277.58806357180373,
+        "z": -205.62557015501446,
+        "radius": 1.3694586819317551,
+        "kind": "circle",
+        "id": "surface-rock-406"
+      },
+      {
+        "x": 137.69518488313608,
+        "z": 348.9729211644043,
+        "radius": 1.0749458492372905,
+        "kind": "circle",
+        "id": "surface-rock-407"
+      },
+      {
+        "x": -211.68441411897828,
+        "z": -330.58521283780146,
+        "radius": 3.3617171600800506,
+        "kind": "circle",
+        "id": "surface-rock-408"
+      },
+      {
+        "x": -215.9951421619027,
+        "z": -375.1869783227218,
+        "radius": 3.885968384588377,
+        "kind": "circle",
+        "id": "surface-rock-409"
+      },
+      {
+        "x": 432.04873383722673,
+        "z": 255.70241228350213,
+        "radius": 0.8787970580494093,
+        "kind": "circle",
+        "id": "surface-rock-410"
+      },
+      {
+        "x": -182.28992982378514,
+        "z": -240.10215112312855,
+        "radius": 4.1942849337054815,
+        "kind": "circle",
+        "id": "surface-rock-411"
+      },
+      {
+        "x": -102.83939155919784,
+        "z": -92.09336516995553,
+        "radius": 4.419436678958197,
+        "kind": "circle",
+        "id": "surface-rock-412"
+      },
+      {
+        "x": -231.38343486691272,
+        "z": -301.244617104176,
+        "radius": 3.0119108825294463,
+        "kind": "circle",
+        "id": "surface-rock-413"
+      },
+      {
+        "x": 393.79235141641675,
+        "z": -168.5336348698108,
+        "radius": 0.8904377429356231,
+        "kind": "circle",
+        "id": "surface-rock-414"
+      },
+      {
+        "x": 408.7537227657787,
+        "z": -202.38485414033934,
+        "radius": 1.7040933214814615,
+        "kind": "circle",
+        "id": "surface-rock-415"
+      },
+      {
+        "x": 17.799461303389464,
+        "z": -113.5127404101548,
+        "radius": 2.0364274389091834,
+        "kind": "circle",
+        "id": "surface-rock-416"
+      },
+      {
+        "x": -45.0174365446848,
+        "z": -403.14144877520704,
+        "radius": 2.122862415592592,
+        "kind": "circle",
+        "id": "surface-rock-417"
+      },
+      {
+        "x": -122.46621659186228,
+        "z": 161.29428749565454,
+        "radius": 2.0355456190713763,
+        "kind": "circle",
+        "id": "surface-rock-418"
+      },
+      {
+        "x": -239.38554640999982,
+        "z": -287.4121378180221,
+        "radius": 1.831920714319659,
+        "kind": "circle",
+        "id": "surface-rock-419"
+      },
+      {
+        "x": -201.5251385109531,
+        "z": -114.84927818922297,
+        "radius": 0.931343034328941,
+        "kind": "circle",
+        "id": "surface-rock-420"
+      },
+      {
+        "x": 29.530665793938393,
+        "z": 58.29674131640063,
+        "radius": 4.650341249326258,
+        "kind": "circle",
+        "id": "surface-rock-421"
+      },
+      {
+        "x": -422.2959088631967,
+        "z": 284.9387672569789,
+        "radius": 0.9368095687491073,
+        "kind": "circle",
+        "id": "surface-rock-422"
+      },
+      {
+        "x": -198.09107545208167,
+        "z": 336.9435927941491,
+        "radius": 1.0279417248215446,
+        "kind": "circle",
+        "id": "surface-rock-423"
+      },
+      {
+        "x": 280.73086286299497,
+        "z": 137.00218235566317,
+        "radius": 0.8060120011606889,
+        "kind": "circle",
+        "id": "surface-rock-424"
+      },
+      {
+        "x": 144.76383797616822,
+        "z": -340.77801027481223,
+        "radius": 3.4308264422213357,
+        "kind": "circle",
+        "id": "surface-rock-425"
+      },
+      {
+        "x": 275.93314363618873,
+        "z": -26.307298881433642,
+        "radius": 1.6810832435032517,
+        "kind": "circle",
+        "id": "surface-rock-426"
+      },
+      {
+        "x": 54.998972540888964,
+        "z": 277.2324850990969,
+        "radius": 0.8674526540473315,
+        "kind": "circle",
+        "id": "surface-rock-427"
+      },
+      {
+        "x": -471.9905485872856,
+        "z": -126.4865554276288,
+        "radius": 3.8092604916078807,
+        "kind": "circle",
+        "id": "surface-rock-428"
+      },
+      {
+        "x": -276.25240095770056,
+        "z": 224.12591401529164,
+        "radius": 2.4091381858141028,
+        "kind": "circle",
+        "id": "surface-rock-429"
+      },
+      {
+        "x": 352.9091892014238,
+        "z": 273.96079715857996,
+        "radius": 3.503665418488209,
+        "kind": "circle",
+        "id": "surface-rock-430"
+      },
+      {
+        "x": 199.76552681480652,
+        "z": 150.62732233360586,
+        "radius": 3.34442955701833,
+        "kind": "circle",
+        "id": "surface-rock-431"
+      },
+      {
+        "x": 27.364808951838864,
+        "z": -508.5628014067974,
+        "radius": 4.695938606968309,
+        "kind": "circle",
+        "id": "surface-rock-432"
+      },
+      {
+        "x": 20.687501704322937,
+        "z": -475.7730084467871,
+        "radius": 1.75224400943918,
+        "kind": "circle",
+        "id": "surface-rock-433"
+      },
+      {
+        "x": -428.59934931162,
+        "z": 64.65306841356075,
+        "radius": 3.260889118508671,
+        "kind": "circle",
+        "id": "surface-rock-434"
+      },
+      {
+        "x": 41.114235803248384,
+        "z": -18.229397618970285,
+        "radius": 1.2707771981443134,
+        "kind": "circle",
+        "id": "surface-rock-435"
+      },
+      {
+        "x": -188.1799006237231,
+        "z": -163.84385437266303,
+        "radius": 2.0157249325727973,
+        "kind": "circle",
+        "id": "surface-rock-436"
+      },
+      {
+        "x": 489.62339368981554,
+        "z": -66.14697180159384,
+        "radius": 4.268589968455101,
+        "kind": "circle",
+        "id": "surface-rock-437"
+      },
+      {
+        "x": -29.154122148564706,
+        "z": 380.2829717320136,
+        "radius": 1.1551583940490269,
+        "kind": "circle",
+        "id": "surface-rock-438"
+      },
+      {
+        "x": -46.38022762672491,
+        "z": -284.43583550739964,
+        "radius": 0.7794074970081376,
+        "kind": "circle",
+        "id": "surface-rock-439"
+      },
+      {
+        "x": -349.20946086689435,
+        "z": 209.62357798592245,
+        "radius": 1.4136867425576483,
+        "kind": "circle",
+        "id": "surface-rock-440"
+      },
+      {
+        "x": 316.7985421571486,
+        "z": 251.55718171593136,
+        "radius": 2.6180600347180616,
+        "kind": "circle",
+        "id": "surface-rock-441"
+      },
+      {
+        "x": 114.02828997596195,
+        "z": 426.15413597190553,
+        "radius": 3.4639121196425973,
+        "kind": "circle",
+        "id": "surface-rock-442"
+      },
+      {
+        "x": 151.576746356078,
+        "z": 339.7748780464291,
+        "radius": 1.5428531154349838,
+        "kind": "circle",
+        "id": "surface-rock-443"
+      },
+      {
+        "x": -72.37729528092515,
+        "z": -22.60945390604261,
+        "radius": 4.854605644690383,
+        "kind": "circle",
+        "id": "surface-rock-444"
+      },
+      {
+        "x": 26.227642895743305,
+        "z": -356.59914154370927,
+        "radius": 2.766686066037874,
+        "kind": "circle",
+        "id": "surface-rock-445"
+      },
+      {
+        "x": -13.662866670665403,
+        "z": -476.3650891402945,
+        "radius": 1.2016685217617622,
+        "kind": "circle",
+        "id": "surface-rock-446"
+      },
+      {
+        "x": 271.5434421157448,
+        "z": -41.25614517013939,
+        "radius": 5.48987084804745,
+        "kind": "circle",
+        "id": "surface-rock-447"
+      },
+      {
+        "x": -76.73770362432434,
+        "z": 217.49883109797472,
+        "radius": 3.2608391337545486,
+        "kind": "circle",
+        "id": "surface-rock-448"
+      },
+      {
+        "x": 27.203612232271553,
+        "z": 204.85859991582785,
+        "radius": 5.239567975828864,
+        "kind": "circle",
+        "id": "surface-rock-449"
+      },
+      {
+        "x": -25.455159429587162,
+        "z": -84.23900745109643,
+        "radius": 2.494272658902156,
+        "kind": "circle",
+        "id": "surface-rock-450"
+      },
+      {
+        "x": 163.31239669738372,
+        "z": -437.668073152944,
+        "radius": 1.2344099424387953,
+        "kind": "circle",
+        "id": "surface-rock-451"
+      },
+      {
+        "x": -235.193237113367,
+        "z": 375.6665660569148,
+        "radius": 2.420389641498856,
+        "kind": "circle",
+        "id": "surface-rock-452"
+      },
+      {
+        "x": -74.85820957107104,
+        "z": 512.0119105041634,
+        "radius": 1.7061638328253383,
+        "kind": "circle",
+        "id": "surface-rock-453"
+      },
+      {
+        "x": -316.9098482401776,
+        "z": 69.96025915743171,
+        "radius": 1.3803249037252419,
+        "kind": "circle",
+        "id": "surface-rock-454"
+      },
+      {
+        "x": -480.22041390085536,
+        "z": -129.9383110066776,
+        "radius": 2.0252811345550326,
+        "kind": "circle",
+        "id": "surface-rock-455"
+      },
+      {
+        "x": 118.56643308564801,
+        "z": 269.75614722144064,
+        "radius": 5.748776268516444,
+        "kind": "circle",
+        "id": "surface-rock-456"
+      },
+      {
+        "x": -50.42118625989897,
+        "z": -244.2793549685629,
+        "radius": 2.3371886311686714,
+        "kind": "circle",
+        "id": "surface-rock-457"
+      },
+      {
+        "x": -381.5637155270162,
+        "z": -232.5546118555505,
+        "radius": 3.360130467173699,
+        "kind": "circle",
+        "id": "surface-rock-458"
+      },
+      {
+        "x": 233.51527033166,
+        "z": 54.85179050636123,
+        "radius": 1.3789661492805243,
+        "kind": "circle",
+        "id": "surface-rock-459"
+      },
+      {
+        "x": 353.0467464723455,
+        "z": 216.1997131985611,
+        "radius": 2.041484160524665,
+        "kind": "circle",
+        "id": "surface-rock-460"
+      },
+      {
+        "x": 437.34438643566676,
+        "z": 69.69060405839771,
+        "radius": 2.4663451662548357,
+        "kind": "circle",
+        "id": "surface-rock-461"
+      },
+      {
+        "x": -460.84983669970256,
+        "z": 174.3188892032407,
+        "radius": 1.9787406097695843,
+        "kind": "circle",
+        "id": "surface-rock-462"
+      },
+      {
+        "x": -34.12601054560629,
+        "z": -243.70476266173276,
+        "radius": 3.2502507645008363,
+        "kind": "circle",
+        "id": "surface-rock-463"
+      },
+      {
+        "x": 19.320503266866535,
+        "z": -73.02631162229508,
+        "radius": 4.604934947951661,
+        "kind": "circle",
+        "id": "surface-rock-464"
+      },
+      {
+        "x": 394.8090845161071,
+        "z": -93.78643573000247,
+        "radius": 1.0159255224813255,
+        "kind": "circle",
+        "id": "surface-rock-465"
+      },
+      {
+        "x": -370.0784475945013,
+        "z": 118.67383868405254,
+        "radius": 4.240804929796859,
+        "kind": "circle",
+        "id": "surface-rock-466"
+      },
+      {
+        "x": 221.66578179734694,
+        "z": -214.03418993576776,
+        "radius": 2.0503880370928407,
+        "kind": "circle",
+        "id": "surface-rock-467"
+      },
+      {
+        "x": 195.03075284780465,
+        "z": 171.2057080547074,
+        "radius": 1.4817839068771839,
+        "kind": "circle",
+        "id": "surface-rock-468"
+      },
+      {
+        "x": 168.84182114531956,
+        "z": 14.014520475951528,
+        "radius": 2.910129920225133,
+        "kind": "circle",
+        "id": "surface-rock-469"
+      },
+      {
+        "x": -269.9972252966504,
+        "z": 185.50597498162128,
+        "radius": 2.6050727454985068,
+        "kind": "circle",
+        "id": "surface-rock-470"
+      },
+      {
+        "x": 393.85898240792545,
+        "z": 40.12389548238446,
+        "radius": 1.324790663213359,
+        "kind": "circle",
+        "id": "surface-rock-471"
+      },
+      {
+        "x": 14.526994826667977,
+        "z": -309.4235199661247,
+        "radius": 0.7090210941740879,
+        "kind": "circle",
+        "id": "surface-rock-472"
+      },
+      {
+        "x": 7.889881436248485,
+        "z": 422.563209098855,
+        "radius": 3.08643732779945,
+        "kind": "circle",
+        "id": "surface-rock-473"
+      },
+      {
+        "x": 142.27056079155747,
+        "z": -233.9480284234582,
+        "radius": 0.9522791416148204,
+        "kind": "circle",
+        "id": "surface-rock-474"
+      },
+      {
+        "x": 360.7729425848476,
+        "z": -243.6346022099531,
+        "radius": 4.301737826930942,
+        "kind": "circle",
+        "id": "surface-rock-475"
+      },
+      {
+        "x": -6.742891022536772,
+        "z": 29.406810720290174,
+        "radius": 0.7263925368418055,
+        "kind": "circle",
+        "id": "surface-rock-476"
+      },
+      {
+        "x": 276.8845705757277,
+        "z": -155.40239567420096,
+        "radius": 2.242657943458857,
+        "kind": "circle",
+        "id": "surface-rock-477"
+      },
+      {
+        "x": -271.5967172993557,
+        "z": 355.74389713919066,
+        "radius": 0.6816168635167011,
+        "kind": "circle",
+        "id": "surface-rock-478"
+      },
+      {
+        "x": 71.86097279976134,
+        "z": 222.3871105028442,
+        "radius": 0.6657695016429805,
+        "kind": "circle",
+        "id": "surface-rock-479"
+      },
+      {
+        "x": 483.06649700970434,
+        "z": 139.8438012744448,
+        "radius": 1.9806355819201629,
+        "kind": "circle",
+        "id": "surface-rock-480"
+      },
+      {
+        "x": 257.986496690412,
+        "z": -204.10601864176593,
+        "radius": 2.951355495626212,
+        "kind": "circle",
+        "id": "surface-rock-481"
+      },
+      {
+        "x": 374.07311885229103,
+        "z": 202.2512831897709,
+        "radius": 5.499860752733711,
+        "kind": "circle",
+        "id": "surface-rock-482"
+      },
+      {
+        "x": 477.90684664861976,
+        "z": 135.80414868598277,
+        "radius": 2.5365626408502044,
+        "kind": "circle",
+        "id": "surface-rock-483"
+      },
+      {
+        "x": -202.3812940337392,
+        "z": 334.63503177254825,
+        "radius": 4.7458507257728435,
+        "kind": "circle",
+        "id": "surface-rock-484"
+      },
+      {
+        "x": -148.5376684868002,
+        "z": -445.4512630726334,
+        "radius": 1.2965003040248662,
+        "kind": "circle",
+        "id": "surface-rock-485"
+      },
+      {
+        "x": -221.62232018718575,
+        "z": -262.82642613613257,
+        "radius": 0.6677988755610994,
+        "kind": "circle",
+        "id": "surface-rock-486"
+      },
+      {
+        "x": -65.82160884650115,
+        "z": -109.6506932552513,
+        "radius": 2.7204608268166357,
+        "kind": "circle",
+        "id": "surface-rock-487"
+      },
+      {
+        "x": 172.59576356077096,
+        "z": -101.09518191745566,
+        "radius": 0.9129691030262662,
+        "kind": "circle",
+        "id": "surface-rock-488"
+      },
+      {
+        "x": -426.99008694098137,
+        "z": 245.06026945883954,
+        "radius": 1.432592749147484,
+        "kind": "circle",
+        "id": "surface-rock-489"
+      },
+      {
+        "x": -47.85909487634634,
+        "z": -421.1365139509844,
+        "radius": 2.3309652015547546,
+        "kind": "circle",
+        "id": "surface-rock-490"
+      },
+      {
+        "x": -241.99640024536754,
+        "z": 142.90775576755385,
+        "radius": 0.8487135884110569,
+        "kind": "circle",
+        "id": "surface-rock-491"
+      },
+      {
+        "x": 242.76582702198732,
+        "z": -221.2672852477125,
+        "radius": 2.1514587176955806,
+        "kind": "circle",
+        "id": "surface-rock-492"
+      },
+      {
+        "x": 176.03918657314262,
+        "z": -332.42600232797355,
+        "radius": 2.1443353779298984,
+        "kind": "circle",
+        "id": "surface-rock-493"
+      },
+      {
+        "x": 248.58024628263442,
+        "z": 408.85854164729267,
+        "radius": 1.6352674050500644,
+        "kind": "circle",
+        "id": "surface-rock-494"
+      },
+      {
+        "x": -238.75845851273723,
+        "z": 444.59064296773596,
+        "radius": 3.2113643570025125,
+        "kind": "circle",
+        "id": "surface-rock-495"
+      },
+      {
+        "x": -50.91501136582563,
+        "z": -82.93458044652161,
+        "radius": 0.7482216177027556,
+        "kind": "circle",
+        "id": "surface-rock-496"
+      },
+      {
+        "x": -325.4911561059644,
+        "z": 48.4955778731534,
+        "radius": 0.6593324975166938,
+        "kind": "circle",
+        "id": "surface-rock-497"
+      },
+      {
+        "x": -103.53468897684137,
+        "z": -11.793271270051696,
+        "radius": 4.415054305032021,
+        "kind": "circle",
+        "id": "surface-rock-498"
+      },
+      {
+        "x": 392.41123939828515,
+        "z": 21.38731463870825,
+        "radius": 2.2394336301295223,
+        "kind": "circle",
+        "id": "surface-rock-499"
+      },
+      {
+        "x": 238.64039773459373,
+        "z": 57.614897957472245,
+        "radius": 1.7634400339122835,
+        "kind": "circle",
+        "id": "surface-rock-500"
+      },
+      {
+        "x": -365.01075640848603,
+        "z": 303.46577562577755,
+        "radius": 5.018082235927818,
+        "kind": "circle",
+        "id": "surface-rock-501"
+      },
+      {
+        "x": 98.17148575731689,
+        "z": 114.25817993518818,
+        "radius": 3.3694179362737953,
+        "kind": "circle",
+        "id": "surface-rock-502"
+      },
+      {
+        "x": -222.87359915537172,
+        "z": 316.9087980302126,
+        "radius": 1.5136656889964957,
+        "kind": "circle",
+        "id": "surface-rock-503"
+      },
+      {
+        "x": -77.99364883862798,
+        "z": 111.99744806059739,
+        "radius": 1.9678181478185062,
+        "kind": "circle",
+        "id": "surface-rock-504"
+      },
+      {
+        "x": 316.01584590527756,
+        "z": 125.8717473717325,
+        "radius": 1.5396112344382336,
+        "kind": "circle",
+        "id": "surface-rock-505"
+      },
+      {
+        "x": -58.81746025944011,
+        "z": 196.01062286339376,
+        "radius": 1.3004565847428173,
+        "kind": "circle",
+        "id": "surface-rock-506"
+      },
+      {
+        "x": -485.8282697075322,
+        "z": -132.4600138909141,
+        "radius": 2.2232694121698353,
+        "kind": "circle",
+        "id": "surface-rock-507"
+      },
+      {
+        "x": 308.45061312680775,
+        "z": -53.26165071844166,
+        "radius": 1.8989386713492122,
+        "kind": "circle",
+        "id": "surface-rock-508"
+      },
+      {
+        "x": -124.70851474135044,
+        "z": 51.62058561997171,
+        "radius": 1.7547524088484878,
+        "kind": "circle",
+        "id": "surface-rock-509"
+      },
+      {
+        "x": 84.71257671785652,
+        "z": -414.6420372570924,
+        "radius": 3.911575706808033,
+        "kind": "circle",
+        "id": "surface-rock-510"
+      },
+      {
+        "x": -22.630319867274924,
+        "z": 481.20910344548815,
+        "radius": 0.851647489238645,
+        "kind": "circle",
+        "id": "surface-rock-511"
+      },
+      {
+        "x": -365.2688838987185,
+        "z": -154.49317167636676,
+        "radius": 4.124099690120779,
+        "kind": "circle",
+        "id": "surface-rock-512"
+      },
+      {
+        "x": 21.358328578438066,
+        "z": 40.55079073988029,
+        "radius": 2.3694864100104915,
+        "kind": "circle",
+        "id": "surface-rock-513"
+      },
+      {
+        "x": -346.01150803106714,
+        "z": 263.33789050674517,
+        "radius": 5.301147597886145,
+        "kind": "circle",
+        "id": "surface-rock-514"
+      },
+      {
+        "x": -159.491286554248,
+        "z": -146.48501385242125,
+        "radius": 2.9003960244717097,
+        "kind": "circle",
+        "id": "surface-rock-515"
+      },
+      {
+        "x": 98.30593392968565,
+        "z": 383.12303888003237,
+        "radius": 2.6107134516673516,
+        "kind": "circle",
+        "id": "surface-rock-516"
+      },
+      {
+        "x": -306.63219978979487,
+        "z": -164.38332991131142,
+        "radius": 1.6008011297348128,
+        "kind": "circle",
+        "id": "surface-rock-517"
+      },
+      {
+        "x": -59.65338302699159,
+        "z": -84.09455081221739,
+        "radius": 3.4649076313307337,
+        "kind": "circle",
+        "id": "surface-rock-518"
+      },
+      {
+        "x": 27.13056973240863,
+        "z": 287.49442303991583,
+        "radius": 4.4329633089439655,
+        "kind": "circle",
+        "id": "surface-rock-519"
+      },
+      {
+        "x": 38.889379946216536,
+        "z": 458.47112892569675,
+        "radius": 2.701860226623952,
+        "kind": "circle",
+        "id": "surface-rock-520"
+      },
+      {
+        "x": -196.51456406393999,
+        "z": 209.04713050965867,
+        "radius": 1.4726464328607678,
+        "kind": "circle",
+        "id": "surface-rock-521"
+      },
+      {
+        "x": 391.33630339222356,
+        "z": 32.10980541776451,
+        "radius": 1.5179640706503932,
+        "kind": "circle",
+        "id": "surface-rock-522"
+      },
+      {
+        "x": 264.52833882803685,
+        "z": -234.18809485710315,
+        "radius": 0.7380731963855577,
+        "kind": "circle",
+        "id": "surface-rock-523"
+      },
+      {
+        "x": 192.2273331595484,
+        "z": -470.3825042533977,
+        "radius": 1.641602927501561,
+        "kind": "circle",
+        "id": "surface-rock-524"
+      },
+      {
+        "x": -216.43404231674896,
+        "z": -317.73574681824164,
+        "radius": 2.131649312287796,
+        "kind": "circle",
+        "id": "surface-rock-525"
+      },
+      {
+        "x": -294.6354766526371,
+        "z": 373.970988205673,
+        "radius": 5.161923162796536,
+        "kind": "circle",
+        "id": "surface-rock-526"
+      },
+      {
+        "x": 285.01828448965466,
+        "z": -81.37851573791545,
+        "radius": 1.934020146626712,
+        "kind": "circle",
+        "id": "surface-rock-527"
+      },
+      {
+        "x": -156.83438053691484,
+        "z": 244.14163511416277,
+        "radius": 3.6915518197548045,
+        "kind": "circle",
+        "id": "surface-rock-528"
+      },
+      {
+        "x": 51.25805597540163,
+        "z": -360.7367902297364,
+        "radius": 3.785477804418735,
+        "kind": "circle",
+        "id": "surface-rock-529"
+      },
+      {
+        "x": -44,
+        "z": -68,
+        "kind": "box",
+        "id": "original-command-hub-visual",
+        "halfWidth": 8.6,
+        "halfDepth": 9.6
+      },
+      {
+        "x": 18,
+        "z": -28,
+        "radius": 1.35,
+        "kind": "circle",
+        "id": "host-fixed-point-0"
+      },
+      {
+        "id": "0ce7c2a8-08d3-4b32-ad9b-c56e1a915d38",
+        "kind": "box",
+        "x": -19.25,
+        "z": -43.25,
+        "halfWidth": 7.35,
+        "halfDepth": 7.35
+      },
+      {
+        "id": "37c781c6-e5c3-4dea-a435-8fd14fb55b8e",
+        "kind": "box",
+        "x": -44,
+        "z": -68,
+        "halfWidth": 9.6,
+        "halfDepth": 9.6
+      },
+      {
+        "id": "e5678fed-e5fe-4d4f-a8a5-72a092cef3e1",
+        "kind": "box",
+        "x": -46.25,
+        "z": -83.75,
+        "halfWidth": 7.35,
+        "halfDepth": 7.35
+      },
+      {
+        "id": "ares-depression-01",
+        "kind": "circle",
+        "x": 527.1,
+        "z": -225.9,
+        "radius": 30
+      },
+      {
+        "id": "ares-escarpment-01",
+        "kind": "circle",
+        "x": 225.9,
+        "z": -426.7,
+        "radius": 30
+      },
+      {
+        "id": "ares-ridge-01",
+        "kind": "circle",
+        "x": -125.5,
+        "z": -276.1,
+        "radius": 30
+      },
+      {
+        "id": "ares-echo-01",
+        "kind": "circle",
+        "x": -92,
+        "z": 44,
+        "radius": 6
+      },
+      {
+        "id": "ares-fracture-02",
+        "kind": "circle",
+        "x": 76,
+        "z": -58,
+        "radius": 6
+      },
+      {
+        "id": "ares-relay-03",
+        "kind": "circle",
+        "x": -112,
+        "z": -74,
+        "radius": 6
+      },
+      {
+        "id": "ares-scar-04",
+        "kind": "circle",
+        "x": 94,
+        "z": 82,
+        "radius": 6
+      }
+    ],
+    "protectedRoutes": [
+      {
+        "id": "hub-stair-interface",
+        "kind": "box",
+        "x": -44,
+        "z": -57.8125,
+        "halfWidth": 0.75,
+        "halfDepth": 1.1875
+      },
+      {
+        "id": "ares-echo-01-001",
+        "kind": "box",
+        "x": -42,
+        "z": 0,
+        "halfWidth": 0.75,
+        "halfDepth": 41.25
+      },
+      {
+        "id": "ares-echo-01-002",
+        "kind": "box",
+        "x": -65,
+        "z": 40.5,
+        "halfWidth": 23.75,
+        "halfDepth": 0.75
+      },
+      {
+        "id": "ares-fracture-02-001",
+        "kind": "box",
+        "x": -34.75,
+        "z": -40.5,
+        "halfWidth": 8,
+        "halfDepth": 0.75
+      },
+      {
+        "id": "ares-fracture-02-002",
+        "kind": "box",
+        "x": -27.5,
+        "z": -27.5,
+        "halfWidth": 0.75,
+        "halfDepth": 13.75
+      },
+      {
+        "id": "ares-fracture-02-003",
+        "kind": "box",
+        "x": 10.75,
+        "z": -14.5,
+        "halfWidth": 39,
+        "halfDepth": 0.75
+      },
+      {
+        "id": "ares-fracture-02-004",
+        "kind": "box",
+        "x": 49,
+        "z": -34.5,
+        "halfWidth": 0.75,
+        "halfDepth": 20.75
+      },
+      {
+        "id": "ares-fracture-02-005",
+        "kind": "box",
+        "x": 60.5,
+        "z": -54.5,
+        "halfWidth": 12.25,
+        "halfDepth": 0.75
+      },
+      {
+        "id": "ares-relay-03-001",
+        "kind": "box",
+        "x": -76,
+        "z": -40.5,
+        "halfWidth": 34.75,
+        "halfDepth": 0.75
+      },
+      {
+        "id": "ares-relay-03-002",
+        "kind": "box",
+        "x": -110,
+        "z": -54.75,
+        "halfWidth": 0.75,
+        "halfDepth": 15
+      },
+      {
+        "id": "ares-scar-04-001",
+        "kind": "box",
+        "x": -42,
+        "z": 18.5,
+        "halfWidth": 0.75,
+        "halfDepth": 59.75
+      },
+      {
+        "id": "ares-scar-04-002",
+        "kind": "box",
+        "x": 24.5,
+        "z": 77.5,
+        "halfWidth": 67.25,
+        "halfDepth": 0.75
+      },
+      {
+        "id": "landing-access-001",
+        "kind": "box",
+        "x": -42,
+        "z": 29.25,
+        "halfWidth": 0.75,
+        "halfDepth": 70.5
+      },
+      {
+        "id": "landing-access-002",
+        "kind": "box",
+        "x": 20,
+        "z": 99,
+        "halfWidth": 62.75,
+        "halfDepth": 0.75
+      },
+      {
+        "id": "landing-access-003",
+        "kind": "box",
+        "x": 82,
+        "z": 114.5,
+        "halfWidth": 0.75,
+        "halfDepth": 16.25
+      }
+    ],
+    "reservedCells": [],
+    "occupancyComplete": true,
+    "routesReserved": true,
+    "placementReserved": true
+  },
+  "verificationSource": {
+    "generator": "import assert from 'node:assert/strict';\nimport {createHash,randomUUID} from 'node:crypto';\nimport {readFileSync,writeFileSync,mkdtempSync,rmSync,existsSync} from 'node:fs';\nimport {createRequire} from 'node:module';\nimport {tmpdir} from 'node:os';\nimport {join,resolve} from 'node:path';\nimport {buildSync} from 'esbuild';\nimport {pathToFileURL} from 'node:url';\nimport {collectGenesisSourceEvidence} from './genesis-source-evidence.mjs';\nimport {verifyOwnerProposal} from './genesis-verify-owner-proposal.mjs';\nimport {verifyActivationInventory} from './genesis-activation-operation.mjs';\nimport {HUB_PLACEMENT,INTEGRATED_LAYOUT,INTEGRATED_PAVING,integratedReservations,prepareIntegratedCampus} from '../src/core/mars/exploration/genesis-v5/integrated-campus.mjs';\nimport {areasOverlap} from '../src/core/mars/exploration/genesis-v5/colony-occupancy.mjs';\nimport {genesisBlockingObstacle} from '../src/core/mars/exploration/genesis-v5/3d/production-collision-adapter.mjs';\nimport {FlightV2,VEHICLE_RADIUS} from '../src/core/mars/exploration/genesis-v5/flight-v2.mjs';\nimport {validHandoff} from '../src/core/mars/exploration/flight/handoff.mjs';\nimport {disembarkActorLocal,EXIT_DURATION} from '../src/core/mars/exploration/flight/disembark-v1.mjs';\n\nexport const sha256=bytes=>createHash('sha256').update(bytes).digest('hex');\nconst json=x=>JSON.stringify(x,null,2)+'\\n';\nconst box=(id,xMin,xMax,zMin,zMax)=>({id,kind:'box',x:(xMin+xMax)/2,z:(zMin+zMax)/2,halfWidth:(xMax-xMin)/2,halfDepth:(zMax-zMin)/2});\nconst bounds=o=>({xMin:o.x-o.halfWidth,xMax:o.x+o.halfWidth,zMin:o.z-o.halfDepth,zMax:o.z+o.halfDepth});\nconst slope=(sample,x,z)=>Math.atan(Math.hypot(sample(x+.25,z)-sample(x-.25,z),sample(x,z+.25)-sample(x,z-.25))/.5)*180/Math.PI;\nconst triangleCaches=new WeakMap();\nexport function triangleSlopes(sample,b){\n let cache=triangleCaches.get(sample);if(!cache){cache=new Map();triangleCaches.set(sample,cache);}\n const result=[],cell=12.5;\n for(let x=Math.floor((b.xMin+6400)/cell)*cell-6400;x<=b.xMax;x+=cell)for(let z=Math.floor((b.zMin+6400)/cell)*cell-6400;z<=b.zMax;z+=cell){\n  const key=x+','+z;let pair=cache.get(key);\n  if(!pair){const h00=sample(x,z),h10=sample(x+cell,z),h01=sample(x,z+cell),h11=sample(x+cell,z+cell);pair=[Math.atan(Math.hypot(h10-h00,h01-h00)/cell)*180/Math.PI,Math.atan(Math.hypot(h11-h01,h11-h10)/cell)*180/Math.PI];cache.set(key,pair);}\n  if(Math.max(b.xMin-x,0)+Math.max(b.zMin-z,0)<=cell)result.push(pair[0]);\n  if(Math.min(b.xMax-x,cell)+Math.min(b.zMax-z,cell)>=cell)result.push(pair[1]);\n }\n return result;\n}\nexport function liveBuildings(w){return w.buildings.filter(b=>b.status!=='archived').map(b=>{\n const d=w.definitions.find(d=>d.building_key===b.building_key);assert(d,'Missing live definition');\n assert([0,90,180,270].includes(b.rotation_y));\n let width=d.footprint_width,depth=d.footprint_depth;if([90,270].includes(b.rotation_y))[width,depth]=[depth,width];\n assert([width,depth].every(v=>Number.isInteger(v)&&v>0&&v<=8));\n return {id:b.id,kind:'box',x:-50.75+(b.grid_x+(width-1)/2)*4.5,z:-74.75+(b.grid_z+(depth-1)/2)*4.5,halfWidth:width*2.25+.6,halfDepth:depth*2.25+.6};\n});}\n\n// Proposed preservation policy, NOT an inferred geological feature boundary.\nexport function landmarkPolicy(w,source){return w.landmarks.filter(l=>l.is_active!==false).map(l=>{\n const observed=source.landmarks.find(s=>s.id===l.landmark_key);assert(observed&&observed.x===l.world_x&&observed.z===l.world_z,'Landmark source/server mismatch');\n return {id:l.landmark_key,kind:'circle',x:l.world_x,z:l.world_z,radius:30};\n});}\n\nclass Heap{\n a=[];\n push(v){const a=this.a;let i=a.length;a.push(v);while(i){const p=(i-1)>>1;if(a[p].f<=v.f)break;a[i]=a[p];i=p;}a[i]=v;}\n pop(){const a=this.a,v=a[0],last=a.pop();if(a.length){let i=0;while(2*i+1<a.length){let c=2*i+1;if(c+1<a.length&&a[c+1].f<a[c].f)c++;if(a[c].f>=last.f)break;a[i]=a[c];i=c;}a[i]=last;}return v;}\n}\nfunction spatialIndex(obstacles){\n const cells=new Map(),size=20;\n for(const o of obstacles){const rx=o.halfWidth??o.radius,rz=o.halfDepth??o.radius;for(let x=Math.floor((o.x-rx-2)/size);x<=Math.floor((o.x+rx+2)/size);x++)for(let z=Math.floor((o.z-rz-2)/size);z<=Math.floor((o.z+rz+2)/size);z++){const key=x+','+z;if(!cells.has(key))cells.set(key,[]);cells.get(key).push(o);}}\n return (x,z)=>cells.get(Math.floor(x/size)+','+Math.floor(z/size))??[];\n}\nconst STEP=.5,HALF=.75;\n// Every external route has a 1.5m rectangular corridor, wider than the 0.96m capsule.\n// Quarter-metre bounds are binary-exact in both JS and PostgreSQL float8/JSONB.\n// Search uses an additional .1m margin and checks the whole square, not only its center.\nfunction router(sample,obstacles){\n const index=spatialIndex(obstacles),cache=new Map();\n function pass(x,z){\n  const key=x+','+z;if(cache.has(key))return cache.get(key);\n  const cell={kind:'box',x,z,halfWidth:HALF+.1,halfDepth:HALF+.1};\n  let ok=!index(x,z).some(o=>areasOverlap(cell,o));\n  if(ok)ok=triangleSlopes(sample,bounds(cell)).every(s=>Number.isFinite(s)&&s<=12);\n  cache.set(key,ok);return ok;\n }\n return (start,target,reachRadius=.5)=>{\n  const options=[];\n  for(let x=Math.floor((target[0]-reachRadius)/STEP)*STEP;x<=target[0]+reachRadius;x+=STEP)for(let z=Math.floor((target[1]-reachRadius)/STEP)*STEP;z<=target[1]+reachRadius;z+=STEP)if(Math.hypot(x-target[0],z-target[1])<=Math.max(.02,reachRadius-.48))options.push([x,z]);\n  options.sort((a,b)=>Math.hypot(a[0]-target[0],a[1]-target[1])-Math.hypot(b[0]-target[0],b[1]-target[1]));\n  const ends=options.filter(p=>pass(...p)),key=p=>p.join(','),endKeys=new Set(ends.map(key));\n  assert(pass(...start),'External interface obstructed');assert(ends.length,'Target corridor obstructed: '+target);\n  const heuristic=(x,z)=>Math.max(0,Math.abs(x-target[0])+Math.abs(z-target[1])-reachRadius*Math.SQRT2);\n  const open=new Heap(),g=new Map([[key(start),0]]),parent=new Map();open.push({p:start,f:heuristic(...start),g:0});\n  let found;const limits={xmin:Math.min(start[0],target[0])-150,xmax:Math.max(start[0],target[0])+150,zmin:Math.min(start[1],target[1])-150,zmax:Math.max(start[1],target[1])+150};\n  while(open.a.length){const n=open.pop(),k=key(n.p);if(n.g!==g.get(k))continue;if(endKeys.has(k)){found=n.p;break;}\n   for(const [dx,dz] of [[STEP,0],[0,STEP],[-STEP,0],[0,-STEP]]){\n    const [x,z]=[n.p[0]+dx,n.p[1]+dz];if(x<limits.xmin||x>limits.xmax||z<limits.zmin||z>limits.zmax||!pass(x,z))continue;\n    if(!pass(n.p[0]+dx/2,n.p[1]+dz/2))continue;\n    const next=key([x,z]),cost=n.g+STEP+(n.dx!==undefined&&(n.dx!==dx||n.dz!==dz)?.02:0);if(cost>=(g.get(next)??Infinity))continue;\n    g.set(next,cost);parent.set(next,n.p);open.push({p:[x,z],g:cost,dx,dz,f:cost+heuristic(x,z)});\n   }\n   assert(g.size<1500000,'Route search exceeded explicit coverage limit');\n  }\n  assert(found,'No verified access path to '+target);\n  const points=[found];while(key(points.at(-1))!==key(start))points.push(parent.get(key(points.at(-1))));points.reverse();\n  const simplified=[points[0]];for(let i=1;i<points.length-1;i++)if((points[i][0]-points[i-1][0])!==(points[i+1][0]-points[i][0])||(points[i][1]-points[i-1][1])!==(points[i+1][1]-points[i][1]))simplified.push(points[i]);simplified.push(points.at(-1));\n  return simplified;\n };\n}\nexport function pathBoxes(key,points){return points.slice(1).map((p,i)=>{\n const a=points[i];assert(a[0]===p[0]||a[1]===p[1],'Axis-aligned path required');\n return box(key+'-'+String(i+1).padStart(3,'0'),Math.min(a[0],p[0])-HALF,Math.max(a[0],p[0])+HALF,Math.min(a[1],p[1])-HALF,Math.max(a[1],p[1])+HALF);\n});}\nexport function validateRouteGeometry(routes,{sample,obstacles,reservations}){\n let maxSlope=0,samples=0,triangles=0;\n for(const r of routes){\n  assert(!reservations.some(o=>areasOverlap(r,o)),'Route overlaps a campus reservation: '+r.id);\n  assert(!obstacles.some(o=>areasOverlap(r,o)),'Route intersects an obstacle: '+r.id);\n  const b=bounds(r);assert(Object.values(b).every(v=>Number.isFinite(v)&&Math.abs(v)<6350));\n  // The actual rendered sampler is piecewise planar on a 12800/1024=12.5m grid.\n  // Check the exact constant gradient of EVERY intersecting triangle, including seams.\n  for(const s of triangleSlopes(sample,b)){assert(Number.isFinite(s)&&s<=12,'Route triangle exceeds 12 degrees: '+r.id);maxSlope=Math.max(maxSlope,s);triangles++;}\n  for(let x=b.xMin;x<=b.xMax+.25;x+=.25)for(let z=b.zMin;z<=b.zMax+.25;z+=.25){assert(Number.isFinite(sample(Math.min(x,b.xMax),Math.min(z,b.zMax))),'Missing route terrain');samples++;}\n }\n return {passed:true,routeRectangleCount:routes.length,gridMeters:.25,samples,exactRenderedTriangleChecks:triangles,maxSlopeDegrees:maxSlope};\n}\n\nfunction validateHubEntrance(entrance,physical,w,sample){\n const dir=mkdtempSync(join(tmpdir(),'genesis-access-hub-'));\n try{\n  const output=join(dir,'hub.cjs');\n  buildSync({stdin:{contents:'import * as hub from \"./src/core/mars/exploration/commandhub/AresCommandHubCollision\";import * as walkable from \"./src/core/mars/exploration/commandhub/AresCommandHubWalkableSurface\";import * as terrain from \"./src/core/mars/exploration/engine/AresGenesisTerrainData\";export {hub,walkable,terrain};',resolveDir:resolve('.')},outfile:output,bundle:true,platform:'node',format:'cjs',logLevel:'silent'});\n  const {hub,walkable:h,terrain:t}=createRequire(import.meta.url)(output);\n  const hubs=w.buildings.filter(b=>b.status!=='archived'&&b.building_key==='command_hub');assert.equal(hubs.length,1);assert.equal(hubs[0].grid_x,0);assert.equal(hubs[0].grid_z,0);\n  // Resolve ONLY this known source doorway/stair domain against its actual colliders.\n  // The Hub's conservative occupied boxes are retained unchanged in the certificate.\n  const resolved=[...physical.filter(o=>o.id!=='original-command-hub-visual'&&o.id!==hubs[0].id),...hub.ARES_COMMAND_HUB_COLLISION_OBSTACLES];\n  assert(!resolved.some(o=>areasOverlap(entrance,o)),'Actual Hub doorway or entrance obstruction');\n  const bytes=readFileSync('public/mars/ares-genesis/ares-genesis-height-16.bin');\n  const terrain={width:t.ARES_GENESIS_HEIGHT_WIDTH,height:t.ARES_GENESIS_HEIGHT_HEIGHT,elevations:Float32Array.from({length:bytes.length/2},(_,i)=>t.ARES_GENESIS_MIN_ELEVATION_METERS+bytes.readUInt16LE(i*2)/65535*(t.ARES_GENESIS_MAX_ELEVATION_METERS-t.ARES_GENESIS_MIN_ELEVATION_METERS))};\n  let maxStep=0,minHeight=Infinity,maxHeight=-Infinity;\n  for(let x=entrance.x-entrance.halfWidth;x<=entrance.x+entrance.halfWidth;x+=.1){\n   let previous;\n   for(let z=-59;z<=-57.2+.001;z+=.01){const height=h.sampleAresCommandHubWalkableSurfaceMeters(terrain,x,Math.min(z,-57.2));assert(Number.isFinite(height),'Actual stair surface missing');if(previous!==undefined)maxStep=Math.max(maxStep,Math.abs(height-previous));previous=height;minHeight=Math.min(minHeight,height);maxHeight=Math.max(maxHeight,height);assert(!genesisBlockingObstacle(x,Math.min(z,-57.2),resolved,.48),'Actual entrance capsule blocked');}\n  }\n  const tail=box('stair-terrain-tail',entrance.x-entrance.halfWidth,entrance.x+entrance.halfWidth,-57.2,-56.625);\n  const slopes=triangleSlopes(sample,bounds(tail));assert(slopes.every(s=>s<=12));\n  return {actualSourceCollidersValidated:true,capsuleRadius:.48,stairCount:h.ARES_COMMAND_HUB_STAIR_COUNT,stairDepth:h.ARES_COMMAND_HUB_STAIR_DEPTH,maxSampledStepHeightMeters:maxStep,sourceWalkableHeightRange:[minHeight,maxHeight],terrainTailMaxSlopeDegrees:Math.max(...slopes),stairs:'Existing stepped access, not a 12-degree terrain ramp; source step sampler retained'};\n }finally{rmSync(dir,{recursive:true,force:true});}\n}\n\nexport function buildAccessPlan(observation){\n const source=collectGenesisSourceEvidence({includeGeometry:true}),g=source.sourceGeometry,w=observation.snapshot;\n assert(observation.owner_enrolled,'Owner enrollment observation required');\n assert.equal(observation.existing_routes.length,0,'Existing route reconciliation required');\n assert.equal(w.colonies.length,1,'Unambiguous global colony required');\n const reservations=integratedReservations(),buildings=liveBuildings(w),landmarks=landmarkPolicy(w,source);\n const missions=w.mission_catalog.filter(m=>m.enabled!==false).map(m=>({id:m.mission_key,kind:'circle',x:m.target_x,z:m.target_z,radius:m.target_radius}));\n const occupied=[...g.fixed,...buildings,...landmarks,...missions];\n const campus=prepareIntegratedCampus({layout:INTEGRATED_LAYOUT,placement:HUB_PLACEMENT,reservations,legalRegions:reservations,occupied,protectedRoutes:[],reservedCells:[],occupancyComplete:true,routesReserved:true,placementReserved:true,sample:g.sample});\n const physical=[...g.fixed,...buildings,...campus.obstacles];\n // Protected interaction/landmark zones remain walkable; only physical obstacles obstruct capsules.\n const find=router(g.sample,[...physical,...reservations]);\n const start=[-42,-40.5];\n const targets=missions.map(m=>({id:m.id,kind:'walking',point:[m.x,m.z],radius:m.radius}));\n const paths=targets.map(t=>({...t,points:find(start,t.point,t.radius)}));\n const missionRoutes=paths.flatMap(p=>pathBoxes(p.id,p.points));\n const progression=observation.flight_progression;assert(progression&&Number.isInteger(progression.map_min)&&Number.isInteger(progression.map_max));\n const cells=progression.map_max-progression.map_min+1;\n const legalBuildingRegion={id:'progression-building-grid',kind:'box',...g.colonyMapping.aresColonyGridToWorld(progression.map_min,progression.map_min,cells,cells),halfWidth:cells*2.25,halfDepth:cells*2.25};\n const landingPhysical=physical.map(o=>o.kind==='circle'?{...o,radius:o.radius+.6}:o);\n const landingExclusions=[...reservations,...landmarks,...missions,...missionRoutes,legalBuildingRegion];\n const landingFlight=new FlightV2(g.sample,[...landingPhysical,...landingExclusions.map(o=>({...o,groundOnly:true}))]);\n const candidates=[];\n // Finite example candidates; all real touchdowns still require current runtime admission.\n for(let x=-200;x<=500;x+=5)for(let z=-450;z<=300;z+=5){if(!landingFlight.clear(x,z))continue;const support=landingFlight.inspect(x,z,0);if(support.valid)candidates.push({x,z,support});}\n candidates.sort((a,b)=>Math.hypot(a.x-110,a.z+70)-Math.hypot(b.x-110,b.z+70));\n assert(candidates.length,'No support-verified landing example');\n // Select a touchdown and starboard disembark point separated from the protected pedestrian corridor.\n let landing,landingPath;\n for(const c of candidates){const spawn=[c.x+17,c.z],actual=disembarkActorLocal(EXIT_DURATION),actualSpawn=[c.x+actual.x,c.z+actual.z];try{const points=find(start,spawn),boxes=pathBoxes('landing-access',points);\n   if(boxes.some(o=>areasOverlap(o,{kind:'circle',x:c.x,z:c.z,radius:VEHICLE_RADIUS+3})))continue;\n   if(!validHandoff({spawn:[actualSpawn[0],g.sample(...actualSpawn),actualSpawn[1]],ship:[c.x,c.support.highest+5.15,c.z],yaw:0},[...landingPhysical,legalBuildingRegion],g.sample))continue;\n   let connectorClear=true;for(let x=actualSpawn[0];x<=spawn[0];x+=.1)if(genesisBlockingObstacle(x,spawn[1],physical,.48)||slope(g.sample,x,spawn[1])>12)connectorClear=false;\n   if(!connectorClear)continue;\n   landing={center:{x:c.x,z:c.z},yaw:0,actualV6Handoff:{x:actualSpawn[0],z:actualSpawn[1]},disembarkPoint:{x:spawn[0],z:spawn[1]},conditionalConnector:{from:actualSpawn,to:spawn,designation:'Temporary access from actual source-defined starboard stair endpoint to the corridor outside the 13m parked-craft safety envelope; only the disembarking craft is exempt along its own exit, never other landing craft'},support:c.support};landingPath=points;break;\n  }catch(e){if(!/Target corridor obstructed|No verified access path/.test(e.message))throw e;}}\n assert(landing,'No support and access verified landing example');\n paths.push({id:'landing-access',kind:'landing_access',point:[landing.disembarkPoint.x,landing.disembarkPoint.z],radius:.5,points:landingPath});\n const external=paths.flatMap(p=>pathBoxes(p.id,p.points));\n const routeValidation=validateRouteGeometry(external,{sample:g.sample,obstacles:physical,reservations});\n // Stair-to-approach is a NEW designation over source-defined access, not a preexisting protected row.\n const entrance=box('hub-stair-interface',-44-HALF,-44+HALF,-59,-56.625);\n assert(!reservations.some(r=>areasOverlap(entrance,r)));\n const entranceValidation=validateHubEntrance(entrance,physical,w,g.sample);\n const connector=[[-44,-57.2],[-44,-50.5],[-42,-50.5],[-42,-40.5]];\n let connectorMaxSlope=0;\n for(let i=1;i<connector.length;i++){const a=connector[i-1],b=connector[i],n=Math.ceil(Math.hypot(b[0]-a[0],b[1]-a[1])/.1);for(let j=0;j<=n;j++){const x=a[0]+(b[0]-a[0])*j/n,z=a[1]+(b[1]-a[1])*j/n;assert(!genesisBlockingObstacle(x,z,physical,.48),'Campus-interface capsule blocked');const s=slope(g.sample,x,z);assert(s<=12);connectorMaxSlope=Math.max(connectorMaxSlope,s);}}\n const internalPaving=INTEGRATED_PAVING.map(p=>({...p,x:p.x-44,z:p.z-68,designation:'existing-campus-paving-reused; not an external blocker'}));\n const plan={schema:'bobu.genesis.v11.new-access-policy',status:'engineering-verified; pending authenticated owner access-policy decision',landAllocation:'previously approved; unchanged',designation:'ALL routes and 30m landmark zones are NEW proposed owner policy; no historical protection asserted',observedAt:observation.observed_at,coverage:{globalSnapshot:true,allActiveBuildings:true,allFixedSourceObstacles:true,allEnabledMissions:missions.map(m=>m.id),allActiveLandmarks:landmarks.map(l=>l.id),legacyExternalRoutes:0,additionalExternalRoutes:'Only this enumerated new network is designated; no unrecorded historical routes claimed'},corridor:{halfWidth:HALF,fullWidth:HALF*2,capsuleRadius:.48,slopeLimitDegrees:12},externalInterface:{point:start,campusConnector:connector,connectorMaxTerrainSlopeDegrees:connectorMaxSlope,seam:'External 1.5m corridor starts at Z -41.25; reserved courtyard extends to Z -41.4; the 0.15m transition is explicitly included in the validated campus connector, not asserted to be a preexisting protected row'},internalPaving,landmarkZones:landmarks.map(l=>({...l,observedSurveyRadius:4,policyBasis:'30m preservation zone around observed catalog point: 4m survey area plus 26m no-build/no-land buffer; not a surveyed geological perimeter; pedestrian surveying remains permitted'})),paths,entrance:{...entrance,sourceStairs:{xMin:-45.8,xMax:-42.2,zMin:-59,zMax:-57.2,stepCount:4},policy:'Central 1.5m walking strip on retained stairs and terrain interface; existing four steps retained, not graded into a ramp'},landing:{...landing,policy:'Example only; no permanent pad or landing entitlement. For every proposed landing/parking pose revalidate 10m full craft radius + 3m safety against all physical obstacles, 24 campus reservations, all NEW corridors, mission areas and 30m landmark zones, plus actual parked craft; preserve V6 perimeter, support, four pads, relief <=0.8m, pad slope <=6deg, tilt <=5deg, and live handoff. Recompute ground access from a nonintersecting disembark point or reject the landing. No low descent/parking over pedestrian corridors. Physical overflight constraints unchanged.',runtimeStatus:'New external exclusions are policy proposed for owner review; the deployed integration currently supplies only its existing campus exclusions. This artifact does not claim new runtime enforcement.'},validation:routeValidation,sourceDigests:{...source.sourceDigests,'scripts/genesis-access-plan.mjs':sha256(readFileSync('scripts/genesis-access-plan.mjs'))},releaseDigest:source.releaseDigest};\n plan.entrance.validation=entranceValidation;\n plan.landing.progressionExclusion=legalBuildingRegion;\n plan.landing.scope='One currently verified example plus mandatory per-touchdown dynamic revalidation; no assertion that all possible poses are safe';\n plan.landmarkAccess='Protection zones only. No newly designated path to landmark survey centers, and no claim of survey-center reachability; surveying remains permitted under existing gameplay rules.';\n for(const path of paths){\n  assert(Math.hypot(path.points.at(-1)[0]-path.point[0],path.points.at(-1)[1]-path.point[1])<=path.radius,'Target outside actual interaction radius');\n  let capsuleSamples=0;\n  for(let i=1;i<path.points.length;i++){const a=path.points[i-1],b=path.points[i],n=Math.ceil(Math.hypot(a[0]-b[0],a[1]-b[1])/.1);for(let j=0;j<=n;j++){const x=a[0]+(b[0]-a[0])*j/n,z=a[1]+(b[1]-a[1])*j/n;assert(!genesisBlockingObstacle(x,z,physical,.48),'Capsule route blocked');capsuleSamples++;}}\n  path.validation={capsuleSamples,capsuleRadius:.48,targetDistanceMeters:Math.hypot(path.points.at(-1)[0]-path.point[0],path.points.at(-1)[1]-path.point[1]),passed:true};\n }\n for(const path of ['src/core/mars/exploration/genesis-v5/flight-v2.mjs','src/core/mars/exploration/genesis-v5/green-landing-zone.mjs','src/core/mars/exploration/genesis-v5/spacecraft-v3.mjs','src/core/mars/exploration/flight/handoff.mjs','src/core/mars/exploration/flight/disembark-v1.mjs','src/core/mars/exploration/flight/CinematicLanding.tsx','src/core/mars/exploration/flight/AresFlightSession.tsx','src/core/mars/exploration/genesis-v5/AresColonyOccupancyAdapter.ts'])plan.sourceDigests[path]=sha256(readFileSync(path));\n const planDigest=sha256(json(plan));\n const routes=[{...entrance,route_kind:'entrance'},...paths.flatMap(p=>pathBoxes(p.id,p.points).map(r=>({...r,route_kind:p.kind})))].map(r=>({route_key:r.id,route_kind:r.route_kind,...bounds(r),source_digest:planDigest,designation:'new-owner-policy'}));\n const protectedRoutes=routes.map(r=>box(r.route_key,r.xMin,r.xMax,r.zMin,r.zMax));\n const site={ownerProposalId:null,layout:INTEGRATED_LAYOUT,placement:HUB_PLACEMENT,reservations,legalRegions:reservations,occupied,protectedRoutes,reservedCells:[],occupancyComplete:true,routesReserved:true,placementReserved:true};\n const inventory={completeWorldCoverage:true,externalRoutesComplete:true,geometryValidated:true,landmarkExtentsVerified:true,completenessScope:'Complete NEW owner-defined access policy for the observed global snapshot and all declared fixed source obstacles; not historical corridor recovery or owner approval',mapping:{origin_x:-50.75,origin_z:-74.75,scale:4.5,yaw:0},terrainDigest:source.sourceDigests['public/mars/ares-genesis/ares-genesis-height-16.bin'],sourceRevision:'b4f04394e4928a0e4e758545649a4fcdaa5526f1',routes,landmarkExtents:landmarks,accessPolicyDigest:planDigest,accessPolicyApproval:'pending',landAllocationApproval:'already approved; unchanged',runtimeEnforcementOfNewFlightExclusions:false};\n // Completeness is established by enumerated scope and checks above, never by an owner identity claim.\n const id=randomUUID(),created_at=new Date().toISOString(),valid_until=new Date(Date.parse(created_at)+23*3600000).toISOString();site.ownerProposalId=id;\n // Public evidence contains geometry and a binding to the full private proposal snapshot,\n // not colony members, account UUIDs, contribution balances or user/profile records.\n const publicObservation={observedAt:observation.observed_at,worldSnapshotDigest:sha256(json(w)),epoch:w.epoch,ownerEnrollmentVerified:observation.owner_enrolled,counts:{colonies:w.colonies.length,buildingRecords:w.buildings.length,activeBuildings:buildings.length,landmarks:landmarks.length,missions:missions.length,existingExternalRoutes:observation.existing_routes.length},buildings,missions,landmarks,flightProgression:observation.flight_progression};\n const evidence={schema:'bobu.genesis.v11.access-evidence',observation:publicObservation,plan,inventory,site,verificationSource:{generator:readFileSync('scripts/genesis-access-plan.mjs','utf8'),tests:readFileSync('tests/genesis-v11/access-plan.test.mjs','utf8'),deployedSourceCommit:inventory.sourceRevision},authorization:{ownerLandAllocation:'previously approved per owner instruction',accessPolicyDecision:'pending',certificateIssued:false}};\n const evidenceBytes=json(evidence),evidence_digest=sha256(evidenceBytes);\n // Archive the exact bytes INSIDE the existing immutable proposal inventory. The\n // existing owner-only stable RPC is the real HTTPS retrieval endpoint; the JSON\n // pointer selects the archive content from its authenticated response. This does\n // not expose a new schema, publish account data, or require a hosting deployment.\n const archiveEndpoint='https://pvemtnmeewyaqgindocs.supabase.co/rest/v1/rpc/get_ares_genesis_owner_proposal_v11?proposal='+id;\n inventory.evidenceArchive={encoding:'utf-8',mediaType:'application/json',sha256:evidence_digest,content:evidenceBytes,retrieval:archiveEndpoint,payloadJsonPointer:'/inventory/evidenceArchive/content'};\n const proposal={id,colony_id:w.colonies[0].id,release_digest:source.releaseDigest,evidence_digest,evidence_uri:archiveEndpoint+'#/inventory/evidenceArchive/content',world_snapshot:w,site,inventory,valid_until,created_at};\n // This locator becomes populated only if real production registration succeeds.\n verifyOwnerProposal(proposal);\n verifyActivationInventory(proposal);\n return {plan,evidenceBytes,proposal};\n}\n\nif(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href){\n if(existsSync('docs/genesis-v11-access-registration.json'))assert(!JSON.parse(readFileSync('docs/genesis-v11-access-registration.json','utf8')).registered,'Preserve registered immutable proposal artifacts; do not overwrite them by regeneration');\n const observation=JSON.parse(readFileSync('docs/genesis-v11-access-observation.json','utf8'));\n const {plan,evidenceBytes,proposal}=buildAccessPlan(observation);\n writeFileSync('docs/genesis-v11-access-plan.json',json(plan));\n writeFileSync('docs/genesis-v11-access-evidence.json',evidenceBytes);\n writeFileSync('docs/genesis-v11-access-proposal.json',json(proposal));\n console.log(JSON.stringify({status:plan.status,paths:plan.paths.length,rectangles:proposal.inventory.routes.length,landmarks:plan.landmarkZones.length,validation:plan.validation,proposalId:proposal.id,evidenceDigest:proposal.evidence_digest,registered:false}));\n}\n",
+    "tests": "import test from 'node:test';\nimport assert from 'node:assert/strict';\nimport {readFileSync} from 'node:fs';\nimport {sha256,liveBuildings,validateRouteGeometry,triangleSlopes} from '../../scripts/genesis-access-plan.mjs';\nimport {verifyOwnerProposal} from '../../scripts/genesis-verify-owner-proposal.mjs';\nimport {collectGenesisSourceEvidence} from '../../scripts/genesis-source-evidence.mjs';\nimport {prepareIntegratedCampus,integratedReservations} from '../../src/core/mars/exploration/genesis-v5/integrated-campus.mjs';\nimport {areasOverlap} from '../../src/core/mars/exploration/genesis-v5/colony-occupancy.mjs';\nimport {genesisBlockingObstacle} from '../../src/core/mars/exploration/genesis-v5/3d/production-collision-adapter.mjs';\nimport {FlightV2} from '../../src/core/mars/exploration/genesis-v5/flight-v2.mjs';\nimport {validHandoff} from '../../src/core/mars/exploration/flight/handoff.mjs';\nimport {disembarkActorLocal,EXIT_DURATION} from '../../src/core/mars/exploration/flight/disembark-v1.mjs';\nconst read=name=>JSON.parse(readFileSync('docs/genesis-v11-access-'+name+'.json','utf8'));\nconst p=read('proposal'),e=read('evidence'),plan=read('plan'),source=collectGenesisSourceEvidence({includeGeometry:true}),g=source.sourceGeometry;\nconst campus=prepareIntegratedCampus({...p.site,sample:g.sample});\nconst physical=[...g.fixed,...liveBuildings(p.world_snapshot),...campus.obstacles];\n\ntest('complete new-policy inventory binds actual evidence, full private snapshot and unchanged deployed geometry',()=>{\n assert.equal(sha256(readFileSync('docs/genesis-v11-access-evidence.json')),p.evidence_digest);\n assert.equal(p.inventory.evidenceArchive.content,readFileSync('docs/genesis-v11-access-evidence.json','utf8'));\n assert.equal(p.inventory.evidenceArchive.sha256,p.evidence_digest);\n assert.equal(sha256(readFileSync('docs/genesis-v11-access-plan.json')),p.inventory.accessPolicyDigest);\n assert.equal(sha256(JSON.stringify(p.world_snapshot,null,2)+'\\n'),e.observation.worldSnapshotDigest);\n assert.equal(verifyOwnerProposal(p).geometryValidated,true);\n assert.deepEqual(p.site.reservations,integratedReservations());\n assert.equal(p.inventory.accessPolicyApproval,'pending');assert.equal(e.authorization.certificateIssued,false);\n assert(!JSON.stringify(e).includes(p.world_snapshot.colonies[0].leader_builder_id),'Public archive must not include account identity');\n assert(p.inventory.routes.every(r=>r.designation==='new-owner-policy'&&r.source_digest===p.inventory.accessPolicyDigest));\n});\ntest('exact new external rectangle bounds clear every actual obstacle and all rendered terrain triangles',()=>{\n const external=p.site.protectedRoutes.filter(r=>r.id!=='hub-stair-interface');\n const result=validateRouteGeometry(external,{sample:g.sample,obstacles:physical,reservations:integratedReservations()});\n assert.equal(result.maxSlopeDegrees,plan.validation.maxSlopeDegrees);assert(result.maxSlopeDegrees<=12);\n assert.deepEqual(result,plan.validation);\n for(const r of p.site.protectedRoutes)assert(!integratedReservations().some(o=>areasOverlap(r,o)));\n const b={kind:'box',id:'test',x:1000,z:1000,halfWidth:1,halfDepth:1};\n assert.throws(()=>validateRouteGeometry([b],{sample:(x,z)=>x*.25,obstacles:[],reservations:[]}),/triangle/);\n assert.throws(()=>validateRouteGeometry([b],{sample:()=>0,obstacles:[{...b,x:1001.9}],reservations:[]}),/obstacle/);\n assert(triangleSlopes((x,z)=>x*.1+z*.1,{xMin:0,xMax:25,zMin:0,zMax:25}).every(s=>Math.abs(s-Math.atan(Math.SQRT2*.1)*180/Math.PI)<1e-8));\n});\ntest('0.48m capsule reaches all four actual mission interaction areas and the landing interface along the designated paths',()=>{\n const missions=p.world_snapshot.mission_catalog.filter(m=>m.enabled!==false);\n assert.deepEqual(plan.paths.filter(path=>path.kind==='walking').map(path=>path.id).sort(),missions.map(m=>m.mission_key).sort());\n for(const path of plan.paths){\n  assert.deepEqual(path.points[0],plan.externalInterface.point);\n  assert(Math.hypot(path.points.at(-1)[0]-path.point[0],path.points.at(-1)[1]-path.point[1])<=path.radius);\n  for(let i=1;i<path.points.length;i++){const a=path.points[i-1],b=path.points[i],n=Math.ceil(Math.hypot(a[0]-b[0],a[1]-b[1])/.1);for(let j=0;j<=n;j++)assert.equal(genesisBlockingObstacle(a[0]+(b[0]-a[0])*j/n,a[1]+(b[1]-a[1])*j/n,physical,.48),null);}\n }\n assert.equal(plan.entrance.validation.actualSourceCollidersValidated,true);assert.equal(plan.entrance.validation.stairCount,4);\n});\ntest('all three 30m zones are new preservation policy distinct from observed survey radii',()=>{\n assert.equal(plan.landmarkZones.length,3);\n for(const l of p.world_snapshot.landmarks.filter(l=>l.is_active!==false)){\n  const zone=plan.landmarkZones.find(z=>z.id===l.landmark_key);assert(zone);assert.equal(zone.x,l.world_x);assert.equal(zone.z,l.world_z);assert.equal(zone.radius,30);assert.equal(zone.observedSurveyRadius,4);\n  assert(!integratedReservations().some(r=>areasOverlap(r,zone)));\n }\n});\ntest('dynamic landing example meets actual V6 support and handoff, and rejects all proposed ground exclusions',()=>{\n const excluded=[...p.site.reservations,...p.site.protectedRoutes,...p.inventory.landmarkExtents,...e.observation.missions,plan.landing.progressionExclusion];\n const flightPhysical=physical.map(o=>o.kind==='circle'?{...o,radius:o.radius+.6}:o);\n const f=new FlightV2(g.sample,[...flightPhysical,...excluded.map(o=>({...o,groundOnly:true}))]);\n const {x,z}=plan.landing.center,support=f.inspect(x,z,0);assert(support.valid);assert(support.relief<=.8);assert(support.tilt<=5);assert(support.slopes.every(v=>v<=6));\n const actual=disembarkActorLocal(EXIT_DURATION);assert.equal(plan.landing.actualV6Handoff.x,x+actual.x);assert.equal(plan.landing.actualV6Handoff.z,z+actual.z);\n const spawn=plan.landing.actualV6Handoff;\n assert(validHandoff({spawn:[spawn.x,g.sample(spawn.x,spawn.z),spawn.z],ship:[x,support.highest+5.15,z],yaw:0},[...flightPhysical,plan.landing.progressionExclusion],g.sample));\n for(const o of excluded)assert.equal(f.clear(o.x,o.z),false);\n assert.equal(p.inventory.runtimeEnforcementOfNewFlightExclusions,false,'Proposed policy must not claim deployed runtime enforcement');\n});\n",
+    "deployedSourceCommit": "b4f04394e4928a0e4e758545649a4fcdaa5526f1"
+  },
+  "authorization": {
+    "ownerLandAllocation": "previously approved per owner instruction",
+    "accessPolicyDecision": "pending",
+    "certificateIssued": false
+  }
+}

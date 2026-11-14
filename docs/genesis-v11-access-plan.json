@@ -1,0 +1,482 @@
+{
+  "schema": "bobu.genesis.v11.new-access-policy",
+  "status": "engineering-verified; pending authenticated owner access-policy decision",
+  "landAllocation": "previously approved; unchanged",
+  "designation": "ALL routes and 30m landmark zones are NEW proposed owner policy; no historical protection asserted",
+  "observedAt": "2026-11-14T20:12:48.176773+00:00",
+  "coverage": {
+    "globalSnapshot": true,
+    "allActiveBuildings": true,
+    "allFixedSourceObstacles": true,
+    "allEnabledMissions": [
+      "ares-echo-01",
+      "ares-fracture-02",
+      "ares-relay-03",
+      "ares-scar-04"
+    ],
+    "allActiveLandmarks": [
+      "ares-depression-01",
+      "ares-escarpment-01",
+      "ares-ridge-01"
+    ],
+    "legacyExternalRoutes": 0,
+    "additionalExternalRoutes": "Only this enumerated new network is designated; no unrecorded historical routes claimed"
+  },
+  "corridor": {
+    "halfWidth": 0.75,
+    "fullWidth": 1.5,
+    "capsuleRadius": 0.48,
+    "slopeLimitDegrees": 12
+  },
+  "externalInterface": {
+    "point": [
+      -42,
+      -40.5
+    ],
+    "campusConnector": [
+      [
+        -44,
+        -57.2
+      ],
+      [
+        -44,
+        -50.5
+      ],
+      [
+        -42,
+        -50.5
+      ],
+      [
+        -42,
+        -40.5
+      ]
+    ],
+    "connectorMaxTerrainSlopeDegrees": 8.00401999488994,
+    "seam": "External 1.5m corridor starts at Z -41.25; reserved courtyard extends to Z -41.4; the 0.15m transition is explicitly included in the validated campus connector, not asserted to be a preexisting protected row"
+  },
+  "internalPaving": [
+    {
+      "id": "hub-approach",
+      "kind": "box",
+      "x": -44,
+      "z": -50.5,
+      "halfWidth": 1.2,
+      "halfDepth": 5.5,
+      "designation": "existing-campus-paving-reused; not an external blocker"
+    },
+    {
+      "id": "courtyard",
+      "kind": "box",
+      "x": -42,
+      "z": -47,
+      "halfWidth": 6,
+      "halfDepth": 5,
+      "designation": "existing-campus-paving-reused; not an external blocker"
+    },
+    {
+      "id": "west-walk",
+      "kind": "box",
+      "x": -74,
+      "z": -45,
+      "halfWidth": 30,
+      "halfDepth": 1.2,
+      "designation": "existing-campus-paving-reused; not an external blocker"
+    },
+    {
+      "id": "greenhouse-walk",
+      "kind": "box",
+      "x": -78,
+      "z": -55,
+      "halfWidth": 1.2,
+      "halfDepth": 10,
+      "designation": "existing-campus-paving-reused; not an external blocker"
+    },
+    {
+      "id": "west-relay-walk",
+      "kind": "box",
+      "x": -104,
+      "z": -50,
+      "halfWidth": 1.2,
+      "halfDepth": 5,
+      "designation": "existing-campus-paving-reused; not an external blocker"
+    },
+    {
+      "id": "research-walk",
+      "kind": "box",
+      "x": -26,
+      "z": -53,
+      "halfWidth": 18,
+      "halfDepth": 1.2,
+      "designation": "existing-campus-paving-reused; not an external blocker"
+    },
+    {
+      "id": "research-approach",
+      "kind": "box",
+      "x": -23,
+      "z": -54,
+      "halfWidth": 1.2,
+      "halfDepth": 1,
+      "designation": "existing-campus-paving-reused; not an external blocker"
+    },
+    {
+      "id": "east-walk",
+      "kind": "box",
+      "x": -3,
+      "z": -53,
+      "halfWidth": 5,
+      "halfDepth": 1.2,
+      "designation": "existing-campus-paving-reused; not an external blocker"
+    },
+    {
+      "id": "east-service-walk",
+      "kind": "box",
+      "x": 2,
+      "z": -76.5,
+      "halfWidth": 1.2,
+      "halfDepth": 23.5,
+      "designation": "existing-campus-paving-reused; not an external blocker"
+    },
+    {
+      "id": "rear-relay-walk",
+      "kind": "box",
+      "x": -0.5,
+      "z": -100,
+      "halfWidth": 2.5,
+      "halfDepth": 1.2,
+      "designation": "existing-campus-paving-reused; not an external blocker"
+    },
+    {
+      "id": "front-service-walk",
+      "kind": "box",
+      "x": 2,
+      "z": -36.5,
+      "halfWidth": 1.2,
+      "halfDepth": 16.5,
+      "designation": "existing-campus-paving-reused; not an external blocker"
+    },
+    {
+      "id": "front-relay-walk",
+      "kind": "box",
+      "x": -0.5,
+      "z": -20,
+      "halfWidth": 2.5,
+      "halfDepth": 1.2,
+      "designation": "existing-campus-paving-reused; not an external blocker"
+    }
+  ],
+  "landmarkZones": [
+    {
+      "id": "ares-depression-01",
+      "kind": "circle",
+      "x": 527.1,
+      "z": -225.9,
+      "radius": 30,
+      "observedSurveyRadius": 4,
+      "policyBasis": "30m preservation zone around observed catalog point: 4m survey area plus 26m no-build/no-land buffer; not a surveyed geological perimeter; pedestrian surveying remains permitted"
+    },
+    {
+      "id": "ares-escarpment-01",
+      "kind": "circle",
+      "x": 225.9,
+      "z": -426.7,
+      "radius": 30,
+      "observedSurveyRadius": 4,
+      "policyBasis": "30m preservation zone around observed catalog point: 4m survey area plus 26m no-build/no-land buffer; not a surveyed geological perimeter; pedestrian surveying remains permitted"
+    },
+    {
+      "id": "ares-ridge-01",
+      "kind": "circle",
+      "x": -125.5,
+      "z": -276.1,
+      "radius": 30,
+      "observedSurveyRadius": 4,
+      "policyBasis": "30m preservation zone around observed catalog point: 4m survey area plus 26m no-build/no-land buffer; not a surveyed geological perimeter; pedestrian surveying remains permitted"
+    }
+  ],
+  "paths": [
+    {
+      "id": "ares-echo-01",
+      "kind": "walking",
+      "point": [
+        -92,
+        44
+      ],
+      "radius": 6,
+      "points": [
+        [
+          -42,
+          -40.5
+        ],
+        [
+          -42,
+          40.5
+        ],
+        [
+          -88,
+          40.5
+        ]
+      ],
+      "validation": {
+        "capsuleSamples": 1272,
+        "capsuleRadius": 0.48,
+        "targetDistanceMeters": 5.315072906367325,
+        "passed": true
+      }
+    },
+    {
+      "id": "ares-fracture-02",
+      "kind": "walking",
+      "point": [
+        76,
+        -58
+      ],
+      "radius": 6,
+      "points": [
+        [
+          -42,
+          -40.5
+        ],
+        [
+          -27.5,
+          -40.5
+        ],
+        [
+          -27.5,
+          -14.5
+        ],
+        [
+          49,
+          -14.5
+        ],
+        [
+          49,
+          -54.5
+        ],
+        [
+          72,
+          -54.5
+        ]
+      ],
+      "validation": {
+        "capsuleSamples": 1805,
+        "capsuleRadius": 0.48,
+        "targetDistanceMeters": 5.315072906367325,
+        "passed": true
+      }
+    },
+    {
+      "id": "ares-relay-03",
+      "kind": "walking",
+      "point": [
+        -112,
+        -74
+      ],
+      "radius": 6,
+      "points": [
+        [
+          -42,
+          -40.5
+        ],
+        [
+          -110,
+          -40.5
+        ],
+        [
+          -110,
+          -69
+        ]
+      ],
+      "validation": {
+        "capsuleSamples": 967,
+        "capsuleRadius": 0.48,
+        "targetDistanceMeters": 5.385164807134505,
+        "passed": true
+      }
+    },
+    {
+      "id": "ares-scar-04",
+      "kind": "walking",
+      "point": [
+        94,
+        82
+      ],
+      "radius": 6,
+      "points": [
+        [
+          -42,
+          -40.5
+        ],
+        [
+          -42,
+          77.5
+        ],
+        [
+          91,
+          77.5
+        ]
+      ],
+      "validation": {
+        "capsuleSamples": 2512,
+        "capsuleRadius": 0.48,
+        "targetDistanceMeters": 5.408326913195984,
+        "passed": true
+      }
+    },
+    {
+      "id": "landing-access",
+      "kind": "landing_access",
+      "point": [
+        82,
+        130
+      ],
+      "radius": 0.5,
+      "points": [
+        [
+          -42,
+          -40.5
+        ],
+        [
+          -42,
+          99
+        ],
+        [
+          82,
+          99
+        ],
+        [
+          82,
+          130
+        ]
+      ],
+      "validation": {
+        "capsuleSamples": 2948,
+        "capsuleRadius": 0.48,
+        "targetDistanceMeters": 0,
+        "passed": true
+      }
+    }
+  ],
+  "entrance": {
+    "id": "hub-stair-interface",
+    "kind": "box",
+    "x": -44,
+    "z": -57.8125,
+    "halfWidth": 0.75,
+    "halfDepth": 1.1875,
+    "sourceStairs": {
+      "xMin": -45.8,
+      "xMax": -42.2,
+      "zMin": -59,
+      "zMax": -57.2,
+      "stepCount": 4
+    },
+    "policy": "Central 1.5m walking strip on retained stairs and terrain interface; existing four steps retained, not graded into a ramp",
+    "validation": {
+      "actualSourceCollidersValidated": true,
+      "capsuleRadius": 0.48,
+      "stairCount": 4,
+      "stairDepth": 1.8,
+      "maxSampledStepHeightMeters": 0.3101891624903974,
+      "sourceWalkableHeightRange": [
+        8.713403346682815,
+        9.643970834154006
+      ],
+      "terrainTailMaxSlopeDegrees": 8.004019994885823,
+      "stairs": "Existing stepped access, not a 12-degree terrain ramp; source step sampler retained"
+    }
+  },
+  "landing": {
+    "center": {
+      "x": 65,
+      "z": 130
+    },
+    "yaw": 0,
+    "actualV6Handoff": {
+      "x": 72.4,
+      "z": 130
+    },
+    "disembarkPoint": {
+      "x": 82,
+      "z": 130
+    },
+    "conditionalConnector": {
+      "from": [
+        72.4,
+        130
+      ],
+      "to": [
+        82,
+        130
+      ],
+      "designation": "Temporary access from actual source-defined starboard stair endpoint to the corridor outside the 13m parked-craft safety envelope; only the disembarking craft is exempt along its own exit, never other landing craft"
+    },
+    "support": {
+      "valid": true,
+      "highest": -7.778397812405676,
+      "heights": [
+        -7.854175313748812,
+        -8.404696122133279,
+        -8.351781407956071,
+        -7.980113304010961
+      ],
+      "slopes": [
+        3.478835256086482,
+        2.7966932086124587,
+        2.13907146291285,
+        2.712735720505222
+      ],
+      "padHighest": [
+        -7.793383461560248,
+        -8.355845814999924,
+        -8.314430212820518,
+        -7.93273172419833
+      ],
+      "relief": 0.7770220559021626,
+      "tilt": 2.626701486920707,
+      "reason": "verified-local-support"
+    },
+    "policy": "Example only; no permanent pad or landing entitlement. For every proposed landing/parking pose revalidate 10m full craft radius + 3m safety against all physical obstacles, 24 campus reservations, all NEW corridors, mission areas and 30m landmark zones, plus actual parked craft; preserve V6 perimeter, support, four pads, relief <=0.8m, pad slope <=6deg, tilt <=5deg, and live handoff. Recompute ground access from a nonintersecting disembark point or reject the landing. No low descent/parking over pedestrian corridors. Physical overflight constraints unchanged.",
+    "runtimeStatus": "New external exclusions are policy proposed for owner review; the deployed integration currently supplies only its existing campus exclusions. This artifact does not claim new runtime enforcement.",
+    "progressionExclusion": {
+      "id": "progression-building-grid",
+      "kind": "box",
+      "x": -50.75,
+      "z": -74.75,
+      "halfWidth": 38.25,
+      "halfDepth": 38.25
+    },
+    "scope": "One currently verified example plus mandatory per-touchdown dynamic revalidation; no assertion that all possible poses are safe"
+  },
+  "validation": {
+    "passed": true,
+    "routeRectangleCount": 14,
+    "gridMeters": 0.25,
+    "samples": 31264,
+    "exactRenderedTriangleChecks": 169,
+    "maxSlopeDegrees": 11.88653171390711
+  },
+  "sourceDigests": {
+    "src/core/mars/exploration/engine/AresGenesisTerrainData.ts": "adbe51a6aefd27b8de4e317886754a72607a006eb9d33ba1388b9bbf19f1cc30",
+    "public/mars/ares-genesis/ares-genesis-height-16.bin": "62b26ba12a7da83b2ddf58d46398231deacb993a996321b89db078bf364b47aa",
+    "src/core/mars/exploration/components/MarsSurfaceRocks.tsx": "561eb4b5c2bbfe745767e75aae4506369cd23e73f804a5da3941a1d10e945899",
+    "src/core/mars/exploration/commandhub/AresCommandHubCollision.ts": "b875ecb664b7fc0765fc38a4a0cc8ed17d555840ac692eee076e23b684fadc5a",
+    "src/core/mars/exploration/commandhub/AresCommandHubWalkableSurface.ts": "2d7d0eb2703e7e951bc3ab7419f523939eff02f0fb1a60620d855aca118018b7",
+    "src/core/mars/exploration/colony/AresColonyCoordinateSystem.ts": "b0dc6681e41515eb82f599a305dc0e3339d6680057090a33872cdcb38138ee47",
+    "src/core/mars/exploration/landmarks/AresExplorationLandmarks.tsx": "b271d32d4cb90f48d4d36c54aca6bb143154280ff6af2feae7c9104eb1cb1b19",
+    "supabase/migrations/20260830170000_create_ares_landmark_discovery_v1.sql": "8c7fda53ad51f764a794af1c4fe514eed3771e132cda78e74a9161eb44e36320",
+    "src/core/mars/exploration/MarsExploreWorld.tsx": "3baaa7873e98becb92c77bdfcd6dbbf243dbdacb8e350e0cd74849f6c5adb19e",
+    "supabase/migrations/20260830005000_create_ares_hidden_mission_engine_v1.sql": "af7ae123417a097c97600fb4d574a84bd7f993eded61ba2cd21ae47fd6f93d78",
+    "src/core/mars/exploration/guidance/AresGuidanceSystem.tsx": "e854c9edbff73b1beea4a26f42e33491ee47837c4d964099fe5cb35b7e7c892d",
+    "scripts/genesis-access-plan.mjs": "e0775dcbe263791857967278829ab397882cba523edf4cdefebbef05db6c4831",
+    "src/core/mars/exploration/genesis-v5/flight-v2.mjs": "b6d894ea1acd287528f23a3ec6e8ab951aea209a718a1e30a3357be896fbc989",
+    "src/core/mars/exploration/genesis-v5/green-landing-zone.mjs": "aeabfc2f4bcdc80b1478e1b64df99e38db92d4973d52f8aa565591321cbc8620",
+    "src/core/mars/exploration/genesis-v5/spacecraft-v3.mjs": "286b3cc28d7cf5ba9b596689d057791c0f3c18e4610fc91c022129098e74d8cd",
+    "src/core/mars/exploration/flight/handoff.mjs": "a0b056e0dca4ef061cdbec24b8e95e71aa4b0d71c2a1472e6ad23980b6081e51",
+    "src/core/mars/exploration/flight/disembark-v1.mjs": "6584953f3fddc26300a9b394dd2d7228f4db9cc56430ab8ffca87d320c1ef814",
+    "src/core/mars/exploration/flight/CinematicLanding.tsx": "7c4d891d48d873628d93abe99cc95492139f3ceb642a3187a35a24ba7198d38a",
+    "src/core/mars/exploration/flight/AresFlightSession.tsx": "5282fe2e207b4b81bf81a67e8fd82bfbc5696c082fc4570724ec9199857cb8ba",
+    "src/core/mars/exploration/genesis-v5/AresColonyOccupancyAdapter.ts": "fe2403a445304591683ad5af5a9795b0d13e9c8d58b7ada824aefb872111bb93"
+  },
+  "releaseDigest": "b078b759d517ad9bb12489b13274d84d4471c2561cf962be8dcdd5ac8b9bdf98",
+  "landmarkAccess": "Protection zones only. No newly designated path to landmark survey centers, and no claim of survey-center reachability; surveying remains permitted under existing gameplay rules."
+}
