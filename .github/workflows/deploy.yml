@@ -38,6 +38,12 @@ jobs:
       - name: Genesis certification and ARES regression checks
         run: npm run test:genesis
 
+      - name: Security gate
+        run: pnpm run test:security
+
+      - name: V12 campus and flight regression
+        run: pnpm run test:genesis
+
       - name: Build BOBU Universe
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}

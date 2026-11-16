@@ -1,0 +1,14 @@
+export const TERRAIN_SIZE: number;
+export const TERRAIN_SEGMENTS: number;
+export const TERRAIN_HALF_SIZE: number;
+export const TERRAIN_STEP: number;
+export const MAX_WALKABLE_SLOPE_DEGREES: number;
+export const MAX_GROUND_STEP_UP: number;
+export const MAX_GROUND_STEP_DOWN: number;
+export function terrainVertexHeight(x: number, z: number): number;
+export function sampleTerrainSurface(x: number, z: number): { height: number; dx: number; dz: number; slopeDegrees: number; cell: [number, number]; triangle: 0 | 1 } | null;
+export function sampleWalkableGround(x: number, z: number, interiorFloors?: Array<{ x: number; z: number; halfWidth: number; halfDepth: number; height: number }>): { height: number; dx: number; dz: number; slopeDegrees: number; cell: [number, number] | null; triangle: 0 | 1 | null; kind: "terrain" | "interior" } | null;
+export function canFollowGround(fromHeight: number, next: { height: number; slopeDegrees: number } | null, options?: { maxSlopeDegrees?: number; maxStepUp?: number; maxStepDown?: number }): boolean;
+export function keepCameraAboveTerrain(look: { x: number; y: number; z: number }, eye: { x: number; y: number; z: number }, clearance?: number): typeof eye;
+export type CameraBox3 = { xMin: number; xMax: number; yMin: number; yMax: number; zMin: number; zMax: number };
+export function keepCameraInFrontOfFurniture<T extends { x: number; y: number; z: number }>(look: { x: number; y: number; z: number }, eye: T, boxes: CameraBox3[], margin?: number): T;

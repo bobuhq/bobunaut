@@ -47,8 +47,13 @@ export class AresSoundscape {
     this.drone(108.1, 0.0018, this.exterior);
     this.drone(196, 0.003, this.interior);
     this.drone(294.15, 0.0018, this.interior);
-    this.drone(439.6, 0.004, this.crystal);
-    this.drone(659.25, 0.0025, this.crystal);
+    // Quiet harmonic reactor, with a positive, slow amplitude envelope.
+    // Native oscillators have no PCM loop boundary and allocate only at startup.
+    const pulse = this.gain(0.86, this.crystal);
+    this.modulate(pulse.gain, 0.125, 0.14);
+    this.drone(72, 0.009, pulse);
+    this.drone(144, 0.003, pulse);
+    this.drone(216, 0.0015, pulse);
     this.scheduleSparseTone();
   }
 
@@ -61,6 +66,7 @@ export class AresSoundscape {
   }
   private drone(hz: number, level: number, destination: AudioNode) {
     const oscillator = this.context.createOscillator();
+    oscillator.type = "sine";
     oscillator.frequency.value = hz;
     oscillator.connect(this.gain(level, destination));
     this.track(oscillator); oscillator.start();
@@ -96,7 +102,7 @@ export class AresSoundscape {
         this.scheduleSparseTone();
       } catch {
         this.dispose();
-        void this.context.close().catch(() => {});
+        // The host owns the shared context; a bed failure must not stop other audio.
       }
     }, 13000 + Math.random() * 17000);
   }
@@ -107,7 +113,7 @@ export class AresSoundscape {
     for (const [parameter, value] of [
       [this.exterior.gain, inside ? 0 : 1],
       [this.interior.gain, inside ? 1 : 0],
-      [this.crystal.gain, inside ? resonance : 0],
+      [this.crystal.gain, Number.isFinite(resonance) ? Math.max(0, Math.min(1, resonance)) : 0],
     ] as const) {
       if (this.mixTargets.get(parameter) === value) continue;
       this.mixTargets.set(parameter, value);

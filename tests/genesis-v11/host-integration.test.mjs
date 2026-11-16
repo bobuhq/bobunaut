@@ -14,6 +14,13 @@ function mount(file,name,props,dependencies={}){
   if(id==='react')return {useRef:value=>({current:value}),useEffect:fn=>effects.push(fn)};
   if(id==='react/jsx-runtime')return {jsx:(type,props)=>({type,props})};
   if(id==='three')return THREE;
+  if(id==='./MarsCameraClearance')return {
+    MarsCameraClearance: class {
+      refresh() {}
+      solve(look, eye) { return eye.distanceTo(look); }
+    },
+    followCameraRadius: (current, target) => target,
+  };
   if(id==='@react-three/fiber')return {useFrame:fn=>callbacks.push(fn),useThree:()=>({camera,gl:{domElement:element}})};
   if(id in dependencies)return dependencies[id];
   throw Error('Unmocked dependency: '+id);

@@ -10,10 +10,12 @@ function moduleUrl(file, replace = text => text) {
   }).outputText;
   return "data:text/javascript;base64," + Buffer.from(code).toString("base64");
 }
+const interiorMusic = moduleUrl("AresInteriorMusic.ts");
 const recordings = moduleUrl("AresOfficialAudio.ts");
 const soundscape = moduleUrl("AresSoundscape.ts");
 const movement = moduleUrl("MarsAudioEngine.ts");
 const { AresArrivalSound, ARES_SOUND_PREFERENCE_KEY } = await import(moduleUrl("AresArrivalSound.ts", text => text
+  .replace('"./AresInteriorMusic"', JSON.stringify(interiorMusic))
   .replace('"./AresOfficialAudio"', JSON.stringify(recordings))
   .replace('"./AresSoundscape"', JSON.stringify(soundscape))
   .replace('"./MarsAudioEngine"', JSON.stringify(movement))));
