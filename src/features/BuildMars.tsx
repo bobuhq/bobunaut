@@ -277,8 +277,8 @@ export function BuildMars() {
 
       navigate(
         nativeBridge
-          ? "/mars/explore?sector=ares&nativeBridge=1"
-          : "/mars/explore?sector=ares",
+          ? "/mars/explore?sector=ares&nativeBridge=1&flightEntry=1"
+          : "/mars/explore?sector=ares&flightEntry=1",
       );
     }, 5550);
   };

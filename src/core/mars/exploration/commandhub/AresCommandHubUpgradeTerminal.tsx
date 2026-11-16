@@ -105,7 +105,7 @@ export function AresCommandHubUpgradeTerminal({
           worldPosition.x -
           (
             ARES_COMMAND_HUB_POSITION.x +
-            2.65
+            6.0
           );
         const dz =
           worldPosition.z -
@@ -191,7 +191,7 @@ export function AresCommandHubUpgradeTerminal({
   return (
     <group
       position={[
-        2.65,
+        6.0,
         0,
         1.55,
       ]}
@@ -227,8 +227,9 @@ export function AresCommandHubUpgradeTerminal({
         />
       </mesh>
 
-      {nearby && (
+              {/* BOBU_STABLE_HTML_NEARBY_V1 */}
         <Html
+          style={{ display: nearby ? "block" : "none" }}
           center
           position={[
             0,
@@ -407,7 +408,6 @@ export function AresCommandHubUpgradeTerminal({
           </div>
         </div>
         </Html>
-      )}
     </group>
   );
 }

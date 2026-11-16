@@ -1,3 +1,5 @@
+import { AresCommandHubV4Architecture } from "./AresCommandHubV4Architecture";
+import { AresCommandHubV37RadarCrown } from "./AresCommandHubV37RadarCrown";
 import {
   useEffect,
   useMemo,
@@ -15,6 +17,8 @@ import {
 } from "@react-three/fiber";
 
 import * as THREE from "three";
+import { AresSensorAirlockV36 } from "./AresSensorAirlockV36";
+import { AresCrystalOrbit } from "./AresCrystalOrbit";
 
 
 import {
@@ -38,6 +42,8 @@ import {
 import {
   AresMissionTerminal,
 } from "../missions/AresMissionTerminal";
+import { AresCommandCenterV2Interior, AresCommandCenterV2Exterior } from "./AresCommandCenterV2Visuals";
+
 import {
   AresResearchTerminal,
 } from "../research/AresResearchTerminal";
@@ -309,6 +315,8 @@ function BobuEnergyCore() {
         />
       </mesh>
 
+      <AresCrystalOrbit />
+
       <pointLight
         color="#9843d5"
         intensity={2.8}
@@ -330,6 +338,7 @@ function CommandInterior({
 }: Props) {
   return (
     <group>
+      <AresCommandCenterV2Interior />
       <mesh
         position={[
           0,
@@ -506,7 +515,7 @@ function CommandInterior({
         worldPosition={{
           x:
             ARES_COMMAND_HUB_POSITION.x -
-            2.65,
+            3.45,
           z:
             ARES_COMMAND_HUB_POSITION.z +
             1.55,
@@ -1054,7 +1063,7 @@ function BobuCommandFlag() {
 
         const normalized =
           THREE.MathUtils.clamp(
-            (x + 1.9) / 3.8,
+            (x + 2.8) / 5.6,
             0,
             1,
           );
@@ -1094,14 +1103,14 @@ function BobuCommandFlag() {
     <group
       position={[
         0,
-        4.75,
-        0.8,
+        15.6,
+        -0.9,
       ]}
     >
       <mesh
         position={[
           0,
-          2.9,
+          4.4,
           0,
         ]}
         castShadow
@@ -1110,7 +1119,7 @@ function BobuCommandFlag() {
           args={[
             0.07,
             0.1,
-            5.8,
+            8.8,
             12,
           ]}
         />
@@ -1127,7 +1136,7 @@ function BobuCommandFlag() {
       <mesh
         position={[
           0,
-          5.86,
+          8.86,
           0,
         ]}
       >
@@ -1150,18 +1159,18 @@ function BobuCommandFlag() {
       <mesh
         ref={flagRef}
         position={[
-          1.95,
-          4.75,
+          2.85,
+          7.05,
           0,
         ]}
         castShadow
       >
         <planeGeometry
           args={[
-            3.8,
-            2.15,
-            38,
-            20,
+            5.6,
+            3.1,
+            56,
+            28,
           ]}
         />
 
@@ -1181,8 +1190,8 @@ function BobuCommandFlag() {
 
       <pointLight
         position={[
-          1.4,
-          4.8,
+          2.2,
+          7.0,
           0.4,
         ]}
         color="#ae55ff"
@@ -1719,6 +1728,7 @@ function ExteriorFacility() {
   return (
     <group>
       <CommandShipShell />
+      <AresCommandCenterV2Exterior />
 
       <mesh
         position={[
@@ -2058,6 +2068,11 @@ export function AresCommandHub({
       </mesh>
 
       <ExteriorFacility />
+
+      <AresCommandHubV4Architecture />
+
+
+      <AresSensorAirlockV36 targetRef={targetRef} />
 
       <CommandHubEntranceStairs />
 

@@ -7,8 +7,10 @@
     "dev": "vite",
     "build": "tsc -b && vite build && node scripts/create-pages-routes.mjs",
     "preview": "vite preview",
-    "test:x-oauth": "node scripts/build-x-oauth-migration.mjs --check && node --test tests/x-oauth/*.test.mjs && deno test --allow-env supabase/functions/claim-x-reward/index.test.ts supabase/functions/_shared/x-oauth-retry.test.ts supabase/functions/_shared/x-follow-verifier-v2.test.ts",
-    "test:x-oauth:sql": "node scripts/test-x-oauth-sql.mjs"
+    "test:x-oauth": "node scripts/build-x-oauth-migration.mjs --check && node --test tests/x-oauth/*.test.mjs && deno test --allow-env supabase/functions/claim-x-reward/index.test.ts supabase/functions/x-verification-status/index.test.ts supabase/functions/_shared/x-oauth-retry.test.ts supabase/functions/_shared/x-follow-verifier-v2.test.ts",
+    "test:x-oauth:sql": "node scripts/test-x-oauth-sql.mjs",
+    "test:genesis": "node --test tests/genesis-v12/*.test.mjs tests/ares-flight/*.test.mjs",
+    "test:security": "npm audit --audit-level=moderate"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.8",

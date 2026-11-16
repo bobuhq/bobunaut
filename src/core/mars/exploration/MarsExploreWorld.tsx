@@ -1,3 +1,23 @@
+import {CampusHubRearOpening} from './separate-v11/CampusHubRearOpening';
+import {hubObstaclesWithRearDoor} from './separate-v11/campus-traversal.mjs';
+import type {CampusRuntime} from './separate-v11/SeparateV11Campus';
+import { AresFlightSession } from "./flight/AresFlightSession";
+// Loaded only when the on-foot local preview is explicitly enabled.
+// Geometry helpers have no flight effects; campus assets mount only on foot.
+import { Component, lazy, type ReactNode } from "react";
+const LocalV11Campus = lazy(() =>
+  import("./separate-v11/SeparateV11Campus").then(module => ({ default: module.SeparateV11Campus }))
+);
+class LocalV11Boundary extends Component<{children: ReactNode}, {failed: boolean}> {
+  state = {failed: false};
+  static getDerivedStateFromError() { return {failed: true}; }
+  componentDidCatch(error: Error) { console.error("V11_LOCAL_PREVIEW_FAILED", error); }
+  render() { return this.state.failed ? null : this.props.children; }
+}
+
+import { AresParkedSpacecraft } from "./AresParkedSpacecraft";
+import type { FlightHandoff } from "./flight/handoff.mjs";
+import { aresArrivalSound } from "./audio/AresArrivalSound";
 import {
   Suspense,
   useCallback,
@@ -7,6 +27,7 @@ import {
   type MutableRefObject,
 } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAresArrivalSurface, useAresSoundControl } from "./audio/useAresArrivalSound";
 
 
 import {
@@ -220,13 +241,26 @@ function MarsExploreScene({
   onPlacementApproachStatusChange,
   colonyBuildingsRefreshKey,
 }: MarsExploreSceneProps) {
+  useAresArrivalSurface();
   const bobuRef =
     useRef<THREE.Group | null>(
       null,
     );
 
+  const [landedHandoff, setLandedHandoff] = useState<FlightHandoff | null>(null);
+  const flying = new URLSearchParams(window.location.search).get("flightEntry") === "1" && landedHandoff === null;
+  // BOBU_V12_REPLACES_OLD_ARES: V12 mounts after flight handoff only.
+  // Mars globe entry and its 5.6-second transition are owned by untouched routes.
+  const localV11Enabled = !flying;
+
+  const [localCampusRuntime,setLocalCampusRuntime]=useState<CampusRuntime|null>(null);
+
+
   const bobuStairStateRef =
     useRef(false);
+
+  // Production route/auth and existing BOBU services remain authoritative.
+  // This replacement does not write to Supabase or alter building inventory.
 
   const [
     hiddenMission,
@@ -315,7 +349,14 @@ function MarsExploreScene({
 
       <MarsExplorationTerrain />
       <MarsSurfaceRocks />
+      {/* BOBU_V12_REPLACES_OLD_ARES: old Genesis campus renderer removed. */}
+      {/* One V12 campus; mount only after flight completion. */}
+      {localV11Enabled && <LocalV11Boundary><Suspense fallback={null}>
+        <LocalV11Campus targetRef={bobuRef} onRuntime={setLocalCampusRuntime}/>
+      </Suspense></LocalV11Boundary>}
       <AresGroundDust />
+      {landedHandoff && <AresParkedSpacecraft position={landedHandoff.ship} yaw={landedHandoff.yaw} />}
+      {flying && <AresFlightSession onEntry={setLandedHandoff} />}
       <AresExplorationLandmarks
         targetRef={bobuRef}
         onNavigation={
@@ -333,6 +374,7 @@ function MarsExploreScene({
         }
       />
 
+      <CampusHubRearOpening enabled={localV11Enabled && localCampusRuntime!==null}>
       <AresCommandHub
         targetRef={bobuRef}
         onMission={(mission) => {
@@ -350,6 +392,7 @@ function MarsExploreScene({
           onMobileInteractionChange
         }
 />
+      </CampusHubRearOpening>
 
       {hiddenMission &&
         hiddenMission.status ===
@@ -393,7 +436,8 @@ function MarsExploreScene({
 
 
 
-      <BobuCharacterController
+      {!flying && <BobuCharacterController
+        walkableSurface={localCampusRuntime?.walkableSurface}
         characterRef={bobuRef}
         stairStateRef={
           bobuStairStateRef
@@ -401,19 +445,13 @@ function MarsExploreScene({
         analogMovementRef={
           analogMovementRef
         }
-        startPosition={[
-          0,
-          0,
-          0,
-        ]}
+        startPosition={landedHandoff?.spawn ?? [0, 0, 0]}
         collisionObstacles={[
+          ...(localV11Enabled&&localCampusRuntime?hubObstaclesWithRearDoor(ARES_COMMAND_HUB_COLLISION_OBSTACLES):ARES_COMMAND_HUB_COLLISION_OBSTACLES),
           ...MARS_SURFACE_ROCK_COLLISION_OBSTACLES,
-          ...ARES_COMMAND_HUB_COLLISION_OBSTACLES,
-          {
-            x: 18,
-            z: -28,
-            radius: 1.35,
-          },
+          ...(localCampusRuntime?.obstacles??[]),
+          // Measured original exterior annexes remain solid, including windows.
+          ...([-1,1] as const).map(side=>({kind:'box' as const,x:-44+side*11.5,z:-69.6,halfWidth:4.8,halfDepth:8.5})),
         ]}
       >
         <BobuCharacterVisual
@@ -421,11 +459,13 @@ function MarsExploreScene({
             bobuStairStateRef
           }
         />
-      </BobuCharacterController>
+      </BobuCharacterController>}
 
-      <MarsFollowCamera
+      {!flying && <MarsFollowCamera
+        interiorAt={localCampusRuntime?.interiorAt}
+        environmentAt={localCampusRuntime?.cameraEnvironmentAt}
         targetRef={bobuRef}
-      />
+      />}
 
       <AresColonyBuildings
         refreshKey={
@@ -487,6 +527,11 @@ function getMarsReturnHref(): string {
 export function MarsExploreWorld() {
   const { t, language } = useLanguage();
   const navigate = useNavigate();
+  // Preserve existing ARES audio route lifecycle; never run on Mars globe.
+  useEffect(() => {
+    aresArrivalSound.routeChanged('/mars/explore');
+    return () => aresArrivalSound.routeChanged('/mars');
+  }, []);
 
   const marsReturnHref =
     getMarsReturnHref();
@@ -732,10 +777,7 @@ export function MarsExploreWorld() {
     setOnboardingVisible,
   ] = useState(true);
 
-  const [
-    soundEnabled,
-    setSoundEnabled,
-  ] = useState(true);
+  const { soundEnabled, toggleSound } = useAresSoundControl();
 
   const [
     marketOpen,
@@ -1008,28 +1050,6 @@ export function MarsExploreWorld() {
 
       cancelPlacement();
     }, [cancelPlacement]);
-
-  const toggleSound =
-    useCallback(() => {
-      setSoundEnabled(
-        (
-          current,
-        ) => {
-          const next =
-            !current;
-
-          marsAudio.setEnabled(
-            next,
-          );
-
-          if (next) {
-            void marsAudio.unlock();
-          }
-
-          return next;
-        },
-      );
-    }, []);
 
   const [
     colonyResources,
@@ -2259,6 +2279,8 @@ export function MarsExploreWorld() {
       <button
         type="button"
         className="ares-hud-sound"
+        data-ares-sound-control
+        aria-pressed={soundEnabled}
         onClick={toggleSound}
         aria-label={
           soundEnabled

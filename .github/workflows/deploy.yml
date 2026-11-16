@@ -36,6 +36,12 @@ jobs:
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
 
+      - name: Security gate
+        run: pnpm run test:security
+
+      - name: V12 campus and flight regression
+        run: pnpm run test:genesis
+
       - name: Build BOBU Universe
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}

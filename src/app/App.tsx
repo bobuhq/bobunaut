@@ -50,6 +50,13 @@ const MarsExploreWorld = lazyWithRecovery(() =>
   })),
 );
 
+// MAIN owns flight, walking and the existing authenticated Ares terminals.
+const AresFlightGateway = lazyWithRecovery(() =>
+  import("../core/mars/exploration/AresFlightGateway").then((module) => ({
+    default: module.AresFlightGateway,
+  })),
+);
+
 const MarsPixelAdvertiserCenter = lazyWithRecovery(() =>
   import("../features/MarsPixelAdvertiserCenter").then((module) => ({
     default: module.MarsPixelAdvertiserCenter,
@@ -222,7 +229,7 @@ export function App() {
           <Route path="/mars" element={<BuildMars />} />
           <Route
             path="/mars/explore"
-            element={<MarsExploreWorld />}
+            element={<AresFlightGateway />}
           />
           <Route
             path="/mars/advertiser"

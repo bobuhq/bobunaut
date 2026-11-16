@@ -1,3 +1,5 @@
+import {MarsCameraClearance,followCameraRadius} from './MarsCameraClearance';
+import type {CameraEnvironment} from '../separate-v11/campus-experience';
 import {
   useEffect,
   useRef,
@@ -18,6 +20,9 @@ import {
 
 type MarsFollowCameraProps = {
   targetRef: React.RefObject<THREE.Group | null>;
+  environmentAt?: (x:number,z:number)=>CameraEnvironment|null;
+  interiorAt?: (x: number, z: number) => boolean;
+  constrainCamera?: (look: THREE.Vector3, eye: THREE.Vector3) => void;
 };
 
 const OUTDOOR_CAMERA_HORIZONTAL_DISTANCE = 6.5;
@@ -84,10 +89,18 @@ const INDOOR_CAMERA_FOV = 48;
 
 export function MarsFollowCamera({
   targetRef,
+  interiorAt,
+  environmentAt,
+  constrainCamera,
 }: MarsFollowCameraProps) {
   const {
-    gl,
+    gl,scene,
   } = useThree();
+
+  const clearance=useRef(new MarsCameraClearance());
+  const clearanceRefresh=useRef(-Infinity);
+  const followRadius=useRef(OUTDOOR_CAMERA_RADIUS);
+  const cameraDistance=useRef(OUTDOOR_CAMERA_RADIUS);
 
   const desiredPosition =
     useRef(new THREE.Vector3());
@@ -275,7 +288,7 @@ export function MarsFollowCamera({
   ]);
 
   useFrame(
-    ({ camera }, delta) => {
+    ({ camera,clock }, delta) => {
       const target =
         targetRef.current;
 
@@ -303,12 +316,12 @@ export function MarsFollowCamera({
       const insideCommandHub =
         isInsideAresCommandHub(
           worldPosition.current,
-        );
+        ) || interiorAt?.(worldPosition.current.x, worldPosition.current.z) === true;
 
-      const cameraRadius =
-        insideCommandHub
-          ? INDOOR_CAMERA_RADIUS
-          : OUTDOOR_CAMERA_RADIUS;
+      const environment=environmentAt?.(worldPosition.current.x,worldPosition.current.z)??null;
+      const targetRadius=environment?.narrow?2.9:insideCommandHub?INDOOR_CAMERA_RADIUS:OUTDOOR_CAMERA_RADIUS;
+      followRadius.current=followCameraRadius(followRadius.current,targetRadius,delta);
+      const cameraRadius=followRadius.current;
 
       const horizontalRadius =
         Math.cos(pitch) *
@@ -344,10 +357,7 @@ export function MarsFollowCamera({
         camera instanceof
         THREE.PerspectiveCamera
       ) {
-        const targetFov =
-          insideCommandHub
-            ? INDOOR_CAMERA_FOV
-            : OUTDOOR_CAMERA_FOV;
+        const targetFov=environment?.narrow?(cameraDistance.current<2.2?70:60):insideCommandHub?INDOOR_CAMERA_FOV:OUTDOOR_CAMERA_FOV;
 
         camera.fov =
           THREE.MathUtils.lerp(
@@ -367,18 +377,24 @@ export function MarsFollowCamera({
         camera.updateProjectionMatrix();
       }
 
+      lookTarget.current.set(worldPosition.current.x,worldPosition.current.y+LOOK_HEIGHT,worldPosition.current.z);
+      if(environment)lookTarget.current.y=THREE.MathUtils.clamp(lookTarget.current.y,environment.floor+.7,environment.ceiling-.65);
+      if(environmentAt){
+        if(clock.elapsedTime-clearanceRefresh.current>.4){
+          clearanceRefresh.current=clock.elapsedTime;
+          clearance.current.refresh(['campus-original-hub-rear-aperture','v11-independent-buildings-no-common-platform','persistent-player-owned-colony-buildings'].map(name=>scene.getObjectByName(name)).filter((o):o is THREE.Object3D=>Boolean(o)));
+        }
+        clearance.current.solve(lookTarget.current,desiredPosition.current,environment);
+      }
       camera.position.lerp(
         desiredPosition.current,
         followStrength,
       );
 
-      lookTarget.current.set(
-        worldPosition.current.x,
-        worldPosition.current.y +
-          LOOK_HEIGHT,
-        worldPosition.current.z,
-      );
-
+      constrainCamera?.(lookTarget.current, camera.position);
+      // Recheck the interpolated eye: interpolation alone can cut a U corner.
+      if(environmentAt)cameraDistance.current=clearance.current.solve(lookTarget.current,camera.position,environment);
+      else cameraDistance.current=camera.position.distanceTo(lookTarget.current);
       camera.lookAt(
         lookTarget.current,
       );
