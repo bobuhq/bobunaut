@@ -1,0 +1,21 @@
+import type { PlannedBuilding, Connector } from './connected-campus-layout.mjs';
+import type { MarsCollisionObstacle } from '../components/BobuCharacterController';
+export type Rect = { xMin: number; xMax: number; zMin: number; zMax: number };
+export type Point2 = [number, number];
+export type Edge = { a: Point2; b: Point2 };
+export type Traversal = {
+  links: Connector[];
+  rects: (Rect & { link: Connector })[];
+  cells: Rect[];
+  walls: Edge[];
+  floor: (x: number, z: number) => number | null;
+  walkable: (x: number, z: number) => number | null;
+  obstacles: MarsCollisionObstacle[];
+  research: { x: number; z: number; deck: number; halfX: number; halfZ: number };
+};
+export function inside(rect: Rect, x: number, z: number, pad?: number): boolean;
+export function unionPlan(rects: Rect[]): { cells: Rect[]; edges: Edge[] };
+export function edgeObstacle(edge: Edge, thickness?: number): Extract<MarsCollisionObstacle, {kind:'box'}>;
+export function createCampusTraversal(buildings: PlannedBuilding[], terrainAt: (x:number,z:number)=>number, hubFloor:number): Traversal | null;
+export function hubObstaclesWithRearDoor(original: MarsCollisionObstacle[]): MarsCollisionObstacle[];
+export function foundationProfile(building: PlannedBuilding, terrainAt:(x:number,z:number)=>number): {x:number;z:number;bottom:number;top:number}[];

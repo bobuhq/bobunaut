@@ -51,6 +51,9 @@ const AresFlightGateway = lazyWithRecovery(() =>
   })),
 );
 
+// MAIN owns flight, walking and the existing authenticated Ares terminals.
+
+
 const MarsPixelAdvertiserCenter = lazyWithRecovery(() =>
   import("../features/MarsPixelAdvertiserCenter").then((module) => ({
     default: module.MarsPixelAdvertiserCenter,

@@ -1,3 +1,4 @@
+import { AresInteriorMusic } from "./AresInteriorMusic";
 import { AresOfficialAudio, type AresConsoleKind } from "./AresOfficialAudio";
 import { AresSoundscape } from "./AresSoundscape";
 import { marsAudio } from "./MarsAudioEngine";
@@ -17,6 +18,9 @@ export class AresArrivalSound {
   private doorBuffers = new Map<string, AudioBuffer>();
   private doorVoices = new Map<string, (() => void)[]>();
   private inside = false;
+  private gestureUnlocked = false;
+  private musicInteriors = new Set<string>();
+  private interiorMusic: AresInteriorMusic | null = null;
   private resonance = 0;
   private retire: (() => void) | null = null;
   private startup: ReturnType<typeof setTimeout> | undefined;
@@ -55,6 +59,7 @@ export class AresArrivalSound {
     const isAres = pathname.replace(/\/+$/, "") === "/mars/explore";
     if (!isAres) {
       this.entry = null;
+      this.gestureUnlocked = false; this.musicInteriors.clear();
       this.leases.clear();
       this.cancel();
     } else if (!this.entry) {
@@ -118,6 +123,8 @@ export class AresArrivalSound {
   }
 
   private attempt(fromGesture: boolean) {
+    if (fromGesture) this.gestureUnlocked = true;
+    if (!this.gestureUnlocked) return;
     const entry = this.entry;
     if (!entry || !this.leases.size || !this.getEnabled() || this.voice || this.soundscape || this.loadingArrival) return;
     if (document.visibilityState === "hidden") { this.skip(); return; }
@@ -136,7 +143,7 @@ export class AresArrivalSound {
       context.onstatechange = () => {
         // An OS audio interruption must not leave a half-played cue queued to
         // continue much later, even if the WebView remains visibly foregrounded.
-        if (this.context === context && (this.voice || this.soundscape || this.loadingArrival) && context.state !== "running") this.cancel(false, true);
+        if (this.context === context && (this.voice || this.soundscape || this.loadingArrival || this.interiorMusic) && context.state !== "running") this.cancel(false, true);
       };
       const play = () => {
         // A late resume must not play after a mute, unmount, or navigation.
@@ -144,6 +151,7 @@ export class AresArrivalSound {
           !this.leases.size || !this.getEnabled() || context.state !== "running") return;
         if (document.visibilityState === "hidden") { this.skip(); return; }
         try {
+          this.updateInteriorMusic();
           if (!entry.consumed) {
             entry.consumed = true;
             this.loadingArrival = true;
@@ -175,7 +183,7 @@ export class AresArrivalSound {
   private startSoundscape(context: AudioContext) {
     try {
       this.soundscape = new AresSoundscape(context);
-      this.soundscape.setMix(this.inside, this.resonance);
+      this.soundscape.setMix(this.inside || this.musicInteriors.size > 0, this.resonance);
     } catch { this.cancel(false); }
   }
 
@@ -198,6 +206,9 @@ export class AresArrivalSound {
     }
     this.doorBuffers.set(key, b); return b;
   }
+  /** Seed a newly mounted visual door without allocating audio or replaying it. */
+  primeDoor(id: string, open: boolean) { this.doors.set(id, open); }
+
   /** Consume transitions even while muted/locked: never queue an old door sound. */
   door(id: string, open: boolean, position: readonly [number, number, number]) {
     try {
@@ -298,6 +309,20 @@ export class AresArrivalSound {
     this.inside = inside; this.updateMix();
   }
 
+  /** Multiple contiguous rooms share one music owner; Hub mix cannot fight it. */
+  setMusicInterior(id: string, inside: boolean) {
+    if (inside === this.musicInteriors.has(id)) return;
+    if (inside) this.musicInteriors.add(id); else this.musicInteriors.delete(id);
+    this.updateMix(); this.updateInteriorMusic();
+  }
+  private updateInteriorMusic() {
+    try {
+      if (!this.getEnabled() || !this.context || this.context.state !== "running" || !this.leases.size || document.visibilityState === "hidden") return;
+      if (!this.interiorMusic && this.musicInteriors.size) this.interiorMusic = new AresInteriorMusic(this.context);
+      this.interiorMusic?.setInside(this.musicInteriors.size > 0);
+    } catch { /* Optional music never interrupts a game frame. */ }
+  }
+
   setCrystalDistance(distance: number) {
     if (!Number.isFinite(distance)) return;
     const resonance = Math.max(0, Math.min(1, (8 - distance) / 6)) ** 2;
@@ -307,7 +332,7 @@ export class AresArrivalSound {
   }
 
   private updateMix() {
-    try { this.soundscape?.setMix(this.inside, this.resonance); }
+    try { this.soundscape?.setMix(this.inside || this.musicInteriors.size > 0, this.resonance); }
     catch { this.cancel(false); } // Audio failure must never escape into useFrame.
   }
 
@@ -330,21 +355,24 @@ export class AresArrivalSound {
     const voice = this.voice;
     const recordings = this.recordings;
     const soundscape = this.soundscape;
+    const interiorMusic = this.interiorMusic;
     if (context) context.onstatechange = null;
     this.context = null;
     this.voice = null;
     this.recordings = null;
     this.loadingArrival = false;
     this.soundscape = null;
+    this.interiorMusic = null;
     void marsAudio.stop(fade);
     const release = () => {
       try { recordings?.dispose(); } catch { /* Always release the shared context. */ }
       try { voice?.dispose(); } catch { /* Closing the context is the final fallback. */ }
+      try { interiorMusic?.dispose(); } catch { /* Continue releasing the context. */ }
       try { soundscape?.dispose(); } catch { /* Continue releasing the context. */ }
       if (context && context.state !== "closed") void context.close().catch(() => {});
     };
-    if (fade && (voice || soundscape || recordings) && context?.state === "running") {
-      recordings?.fadeOut(); soundscape?.fadeOut();
+    if (fade && (voice || soundscape || recordings || interiorMusic) && context?.state === "running") {
+      recordings?.fadeOut(); soundscape?.fadeOut(); interiorMusic?.fadeOut();
       const timer = setTimeout(() => { this.retire = null; release(); }, soundscape ? 195 : 65);
       this.retire = () => { clearTimeout(timer); this.retire = null; release(); };
     } else release();
