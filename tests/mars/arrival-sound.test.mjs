@@ -111,7 +111,8 @@ test("one cue per entry, including StrictMode replay and ordinary surface remoun
   sound.routeChanged("/mars/explore");
   sound.attachSurface()(); // StrictMode setup/cleanup before the deferred start.
   const detach = sound.attachSurface();
-  await wait(10);
+  assert.equal(Context.instances.length, 0, "No audio context before user gesture");
+  gesture(); await wait(10);
   assert.equal(Context.instances.length, 1);
   assert.equal(Context.instances[0].sources.length, 1);
   sound.routeChanged("/mars/explore/");
@@ -125,7 +126,7 @@ test("one cue per entry, including StrictMode replay and ordinary surface remoun
   sound.routeChanged("/mars");
   sound.routeChanged("/mars/explore");
   sound.attachSurface();
-  await wait(10);
+  gesture(); await wait(10);
   assert.equal(Context.instances.length, 3);
   assert.equal(Context.instances[2].sources.length, 1);
 });
@@ -140,12 +141,12 @@ test("suspended autoplay waits for a trusted touch, never synthetic gestures", a
   Context.initialState = "suspended";
   sound.routeChanged("/mars/explore"); sound.attachSurface();
   await wait(10);
-  const context = Context.instances[0];
-  assert.equal(context.resumed, 0);
+  assert.equal(Context.instances.length, 0);
   gesture("pointerdown", false);
-  assert.equal(context.resumed, 0);
+  assert.equal(Context.instances.length, 0, "Untrusted input cannot allocate audio");
   gesture("touchend");
   await wait(0);
+  const context = Context.instances[0];
   assert.equal(context.resumed, 1);
   assert.equal(context.sources.length, 1);
 });
@@ -198,7 +199,7 @@ test("persistent mute prevents allocation; unmute does not replay this entry", a
   assert.equal(Context.instances.length, 0);
   sound.setEnabled(true); gesture(); await wait(10);
   assert.equal(Context.instances.length, 1);
-  assert.equal(Context.instances[0].sources.length, 10, "Unmute starts ambience without replaying arrival");
+  assert.equal(Context.instances[0].sources.length, 12, "Unmute starts ambience without replaying arrival");
   sound.routeChanged("/mars"); sound.routeChanged("/mars/explore"); sound.attachSurface();
   await wait(10);
   sound.setEnabled(false); await wait(210);
@@ -212,12 +213,11 @@ test("mute control pointerdown cannot accidentally unlock pending arrival", asyn
   const button = new Element(); button.closest = () => button;
   gesture("pointerdown", true, button);
   sound.setEnabled(false); gesture();
-  assert.equal(Context.instances[0].resumed, 0);
-  assert(Context.instances[0].closed);
+  assert.equal(Context.instances.length, 0, "Muted control and later gesture cannot allocate audio");
 });
 
 test("backgrounding drops the cue and closes audio rather than playing on return", async () => {
-  sound.routeChanged("/mars/explore"); sound.attachSurface(); await wait(10);
+  sound.routeChanged("/mars/explore"); sound.attachSurface(); gesture(); await wait(10);
   document.visibilityState = "hidden";
   document.dispatchEvent(new Event("visibilitychange"));
   await wait(80);
@@ -225,11 +225,11 @@ test("backgrounding drops the cue and closes audio rather than playing on return
   document.visibilityState = "visible";
   document.dispatchEvent(new Event("visibilitychange")); gesture();
   assert.equal(Context.instances.length, 2);
-  assert.equal(Context.instances[1].sources.length, 10, "Only ambience resumes");
+  assert.equal(Context.instances[1].sources.length, 12, "Only ambience resumes");
 });
 
 test("foreground OS audio interruption closes the cue instead of queuing a late continuation", async () => {
-  sound.routeChanged("/mars/explore"); sound.attachSurface(); await wait(10);
+  sound.routeChanged("/mars/explore"); sound.attachSurface(); gesture(); await wait(10);
   const context = Context.instances[0];
   context.state = "suspended";
   context.onstatechange();
@@ -237,14 +237,14 @@ test("foreground OS audio interruption closes the cue instead of queuing a late 
   assert.equal(context.onstatechange, null);
   gesture();
   assert.equal(Context.instances.length, 2);
-  assert.equal(Context.instances[1].sources.length, 10);
+  assert.equal(Context.instances[1].sources.length, 12);
 });
 
 test("WebKit fallback and blocked storage are supported", async () => {
   window.webkitAudioContext = Context; delete window.AudioContext;
   globalThis.localStorage = { getItem() { throw Error("SecurityError"); }, setItem() { throw Error("SecurityError"); } };
   sound.setEnabled(false); sound.setEnabled(true);
-  sound.routeChanged("/mars/explore"); sound.attachSurface(); await wait(10);
+  sound.routeChanged("/mars/explore"); sound.attachSurface(); gesture(); await wait(10);
   assert.equal(Context.instances[0].sources.length, 1);
 });
 
@@ -256,11 +256,11 @@ test("unsupported audio skips gracefully", async () => {
 
 test("arrival hands off to one continuous soundscape and releases its finite sources", async () => {
   sound.routeChanged("/mars/explore"); sound.attachSurface();
-  await wait(10);
+  gesture(); await wait(10);
   Context.instances[0].sources[0].onended();
   assert(!Context.instances[0].closed);
   assert(Context.instances[0].sources.slice(0, 1).every(source => source.disconnected));
-  assert.equal(Context.instances[0].sources.length, 11);
+  assert.equal(Context.instances[0].sources.length, 13);
   gesture(); assert.equal(Context.instances.length, 1);
   await marsAudio.unlock(); Context.instances[0].currentTime = 5; marsAudio.step();
   assert.equal(Context.instances.length, 1, "Movement uses the same context");
@@ -273,26 +273,26 @@ test("mix updates create no sources, near-crystal gain is gated by interior, cue
   sound.setEnabled(false); sound.routeChanged("/mars/explore"); sound.attachSurface();
   sound.setEnabled(true); await wait(10);
   const context = Context.instances[0];
-  assert.equal(context.sources.length, 10);
+  assert.equal(context.sources.length, 12);
   sound.setCrystalDistance(1);
-  assert.equal(sound.soundscape.crystal.gain.value, 0);
+  assert.equal(sound.soundscape.crystal.gain.value, 1);
   sound.setInterior(true);
   assert.equal(sound.soundscape.crystal.gain.value, 1);
   const targets = sound.soundscape.crystal.gain.targets.length;
   for (let i = 0; i < 100; i++) { sound.setInterior(true); sound.setCrystalDistance(1); }
   assert.equal(sound.soundscape.crystal.gain.targets.length, targets);
-  assert.equal(context.sources.length, 10);
+  assert.equal(context.sources.length, 12);
   sound.setCrystalDistance(9);
   assert.equal(sound.soundscape.crystal.gain.value, 0);
   sound.terminal("mission"); sound.terminal("mission"); sound.terminal("research");
-  assert.equal(context.sources.length, 11);
+  assert.equal(context.sources.length, 13);
   context.currentTime = 1.3; sound.terminal("research");
-  assert.equal(context.sources.length, 12);
+  assert.equal(context.sources.length, 14);
   sound.setEnabled(false);
-  assert(context.sources.slice(0, 10).every(source => source.stopped === context.currentTime + 0.185), "Continuous native sources stop even if JS cleanup timers freeze");
+  assert(context.sources.slice(0, 12).every(source => source.stopped === context.currentTime + 0.185), "Continuous native sources stop even if JS cleanup timers freeze");
   await wait(210);
   sound.terminal("research");
-  assert.equal(context.sources.length, 12);
+  assert.equal(context.sources.length, 14);
   assert(context.closed);
 });
 
@@ -327,8 +327,9 @@ test("a failed sparse timer voice stops silently instead of throwing or retrying
   const context = Context.instances[0];
   context.createOscillator = () => { throw Error("backend unavailable"); };
   assert.doesNotThrow(sparseCallback);
-  assert(context.closed);
+  assert.equal(context.closed, false, "Ambient failure preserves the shared audio context");
   assert(context.sources.every(source => source.disconnected));
+  assert.equal(sound.soundscape.disposed, true, "Failed ambient sources are disposed");
 });
 
 for (const kind of ["mission", "research", "upgrade", "command"]) {
@@ -352,26 +353,26 @@ for (const kind of ["mission", "research", "upgrade", "command"]) {
 }
 
 test("V3 uses the full 6.35-second recording and hands off only at natural end", async () => {
-  sound.routeChanged("/mars/explore"); sound.attachSurface(); await wait(10);
+  sound.routeChanged("/mars/explore"); sound.attachSurface(); gesture(); await wait(10);
   const context = Context.instances[0], source = context.sources[0];
   assert.equal(source.buffer.duration, 6.35); assert.equal(source.stopped, 6.35);
   assert.equal(source.loop, false); assert.equal(context.sources.length, 1);
   source.onended(); assert.equal(source.buffer, null);
-  assert.equal(context.sources.length, 11); assert(sound.soundscape);
+  assert.equal(context.sources.length, 13); assert(sound.soundscape);
 });
 
 test("missing recording skips arrival without replacement and preserves ambience", async () => {
   globalThis.fetch = async () => ({ ok: false });
-  sound.routeChanged("/mars/explore"); sound.attachSurface(); await wait(10);
-  assert.equal(Context.instances[0].sources.length, 10);
+  sound.routeChanged("/mars/explore"); sound.attachSurface(); gesture(); await wait(10);
+  assert.equal(Context.instances[0].sources.length, 12);
   assert(sound.soundscape); sound.terminal("mission");
-  assert.equal(Context.instances[0].sources.length, 10);
+  assert.equal(Context.instances[0].sources.length, 12);
 });
 
 test("navigation during pending asset fetch cannot start a late recording", async () => {
   const resolves = [];
   globalThis.fetch = () => new Promise(resolve => resolves.push(resolve));
-  sound.routeChanged("/mars/explore"); sound.attachSurface(); await wait(10);
+  sound.routeChanged("/mars/explore"); sound.attachSurface(); gesture(); await wait(10);
   const context = Context.instances[0]; sound.routeChanged("/mars"); await wait(80);
   const bytes = readFileSync("public/audio/ares-official-v3/BOBU_Ares_Futuristic_Crystal_Resonance_V3_6s.wav");
   for (const resolve of resolves) resolve({ ok: true, arrayBuffer: async () => bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) });
@@ -379,9 +380,9 @@ test("navigation during pending asset fetch cannot start a late recording", asyn
 });
 
 test("pagehide during arrival releases its buffer and returns with ambience only", async () => {
-  sound.routeChanged("/mars/explore"); sound.attachSurface(); await wait(10);
+  sound.routeChanged("/mars/explore"); sound.attachSurface(); gesture(); await wait(10);
   const source = Context.instances[0].sources[0];
   window.dispatchEvent(new Event("pagehide")); assert.equal(source.buffer, null);
   gesture(); await wait(10);
-  assert.equal(Context.instances[1].sources.length, 10);
+  assert.equal(Context.instances[1].sources.length, 12);
 });
