@@ -26,7 +26,7 @@ export { V11_INDIVIDUAL_BUILDING_ANCHORS, V11_INDIVIDUAL_RELAY_ANCHORS } from '.
 import { HUB, V11_INDIVIDUAL_RELAY_ANCHORS, freeFootprint, selectCampusBuildings, type PlannedBuilding } from './connected-campus-layout.mjs';
 
 function reportCampus(code:string,detail:string):void {
-  if (import.meta.env.DEV) {
+  if (true) {
     window.dispatchEvent(new CustomEvent('bobu:v13-campus-diagnostic',{detail:{code,detail}}));
     console.info('[BOBU V13 CAMPUS]',code,detail);
   }
@@ -93,7 +93,12 @@ export function SeparateV11Campus({ targetRef, onRuntime }: { targetRef?: RefObj
   const [terrain, setTerrain] = useState<AresGenesisTerrainData | null>(null);
   useEffect(() => {
     let alive = true;
-    loadAresGenesisTerrainData().then(data => { if (alive) setTerrain(data); })
+    loadAresGenesisTerrainData().then(data => {
+      if (alive) {
+        reportCampus('TERRAIN_READY', `${data.width}x${data.height}`);
+        setTerrain(data);
+      }
+    })
       .catch(error => { console.error('V11_TERRAIN_LOAD_FAILED', error); reportCampus('TERRAIN_LOAD_FAILED',String(error)); });
     return () => { alive = false; };
   }, []);

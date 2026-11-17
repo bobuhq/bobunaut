@@ -10,7 +10,7 @@ const LocalV11Campus = lazy(() =>
 );
 type V13CampusDiagnostic = { code: string; detail: string };
 function reportV13CampusDiagnostic(code: string, detail: string): void {
-  if (import.meta.env.DEV) {
+  if (true) {
     window.dispatchEvent(new CustomEvent<V13CampusDiagnostic>('bobu:v13-campus-diagnostic', {
       detail: { code, detail },
     }));
@@ -632,7 +632,7 @@ export function MarsExploreWorld() {
 
   const [v13CampusDiagnostic, setV13CampusDiagnostic] = useState<V13CampusDiagnostic | null>(null);
   useEffect(() => {
-    if (!import.meta.env.DEV) return;
+    // Diagnostics also enabled in production
     const onDiagnostic = (event: Event) => {
       setV13CampusDiagnostic((event as CustomEvent<V13CampusDiagnostic>).detail);
     };
@@ -3200,7 +3200,7 @@ export function MarsExploreWorld() {
           />
         )}
 
-      {import.meta.env.DEV && v13CampusDiagnostic && (
+      {v13CampusDiagnostic && (
         <div style={{position:'absolute',left:12,top:94,zIndex:90,maxWidth:340,padding:'7px 9px',
           pointerEvents:'none',background:'rgba(5,7,18,.8)',color:'#c5ecff',
           border:'1px solid rgba(99,245,255,.35)',borderRadius:6,font:'11px monospace'}}>
