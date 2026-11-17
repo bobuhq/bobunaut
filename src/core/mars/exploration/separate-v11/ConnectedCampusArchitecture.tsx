@@ -56,15 +56,6 @@ function EnclosedLink({link,terrainAt}:{link:Connector;terrainAt:(x:number,z:num
     })}
   </group>;
 }
-function CrystalGarden({x,y,z}:{x:number;y:number;z:number}) {
-  return <group name="genesis-entrance-crystal-garden" position={[x,y,z]}>
-    <mesh position={[0,.18,0]}><cylinderGeometry args={[1.25,1.38,.36,8]}/><meshStandardMaterial color="#34404c" metalness={.7} roughness={.4}/></mesh>
-    <mesh position={[0,.39,0]} rotation={[Math.PI/2,0,0]}><torusGeometry args={[1.2,.045,6,32]}/><meshBasicMaterial color="#bf75ff" toneMapped={false}/></mesh>
-    {Array.from({length:7},(_,i)=><mesh key={i} position={[Math.sin(i*2.4)*.75,.6+(i%3)*.16,Math.cos(i*2.4)*.65]} rotation={[.15,i,.15]} scale={[.25,.55+(i%3)*.2,.25]}>
-      <octahedronGeometry args={[1,0]}/><meshStandardMaterial color={i%2?'#c6e94a':'#81d9a6'} emissive={i%2?'#729928':'#237f65'} emissiveIntensity={.5} roughness={.26}/>
-    </mesh>)}
-  </group>;
-}
 function ResearchEntrance({building,terrainAt}:{building:Building;terrainAt:(x:number,z:number)=>number}) {
   const {worldX:x,worldZ:z}=building,deck=building.plan.sites[0].deck;
   const front=z+building.footprint.halfZ;
@@ -78,7 +69,7 @@ function ResearchEntrance({building,terrainAt}:{building:Building;terrainAt:(x:n
       const height=Math.max(.12,top-bottom);
       return <group key={i}>
         <Panel at={[x,top-height/2,stepZ]} size={[4.4,height,.48]} color="#667787"/>
-        <Panel at={[x,top+.012,toe-(i+.5)*.45+.19]} size={[4.35,.028,.035]} color="#65e5ff" glow/>
+        <Panel at={[x,top+.012,toe-(i+.5)*.45+.19]} size={[4.35,.028,.035]} color="#9cabb5"/>
       </group>;
     })}
     <Panel at={[x,deck+4.65,front-.4]} size={[6.8,.95,.45]} color="#202e3d"/>
@@ -87,14 +78,8 @@ function ResearchEntrance({building,terrainAt}:{building:Building;terrainAt:(x:n
     {[-1,1].map(side=><group key={side}>
       <Panel at={[x+side*2.3,deck+1.9,front+.1]} size={[.18,3.8,.24]}/>
       <Panel at={[x+side*2.17,deck+1.9,front+.24]} size={[.065,3.5,.04]} color="#63e9ff" glow/>
-      <CrystalGarden x={x+side*4.6} y={terrainAt(x+side*4.6,front+.7)+.035} z={front+.7}/>
-      {[.6,2.9].map(d=>{
-        const h=ground+rise*(1-d/3.6);
-        return <group key={d}>
-          <Panel at={[x+side*2.65,h+.45,front+d]} size={[.2,.9,.2]} color="#293747"/>
-          <Panel at={[x+side*2.65,h+.91,front+d]} size={[.22,.18,.22]} color="#75eaff" glow/>
-        </group>;
-      })}
+      <pointLight position={[x+side*2.3,deck+2.6,front+.7]} color="#ffd19a" intensity={2.4} distance={6} decay={2}/>
+
     </group>)}
   </group>;
 }
@@ -103,15 +88,7 @@ function BotanicalForecourt({building,terrainAt}:{building:Building;terrainAt:(x
   return <group name="v12-botanical-forecourt">
     <Panel at={[building.worldX,deck+.45,building.worldZ+5.48]} size={[7,.85,.16]} color="#243344"/>
     <Sign position={[building.worldX,deck+.45,building.worldZ+5.58]} width={6.5} height={.5} text="BOBU / BOTANICAL SCIENCES"/>
-    {[-1,1].map(side=><group key={side} position={[building.worldX+side*6,terrainAt(building.worldX+side*6,building.worldZ+5.75)+.035,building.worldZ+5.75]}>
-      <mesh position={[0,.18,0]}><cylinderGeometry args={[1.35,1.5,.35,24]}/><meshStandardMaterial color="#293847" metalness={.6} roughness={.4}/></mesh>
-      <mesh position={[0,.38,0]} rotation={[Math.PI/2,0,0]}><torusGeometry args={[1.33,.045,6,40]}/><meshBasicMaterial color="#b880f7" toneMapped={false}/></mesh>
-      {Array.from({length:7},(_,i)=><mesh key={i} position={[Math.cos(i*2.4)*.8,.68+(i%3)*.12,Math.sin(i*2.4)*.8]} scale={[.23,.55+(i%3)*.13,.23]} rotation={[0,i, .2]}><octahedronGeometry args={[1,0]}/><meshStandardMaterial color={i%3===0?'#d8f45e':'#8bc747'} emissive="#537a16" emissiveIntensity={.3} metalness={.3} roughness={.4}/></mesh>)}
-    </group>)}
-    {[-1,1].map(side=><group key={side} position={[building.worldX+side*8.5,terrainAt(building.worldX+side*8.5,building.worldZ+5.8)+.035,building.worldZ+5.8]}>
-      <Panel at={[0,.42,0]} size={[.22,.84,.22]} color="#293847"/>
-      <Panel at={[0,.87,0]} size={[.24,.2,.24]} color="#62deff" glow/>
-    </group>)}
+    {[-1,1].map(side=><pointLight key={side} position={[building.worldX+side*2.8,deck+2,building.worldZ+5.8]} color="#ffd19a" intensity={1.8} distance={5} decay={2}/>)}
   </group>;
 }
 

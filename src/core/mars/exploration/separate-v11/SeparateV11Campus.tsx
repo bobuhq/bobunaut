@@ -1,3 +1,4 @@
+import { V13FacadeXenonLighting } from './V13FacadeXenonLighting';
 import {createCampusExperience,type CameraEnvironment} from './campus-experience';
 import {CampusInteriorEffects} from './CampusInteriorEffects';
 import { Component, Suspense, useCallback, useEffect, useMemo, useState, type ReactNode, type RefObject } from 'react';
@@ -11,6 +12,7 @@ import { CONNECTED_RELAYS } from '../../../../imported-v11/dev/connected-relays'
 import type { WallObstacle } from './mesh-wall-obstacles';
 import { CampusFoundation } from './WalkableCampusShell';
 import { CampusLandscape } from './CampusLandscape';
+import { V13EntranceHalls } from './V13EntranceHalls';
 import { createCampusTraversal } from './campus-traversal.mjs';
 import { createCampusLandscape } from './campus-landscape.mjs';
 import { getAresCommandHubFloorY } from '../commandhub/AresCommandHubWalkableSurface';
@@ -122,8 +124,11 @@ export function SeparateV11Campus({ targetRef, onRuntime }: { targetRef?: RefObj
     </BuildingBoundary>)}
     {experience&&<CampusInteriorEffects experience={experience} targetRef={targetRef}/>}
     <ConnectedCampusArchitecture terrain={terrain} buildings={buildings} model={model}/>
+    {terrainAt && <V13EntranceHalls terrainAt={terrainAt} buildings={buildings}/>}
+
     {terrainAt&&buildings.filter(b=>b.id==='habitat').map(building=><CampusFoundation key={building.id} building={building} terrainAt={terrainAt}/>)}
     {landscape&&<CampusLandscape plan={landscape}/>}
+    {terrainAt && <V13FacadeXenonLighting terrainAt={terrainAt} buildings={buildings} />}
     <IndependentRelays terrain={terrain} relaySites={relaySites} />
   </group>;
 }

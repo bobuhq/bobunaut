@@ -145,8 +145,23 @@ function createMarsRockDescriptors(): MarsRockDescriptor[] {
   return rocks;
 }
 
+// V13: Keep the original Mars rocks outside the campus.
+// Remove both visible rocks and their collision obstacles
+// from the Command Hub campus perimeter.
+const CAMPUS_ROCK_CLEAR_CENTER_X = -44;
+const CAMPUS_ROCK_CLEAR_CENTER_Z = -68;
+const CAMPUS_ROCK_CLEAR_RADIUS = 115;
+
 const MARS_ROCK_DESCRIPTORS =
-  createMarsRockDescriptors();
+  createMarsRockDescriptors().filter((rock) => {
+    const rockRadius = Math.max(rock.width, rock.depth) * 0.72;
+    const distance = Math.hypot(
+      rock.x - CAMPUS_ROCK_CLEAR_CENTER_X,
+      rock.z - CAMPUS_ROCK_CLEAR_CENTER_Z
+    );
+
+    return distance >= CAMPUS_ROCK_CLEAR_RADIUS + rockRadius;
+  });
 
 export const MARS_SURFACE_ROCK_COLLISION_OBSTACLES:
   MarsRockCollisionObstacle[] =
