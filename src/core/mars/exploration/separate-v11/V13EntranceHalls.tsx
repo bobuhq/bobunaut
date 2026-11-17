@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { Suspense, useMemo } from 'react';
 import * as THREE from 'three';
 import { Text } from '@react-three/drei';
 // BOBU_V13_EXTENDED_ENTRY_HALLS_V2
@@ -38,6 +38,7 @@ function EntrancePortal({label, x, frontZ, width, depth, roofHeight, terrainAt}:
         <boxGeometry args={[Math.min(width-.35,7.8),.74,.12]}/>
         <meshStandardMaterial color="#151b29" metalness={.7} roughness={.32}/>
       </mesh>
+      <Suspense fallback={null}>
       <Text
         position={[0,0,.012]}
         fontSize={label==='command-hub'?.39:.44}
@@ -51,6 +52,7 @@ function EntrancePortal({label, x, frontZ, width, depth, roofHeight, terrainAt}:
       >
         {label==='command-hub'?'COMMAND HUB':'GENESIS'}
       </Text>
+      </Suspense>
       <pointLight position={[0,.2,1.0]} color="#aa50ff" intensity={3.0} distance={5.5} decay={2}/>
     </group>
     {/* Elevated titanium canopy, open central passage, warm underside. */}

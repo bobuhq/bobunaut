@@ -129,11 +129,7 @@ export function SeparateV11Campus({ targetRef, onRuntime }: { targetRef?: RefObj
     </BuildingBoundary>)}
     {experience&&<CampusInteriorEffects experience={experience} targetRef={targetRef}/>}
     <ConnectedCampusArchitecture terrain={terrain} buildings={buildings} model={model}/>
-    {terrainAt && (
-      <Suspense fallback={null}>
-        <V13EntranceHalls terrainAt={terrainAt} buildings={buildings}/>
-      </Suspense>
-    )}
+    {terrainAt && <V13EntranceHalls terrainAt={terrainAt} buildings={buildings}/>}
 
     {terrainAt&&buildings.filter(b=>b.id==='habitat').map(building=><CampusFoundation key={building.id} building={building} terrainAt={terrainAt}/>)}
     {landscape&&<CampusLandscape plan={landscape}/>}
