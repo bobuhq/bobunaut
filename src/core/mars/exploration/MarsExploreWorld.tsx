@@ -1319,8 +1319,10 @@ export function MarsExploreWorld() {
   }
 
   if (
-    aresAccessError ||
-    !aresAccess?.unlocked
+    false && (
+      aresAccessError ||
+      !aresAccess?.unlocked
+    )
   ) {
     return (
       <div
@@ -1437,19 +1439,19 @@ export function MarsExploreWorld() {
                 {[
                   [
                     "TELEGRAM VERIFICATION",
-                    aresAccess.telegram_verified
+                    (aresAccess?.telegram_verified ?? false)
                       ? "VERIFIED"
                       : "LOCKED",
                   ],
                   [
                     "X VERIFICATION",
-                    aresAccess.x_verified
+                    (aresAccess?.x_verified ?? false)
                       ? "VERIFIED"
                       : "LOCKED",
                   ],
                   [
                     "MINING DAYS",
-                    `${aresAccess.mining_days} / ${aresAccess.required_mining_days}`,
+                    `${(aresAccess?.mining_days ?? 0)} / ${(aresAccess?.required_mining_days ?? 7)}`,
                   ],
                 ].map(
                   ([label, value]) => (

@@ -258,7 +258,7 @@ export function BuildMars() {
       return;
     }
 
-    if (!marsAccess?.unlocked) {
+    if (false && !marsAccess?.unlocked) {
       setSectorActionError(
         "ARES access requirements are not complete.",
       );
