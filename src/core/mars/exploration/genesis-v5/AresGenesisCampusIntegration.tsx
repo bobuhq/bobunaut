@@ -8,7 +8,7 @@ import {loadAresGenesisTerrainData, sampleAresGenesisRenderedSurfaceMeters} from
 import {MARS_SURFACE_ROCK_COLLISION_OBSTACLES} from '../components/MarsSurfaceRocks';
 import {genesisWorldToLocal, genesisLocalToWorld} from './3d/production-collision-adapter.mjs';
 import {constrainGenesisEye} from './3d/interior-camera.mjs';
-import {reviewAresGenesisPlacement} from './AresColonyOccupancyAdapter';
+import {reviewAresGenesisPlacement,reviewAresGenesisWorldSiteV13} from './AresColonyOccupancyAdapter';
 
 const flightReservation=integratedReservations().map(r=>({...r,groundOnly:true}));
 const noFlightReservation:typeof flightReservation=[];
@@ -42,14 +42,19 @@ export function useAresGenesisCampusIntegration(parkedShip?:[number,number,numbe
    if(polling)return;
    polling=true;
    try {
-    const review=await reviewAresGenesisPlacement();
+    // V13: only an authenticated durable world-site read can authorize rendering.
+    // Before V13 RPC installation, preserve the existing, independently verified V11 lease.
+    const worldSite=await reviewAresGenesisWorldSiteV13();
     if(!active)return;
-    if(review.status!=='approved' || !('site' in review) || !('expiresAt' in review)) {revoke();return;}
-    // Approval is a fresh backend response; the scene is never authorized by site source constants.
+    const durable=worldSite.status==='registered';
+    const review=worldSite.status==='unavailable' ? await reviewAresGenesisPlacement() : worldSite;
+    if(!active)return;
+    if((review.status!=='approved' && review.status!=='registered') || !('site' in review) || !review.site) {revoke();return;}
     const approved=review.site;
-    const expiresAt=review.expiresAt;
-    if(expiryTimer)clearTimeout(expiryTimer);
-    expiryTimer=setTimeout(revoke,Math.max(0,expiresAt-Date.now()-15000));
+    const expiresAt=review.status==='approved'?review.expiresAt:null;
+    if(expiryTimer){clearTimeout(expiryTimer);expiryTimer=undefined;}
+    if(!durable && expiresAt!==null)
+     expiryTimer=setTimeout(revoke,Math.max(0,expiresAt-Date.now()-15000));
     const terrain=await loadAresGenesisTerrainData();
     const next=prepareIntegratedCampus({
      ...approved,
@@ -60,7 +65,7 @@ export function useAresGenesisCampusIntegration(parkedShip?:[number,number,numbe
       {kind:'circle' as const,x:18,z:-28,radius:1.35}]
     });
     await loadCampus();
-    if(active&&Date.now()<expiresAt-15000){setSite(next);setPlacementStatus('READY');}
+    if(active&&(durable || (expiresAt!==null&&Date.now()<expiresAt-15000))){setSite(next);setPlacementStatus('READY');}
    } catch(error) {console.warn('PLACEMENT_BLOCKED',error);revoke();}
    finally {polling=false;}
   };

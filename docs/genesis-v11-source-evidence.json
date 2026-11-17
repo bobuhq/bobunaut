@@ -2,17 +2,17 @@
   "schema": 1,
   "scope": "repository geometry only; not production certification",
   "productionCertified": false,
-  "releaseDigest": "677f59d58845f99a7e9df237b26500f08eb1ab270e98a9b2b24163d861e8a4f7",
+  "releaseDigest": "0a323f23b53c77d61e3b22a5631a6004362ac6530d6c9c387932f0620871a566",
   "sourceDigests": {
     "src/core/mars/exploration/engine/AresGenesisTerrainData.ts": "adbe51a6aefd27b8de4e317886754a72607a006eb9d33ba1388b9bbf19f1cc30",
     "public/mars/ares-genesis/ares-genesis-height-16.bin": "62b26ba12a7da83b2ddf58d46398231deacb993a996321b89db078bf364b47aa",
-    "src/core/mars/exploration/components/MarsSurfaceRocks.tsx": "561eb4b5c2bbfe745767e75aae4506369cd23e73f804a5da3941a1d10e945899",
+    "src/core/mars/exploration/components/MarsSurfaceRocks.tsx": "b03dd56db5fd647e72b4d40d9fe3361c7a7034d1b8f23035e8980138ee91d962",
     "src/core/mars/exploration/commandhub/AresCommandHubCollision.ts": "b875ecb664b7fc0765fc38a4a0cc8ed17d555840ac692eee076e23b684fadc5a",
     "src/core/mars/exploration/commandhub/AresCommandHubWalkableSurface.ts": "2d7d0eb2703e7e951bc3ab7419f523939eff02f0fb1a60620d855aca118018b7",
     "src/core/mars/exploration/colony/AresColonyCoordinateSystem.ts": "b0dc6681e41515eb82f599a305dc0e3339d6680057090a33872cdcb38138ee47",
     "src/core/mars/exploration/landmarks/AresExplorationLandmarks.tsx": "b271d32d4cb90f48d4d36c54aca6bb143154280ff6af2feae7c9104eb1cb1b19",
     "supabase/migrations/20260830170000_create_ares_landmark_discovery_v1.sql": "8c7fda53ad51f764a794af1c4fe514eed3771e132cda78e74a9161eb44e36320",
-    "src/core/mars/exploration/MarsExploreWorld.tsx": "cebd431b8a0c3ac4e9bacc4f4a3762a70354341a51ba2c84d82d00a436fbcc40",
+    "src/core/mars/exploration/MarsExploreWorld.tsx": "5db92123d222e5b135e2fd04fc5e12c0804a3ef69a6dc6ec1f0faba96ab7af1d",
     "supabase/migrations/20260830005000_create_ares_hidden_mission_engine_v1.sql": "af7ae123417a097c97600fb4d574a84bd7f993eded61ba2cd21ae47fd6f93d78",
     "src/core/mars/exploration/guidance/AresGuidanceSystem.tsx": "e854c9edbff73b1beea4a26f42e33491ee47837c4d964099fe5cb35b7e7c892d"
   },
@@ -216,7 +216,7 @@
       "halfDepth": 0.76
     }
   ],
-  "knownFixedObstacleCount": 532,
+  "knownFixedObstacleCount": 506,
   "knownFixedConflicts": [],
   "landmarks": [
     {
