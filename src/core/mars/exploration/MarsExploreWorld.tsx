@@ -3268,7 +3268,7 @@ export function MarsExploreWorld() {
         dpr={
           typeof window !== "undefined" &&
           window.matchMedia("(pointer: coarse), (max-width: 900px)").matches
-            ? 1
+            ? 0.85
             : [1, 1.25]
         }
         gl={{
