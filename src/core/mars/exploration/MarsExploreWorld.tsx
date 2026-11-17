@@ -1762,6 +1762,30 @@ export function MarsExploreWorld() {
           display: none;
         }
 
+        .ares-mobile-camera-pitch { display: none; }
+        @media (pointer: coarse) and (orientation: landscape) {
+          .ares-mobile-camera-pitch {
+            position: absolute;
+            z-index: 45;
+            right: max(8px, env(safe-area-inset-right));
+            top: 46%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+          }
+          .ares-mobile-camera-pitch button {
+            min-height: 44px;
+            padding: 8px;
+            border: 1px solid #63f5ff;
+            border-radius: 9px;
+            background: rgba(5,18,30,.88);
+            color: #e4faff;
+            font: 700 10px system-ui;
+            touch-action: manipulation;
+          }
+        }
+
         @media (pointer: coarse) and (orientation: landscape) {
           .ares-mobile-actions {
             display: flex;
@@ -2198,6 +2222,22 @@ export function MarsExploreWorld() {
       <AresMobileJoystick
         onMove={handleJoystickMove}
       />
+
+      <div className="ares-mobile-camera-pitch"
+           role="group" aria-label="Vertical camera controls">
+        <button type="button" aria-label="Look up"
+          onClick={() => window.dispatchEvent(
+            new CustomEvent("bobu:ares-camera-pitch", {
+              detail: THREE.MathUtils.degToRad(12)
+            })
+          )}>▲ LOOK UP</button>
+        <button type="button" aria-label="Look down"
+          onClick={() => window.dispatchEvent(
+            new CustomEvent("bobu:ares-camera-pitch", {
+              detail: -THREE.MathUtils.degToRad(12)
+            })
+          )}>▼ LOOK DOWN</button>
+      </div>
 
       <AresMobileActions
         interactionTarget={
@@ -3200,7 +3240,7 @@ export function MarsExploreWorld() {
           />
         )}
 
-      {v13CampusDiagnostic && (
+      {import.meta.env.DEV && v13CampusDiagnostic && (
         <div style={{position:'absolute',left:12,top:94,zIndex:90,maxWidth:340,padding:'7px 9px',
           pointerEvents:'none',background:'rgba(5,7,18,.8)',color:'#c5ecff',
           border:'1px solid rgba(99,245,255,.35)',borderRadius:6,font:'11px monospace'}}>
@@ -3222,7 +3262,12 @@ export function MarsExploreWorld() {
           near: 0.1,
           far: 20000,
         }}
-        dpr={[1, 1.75]}
+        dpr={
+          typeof window !== "undefined" &&
+          window.matchMedia("(pointer: coarse), (max-width: 900px)").matches
+            ? 1
+            : [1, 1.25]
+        }
         gl={{
           antialias: true,
           alpha: false,

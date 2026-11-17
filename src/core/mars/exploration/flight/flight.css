@@ -136,3 +136,48 @@
 @media (prefers-reduced-motion: reduce) {
   #ares-flight-viewport .flight-buttons button { transition: none; }
 }
+
+
+/* V13 flight guidance: compact, dismissible, no gameplay hooks */
+#ares-flight-viewport .flight-controls-guide {
+  position: fixed;
+  top: max(12px, env(safe-area-inset-top));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 110;
+  width: min(310px, 46vw);
+  box-sizing: border-box;
+  padding: 7px 10px;
+  border: 1px solid rgba(110, 224, 255, .6);
+  border-radius: 10px;
+  background: rgba(5, 19, 31, .88);
+  color: #dcf9ff;
+  font: 11px/1.5 system-ui, sans-serif;
+  pointer-events: auto;
+}
+#ares-flight-viewport .flight-controls-guide summary {
+  cursor: pointer;
+  font-weight: 800;
+  letter-spacing: .06em;
+}
+#ares-flight-viewport .flight-controls-guide[open] summary {
+  margin-bottom: 5px;
+}
+#ares-flight-viewport .flight-guide-mobile {
+  display: none;
+}
+@media (pointer: coarse), (max-width: 900px) {
+  #ares-flight-viewport .flight-controls-guide {
+    width: min(265px, 56vw);
+    padding: 5px 8px;
+    font-size: 10px;
+    max-height: 35dvh;
+    overflow-y: auto;
+  }
+  #ares-flight-viewport .flight-guide-desktop {
+    display: none;
+  }
+  #ares-flight-viewport .flight-guide-mobile {
+    display: block;
+  }
+}

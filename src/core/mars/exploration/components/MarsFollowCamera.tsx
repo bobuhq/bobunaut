@@ -125,6 +125,7 @@ export function MarsFollowCamera({
 
   const touchPointerX =
     useRef<number | null>(null);
+  const touchPointerY = useRef<number | null>(null);
 
   useEffect(() => {
     const element =
@@ -153,6 +154,7 @@ export function MarsFollowCamera({
       if (isMobileTouchInput(event)) {
         touchPointerX.current =
           event.clientX;
+        touchPointerY.current = event.clientY;
       }
 
       element.setPointerCapture?.(
@@ -185,6 +187,15 @@ export function MarsFollowCamera({
         orbitYaw.current -=
           deltaX * 0.008;
 
+        const previousY = touchPointerY.current ?? event.clientY;
+        const deltaY = event.clientY - previousY;
+        touchPointerY.current = event.clientY;
+        orbitPitch.current = THREE.MathUtils.clamp(
+          orbitPitch.current - deltaY * 0.006,
+          MIN_PITCH,
+          MAX_PITCH
+        );
+
         return;
       }
 
@@ -207,6 +218,7 @@ export function MarsFollowCamera({
     ) {
       dragging.current = false;
       touchPointerX.current = null;
+      touchPointerY.current = null;
 
       if (
         event &&
@@ -225,6 +237,16 @@ export function MarsFollowCamera({
 
     function handleWindowBlur() {
       stopDragging();
+    }
+
+    function handleCameraPitch(event: Event) {
+      const delta = (event as CustomEvent<number>).detail;
+      if (!Number.isFinite(delta)) return;
+      orbitPitch.current = THREE.MathUtils.clamp(
+        orbitPitch.current + delta,
+        MIN_PITCH,
+        MAX_PITCH
+      );
     }
 
     element.style.cursor =
@@ -255,7 +277,14 @@ export function MarsFollowCamera({
       handleWindowBlur,
     );
 
+    window.addEventListener(
+      "bobu:ares-camera-pitch", handleCameraPitch
+    );
+
     return () => {
+      window.removeEventListener(
+        "bobu:ares-camera-pitch", handleCameraPitch
+      );
       element.removeEventListener(
         "pointerdown",
         handlePointerDown,
@@ -300,15 +329,7 @@ export function MarsFollowCamera({
         worldPosition.current,
       );
 
-      const mobileLandscape =
-        window.matchMedia(
-          "(pointer: coarse) and (orientation: landscape)",
-        ).matches;
-
-      const pitch =
-        mobileLandscape
-          ? INITIAL_PITCH
-          : orbitPitch.current;
+      const pitch = orbitPitch.current;
 
       const yaw =
         orbitYaw.current;
