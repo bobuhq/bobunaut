@@ -4,9 +4,7 @@ export const V11_INDIVIDUAL_BUILDING_ANCHORS = Object.freeze({
   habitat: { x: -7, z: -82 },
 });
 export const V11_INDIVIDUAL_RELAY_ANCHORS = Object.freeze([
-  { x: -90, z: -68 }, // YELLOW: left of greenhouse
-  { x: -35, z: -86 }, // RED: closer to Command Hub
-  { x: 12, z: -82 },  // GREEN: right of Genesis
+  { x: -70, z: -85 }, { x: -34, z: -99 }, { x: 7, z: -97 },
 ]);
 
 export const HUB = { x: -44, z: -68, halfX: 8, halfZ: 9 };

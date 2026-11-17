@@ -8,22 +8,10 @@ import { Component, lazy, type ReactNode } from "react";
 const LocalV11Campus = lazy(() =>
   import("./separate-v11/SeparateV11Campus").then(module => ({ default: module.SeparateV11Campus }))
 );
-type V13CampusDiagnostic = { code: string; detail: string };
-function reportV13CampusDiagnostic(code: string, detail: string): void {
-  if (import.meta.env.DEV) {
-    window.dispatchEvent(new CustomEvent<V13CampusDiagnostic>('bobu:v13-campus-diagnostic', {
-      detail: { code, detail },
-    }));
-    console.info('[BOBU V13 CAMPUS]', code, detail);
-  }
-}
 class LocalV11Boundary extends Component<{children: ReactNode}, {failed: boolean}> {
   state = {failed: false};
   static getDerivedStateFromError() { return {failed: true}; }
-  componentDidCatch(error: Error) {
-    console.error("V11_LOCAL_PREVIEW_FAILED", error);
-    reportV13CampusDiagnostic('ROOT_RENDER_FAILED', error.message);
-  }
+  componentDidCatch(error: Error) { console.error("V11_LOCAL_PREVIEW_FAILED", error); }
   render() { return this.state.failed ? null : this.props.children; }
 }
 
@@ -267,12 +255,6 @@ function MarsExploreScene({
 
   const [localCampusRuntime,setLocalCampusRuntime]=useState<CampusRuntime|null>(null);
 
-
-  useEffect(() => {
-    if (!flying) {
-      reportV13CampusDiagnostic('MOUNT_REQUESTED', 'Flight complete; campus component mounted');
-    }
-  }, [flying]);
 
   const bobuStairStateRef =
     useRef(false);
@@ -629,16 +611,6 @@ export function MarsExploreWorld() {
   const {
     session,
   } = useAuthSession();
-
-  const [v13CampusDiagnostic, setV13CampusDiagnostic] = useState<V13CampusDiagnostic | null>(null);
-  useEffect(() => {
-    if (!import.meta.env.DEV) return;
-    const onDiagnostic = (event: Event) => {
-      setV13CampusDiagnostic((event as CustomEvent<V13CampusDiagnostic>).detail);
-    };
-    window.addEventListener('bobu:v13-campus-diagnostic', onDiagnostic);
-    return () => window.removeEventListener('bobu:v13-campus-diagnostic', onDiagnostic);
-  }, []);
 
   const [mobileOrientation, setMobileOrientation] = useState<
     "desktop" | "portrait" | "landscape"
@@ -3199,16 +3171,6 @@ export function MarsExploreWorld() {
             }}
           />
         )}
-
-      {import.meta.env.DEV && v13CampusDiagnostic && (
-        <div style={{position:'absolute',left:12,top:94,zIndex:90,maxWidth:340,padding:'7px 9px',
-          pointerEvents:'none',background:'rgba(5,7,18,.8)',color:'#c5ecff',
-          border:'1px solid rgba(99,245,255,.35)',borderRadius:6,font:'11px monospace'}}>
-          V13 CAMPUS: {v13CampusDiagnostic.code}<div style={{opacity:.8,marginTop:3}}>
-            {v13CampusDiagnostic.detail}
-          </div>
-        </div>
-      )}
 
       <Canvas
         shadows
