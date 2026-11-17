@@ -199,48 +199,17 @@
     display: none;
   }
 
-  #ares-flight-viewport .flight-panel {
-    width: min(150px, 23vw);
-    max-width: min(150px, 23vw);
-    padding: 5px;
-    font-size: 9px;
-    line-height: 1.2;
-  }
 
-  #ares-flight-viewport .flight-distance {
-    font-size: clamp(17px, 2.3vw, 25px);
-  }
 
-  #ares-flight-viewport .flight-distance small {
-    font-size: 11px;
-  }
 
-  #ares-flight-viewport .flight-altitude {
-    gap: 2px;
-  }
 
   #ares-flight-viewport .flight-diagnostic {
     display: none;
   }
 
-  #ares-flight-viewport .flight-systems dl {
-    margin: 4px 0;
-    gap: 2px;
-  }
 
-  #ares-flight-viewport .flight-systems dl div {
-    flex-direction: row;
-    gap: 3px;
-  }
 
-  #ares-flight-viewport .flight-systems dt,
-  #ares-flight-viewport .flight-systems dd {
-    font-size: clamp(7px, 1.1vw, 9px);
-  }
 
-  #ares-flight-viewport .flight-systems dl div:nth-child(n+6) {
-    display: none;
-  }
 
   #ares-flight-viewport .flight-controls-guide {
     width: min(170px, 32vw);
