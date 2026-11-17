@@ -3251,7 +3251,10 @@ export function MarsExploreWorld() {
       )}
 
       <Canvas
-        shadows
+        shadows={!(typeof window !== "undefined" &&
+          window.matchMedia(
+            "(pointer: coarse), (max-width: 900px)"
+          ).matches)}
         camera={{
           position: [
             0,
@@ -3269,7 +3272,10 @@ export function MarsExploreWorld() {
             : [1, 1.25]
         }
         gl={{
-          antialias: true,
+          antialias: !(typeof window !== "undefined" &&
+          window.matchMedia(
+            "(pointer: coarse), (max-width: 900px)"
+          ).matches),
           alpha: false,
           powerPreference:
             "high-performance",

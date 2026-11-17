@@ -42,11 +42,22 @@ export function CinematicLanding({flight=false,obstacles=[],onAresEntry}:{flight
  const markModelReady=useCallback(()=>setModelReady(true),[]);
  const [telemetry,setTelemetry]=useState<ReturnType<typeof flightTelemetry>|null>(null);
  const touchLook=useRef({x:0,y:0});
+ const chasePitch=useRef(Math.atan2(22,38));
+ const chaseYaw=useRef(0);
  const lookPointer=useRef<{id:number;x:number;y:number}|null>(null);
  const dragLook=(e:React.PointerEvent<HTMLDivElement>)=>{
   if(e.type==='pointerdown'){e.currentTarget.setPointerCapture(e.pointerId);lookPointer.current={id:e.pointerId,x:e.clientX,y:e.clientY};}
   const p=lookPointer.current;if(!p||p.id!==e.pointerId)return;
-  e.preventDefault();touchLook.current=cockpitLook(touchLook.current.x-(e.clientX-p.x)*.005,touchLook.current.y-(e.clientY-p.y)*.005);
+  e.preventDefault();
+  const dx=e.clientX-p.x,dy=e.clientY-p.y;
+  touchLook.current=cockpitLook(
+    touchLook.current.x-dx*.005,
+    touchLook.current.y-dy*.005
+  );
+  chaseYaw.current-=dx*.005;
+  chasePitch.current=THREE.MathUtils.clamp(
+    chasePitch.current-dy*.005,.12,1.25
+  );
   p.x=e.clientX;p.y=e.clientY;
  };
  const seat=useRef<THREE.Group>(null),cameraMode=useRef<'COCKPIT'|'CHASE'>('CHASE'),look=useRef({x:0,y:0}),[mode,setMode]=useState('CHASE');
@@ -132,7 +143,15 @@ export function CinematicLanding({flight=false,obstacles=[],onAresEntry}:{flight
     if(exitPhaseRef.current==='HATCH'||exitPhaseRef.current==='STAIRS'){
      const actor=actorRef.current;
      if(actor){const focus=actor.getWorldPosition(new THREE.Vector3());const c=Math.cos(f.yaw),si=Math.sin(f.yaw);camera.position.set(focus.x+si*8+c*6,focus.y+4,focus.z+c*8-si*6);camera.lookAt(focus.x,focus.y+1,focus.z);}
-    }else if(cameraMode.current==='COCKPIT'&&seat.current){seat.current.getWorldPosition(camera.position);seat.current.getWorldQuaternion(camera.quaternion);camera.quaternion.multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(look.current.y,look.current.x,0,'YXZ')));}else{camera.position.set(f.x+Math.sin(f.yaw)*38,f.y+22,f.z+Math.cos(f.yaw)*38);camera.lookAt(f.x,f.y,f.z);}
+    }else if(cameraMode.current==='COCKPIT'&&seat.current){seat.current.getWorldPosition(camera.position);seat.current.getWorldQuaternion(camera.quaternion);camera.quaternion.multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(look.current.y,look.current.x,0,'YXZ')));}else{const radius=Math.hypot(38,22);
+      const pitch=chasePitch.current;
+      const yaw=f.yaw+chaseYaw.current;
+      camera.position.set(
+        f.x+Math.sin(yaw)*Math.cos(pitch)*radius,
+        f.y+Math.sin(pitch)*radius,
+        f.z+Math.cos(yaw)*Math.cos(pitch)*radius
+      );
+      camera.lookAt(f.x,f.y,f.z);}
    }}else ship.current.position.set(110,data.support.highest+altitude,-70);
   if(!flight&&g.state==='DESCENDING'&&g.elapsed>=10){g.transition('RETRACTING');audio.landingCue('shutdown');}
   if(g.state==='STOWED'&&r.last==='RETRACTING')r.active=false;
@@ -181,10 +200,22 @@ export function CinematicLanding({flight=false,obstacles=[],onAresEntry}:{flight
  });
  useEffect(()=>{if(!flight||!import.meta.env.DEV)return;const api={state:()=>{const f=controller.current;return f?{lastBlocker:f.lastBlocker,disembarkPhase:exitPhaseRef.current,onFoot:onFootRef.current,exitWorld:exitWorld.current,modelReady,x:f.x,y:f.y,z:f.z,vx:f.vx,vy:f.vy,vz:f.vz,yaw:f.yaw,status:f.status,trigger:f.trigger,activeSeconds:f.activeSeconds,autoSeconds:f.autoSeconds,phase:f.phase,deadlineReason:f.deadlineReason,touchdownSeconds:f.touchdownSeconds,dustEvents:dustBurst.current.events,dustAge:dustBurst.current.age,gear:f.gear.state,support:f.support,target:f.target,power:f.power,cameraMode:cameraMode.current,look:look.current,mouseActive:mouse.current.active,yawVelocity:f.yawVelocity}:null;}};Object.assign(window,{__flightV2:api});return()=>{delete (window as any).__flightV2;};},[flight,modelReady]);
  if(!data)return null;
- return <>{flight&&<ViewportOverlay><div className="flight-overlay"><div ref={fade} aria-hidden="true" style={{position:'fixed',inset:0,background:'#02070c',opacity:0,transition:'opacity 140ms ease',pointerEvents:'none',zIndex:200}}/>
+ return <>{flight&&<ViewportOverlay><div className="flight-overlay">
+  {exitPhase==='FLIGHT'&&
+    <div
+      className="flight-swipe-look"
+      aria-label="Swipe to look around"
+      onPointerDown={dragLook}
+      onPointerMove={dragLook}
+      onPointerUp={()=>{lookPointer.current=null;}}
+      onPointerCancel={()=>{lookPointer.current=null;}}
+      onLostPointerCapture={()=>{lookPointer.current=null;}}
+    />
+  }
+  <div ref={fade} aria-hidden="true" style={{position:'fixed',inset:0,background:'#02070c',opacity:0,transition:'opacity 140ms ease',pointerEvents:'none',zIndex:200}}/>
  {flight&&!modelReady&&<div role="status" style={{position:'fixed',inset:0,display:'grid',placeItems:'center',background:'#071016',color:'#dcefff',fontFamily:'monospace',letterSpacing:2,zIndex:250,pointerEvents:'none'}}>BOBU ARES · LOADING SPACECRAFT</div>}
  {exitPhase==='FLIGHT'&&modelReady&&(
-  <details className="flight-controls-guide" open>
+  <details className="flight-controls-guide">
     <summary>FLIGHT CONTROLS · HELP</summary>
     <div className="flight-guide-desktop">
       W/S Forward/Back · A/D Strafe · Q/E Turn

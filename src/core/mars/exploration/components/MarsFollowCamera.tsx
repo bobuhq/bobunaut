@@ -99,6 +99,7 @@ export function MarsFollowCamera({
 
   const clearance=useRef(new MarsCameraClearance());
   const clearanceRefresh=useRef(-Infinity);
+  const projectedCamera=useRef({fov:NaN,near:NaN});
   const followRadius=useRef(OUTDOOR_CAMERA_RADIUS);
   const cameraDistance=useRef(OUTDOOR_CAMERA_RADIUS);
 
@@ -395,7 +396,16 @@ export function MarsFollowCamera({
             ? 0.05
             : 0.1;
 
-        camera.updateProjectionMatrix();
+        // Compare against the last *projected* values, not last-frame
+        // values; otherwise small FOV steps may never reach the renderer.
+        if (
+          Math.abs(camera.fov - projectedCamera.current.fov) > 0.025 ||
+          camera.near !== projectedCamera.current.near
+        ) {
+          camera.updateProjectionMatrix();
+          projectedCamera.current.fov = camera.fov;
+          projectedCamera.current.near = camera.near;
+        }
       }
 
       lookTarget.current.set(worldPosition.current.x,worldPosition.current.y+LOOK_HEIGHT,worldPosition.current.z);
