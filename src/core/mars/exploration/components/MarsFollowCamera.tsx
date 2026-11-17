@@ -378,6 +378,8 @@ export function MarsFollowCamera({
         camera instanceof
         THREE.PerspectiveCamera
       ) {
+        const previousFov = camera.fov;
+        const previousNear = camera.near;
         const targetFov=environment?.narrow?(cameraDistance.current<2.2?70:60):insideCommandHub?INDOOR_CAMERA_FOV:OUTDOOR_CAMERA_FOV;
 
         camera.fov =
@@ -395,7 +397,14 @@ export function MarsFollowCamera({
             ? 0.05
             : 0.1;
 
-        camera.updateProjectionMatrix();
+        // Avoid rebuilding the projection matrix for tiny
+        // FOV changes on every mobile animation frame.
+        if (
+          Math.abs(camera.fov - previousFov) > 0.025 ||
+          camera.near !== previousNear
+        ) {
+          camera.updateProjectionMatrix();
+        }
       }
 
       lookTarget.current.set(worldPosition.current.x,worldPosition.current.y+LOOK_HEIGHT,worldPosition.current.z);
