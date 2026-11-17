@@ -14,10 +14,10 @@ function Display({kind,telemetry,brightness}:{kind:number;telemetry:Telemetry;br
   c.fillStyle='#06151e';c.fillRect(0,0,768,384);c.strokeStyle='#20404b';c.lineWidth=1;
   for(let x=24;x<768;x+=48){c.beginPath();c.moveTo(x,60);c.lineTo(x,350);c.stroke();}
   for(let y=80;y<384;y+=48){c.beginPath();c.moveTo(24,y);c.lineTo(744,y);c.stroke();}
-  c.font='bold 25px monospace';c.fillStyle='#87d5de';c.fillText(['NAVIGATION / INERTIAL','ALTITUDE / VERTICAL SPEED','PROPULSION / SYSTEMS','TERRAIN / PROFILE RADAR','ENERGY / VEHICLE'][kind],24,38);
-  c.font='22px monospace';
+  c.font='bold 25px monospace';c.fillStyle='#c3f5ff';c.fillText(['NAVIGATION / INERTIAL','ALTITUDE / VERTICAL SPEED','PROPULSION / SYSTEMS','TERRAIN / PROFILE RADAR','ENERGY / VEHICLE'][kind],24,38);
+  c.font='bold 28px monospace';
   const lines=kind===4?['ENERGY: SENSOR UNAVAILABLE','FUEL: SENSOR UNAVAILABLE',`VEHICLE ${t?.status??'—'}`]:kind===3?[`CLEARANCE ${t?.distance??'—'} M`,'LOCAL TERRAIN / LIVE SAMPLES','LATERAL RADAR: UNAVAILABLE']:kind===0?[`HDG ${t?.heading??'—'} DEG`,`GROUND ${t?.distance??'—'} M`,`HORIZONTAL ${t?.horizontal??'—'} M/S`]:kind===1?[t?.phase??'AWAITING TERRAIN',`VERTICAL ${t?.vertical??'—'} M/S`,`AUTO T-${t?.autoRemaining??'—'} S`]:[`GEAR ${t?.gear??'—'}`,`ENGINE ${t?.enginePower??'—'} %`,`FUEL / ENERGY: NO SENSOR`];
-  lines.forEach((line,i)=>{c.fillStyle=i===0?'#65d8ff':i===1?'#6fedac':'#ffbf65';c.fillText(line,26,92+i*38);});
+  lines.forEach((line,i)=>{c.fillStyle=i===0?'#a7eeff':i===1?'#9effc7':'#ffd58e';c.fillText(line,26,92+i*38);});
   if(kind===0||kind===3){
    const profile=t?.terrainProfile??[],heights=profile.map(p=>p.height).filter(Number.isFinite);
    const lo=heights.length?Math.min(...heights):0,hi=heights.length?Math.max(...heights):0;
