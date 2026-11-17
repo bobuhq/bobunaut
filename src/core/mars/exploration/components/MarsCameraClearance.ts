@@ -7,6 +7,7 @@ export class MarsCameraClearance {
  private entries:Array<{mesh:THREE.Mesh;box:THREE.Box3;matrix:THREE.Matrix4}>=[];
  private ray=new THREE.Raycaster();private direction=new THREE.Vector3();private right=new THREE.Vector3();private up=new THREE.Vector3(0,1,0);
  private start=new THREE.Vector3();private end=new THREE.Vector3();private segment=new THREE.Box3();
+  private reverseDirection=new THREE.Vector3();
  refresh(roots:THREE.Object3D[]){
   const previous=new Map(this.entries.map(e=>[e.mesh,e]));this.entries=[];
   for(const root of roots)root.traverse(o=>{const mesh=o as THREE.Mesh;if(!mesh.isMesh||mesh.userData.cameraIgnore)return;
@@ -34,7 +35,7 @@ export class MarsCameraClearance {
    this.end.copy(eye).addScaledVector(this.right,side).addScaledVector(this.up,vertical);
    this.ray.set(this.start,this.direction);this.ray.near=.025;this.ray.far=length+CAMERA_CLEARANCE;
    const forward=this.ray.intersectObjects(candidates,false);if(forward.length)allowed=Math.min(allowed,forward[0].distance-CAMERA_CLEARANCE);
-   this.ray.set(this.end,this.direction.clone().negate());
+   this.ray.set(this.end,this.reverseDirection.copy(this.direction).negate());
    for(const hit of this.ray.intersectObjects(candidates,false))allowed=Math.min(allowed,length-hit.distance-CAMERA_CLEARANCE);
   }
   allowed=Math.max(.08,allowed);if(allowed<length)eye.copy(look).addScaledVector(this.direction,allowed);

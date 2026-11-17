@@ -25,11 +25,11 @@ type MarsFollowCameraProps = {
   constrainCamera?: (look: THREE.Vector3, eye: THREE.Vector3) => void;
 };
 
-const OUTDOOR_CAMERA_HORIZONTAL_DISTANCE = 6.5;
-const OUTDOOR_CAMERA_HEIGHT = 3.6;
+const OUTDOOR_CAMERA_HORIZONTAL_DISTANCE = 4.9;
+const OUTDOOR_CAMERA_HEIGHT = 3.0;
 
-const INDOOR_CAMERA_HORIZONTAL_DISTANCE = 3.2;
-const INDOOR_CAMERA_HEIGHT = 2.25;
+const INDOOR_CAMERA_HORIZONTAL_DISTANCE = 4.0;
+const INDOOR_CAMERA_HEIGHT = 2.5;
 
 const LOOK_HEIGHT = 1.15;
 
@@ -341,7 +341,7 @@ export function MarsFollowCamera({
         ) || interiorAt?.(worldPosition.current.x, worldPosition.current.z) === true;
 
       const environment=environmentAt?.(worldPosition.current.x,worldPosition.current.z)??null;
-      const targetRadius=environment?.narrow?2.9:insideCommandHub?INDOOR_CAMERA_RADIUS:OUTDOOR_CAMERA_RADIUS;
+      const targetRadius=environment?.narrow?3.6:insideCommandHub?INDOOR_CAMERA_RADIUS:OUTDOOR_CAMERA_RADIUS;
       followRadius.current=followCameraRadius(followRadius.current,targetRadius,delta);
       const cameraRadius=followRadius.current;
 
