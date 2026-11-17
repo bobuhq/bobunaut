@@ -1,5 +1,6 @@
 import release from '../../genesis-release.json';
 import {validateGenesisCertificate} from './certification.mjs';
+import {validateGenesisWorldSiteV13} from './world-site-v13.mjs';
 import { supabase } from '../../../../lib/supabase';
 import {getMarsCommandHubProgressionForColony} from '../../MarsCommandHubProgressionService';
 import {getMyMarsColonyBase} from '../../MarsColonyBaseService';
@@ -61,5 +62,30 @@ export async function reviewAresGenesisPlacement() {
  } catch (error) {
   return {...blockedPlacementReview(occupancy), occupancy,
    blockers:['SERVER_APPROVAL_BLOCKED: '+(error instanceof Error?error.message:String(error)),...OCCUPANCY_BLOCKERS]};
+ }
+}
+
+/** Read an independently registered world site. Only the authenticated RPC can
+ * assert registration; browser storage and a 60s action lease are never sources.
+ * A missing V13 RPC means an older backend; any OTHER backend error fails closed.
+ */
+export async function reviewAresGenesisWorldSiteV13() {
+ const occupancy = await readAresColonyOccupancy();
+ if (!occupancy.colonyId) return {status:'blocked' as const};
+ const {data,error} = await supabase.rpc('get_ares_genesis_world_site_v13');
+ if (error) {
+  // Safe backwards compatibility until the V13 database migration is installed.
+  if (error.code === 'PGRST202') return {status:'unavailable' as const};
+  return {status:'blocked' as const};
+ }
+ if (!data || typeof data!=='object' || Array.isArray(data)) return {status:'blocked' as const};
+ try {
+  const result=data as Record<string,unknown>;
+  const validated=validateGenesisWorldSiteV13(result,{
+   colonyId:occupancy.colonyId, releaseDigest:release.sha256
+  });
+  return {status:'registered' as const,site:validated.site,siteId:validated.siteId};
+ } catch {
+  return {status:'blocked' as const};
  }
 }
