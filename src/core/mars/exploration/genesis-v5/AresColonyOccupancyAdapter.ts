@@ -79,6 +79,12 @@ export async function reviewAresGenesisWorldSiteV13() {
   return {status:'blocked' as const};
  }
  if (!data || typeof data!=='object' || Array.isArray(data)) return {status:'blocked' as const};
+ // An absent V13 registration is not a denial of legacy V6 flight.
+ // All other errors remain blocked. This never authorizes a campus.
+ const response=data as Record<string,unknown>;
+ if (response.status === 'unregistered') {
+   return {status:'unregistered' as const};
+ }
  try {
   const result=data as Record<string,unknown>;
   const validated=validateGenesisWorldSiteV13(result,{

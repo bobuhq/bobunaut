@@ -90,7 +90,26 @@ BEGIN
     AND g.owner_id=ws.owner_id AND g.colony_id=ws.colony_id
     AND g.proposal_id=ws.proposal_id AND g.release_digest=ws.release_digest
     AND g.scope_epoch=ws.authority_epoch AND g.site=ws.site;
-  IF NOT FOUND THEN RETURN jsonb_build_object('status','blocked','reason','No current durable world-site authority'); END IF;
+  IF NOT FOUND THEN
+    -- Legacy V6 is available only if this colony has NEVER received
+    -- a persistent grant or a V13 registration.
+    IF NOT EXISTS (
+      SELECT 1 FROM genesis_v11.world_sites_v13
+      WHERE colony_id=colony
+    ) AND NOT EXISTS (
+      SELECT 1 FROM genesis_v11.persistent_grants_v12
+      WHERE colony_id=colony
+    ) THEN
+      RETURN jsonb_build_object(
+        'status','unregistered',
+        'reason','No V13 authority has ever been registered'
+      );
+    END IF;
+    RETURN jsonb_build_object(
+      'status','blocked',
+      'reason','No current durable world-site authority'
+    );
+  END IF;
   RETURN jsonb_build_object('status','registered','site_id',w.site_id,
     'colony_id',w.colony_id,'release_digest',w.release_digest,
     'registered_at',w.registered_at,'authority_epoch',w.authority_epoch,'site',w.site);

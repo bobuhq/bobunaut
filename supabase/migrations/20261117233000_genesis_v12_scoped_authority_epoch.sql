@@ -68,7 +68,7 @@ BEGIN
     RAISE EXCEPTION 'PROPOSAL_EXPIRED'; END IF;
   IF p.world_snapshot <> public.ares_genesis_world_snapshot_v11() THEN
     RAISE EXCEPTION 'WORLD_SNAPSHOT_CHANGED'; END IF;
-  IF p.release_digest <> '5e89de66450d5c83f71a2eb6d2f426252337dafc743e7c51961367718b298611' THEN
+  IF p.release_digest <> '8080335c3f9ac55e40f64b1c4acdde0693eb5038ee74e0017ddc29a0a995156f' THEN
     RAISE EXCEPTION 'V12_RELEASE_DIGEST_REQUIRED'; END IF;
   PERFORM 1 FROM genesis_v11.verified_evidence_v12 e
     WHERE e.evidence_digest=p.evidence_digest AND e.evidence_uri=p.evidence_uri
@@ -113,7 +113,7 @@ BEGIN
     AND p.colony_id=gg.colony_id AND p.release_digest=gg.release_digest
     AND p.evidence_digest=gg.evidence_digest AND p.evidence_uri=gg.evidence_uri
     AND p.site=gg.site AND p.inventory=gg.inventory AND p.world_snapshot=gg.world_snapshot
-    AND gg.release_digest='5e89de66450d5c83f71a2eb6d2f426252337dafc743e7c51961367718b298611'
+    AND gg.release_digest='8080335c3f9ac55e40f64b1c4acdde0693eb5038ee74e0017ddc29a0a995156f'
     AND gg.site->>'layout'='integrated-command-hub-v11'
     AND gg.scope_epoch=(SELECT epoch FROM genesis_v11.scope_epoch_v12 WHERE singleton)
   LIMIT 1;

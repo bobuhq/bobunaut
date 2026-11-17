@@ -18,7 +18,7 @@ const owner='00000000-0000-0000-0000-000000000003';
 const outsider='00000000-0000-0000-0000-000000000009';
 const proposal='00000000-0000-0000-0000-000000000010';
 const colony='00000000-0000-0000-0000-000000000001';
-const release='5e89de66450d5c83f71a2eb6d2f426252337dafc743e7c51961367718b298611';
+const release='8080335c3f9ac55e40f64b1c4acdde0693eb5038ee74e0017ddc29a0a995156f';
 const evidence='b'.repeat(64),uri='https://evidence.example.invalid/immutable/'+evidence+'.json';
 const route={route_key:'synthetic-route',route_kind:'walking',xMin:999,xMax:1001,zMin:999,zMax:1001,source_digest:'d'.repeat(64)};
 const inventory={completeWorldCoverage:true,externalRoutesComplete:true,geometryValidated:true,landmarkExtentsVerified:true,mapping:{origin_x:-50.75,origin_z:-74.75,scale:4.5,yaw:0},sourceRevision:'synthetic-v13-fixture',terrainDigest:'c'.repeat(64),routes:[route],landmarkExtents:[{id:'synthetic-1'},{id:'synthetic-2'},{id:'synthetic-3'}]};
@@ -32,7 +32,7 @@ try{
  const chain=['supabase/migrations/20261114120000_ares_genesis_certification_v11.sql','tests/genesis-v11/legacy-authority-fixture.sql','supabase/migrations/20261114184238_ares_genesis_owner_approval_v11.sql','supabase/migrations/20261114193344_ares_integrated_command_hub_v11.sql','supabase/migrations/20261117230000_genesis_v12_persistent_authorization.sql','supabase/migrations/20261117233000_genesis_v12_scoped_authority_epoch.sql','supabase/migrations/20261118001000_genesis_v13_durable_world_registry.sql'];
  await sql(fixture+chain.map(f=>readFileSync(f,'utf8')).join('\n'));
  await sql(`insert into genesis_v11.owners values('${owner}');insert into genesis_v11.proposals(id,colony_id,release_digest,evidence_digest,evidence_uri,world_snapshot,site,inventory,valid_until) values('${proposal}','${colony}','${release}','${evidence}','${uri}',public.ares_genesis_world_snapshot_v11(),${json(site)},${json(inventory)},statement_timestamp()+interval '20 minutes');`);
- assert.equal(await status(owner),'blocked','Unapproved world site must be blocked');
+ assert.equal(await status(owner),'unregistered','Never-authorized world must remain legacy-compatible');
  await assert.rejects(sql(`${auth(outsider)}select public.register_ares_genesis_world_site_v13('${proposal}');`),/MATCHING_OWNER_GRANT_REQUIRED/);
  await assert.rejects(sql(`${auth(owner)}select public.register_ares_genesis_world_site_v13('${proposal}');`),/MATCHING_OWNER_GRANT_REQUIRED/);
  await sql(`${auth(owner)}select public.decide_ares_genesis_owner_proposal_v11('${proposal}',true);`);
