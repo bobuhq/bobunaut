@@ -183,6 +183,22 @@ export function CinematicLanding({flight=false,obstacles=[],onAresEntry}:{flight
  if(!data)return null;
  return <>{flight&&<ViewportOverlay><div className="flight-overlay"><div ref={fade} aria-hidden="true" style={{position:'fixed',inset:0,background:'#02070c',opacity:0,transition:'opacity 140ms ease',pointerEvents:'none',zIndex:200}}/>
  {flight&&!modelReady&&<div role="status" style={{position:'fixed',inset:0,display:'grid',placeItems:'center',background:'#071016',color:'#dcefff',fontFamily:'monospace',letterSpacing:2,zIndex:250,pointerEvents:'none'}}>BOBU ARES · LOADING SPACECRAFT</div>}
+ {exitPhase==='FLIGHT'&&modelReady&&(
+  <details className="flight-controls-guide" open>
+    <summary>FLIGHT CONTROLS · HELP</summary>
+    <div className="flight-guide-desktop">
+      W/S Forward/Back · A/D Strafe · Q/E Turn
+      <div>Space/Shift Up/Down · C Camera</div>
+      <div>G Landing Gear · F Safe Auto Landing</div>
+    </div>
+    <div className="flight-guide-mobile">
+      MOVE: Fly / Strafe · DRAG TO LOOK: View
+      <div>ASCEND / DESCEND: Altitude</div>
+      <div>ROTATE: Turn · CAMERA: View</div>
+      <div>GEAR: Landing Gear · TOUCHDOWN: Auto Landing</div>
+    </div>
+  </details>
+)}
  {exitPhase==='FLIGHT'&&mode==='CHASE'&&modelReady&&<FlightHUD telemetry={telemetry} onAudio={()=>audio.toggle()}/>}
 
  {exitPhase!=='FLIGHT'&&<div role="status" style={{position:'fixed',top:16,left:'50%',transform:'translateX(-50%)',pointerEvents:'none',color:'#bcecff',background:'#07121ad9',padding:'9px 18px',borderRadius:7,fontFamily:'monospace',fontSize:13,zIndex:5}}>{exitPhase==='COCKPIT'?'BOBU · TOUCHDOWN / COCKPIT':exitPhase==='HATCH'?'BOBU · EXIT HATCH OPENING':exitPhase==='STAIRS'?'BOBU · DESCENDING TO MARS':'BOBU · MARS EXPLORATION · WASD'}</div>}
