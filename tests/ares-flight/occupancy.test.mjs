@@ -32,7 +32,14 @@ test('occupancy diagnostics stay read-only; placement approval uses the existing
  assert(diagnostic.includes('await getMyMarsColonyBase()'));
  assert(!/supabase|moveMy|constructMy|upgradeMy|localStorage|location.search/.test(diagnostic));
  assert(!/moveMy|constructMy|upgradeMy|localStorage|location.search|supabase\.from/.test(s));
- assert.deepEqual([...s.matchAll(/supabase\.rpc\('([^']+)'/g)].map(match=>match[1]),['get_ares_genesis_placement_v10']);
+ const placement=s.slice(s.indexOf('export async function reviewAresGenesisPlacement()'),s.indexOf('export async function reviewAresGenesisWorldSiteV13()'));
+ const registry=s.slice(s.indexOf('export async function reviewAresGenesisWorldSiteV13()'));
+ assert.deepEqual([...placement.matchAll(/supabase\.rpc\('([^']+)'/g)].map(m=>m[1]),['get_ares_genesis_placement_v10']);
+ assert.deepEqual([...registry.matchAll(/supabase\.rpc\('([^']+)'/g)].map(m=>m[1]),['get_ares_genesis_world_site_v13']);
+ assert(registry.includes("validateGenesisWorldSiteV13(result,"));
+ assert(registry.includes("return {status:'blocked' as const}"));
+ assert(registry.includes("return {status:'unavailable' as const}"));
+ assert(!/supabase\.(from|insert|update|delete|upsert)\(/.test(registry));
  assert(s.includes("result.status !== 'approved'"));
  assert(s.includes("status:'blocked'") && s.includes('blockedPlacementReview(occupancy)'));
  for(const field of ['protectedRoutes:null','legalRegions:null','authoritativeRevision:null','reservation:null'])assert(s.includes(field));
