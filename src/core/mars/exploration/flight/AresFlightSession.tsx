@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState, useRef, useMemo } from "react";
 import { Html } from "@react-three/drei";
 import { CinematicLanding } from "./CinematicLanding";
-import { readAresColonyOccupancy, reviewAresGenesisWorldSiteV13 } from "../genesis-v5/AresColonyOccupancyAdapter";
+import { reviewAresGenesisWorldSiteV13 } from "../genesis-v5/AresColonyOccupancyAdapter";
+import { readAresSharedFlightCollision } from "./AresSharedFlightCollision";
 import { loadAresGenesisTerrainData, sampleAresGenesisRenderedSurfaceMeters } from "../engine/AresGenesisTerrainData";
 import { validHandoff, type FlightHandoff } from "./handoff.mjs";
 import { VEHICLE_RADIUS } from "../genesis-v5/flight-v2.mjs";
@@ -16,7 +17,7 @@ const requireV13Areas = (value: unknown): any[] => {
   return value;
 };
 
-type Snapshot = Awaited<ReturnType<typeof readAresColonyOccupancy>>;
+type Snapshot = Awaited<ReturnType<typeof readAresSharedFlightCollision>>;
 const noCampusObstacles:any[]=[];
 export function AresFlightSession({ onEntry,campusObstacles=noCampusObstacles }: {onEntry:(handoff:FlightHandoff)=>void;campusObstacles?:any[]}) {
   const [data,setData] = useState<{
@@ -31,12 +32,13 @@ export function AresFlightSession({ onEntry,campusObstacles=noCampusObstacles }:
   useEffect(() => {
     let active=true;
     Promise.all([
-      readAresColonyOccupancy(),
+      readAresSharedFlightCollision(),
       loadAresGenesisTerrainData(),
       reviewAresGenesisWorldSiteV13()
     ]).then(([occupancy,terrain,worldSite]) => {
       if (!active) return;
-      if (!occupancy.colonyId || !occupancy.legalBuildingRegion) { setError("Colony collision data unavailable. Return to Mars and retry."); return; }
+      // All Builders use the same authenticated world collision snapshot.
+      // Colony membership is NOT an ARES flight prerequisite.
       // These reads are collision exclusions, never campus placement authorization.
       if (worldSite.status === "blocked") {
         setError("V13 world authorization unavailable. Return to Mars and retry.");
@@ -68,7 +70,7 @@ export function AresFlightSession({ onEntry,campusObstacles=noCampusObstacles }:
       const obstacles=[
         ...occupancy.buildings,
         ...occupancy.fixed,
-        {...occupancy.legalBuildingRegion,groundOnly:true},
+        ...occupancy.legalRegions,
         ...protectedGround
       ];
       setData({occupancy,terrain,obstacles,worldSiteId});
@@ -81,7 +83,7 @@ export function AresFlightSession({ onEntry,campusObstacles=noCampusObstacles }:
     const handoff={spawn:[...spawn],ship:[...landing.ship],yaw:landing.yaw};
     // Re-read authenticated occupancy at exit; a local read is never a reservation.
     void Promise.all([
-      readAresColonyOccupancy(),
+      readAresSharedFlightCollision(),
       reviewAresGenesisWorldSiteV13()
     ]).then(([current,currentWorldSite]) => {
       if (!alive.current) return;
@@ -123,9 +125,7 @@ export function AresFlightSession({ onEntry,campusObstacles=noCampusObstacles }:
       const allLandingExclusions = [
         ...current.buildings,
         ...current.fixed,
-        ...(current.legalBuildingRegion
-          ? [current.legalBuildingRegion]
-          : []),
+        ...current.legalRegions,
         ...v13LandingExclusions,
         ...campusObstacles
       ];
@@ -137,11 +137,10 @@ export function AresFlightSession({ onEntry,campusObstacles=noCampusObstacles }:
         return;
       }
 
-      if (!current.colonyId || current.colonyId!==data.occupancy.colonyId || !current.legalBuildingRegion ||
-          !validHandoff(handoff,[
+      if (!validHandoff(handoff,[
             ...current.buildings,
             ...current.fixed,
-            current.legalBuildingRegion,
+            ...current.legalRegions,
             ...v13ActorExclusions,
             ...campusObstacles
           ],(x,z)=>sampleAresGenesisRenderedSurfaceMeters(data.terrain,x,z))) {

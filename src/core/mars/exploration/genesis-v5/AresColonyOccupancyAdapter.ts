@@ -70,8 +70,8 @@ export async function reviewAresGenesisPlacement() {
  * A missing V13 RPC means an older backend; any OTHER backend error fails closed.
  */
 export async function reviewAresGenesisWorldSiteV13() {
- const occupancy = await readAresColonyOccupancy();
- if (!occupancy.colonyId) return {status:'blocked' as const};
+ // Probe RPC availability BEFORE demanding a personal colony: legacy
+ // V6 exploration is shared, even for a Builder without any colony.
  const {data,error} = await supabase.rpc('get_ares_genesis_world_site_v13');
  if (error) {
   // Safe backwards compatibility until the V13 database migration is installed.
@@ -86,6 +86,10 @@ export async function reviewAresGenesisWorldSiteV13() {
    return {status:'unregistered' as const};
  }
  try {
+  // Registered V13 site remains strictly owner/colony-bound until its
+  // separate shared-world authority contract is deployed.
+  const occupancy = await readAresColonyOccupancy();
+  if(!occupancy.colonyId) return {status:'blocked' as const};
   const result=data as Record<string,unknown>;
   const validated=validateGenesisWorldSiteV13(result,{
    colonyId:occupancy.colonyId, releaseDigest:release.sha256
