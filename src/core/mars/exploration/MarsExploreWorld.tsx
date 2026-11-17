@@ -3200,7 +3200,7 @@ export function MarsExploreWorld() {
           />
         )}
 
-      {v13CampusDiagnostic && (
+      {import.meta.env.DEV && v13CampusDiagnostic && (
         <div style={{position:'absolute',left:12,top:94,zIndex:90,maxWidth:340,padding:'7px 9px',
           pointerEvents:'none',background:'rgba(5,7,18,.8)',color:'#c5ecff',
           border:'1px solid rgba(99,245,255,.35)',borderRadius:6,font:'11px monospace'}}>
@@ -3222,7 +3222,7 @@ export function MarsExploreWorld() {
           near: 0.1,
           far: 20000,
         }}
-        dpr={[1, 1.75]}
+        dpr={[1, 1.25]}
         gl={{
           antialias: true,
           alpha: false,
