@@ -4835,14 +4835,14 @@ export function MarsPlanetMap({
                 <div
                   className={[
                     "mars-planet-map__access-hex",
-                    aresAccess?.unlocked
+                    true
                       ? "is-unlocked"
                       : "is-locked",
                   ].join(" ")}
                   aria-hidden="true"
                 >
                   <span>
-                    {aresAccess?.unlocked ? "✓" : "⌁"}
+                    {true ? "✓" : "⌁"}
                   </span>
                 </div>
 
@@ -4853,8 +4853,8 @@ export function MarsPlanetMap({
                   <strong>
                     {aresAccessLoading
                       ? t("mars.ares.verifyingAccess")
-                      : aresAccess?.unlocked
-                        ? t("mars.ares.accessAuthorized")
+                      : true
+                        ? "TEMPORARY OPEN ACCESS"
                         : t("mars.ares.securityLockActive")}
                   </strong>
                 </div>
@@ -4930,22 +4930,22 @@ export function MarsPlanetMap({
                 type="button"
                 className={[
                   "mars-planet-map__enter",
-                  aresAccess?.unlocked
+                  true
                     ? "is-ares"
                     : "is-locked",
                 ].join(" ")}
                 disabled={
                   aresAccessLoading ||
-                  !aresAccess?.unlocked
+                  !true
                 }
                 aria-disabled={
                   aresAccessLoading ||
-                  !aresAccess?.unlocked
+                  !true
                 }
                 onClick={() => {
                   if (
                     aresAccessLoading ||
-                    !aresAccess?.unlocked
+                    !true
                   ) {
                     return;
                   }
@@ -4957,11 +4957,11 @@ export function MarsPlanetMap({
               >
                 {aresAccessLoading
                   ? t("mars.ares.verifyingAccess")
-                  : aresAccess?.unlocked
+                  : true
                     ? t("mars.ares.enter")
                     : t("mars.ares.aresLocked")}
                 <span>
-                  {aresAccess?.unlocked ? "→" : "×"}
+                  {true ? "→" : "×"}
                 </span>
               </button>
             </div>
