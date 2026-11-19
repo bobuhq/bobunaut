@@ -1,27 +1,32 @@
-import {useEffect,useMemo} from 'react';
+import {useEffect} from 'react';
 import * as T from 'three';
 import {CANOPY,ROOF} from './spacecraft-v5-geometry.mjs';
 import {HULL_SECTIONS,panelPositions,shellPositions,SPACECRAFT_CONTRACT} from './first-party-spacecraft.mjs';
-export type SpacecraftRendererProps={interior?:boolean;reflection:T.Texture;onReady?:()=>void;exitActive?:boolean};
+export type SpacecraftRendererProps={interior?:boolean;reflection:T.Texture;shell:T.BufferGeometry[];onReady?:()=>void;exitActive?:boolean};
 type Point=[number,number,number];
 function Box({at,size,color='#89949e',glow=false}:{at:Point;size:Point;color?:string;glow?:boolean}){
  return <mesh position={at} castShadow receiveShadow><boxGeometry args={size}/><meshStandardMaterial color={color} metalness={glow?.25:.72} roughness={.4} emissive={glow?color:'#000000'} emissiveIntensity={glow?1.4:0}/></mesh>;
 }
-function Surface({positions,glass=false,reflection}:{positions:number[];glass?:boolean;reflection:T.Texture}){
- const geometry=useMemo(()=>{const g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(positions,3));g.computeVertexNormals();return g;},[positions]);
- useEffect(()=>()=>geometry.dispose(),[geometry]);
+function Surface({geometry,glass=false,reflection}:{geometry:T.BufferGeometry;glass?:boolean;reflection:T.Texture}){
  return <mesh geometry={geometry} castShadow={!glass} receiveShadow><meshStandardMaterial color={glass?'#6192a3':'#89949e'} metalness={glass?.2:.75} roughness={glass?.15:.43} envMap={reflection} envMapIntensity={.5} side={T.DoubleSide} transparent={glass} opacity={glass?.14:1} depthWrite={!glass}/></mesh>;
 }
 const lower=shellPositions(HULL_SECTIONS.lower),aft=shellPositions(HULL_SECTIONS.aft,{aft:true});
 const canopy=panelPositions(CANOPY),roof=panelPositions(ROOF);
 const sideWindows=[-1,1].map(s=>panelPositions([[s*2.15,.15,-6.35],[s*2.65,2.65,-3.8],[s*2.5,2.75,-.3],[s*3.65,.1,-.3]]));
+export function createSpacecraftShellGeometries(){
+ return [lower,aft,canopy,roof,...sideWindows].map(positions=>{
+  const geometry=new T.BufferGeometry();
+  const position=new T.Float32BufferAttribute(positions,3);
+  geometry.setAttribute('position',position);
+  geometry.computeVertexNormals();
+  return geometry;
+ });
+}
 /** Pure visual alternative: physics, pad articulation, xenon, exit timing and cameras stay in their existing owners. */
-export function FirstPartySpacecraft({interior=false,reflection,onReady,exitActive=false}:SpacecraftRendererProps){
+export function FirstPartySpacecraft({interior=false,reflection,shell,onReady,exitActive=false}:SpacecraftRendererProps){
  useEffect(()=>{onReady?.();},[onReady]);
  return <group name={interior?'ARES-first-party-interior':'ARES-first-party-exterior'} userData={{renderer:SPACECRAFT_CONTRACT.renderer}}>
-  <Surface positions={lower} reflection={reflection}/><Surface positions={aft} reflection={reflection}/>
-  <Surface positions={canopy} glass reflection={reflection}/><Surface positions={roof} reflection={reflection}/>
-  {sideWindows.map((p,i)=><Surface key={i} positions={p} glass reflection={reflection}/>)}
+  {shell.map((geometry,i)=><Surface key={i} geometry={geometry} glass={i>=2} reflection={reflection}/>)}
   {/* Structural canopy mullions, panel seams and radiators authored in aircraft coordinates. */}
   {[-1,1].map(s=><group key={s}>
    <mesh position={[s*2.4,1.4,-5.05]} rotation={[-.8,0,s*.18]} castShadow><boxGeometry args={[.12,3.7,.12]}/><meshStandardMaterial color="#c4cdd2" metalness={.8} roughness={.32}/></mesh>

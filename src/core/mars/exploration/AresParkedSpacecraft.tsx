@@ -1,5 +1,6 @@
-import { useRef } from "react";
+import { useLayoutEffect, useRef } from "react";
 import * as THREE from "three";
+import { markAresStage } from "./engine/aresPerformance";
 import { AresSpacecraft } from "./flight/AresSpacecraft";
 import { DisembarkRig } from "./flight/DisembarkRig";
 import { GearLink } from "./flight/CinematicLanding";
@@ -8,6 +9,10 @@ import { FEET } from "./genesis-v5/landing-gear.mjs";
 /** Same authored hull, finish, cockpit rig and open exit at actual touchdown. */
 export function AresParkedSpacecraft({position,yaw}:{position:[number,number,number];yaw:number}) {
   const seat=useRef<THREE.Group>(null), actor=useRef<THREE.Group>(null);
+  useLayoutEffect(() => {
+    markAresStage("parked-spacecraft-mounted");
+    return () => markAresStage("parked-spacecraft-unmounted");
+  }, []);
   const elapsed=useRef(EXIT_DURATION), pads=useRef<(THREE.Mesh|null)[]>([]);
   return <group name="BOBU-Ares-landed-spacecraft" position={position} rotation={[0,yaw,0]}>
     <AresSpacecraft seat={seat} exitActive/>

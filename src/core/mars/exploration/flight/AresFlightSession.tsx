@@ -8,6 +8,7 @@ import { validHandoff, type FlightHandoff } from "./handoff.mjs";
 import { VEHICLE_RADIUS } from "../genesis-v5/flight-v2.mjs";
 import { areasOverlap } from "../genesis-v5/colony-occupancy.mjs";
 import "./flight.css";
+import { markAresStage, startAresStage } from "../engine/aresPerformance";
 
 
 const requireV13Areas = (value: unknown): any[] => {
@@ -27,7 +28,15 @@ export function AresFlightSession({ onEntry,campusObstacles=noCampusObstacles }:
     worldSiteId:string|null;
   }|null>(null);
   const alive=useRef(true);
-  useEffect(()=>{alive.current=true;return()=>{alive.current=false;};},[]);
+  const handoffRequested=useRef(false);
+  useEffect(() => {
+    alive.current = true;
+    markAresStage("flight-session-mounted");
+    return () => {
+      alive.current = false;
+      markAresStage("flight-session-unmounted");
+    };
+  }, []);
   const [error,setError] = useState<string|null>(null);
   useEffect(() => {
     let active=true;
@@ -79,73 +88,83 @@ export function AresFlightSession({ onEntry,campusObstacles=noCampusObstacles }:
   },[]);
   const flightObstacles=useMemo(()=>data?[...data.obstacles,...campusObstacles]:campusObstacles,[data,campusObstacles]);
   const accept=useCallback((spawn:[number,number,number],landing:{ship:[number,number,number];yaw:number}) => {
-    if (!data) return;
+    if (!data || handoffRequested.current) return;
+    handoffRequested.current = true;
+    markAresStage("handoff-validation-start");
     const handoff={spawn:[...spawn],ship:[...landing.ship],yaw:landing.yaw};
     // Re-read authenticated occupancy at exit; a local read is never a reservation.
+    const finishCollisionRead = startAresStage("handoff-occupancy-await");
+    const finishSiteRead = startAresStage("handoff-world-site-await");
     void Promise.all([
-      readAresSharedFlightCollision(),
-      reviewAresGenesisWorldSiteV13()
+      readAresSharedFlightCollision().finally(() => finishCollisionRead?.()),
+      reviewAresGenesisWorldSiteV13().finally(() => finishSiteRead?.()),
     ]).then(([current,currentWorldSite]) => {
       if (!alive.current) return;
-      const currentSiteId =
-        currentWorldSite.status === "registered"
-          ? currentWorldSite.siteId
-          : null;
-      if (
-        currentWorldSite.status === "blocked" ||
-        currentSiteId !== data.worldSiteId
-      ) {
-        setError("V13 world authorization changed during flight. Return to Mars and retry.");
-        return;
+      const finishChecks = startAresStage("handoff-local-checks");
+      try {
+        const currentSiteId =
+          currentWorldSite.status === "registered"
+            ? currentWorldSite.siteId
+            : null;
+        if (
+          currentWorldSite.status === "blocked" ||
+          currentSiteId !== data.worldSiteId
+        ) {
+          setError("V13 world authorization changed during flight. Return to Mars and retry.");
+          return;
+        }
+        // Revalidate the parked craft against CURRENT physical geometry
+        // and the authenticated V13 ground exclusion policy.
+        // Pedestrian corridors are landing exclusions, not walking walls.
+        const v13LandingExclusions = currentWorldSite.status === "registered"
+          ? [
+              ...requireV13Areas(currentWorldSite.site.reservations),
+              ...requireV13Areas(currentWorldSite.site.protectedRoutes),
+              ...requireV13Areas(currentWorldSite.site.occupied),
+              ...requireV13Areas(currentWorldSite.site.legalRegions)
+            ]
+          : [];
+
+        const v13ActorExclusions = currentWorldSite.status === "registered"
+          ? requireV13Areas(currentWorldSite.site.reservations)
+          : [];
+
+        const craftFootprint = {
+          id: "v13-current-landing-footprint",
+          kind: "circle" as const,
+          x: handoff.ship[0],
+          z: handoff.ship[2],
+          radius: VEHICLE_RADIUS + 3
+        };
+
+        const allLandingExclusions = [
+          ...current.buildings,
+          ...current.fixed,
+          ...current.legalRegions,
+          ...v13LandingExclusions,
+          ...campusObstacles
+        ];
+
+        if (allLandingExclusions.some(area =>
+          areasOverlap(craftFootprint, area)
+        )) {
+          setError("Landing area changed or intersects protected ground. Return to Mars and retry.");
+          return;
+        }
+
+        if (!validHandoff(handoff,[
+              ...current.buildings,
+              ...current.fixed,
+              ...current.legalRegions,
+              ...v13ActorExclusions,
+              ...campusObstacles
+            ],(x,z)=>sampleAresGenesisRenderedSurfaceMeters(data.terrain,x,z))) {
+          setError("Disembark position is obstructed or occupancy unavailable. Return to Mars and retry."); return;
+        }
+      } finally {
+        finishChecks?.();
       }
-      // Revalidate the parked craft against CURRENT physical geometry
-      // and the authenticated V13 ground exclusion policy.
-      // Pedestrian corridors are landing exclusions, not walking walls.
-      const v13LandingExclusions = currentWorldSite.status === "registered"
-        ? [
-            ...requireV13Areas(currentWorldSite.site.reservations),
-            ...requireV13Areas(currentWorldSite.site.protectedRoutes),
-            ...requireV13Areas(currentWorldSite.site.occupied),
-            ...requireV13Areas(currentWorldSite.site.legalRegions)
-          ]
-        : [];
-
-      const v13ActorExclusions = currentWorldSite.status === "registered"
-        ? requireV13Areas(currentWorldSite.site.reservations)
-        : [];
-
-      const craftFootprint = {
-        id: "v13-current-landing-footprint",
-        kind: "circle" as const,
-        x: handoff.ship[0],
-        z: handoff.ship[2],
-        radius: VEHICLE_RADIUS + 3
-      };
-
-      const allLandingExclusions = [
-        ...current.buildings,
-        ...current.fixed,
-        ...current.legalRegions,
-        ...v13LandingExclusions,
-        ...campusObstacles
-      ];
-
-      if (allLandingExclusions.some(area =>
-        areasOverlap(craftFootprint, area)
-      )) {
-        setError("Landing area changed or intersects protected ground. Return to Mars and retry.");
-        return;
-      }
-
-      if (!validHandoff(handoff,[
-            ...current.buildings,
-            ...current.fixed,
-            ...current.legalRegions,
-            ...v13ActorExclusions,
-            ...campusObstacles
-          ],(x,z)=>sampleAresGenesisRenderedSurfaceMeters(data.terrain,x,z))) {
-        setError("Disembark position is obstructed or occupancy unavailable. Return to Mars and retry."); return;
-      }
+      markAresStage("handoff-validated");
       onEntry(handoff);
     }).catch(()=>{if(alive.current)setError("Cannot validate disembark position. Return to Mars and retry.");});
   },[data,onEntry,campusObstacles]);

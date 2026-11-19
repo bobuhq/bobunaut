@@ -1,3 +1,4 @@
+import { markAresStage } from "../engine/aresPerformance";
 import {resolveSceneObstacles} from './scene-obstacles.mjs';
 import {flightTelemetry} from './flight-telemetry.mjs';
 import {FlightHUD} from './FlightHUD';
@@ -39,7 +40,7 @@ export function CinematicLanding({flight=false,obstacles=[],onAresEntry}:{flight
  const setExit=(stage:string)=>{if(exitPhaseRef.current!==stage){exitPhaseRef.current=stage;setExitPhase(stage);}};
  const obstacleScan=useRef(0);
  const [modelReady,setModelReady]=useState(false);
- const markModelReady=useCallback(()=>setModelReady(true),[]);
+ const markModelReady=useCallback(()=>{markAresStage("spacecraft-model-ready");setModelReady(true);},[]);
  const [telemetry,setTelemetry]=useState<ReturnType<typeof flightTelemetry>|null>(null);
  const touchLook=useRef({x:0,y:0});
  const chasePitch=useRef(Math.atan2(22,38));
@@ -106,14 +107,16 @@ export function CinematicLanding({flight=false,obstacles=[],onAresEntry}:{flight
   const f=controller.current;
   // Recover vertical bounds from the actual rendered structures, not a guessed
   // reservation height. Unknown/unloaded obstacles remain solid (fail closed).
-  if(f&&clock.elapsedTime>obstacleScan.current){
+  if(f&&exitClock.current===null&&clock.elapsedTime>obstacleScan.current){
    obstacleScan.current=clock.elapsedTime+2;
+   markAresStage("flight-obstacle-scan-start");
    f.obstacles=resolveSceneObstacles(scene,obstacles,ship.current);
+   markAresStage("flight-obstacle-scan-end");
   }
   if(flight&&f){if(mouse.current.alt&&input.current.yaw===0&&f.status==='MANUAL')f.yawVelocity=0;const mouseYaw=mouse.current.step(Math.min(dt,.05));look.current=cockpitLook(mouse.current.look.x+touchLook.current.x,mouse.current.look.y+touchLook.current.y);if(reticle.current){reticle.current.style.transform=`translateX(${ -mouse.current.axis*65}px)`;reticle.current.textContent=mouse.current.active?'⊕':'·';}f.step(performance.now(),{...input.current,yaw:Math.max(-1,Math.min(1,input.current.yaw+mouseYaw))},!document.hidden&&focused.current);
    // Post-touchdown handoff never writes the flight controller's position or velocity.
    if(canDisembark(f)){
-    if(exitClock.current===null){exitClock.current=clock.elapsedTime;lastExitStep.current=-1;release();cameraMode.current='COCKPIT';setMode('COCKPIT');look.current={x:0,y:0};touchLook.current={x:0,y:0};}
+    if(exitClock.current===null){markAresStage("landing-complete");exitClock.current=clock.elapsedTime;lastExitStep.current=-1;release();cameraMode.current='COCKPIT';setMode('COCKPIT');look.current={x:0,y:0};touchLook.current={x:0,y:0};}
     exitElapsed.current=Math.max(0,clock.elapsedTime-exitClock.current);
     const stage=disembarkPhase(exitElapsed.current);
     if(stage==='HATCH'&&exitPhaseRef.current==='COCKPIT'){
@@ -126,6 +129,8 @@ export function CinematicLanding({flight=false,obstacles=[],onAresEntry}:{flight
     }
     setExit(stage);
     if(stage==='GROUND'&&!onFootRef.current){
+     markAresStage("disembark-complete");
+     markAresStage("handoff-camera-hold-start");
      const local=disembarkActorLocal(EXIT_DURATION),c=Math.cos(f.yaw),si=Math.sin(f.yaw);
      const x=f.x+c*local.x+si*local.z,z=f.z-si*local.x+c*local.z;
      exitWorld.current=[x,sample(terrain!,x,z),z];landedShip.current={ship:[f.x,f.y,f.z],yaw:f.yaw};onFootRef.current=true;setOnFoot(true);
@@ -138,7 +143,8 @@ export function CinematicLanding({flight=false,obstacles=[],onAresEntry}:{flight
   if(!flight&&r.active&&g.state==='LOCKED')g.transition('DESCENDING');
   // Retain the original noninteractive demonstration when flight mode is off.
   const descent=g.state==='DESCENDING'?Math.min(g.elapsed/8,1):0;
-  const altitude=flight&&f?f.y-5.15-f.inspect(f.x,f.z).highest:30-descent*18;
+  const supportHigh=flight&&f?f.inspect(f.x,f.z).highest:data.support.highest;
+  const altitude=flight&&f?f.y-5.15-supportHigh:30-descent*18;
   if(flight&&f){ship.current.position.set(f.x,f.y,f.z);ship.current.rotation.y=f.yaw;ship.current.updateMatrixWorld(true);const pc=camera as THREE.PerspectiveCamera;const near=cameraMode.current==='COCKPIT'?.05:.3;if(pc.near!==near){pc.near=near;pc.updateProjectionMatrix();}if(!onFootRef.current){
     if(exitPhaseRef.current==='HATCH'||exitPhaseRef.current==='STAIRS'){
      const actor=actorRef.current;
@@ -166,10 +172,9 @@ export function CinematicLanding({flight=false,obstacles=[],onAresEntry}:{flight
     let ground=flight&&f?sample(terrain!,f.x+lx*c+lz*s,f.z-lx*s+lz*c):data.support.heights[i];
     // Match the five-sample support test: horizontal pad underside clears every corner.
     if(flight&&f)for(const [dx,dz] of [[-1,-1],[1,-1],[1,1],[-1,1]])ground=Math.max(ground,sample(terrain!,f.x+(lx+dx)*c+(lz+dz)*s,f.z-(lx+dx)*s+(lz+dz)*c));
-    const high=flight&&f?f.inspect(f.x,f.z).highest:data.support.highest;
-    const clearance=ship.current.position.y-high-5.15;
+    const clearance=ship.current.position.y-supportHigh-5.15;
     const contact=['GROUND_CONTACT','COMPRESSING','SETTLED'].includes(g.state);
-    const adjustment=Math.max(0,1-Math.max(0,clearance))*(high-ground);
+    const adjustment=Math.max(0,1-Math.max(0,clearance))*(supportHigh-ground);
     pad.position.y=contact?ground+.15-ship.current.position.y:Math.max(ground+.15-ship.current.position.y,-5*g.extension-adjustment);
    }
   }
@@ -232,7 +237,7 @@ export function CinematicLanding({flight=false,obstacles=[],onAresEntry}:{flight
 )}
  {exitPhase==='FLIGHT'&&mode==='CHASE'&&modelReady&&<FlightHUD telemetry={telemetry} onAudio={()=>audio.toggle()}/>}
 
- {exitPhase!=='FLIGHT'&&<div role="status" style={{position:'fixed',top:16,left:'50%',transform:'translateX(-50%)',pointerEvents:'none',color:'#bcecff',background:'#07121ad9',padding:'9px 18px',borderRadius:7,fontFamily:'monospace',fontSize:13,zIndex:5}}>{exitPhase==='COCKPIT'?'BOBU · TOUCHDOWN / COCKPIT':exitPhase==='HATCH'?'BOBU · EXIT HATCH OPENING':exitPhase==='STAIRS'?'BOBU · DESCENDING TO MARS':'BOBU · MARS EXPLORATION · WASD'}</div>}
+ {exitPhase!=='FLIGHT'&&<div role="status" style={{position:'fixed',top:16,left:'50%',transform:'translateX(-50%)',pointerEvents:'none',color:'#bcecff',background:'#07121ad9',padding:'9px 18px',borderRadius:7,fontFamily:'monospace',fontSize:13,zIndex:5}}>{exitPhase==='COCKPIT'?'BOBU · TOUCHDOWN / COCKPIT':exitPhase==='HATCH'?'BOBU · EXIT HATCH OPENING':exitPhase==='STAIRS'?'BOBU · DESCENDING TO MARS':onAresEntry?'BOBU · VERIFYING LANDING AREA':'BOBU · MARS EXPLORATION · WASD'}</div>}
  {exitPhase==='FLIGHT'&&<><div ref={reticle} className="flight-reticle" aria-label="Mouse steering direction">·</div><div className="flight-touch">
  <div role="group" className="flight-look" aria-label="Cockpit look control" onPointerDown={dragLook} onPointerMove={dragLook} onPointerUp={()=>{lookPointer.current=null;}} onPointerCancel={()=>{lookPointer.current=null;}} style={{pointerEvents:'auto',touchAction:'none',background:'#102735cc',color:'#8efaff',padding:18,border:'1px solid #578ba2',borderRadius:12}}>DRAG TO LOOK</div><div className="flight-buttons">{[['ASCEND','vertical',1],['DESCEND','vertical',-1],['ROTATE LEFT','yaw',1],['ROTATE RIGHT','yaw',-1]].map(([label,a,v])=><button key={label} onPointerDown={hold(String(a),Number(v))} onPointerUp={unhold} onPointerCancel={unhold} onLostPointerCapture={unhold}>{label}</button>)}<button data-testid="camera-mode" onClick={switchCamera}>{mode==='CHASE'?'COCKPIT':'EXTERIOR'} · C</button><button onClick={()=>action('gear')}>GEAR · G</button><button onClick={()=>action('touchdown')}>TOUCHDOWN · F</button></div><div role="group" aria-label="Spacecraft forward backward left right controls" className="flight-dpad">
     <button className="flight-dpad-forward" aria-label="Forward W" onPointerDown={hold('forward',1)} onPointerUp={unhold} onPointerCancel={unhold} onLostPointerCapture={unhold}>▲<small>W</small></button>
@@ -254,8 +259,8 @@ export function CinematicLanding({flight=false,obstacles=[],onAresEntry}:{flight
    </group>)}
    {[0].map(i=><group key={i} position={[0,-2.6,0]}><spotLight ref={v=>{lights.current[i]=v;}} target={landingTarget} color={UNDERGLOW.color} intensity={0} castShadow shadow-mapSize={[1024,1024]} shadow-camera-near={.15} shadow-bias={-.0002} distance={UNDERGLOW.distance} angle={.42} penumbra={.65} decay={2}/><mesh position={[0,-.08,0]} rotation={[Math.PI,0,0]}><cylinderGeometry args={[.24,.32,.16,20]}/><meshStandardMaterial color="#b9cad2" metalness={.85} roughness={.22}/></mesh><mesh position={[0,-.17,0]} rotation={[Math.PI/2,0,0]}><sphereGeometry args={[.20,16,8]}/><meshBasicMaterial color="#a1dfff" toneMapped={false}/></mesh><mesh ref={v=>{engines.current[i]=v;}} visible={false}><coneGeometry args={[1,3,12]}/><meshBasicMaterial color={i?'#34bbff':UNDERGLOW.color} transparent opacity={0} toneMapped={false}/></mesh></group>)}
   </group>
-  {flight&&onFoot&&!onAresEntry&&<>
-    <BobuCharacterController characterRef={footRef} startPosition={exitWorld.current} collisionObstacles={obstacles}>
+  {flight&&onFoot&&!onAresEntry&&terrain&&<>
+    <BobuCharacterController terrainData={terrain} characterRef={footRef} startPosition={exitWorld.current} collisionObstacles={obstacles}>
       <BobuCharacterVisual />
     </BobuCharacterController>
     <MarsFollowCamera targetRef={footRef} />

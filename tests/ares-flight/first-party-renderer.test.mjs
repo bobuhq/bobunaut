@@ -28,9 +28,9 @@ test('starboard hatch bay has no sealed side triangle in either shell',()=>{
 });
 test('renderer preserves readiness and both modes without any model loader',()=>{
  const renderer=source('FirstPartySpacecraft.tsx'),integration=source('AresSpacecraft.tsx');
- assert.match(renderer,/interior\?:boolean;reflection:T.Texture;onReady\?:\(\)=>void/);
+ assert.match(renderer,/interior\?:boolean;reflection:T.Texture;shell:T.BufferGeometry\[\];onReady\?:\(\)=>void/);
  assert.match(renderer,/onReady\?\.\(\)/);assert.match(renderer,/interior\?'ARES-first-party-interior':'ARES-first-party-exterior'/);
- assert.match(integration,/<FirstPartySpacecraft interior=\{cockpit\} reflection=\{reflection.texture\} exitActive=\{exitActive\} onReady=\{cockpit\?undefined:onExteriorReady\}/);
+ assert.match(integration,/<FirstPartySpacecraft interior=\{cockpit\} reflection=\{resources.reflection.texture\} shell=\{resources.shell\} exitActive=\{exitActive\} onReady=\{cockpit\?undefined:onExteriorReady\}/);
  assert.doesNotMatch(integration,/import.*SpacecraftGLBV61/);
  for(const file of ['FirstPartySpacecraft.tsx','AresSpacecraft.tsx','first-party-spacecraft.mjs'])assert.doesNotMatch(source(file),/useGLTF|GLTFLoader|\.glb|hodbin|wasp/i);
 });
@@ -38,16 +38,18 @@ test('mounted exterior and interior build real geometry and signal readiness aft
  const vm=await import('node:vm'),ts=await import('typescript'),T=await import('three');
  const geometry=await import('../../src/core/mars/exploration/flight/spacecraft-v5-geometry.mjs');
  const contract=await import('../../src/core/mars/exploration/flight/first-party-spacecraft.mjs');
+ const effects=[],exports={},jsx=(type,props)=>({type,props});
+ const code=ts.transpileModule(source('FirstPartySpacecraft.tsx'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX,target:ts.ScriptTarget.ES2022}}).outputText;
+ vm.runInNewContext(code,{exports,require:name=>name==='three'?T:name==='react'?{useMemo:fn=>fn(),useEffect:fn=>effects.push(fn)}:name.includes('jsx-runtime')?{jsx,jsxs:jsx}:name.includes('spacecraft-v5-geometry')?geometry:contract});
+ const shell=exports.createSpacecraftShellGeometries();
  for(const [interior,exitActive] of [[false,false],[false,true],[true,false],[true,true]]){
-  const effects=[],exports={},jsx=(type,props)=>({type,props});
-  const code=ts.transpileModule(source('FirstPartySpacecraft.tsx'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX,target:ts.ScriptTarget.ES2022}}).outputText;
-  vm.runInNewContext(code,{exports,require:name=>name==='three'?T:name==='react'?{useMemo:fn=>fn(),useEffect:fn=>effects.push(fn)}:name.includes('jsx-runtime')?{jsx,jsxs:jsx}:name.includes('spacecraft-v5-geometry')?geometry:contract});
-  let ready=0;const reflection=new T.Texture(),tree=exports.FirstPartySpacecraft({interior,exitActive,reflection,onReady:()=>ready++});assert.equal(ready,0);
+  let ready=0;const reflection=new T.Texture(),tree=exports.FirstPartySpacecraft({interior,exitActive,reflection,shell,onReady:()=>ready++});assert.equal(ready,0);
   const nodes=[];function visit(node){if(!node)return;if(Array.isArray(node)){node.forEach(visit);return;}if(typeof node.type==='function'){visit(node.type(node.props));return;}nodes.push(node);visit(node.props?.children);}visit(tree);
   assert.equal(nodes.some(n=>n.type==='mesh'&&JSON.stringify(n.props.position)==='[3.22,-0.025,0]'),!exitActive);
-  const meshes=nodes.filter(n=>n.type==='mesh'&&n.props.geometry);assert.ok(meshes.length>=6);
+  const meshes=nodes.filter(n=>n.type==='mesh'&&n.props.geometry);assert.deepEqual(meshes.map(mesh=>mesh.props.geometry),Array.from(shell));
   for(const mesh of meshes){assert.ok(mesh.props.geometry.attributes.position.count>0);assert.ok(mesh.props.geometry.attributes.normal.count>0);}
   const finishes=nodes.filter(n=>n.type==='meshStandardMaterial');assert.ok(finishes.some(n=>n.props.metalness===.75&&n.props.envMap===reflection));assert.ok(finishes.some(n=>n.props.transparent&&n.props.depthWrite===false));
-  const cleanups=effects.map(fn=>fn()).filter(fn=>typeof fn==='function');assert.equal(ready,1);cleanups.forEach(fn=>fn());reflection.dispose();
+  const cleanups=effects.splice(0).map(fn=>fn()).filter(fn=>typeof fn==='function');assert.equal(ready,1);cleanups.forEach(fn=>fn());reflection.dispose();
  }
+ shell.forEach(geometry=>geometry.dispose());
 });

@@ -1,3 +1,6 @@
+import { useLoader } from '@react-three/fiber';
+import { CampusGLTFLoader } from './CampusGLTFLoader';
+import { markAresStage, startAresStage } from '../engine/aresPerformance';
 import { V13FacadeXenonLighting } from './V13FacadeXenonLighting';
 import {createCampusExperience,type CameraEnvironment} from './campus-experience';
 import {CampusInteriorEffects} from './CampusInteriorEffects';
@@ -24,6 +27,15 @@ import { ConnectedCampusArchitecture } from './ConnectedCampusArchitecture';
 // The production ARES Hub/flight/controller source is never modified here.
 export { V11_INDIVIDUAL_BUILDING_ANCHORS, V11_INDIVIDUAL_RELAY_ANCHORS } from './connected-campus-layout.mjs';
 import { HUB, V11_INDIVIDUAL_RELAY_ANCHORS, freeFootprint, selectCampusBuildings, type PlannedBuilding } from './connected-campus-layout.mjs';
+
+export function preloadCampusAssets() {
+  const finishDispatch = startAresStage("campus-glb-preload-dispatch");
+  for (const asset of CONNECTED_CAMPUS_ASSETS) {
+    useLoader.preload(CampusGLTFLoader, '/mars/final-v11/campus/' + asset.file);
+  }
+  useLoader.preload(CampusGLTFLoader, '/mars/final-v11/campus/comms-dish-7b129a.glb');
+  finishDispatch?.();
+}
 
 function reportCampus(code:string,detail:string):void {
   if (true) {
@@ -92,15 +104,17 @@ export function SeparateV11Campus({ targetRef, onRuntime }: { targetRef?: RefObj
   const hullObstacles=useMemo(()=>Object.values(hullsByBuilding).flat(),[hullsByBuilding]);
   const [terrain, setTerrain] = useState<AresGenesisTerrainData | null>(null);
   useEffect(() => {
+    markAresStage('campus-mounted');
     let alive = true;
     loadAresGenesisTerrainData().then(data => {
       if (alive) {
+        markAresStage('campus-terrain-ready');
         reportCampus('TERRAIN_READY', `${data.width}x${data.height}`);
         setTerrain(data);
       }
     })
       .catch(error => { console.error('V11_TERRAIN_LOAD_FAILED', error); reportCampus('TERRAIN_LOAD_FAILED',String(error)); });
-    return () => { alive = false; };
+    return () => { alive = false; markAresStage('campus-unmounted'); };
   }, []);
   const buildings = useMemo(() => terrain ? selectCampusBuildings(CONNECTED_CAMPUS_ASSETS, (x, z) => sampleAresGenesisRenderedSurfaceMeters(terrain, x, z)) : [], [terrain]);
   useEffect(() => {
@@ -119,6 +133,7 @@ export function SeparateV11Campus({ targetRef, onRuntime }: { targetRef?: RefObj
   const landscape=useMemo(()=>terrainAt?createCampusLandscape(buildings,terrainAt):null,[terrainAt,buildings]);
   useEffect(()=>{
     if(!model||!landscape||!experience){onRuntime?.(null);return;}
+    markAresStage('campus-runtime-ready');
     onRuntime?.({interiorAt:experience.interiorAt,cameraEnvironmentAt:experience.environmentAt,obstacles:[...model.obstacles,...landscape.obstacles,...hullObstacles,...relayBodyObstacles],walkableSurface:(_terrain,x,z)=>model.walkable(x,z)??landscape.floor(x,z)});
     return()=>onRuntime?.(null);
   },[model,landscape,hullObstacles,relayBodyObstacles,experience,onRuntime]);

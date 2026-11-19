@@ -1,3 +1,4 @@
+import { markAresStage, startAresStage } from "../engine/aresPerformance";
 import {
   useEffect,
   useRef,
@@ -52,6 +53,7 @@ export type MarsAnalogMovement = {
 
 type BobuCharacterControllerProps = {
   children?: React.ReactNode;
+  terrainData?: AresGenesisTerrainData;
   startPosition?: [
     number,
     number,
@@ -84,6 +86,7 @@ const KEY_TO_INPUT: Record<
 
 export function BobuCharacterController({
   children,
+  terrainData,
   startPosition = [0, 0, 0],
   boundary =
     ARES_GENESIS_SAFE_BOUNDARY_METERS,
@@ -108,6 +111,8 @@ export function BobuCharacterController({
     useRef<MarsMovementInput>(
       createEmptyMarsMovementInput(),
     );
+
+  const startedFrame = useRef(false);
 
   const facingAngleRef =
     useRef(0);
@@ -142,6 +147,7 @@ export function BobuCharacterController({
   const MARS_GRAVITY = 3.71;
 
   useEffect(() => {
+    if (terrainData) return;
     let active = true;
 
     loadAresGenesisTerrainData()
@@ -161,9 +167,10 @@ export function BobuCharacterController({
     return () => {
       active = false;
     };
-  }, []);
+  }, [terrainData]);
 
   useEffect(() => {
+    const finishStartup = startAresStage("character-controller-input-startup");
     function handleKeyDown(
       event: KeyboardEvent,
     ) {
@@ -238,6 +245,8 @@ export function BobuCharacterController({
       resetInput,
     );
 
+    finishStartup?.();
+
     return () => {
       window.removeEventListener(
         "keydown",
@@ -261,6 +270,11 @@ export function BobuCharacterController({
 
     if (!group) {
       return;
+    }
+
+    if (import.meta.env.DEV && !startedFrame.current) {
+      startedFrame.current = true;
+      markAresStage("character-controller-first-tick");
     }
 
     const input =
@@ -536,7 +550,7 @@ export function BobuCharacterController({
     }
 
     const terrain =
-      terrainDataRef.current;
+      terrainData ?? terrainDataRef.current;
 
     if (terrain) {
       const FOOT_SAMPLE_RADIUS =

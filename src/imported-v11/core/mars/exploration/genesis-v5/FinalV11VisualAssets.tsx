@@ -2,13 +2,13 @@
 import { useMemo, useEffect } from 'react';
 import { useFrame, useLoader } from '@react-three/fiber';
 import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { CampusGLTFLoader } from '../../../../../core/mars/exploration/separate-v11/CampusGLTFLoader';
 import { applyRelayCycle, RELAY_CONVERGENCE } from './3d/campus-relay-cycle.mjs';
 import { RELAY_BORESIGHT, RELAY_EMITTER } from './3d/relay-motion.mjs';
 import { towers, greenhouse } from './v11-composition.mjs';
 type Surface=(x:number,z:number)=>number|null;
 export function Dish({spec,surface,target=RELAY_CONVERGENCE}:{spec:typeof towers[number];surface:Surface;target?:readonly number[]}){
- const gltf=useLoader(GLTFLoader,'/mars/final-v11/campus/comms-dish-7b129a.glb');
+ const gltf=useLoader(CampusGLTFLoader,'/mars/final-v11/campus/comms-dish-7b129a.glb');
  const kit=useMemo(()=>{
  const scene=gltf.scene.clone(true),az=scene.getObjectByName('dish-azimuth')!,el=scene.getObjectByName('dish-elevation')!;
  if(!az||!el||el.parent!==az)throw Error('GLB relay pivot hierarchy changed');
