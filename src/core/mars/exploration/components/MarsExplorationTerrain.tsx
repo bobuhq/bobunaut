@@ -1,484 +1,162 @@
-import {
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-
-import {
-  useTexture,
-} from "@react-three/drei";
-
+import { useEffect, useLayoutEffect, useMemo, useState } from "react";
+import { useLoader, useThree } from "@react-three/fiber";
 import * as THREE from "three";
-
 import {
-  ARES_GENESIS_SIZE_METERS,
   ARES_GENESIS_SURFACE_TEXTURE_URL,
   loadAresGenesisTerrainData,
-  sampleAresGenesisGameplaySurfaceMeters,
-  ARES_GENESIS_RENDER_SEGMENTS,
   type AresGenesisTerrainData,
 } from "../engine/AresGenesisTerrainData";
+import { markAresStage, startAresStage } from "../engine/aresPerformance";
 
-function createMarsMicroBumpTexture() {
-  const size = 512;
-  const values =
-    new Uint8Array(
-      size * size,
-    );
+type TerrainTile = {
+  position: Float32Array;
+  normal: Float32Array;
+  uv: Float32Array;
+  bounds: [number, number, number, number];
+};
 
-  let seed =
-    0x41524553;
+type TerrainPayload = {
+  tiles: TerrainTile[];
+  index: Uint16Array;
+  bump: Uint8Array<ArrayBuffer>;
+  bumpSize: number;
+  geometryMs: number;
+  bumpMs: number;
+};
 
-  function random() {
-    seed =
-      (
-        Math.imul(
-          seed,
-          1664525,
-        ) +
-        1013904223
-      ) >>> 0;
+type TerrainResources = {
+  terrainData: AresGenesisTerrainData;
+  geometries: THREE.BufferGeometry[];
+  bump: THREE.DataTexture;
+};
 
-    return (
-      seed /
-      4294967296
-    );
-  }
-
-  for (
-    let index = 0;
-    index < values.length;
-    index += 1
-  ) {
-    values[index] =
-      Math.floor(
-        104 +
-        random() * 48,
-      );
-  }
-
-  let source = values;
-
-  for (
-    let pass = 0;
-    pass < 3;
-    pass += 1
-  ) {
-    const next =
-      new Uint8Array(
-        source.length,
-      );
-
-    for (
-      let y = 0;
-      y < size;
-      y += 1
-    ) {
-      for (
-        let x = 0;
-        x < size;
-        x += 1
-      ) {
-        let total = 0;
-        let count = 0;
-
-        for (
-          let oy = -1;
-          oy <= 1;
-          oy += 1
-        ) {
-          for (
-            let ox = -1;
-            ox <= 1;
-            ox += 1
-          ) {
-            const sx =
-              (
-                x +
-                ox +
-                size
-              ) %
-              size;
-
-            const sy =
-              (
-                y +
-                oy +
-                size
-              ) %
-              size;
-
-            total +=
-              source[
-                sy * size +
-                sx
-              ];
-
-            count += 1;
-          }
-        }
-
-        next[
-          y * size +
-          x
-        ] =
-          Math.round(
-            total / count,
-          );
-      }
-    }
-
-    source = next;
-  }
-
-  const heightValues =
-    new Float32Array(
-      source.length,
-    );
-
-  for (
-    let index = 0;
-    index < source.length;
-    index += 1
-  ) {
-    heightValues[index] =
-      source[index];
-  }
-
-  for (
-    let crater = 0;
-    crater < 34;
-    crater += 1
-  ) {
-    const centerX =
-      random() * size;
-
-    const centerY =
-      random() * size;
-
-    const radius =
-      7 +
-      random() * 29;
-
-    const minX =
-      Math.floor(
-        centerX -
-        radius -
-        3,
-      );
-
-    const maxX =
-      Math.ceil(
-        centerX +
-        radius +
-        3,
-      );
-
-    const minY =
-      Math.floor(
-        centerY -
-        radius -
-        3,
-      );
-
-    const maxY =
-      Math.ceil(
-        centerY +
-        radius +
-        3,
-      );
-
-    for (
-      let y = minY;
-      y <= maxY;
-      y += 1
-    ) {
-      for (
-        let x = minX;
-        x <= maxX;
-        x += 1
-      ) {
-        const wrappedX =
-          (
-            x +
-            size
-          ) %
-          size;
-
-        const wrappedY =
-          (
-            y +
-            size
-          ) %
-          size;
-
-        const dx =
-          x -
-          centerX;
-
-        const dy =
-          y -
-          centerY;
-
-        const distance =
-          Math.sqrt(
-            dx * dx +
-            dy * dy,
-          );
-
-        const normalized =
-          distance /
-          radius;
-
-        if (
-          normalized >
-          1.18
-        ) {
-          continue;
-        }
-
-        let delta = 0;
-
-        if (
-          normalized <
-          0.72
-        ) {
-          const bowl =
-            1 -
-            normalized /
-              0.72;
-
-          delta -=
-            38 *
-            bowl *
-            bowl;
-        } else {
-          const rimDistance =
-            Math.abs(
-              normalized -
-              0.88,
-            ) /
-            0.3;
-
-          if (
-            rimDistance <
-            1
-          ) {
-            const rim =
-              1 -
-              rimDistance;
-
-            delta +=
-              24 *
-              rim *
-              rim;
-          }
-        }
-
-        heightValues[
-          wrappedY *
-            size +
-          wrappedX
-        ] +=
-          delta;
-      }
-    }
-  }
-
-  const data =
-    new Uint8Array(
-      heightValues.length,
-    );
-
-  for (
-    let index = 0;
-    index < data.length;
-    index += 1
-  ) {
-    data[index] =
-      Math.max(
-        0,
-        Math.min(
-          255,
-          Math.round(
-            heightValues[index],
-          ),
-        ),
-      );
-  }
-
-  const texture =
-    new THREE.DataTexture(
-      data,
-      size,
-      size,
-      THREE.RedFormat,
-      THREE.UnsignedByteType,
-    );
-
-  texture.wrapS =
-    THREE.RepeatWrapping;
-
-  texture.wrapT =
-    THREE.RepeatWrapping;
-
-  texture.repeat.set(
-    32,
-    32,
-  );
-
-  texture.magFilter =
-    THREE.LinearFilter;
-
-  texture.minFilter =
-    THREE.LinearMipmapLinearFilter;
-
-  texture.generateMipmaps =
-    true;
-
-  texture.needsUpdate =
-    true;
-
-  return texture;
-}
-
-export function MarsExplorationTerrain() {
-  const [
-    terrainData,
-    setTerrainData,
-  ] =
-    useState<AresGenesisTerrainData | null>(
-      null,
-    );
-
-  const surfaceTexture =
-    useTexture(
-      ARES_GENESIS_SURFACE_TEXTURE_URL,
-    );
-
-  const microBumpTexture =
-    useMemo(
-      () =>
-        createMarsMicroBumpTexture(),
-      [],
-    );
+export function useMarsExplorationTerrain() {
+  const [resources, setResources] = useState<TerrainResources | null>(null);
+  const [failed, setFailed] = useState(false);
 
   useEffect(() => {
     let active = true;
+    let worker: Worker | undefined;
+    let owned: TerrainResources | undefined;
 
-    loadAresGenesisTerrainData()
-      .then((terrain) => {
-        if (active) {
-          setTerrainData(terrain);
-        }
-      })
-      .catch((error) => {
-        console.error(
-          "Failed to initialize Ares Genesis terrain",
-          error,
-        );
-      });
+    function fail() {
+      worker?.terminate();
+      if (!active) return;
+      markAresStage("terrain-failed");
+      setFailed(true);
+    }
+
+    // Wait for the initial commit to paint and cancel any discarded effect.
+    const frame = requestAnimationFrame(() => {
+      markAresStage("terrain-height-request");
+      void loadAresGenesisTerrainData().then((terrainData) => {
+        if (!active) return;
+        markAresStage("terrain-height-ready");
+        worker = new Worker(new URL("../engine/aresTerrain.worker.ts", import.meta.url), {
+          type: "module",
+        });
+        worker.onerror = fail;
+        worker.onmessageerror = fail;
+        worker.onmessage = ({ data }: MessageEvent<TerrainPayload>) => {
+          if (!active) return;
+          worker?.terminate();
+          markAresStage("terrain-worker-ready", {
+            geometryMs: data.geometryMs,
+            bumpMs: data.bumpMs,
+          });
+
+          const finishResources = startAresStage("terrain-resource-create");
+          const index = new THREE.BufferAttribute(data.index, 1);
+          if (import.meta.env.DEV) {
+            index.onUpload(() => markAresStage("terrain-index-upload", { bytes: index.array.byteLength }));
+          }
+          const geometries = data.tiles.map((tile) => {
+            const geometry = new THREE.BufferGeometry();
+            geometry.setAttribute("position", new THREE.BufferAttribute(tile.position, 3));
+            geometry.setAttribute("normal", new THREE.BufferAttribute(tile.normal, 3));
+            geometry.setAttribute("uv", new THREE.BufferAttribute(tile.uv, 2));
+            geometry.setIndex(index);
+            if (import.meta.env.DEV) {
+              let attributesUploaded = 0;
+              const bytes = tile.position.byteLength + tile.normal.byteLength + tile.uv.byteLength;
+              const uploaded = () => {
+                if (++attributesUploaded !== 3) return;
+                markAresStage("terrain-tile-upload", { bytes });
+                attributesUploaded = 0;
+              };
+              for (const attribute of Object.values(geometry.attributes)) {
+                (attribute as THREE.BufferAttribute).onUpload(uploaded);
+              }
+            }
+            const [x, y, z, radius] = tile.bounds;
+            geometry.boundingSphere = new THREE.Sphere(new THREE.Vector3(x, y, z), radius);
+            return geometry;
+          });
+
+          const bump = new THREE.DataTexture(data.bump, data.bumpSize, data.bumpSize, THREE.RedFormat);
+          bump.wrapS = bump.wrapT = THREE.RepeatWrapping;
+          bump.repeat.set(32, 32);
+          bump.magFilter = THREE.LinearFilter;
+          bump.minFilter = THREE.LinearMipmapLinearFilter;
+          bump.generateMipmaps = true;
+          if (import.meta.env.DEV) {
+            bump.onUpdate = () => markAresStage("terrain-bump-upload", { bytes: data.bump.byteLength });
+          }
+          bump.needsUpdate = true;
+
+          owned = { terrainData, geometries, bump };
+          finishResources?.();
+          setResources(owned);
+        };
+        worker.postMessage(terrainData);
+      }).catch(fail);
+    });
 
     return () => {
       active = false;
+      cancelAnimationFrame(frame);
+      worker?.terminate();
+      owned?.geometries.forEach((geometry) => geometry.dispose());
+      owned?.bump.dispose();
     };
   }, []);
 
-  surfaceTexture.colorSpace =
-    THREE.SRGBColorSpace;
+  return { resources, failed };
+}
 
-  surfaceTexture.wrapS =
-    THREE.ClampToEdgeWrapping;
+export function MarsExplorationTerrain({ resources }: { resources: TerrainResources | null }) {
+  const surface = useLoader(THREE.TextureLoader, ARES_GENESIS_SURFACE_TEXTURE_URL);
+  const maxAnisotropy = useThree(({ gl }) => gl.capabilities.getMaxAnisotropy());
 
-  surfaceTexture.wrapT =
-    THREE.ClampToEdgeWrapping;
+  useLayoutEffect(() => {
+    const anisotropy = Math.min(4, maxAnisotropy);
+    if (surface.colorSpace === THREE.SRGBColorSpace && surface.anisotropy === anisotropy) return;
+    surface.colorSpace = THREE.SRGBColorSpace;
+    surface.anisotropy = anisotropy;
+    surface.needsUpdate = true;
+  }, [surface, maxAnisotropy]);
 
-  const geometry =
-    useMemo(() => {
-      if (!terrainData) {
-        return null;
-      }
+  const material = useMemo(() => {
+    if (!resources) return null;
+    return new THREE.MeshStandardMaterial({
+      map: surface,
+      bumpMap: resources.bump,
+      bumpScale: 1.7,
+      roughness: 0.94,
+      metalness: 0,
+    });
+  }, [resources, surface]);
+  useEffect(() => () => material?.dispose(), [material]);
 
-      const next =
-        new THREE.PlaneGeometry(
-          ARES_GENESIS_SIZE_METERS,
-          ARES_GENESIS_SIZE_METERS,
-          ARES_GENESIS_RENDER_SEGMENTS,
-          ARES_GENESIS_RENDER_SEGMENTS,
-        );
-
-      next.rotateX(
-        -Math.PI / 2,
-      );
-
-      const position =
-        next.attributes.position;
-
-      for (
-        let index = 0;
-        index < position.count;
-        index += 1
-      ) {
-        const x =
-          position.getX(index);
-
-        const z =
-          position.getZ(index);
-
-        const surfaceHeight =
-          sampleAresGenesisGameplaySurfaceMeters(
-            terrainData,
-            x,
-            z,
-          );
-
-        position.setY(
-          index,
-          surfaceHeight,
-        );
-      }
-
-      position.needsUpdate = true;
-
-      next.computeVertexNormals();
-      next.computeBoundingBox();
-      next.computeBoundingSphere();
-
-      return next;
-    }, [terrainData]);
-
-  useEffect(() => {
-    return () => {
-      geometry?.dispose();
-    };
-  }, [geometry]);
-
-  useEffect(() => {
-    return () => {
-      microBumpTexture.dispose();
-    };
-  }, [microBumpTexture]);
-
-  if (!geometry) {
-    return null;
-  }
+  if (!resources || !material) return null;
 
   return (
-    <mesh
-      geometry={geometry}
-      receiveShadow
-    >
-      <meshStandardMaterial
-        map={surfaceTexture}
-        bumpMap={microBumpTexture}
-        bumpScale={1.7}
-        roughness={0.94}
-        metalness={0}
-      />
-    </mesh>
+    <group userData={{ offlineTerrain: true }}>
+      {resources.geometries.map((geometry) => (
+        <mesh key={geometry.id} geometry={geometry} material={material} receiveShadow />
+      ))}
+    </group>
   );
 }
 
-useTexture.preload(
-  ARES_GENESIS_SURFACE_TEXTURE_URL,
-);
+useLoader.preload(THREE.TextureLoader, ARES_GENESIS_SURFACE_TEXTURE_URL);

@@ -8,12 +8,13 @@ function mount(file,name,props,dependencies={}){
  const callbacks=[],effects=[],listeners=new Map(),exports={};
  const camera=new THREE.PerspectiveCamera();camera.position.set(0,2,6);
  const element={style:{},addEventListener(){},removeEventListener(){}};
- const code=ts.transpileModule(readFileSync('src/core/mars/exploration/components/'+file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,jsx:ts.JsxEmit.ReactJSX}}).outputText;
+ const code=ts.transpileModule(readFileSync('src/core/mars/exploration/components/'+file,'utf8').replaceAll('import.meta.env.DEV', 'false'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,jsx:ts.JsxEmit.ReactJSX}}).outputText;
  const window={addEventListener:(type,fn)=>listeners.set(type,fn),removeEventListener(){},matchMedia:()=>({matches:false})};
  vm.runInNewContext(code,{exports,window,console,require:id=>{
   if(id==='react')return {useRef:value=>({current:value}),useEffect:fn=>effects.push(fn)};
   if(id==='react/jsx-runtime')return {jsx:(type,props)=>({type,props})};
   if(id==='three')return THREE;
+  if(id==='../engine/aresPerformance')return {markAresStage(){},startAresStage(){}};
   if(id==='./MarsCameraClearance')return {
     MarsCameraClearance: class {
       refresh() {}

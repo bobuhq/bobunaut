@@ -5,8 +5,9 @@ import { AresFlightSession } from "./flight/AresFlightSession";
 // Loaded only when the on-foot local preview is explicitly enabled.
 // Geometry helpers have no flight effects; campus assets mount only on foot.
 import { Component, lazy, type ReactNode } from "react";
+const loadLocalV11Campus = () => import("./separate-v11/SeparateV11Campus");
 const LocalV11Campus = lazy(() =>
-  import("./separate-v11/SeparateV11Campus").then(module => ({ default: module.SeparateV11Campus }))
+  loadLocalV11Campus().then(module => ({ default: module.SeparateV11Campus }))
 );
 type V13CampusDiagnostic = { code: string; detail: string };
 function reportV13CampusDiagnostic(code: string, detail: string): void {
@@ -34,6 +35,7 @@ import {
   Suspense,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
   type MutableRefObject,
@@ -44,9 +46,15 @@ import { useAresArrivalSurface, useAresSoundControl } from "./audio/useAresArriv
 
 import {
   Canvas,
+  useFrame,
 } from "@react-three/fiber";
 
 import * as THREE from "three";
+import { Html } from "@react-three/drei";
+import { AresRenderQuality, hasCoarseAresPointer } from "./components/AresRenderQuality";
+import { markAresStage, observeAresFrameGaps, observeAresLongTasks, startAresStage } from "./engine/aresPerformance";
+import { AresRenderDiagnostics } from "./components/AresRenderDiagnostics";
+import { AresSpacecraftReflection } from "./flight/AresSpacecraft";
 
 import {
   BobuCharacterController,
@@ -69,6 +77,7 @@ import {
 
 import {
   MarsExplorationTerrain,
+  useMarsExplorationTerrain,
 } from "./components/MarsExplorationTerrain";
 
 import {
@@ -173,6 +182,7 @@ import type {
 
 
 interface MarsExploreSceneProps {
+  terrain: ReturnType<typeof useMarsExplorationTerrain>["resources"];
   analogMovementRef: MutableRefObject<MarsAnalogMovement>;
   builderId: string;
   displayName:
@@ -233,6 +243,7 @@ interface MarsExploreSceneProps {
 }
 
 function MarsExploreScene({
+  terrain,
   analogMovementRef,
   builderId,
   displayName,
@@ -264,6 +275,81 @@ function MarsExploreScene({
   // BOBU_V12_REPLACES_OLD_ARES: V12 mounts after flight handoff only.
   // Mars globe entry and its 5.6-second transition are owned by untouched routes.
   const localV11Enabled = !flying;
+  const interactive = !flying && terrain !== null;
+  const renderedTerrain = useRef(false);
+  const renderedInteractive = useRef(false);
+  const finishWalkingCommit = useRef<ReturnType<typeof startAresStage>>(undefined);
+  const enterWalking = useCallback((handoff: FlightHandoff) => {
+    finishWalkingCommit.current = startAresStage("walking-transition");
+    setLandedHandoff(handoff);
+  }, []);
+  useLayoutEffect(() => {
+    if (!landedHandoff) return;
+    finishWalkingCommit.current?.();
+    finishWalkingCommit.current = undefined;
+    markAresStage("walking-scene-commit");
+  }, [landedHandoff]);
+  const postRenderFrame = useRef(0);
+  const postTerrainFrame = useRef(0);
+
+  useEffect(() => {
+    markAresStage("scene-mounted");
+    return () => {
+      markAresStage("scene-unmounted");
+      cancelAnimationFrame(postRenderFrame.current);
+      cancelAnimationFrame(postTerrainFrame.current);
+    };
+  }, []);
+
+  useFrame(({ gl }) => {
+    if (!import.meta.env.DEV || document.hidden) return;
+    if (terrain && !renderedTerrain.current) {
+      renderedTerrain.current = true;
+      markAresStage("terrain-render-start");
+      postTerrainFrame.current = requestAnimationFrame(() => markAresStage("terrain-first-frame"));
+    }
+    if (!interactive || !bobuRef.current || renderedInteractive.current) return;
+    renderedInteractive.current = true;
+    markAresStage("scene-ready");
+    markAresStage("interactive-render-start");
+    postRenderFrame.current = requestAnimationFrame(() => {
+      markAresStage("first-interactive-frame", {
+        width: gl.domElement.width,
+        height: gl.domElement.height,
+        triangles: gl.info.render.triangles,
+      });
+    });
+  });
+
+  useEffect(() => {
+    if (!flying) return;
+
+    const warmCampus = () => {
+      markAresStage("campus-preload-start");
+      void loadLocalV11Campus().then((campus) => {
+        if (!active) return;
+        campus.preloadCampusAssets();
+        markAresStage("campus-preload-dispatched");
+      }).catch(() => markAresStage("campus-preload-failed"));
+    };
+
+    let active = true;
+    const cancel = typeof window.requestIdleCallback === "function"
+      ? (() => {
+          const id = window.requestIdleCallback(warmCampus, { timeout: 2500 });
+          return () => window.cancelIdleCallback(id);
+        })()
+      : (() => {
+          const id = window.setTimeout(warmCampus, 750);
+          return () => window.clearTimeout(id);
+        })();
+
+    return () => {
+      active = false;
+      cancel();
+    };
+  }, [flying]);
+
 
   const [localCampusRuntime,setLocalCampusRuntime]=useState<CampusRuntime|null>(null);
 
@@ -297,6 +383,7 @@ function MarsExploreScene({
   useEffect(() => {
     let active = true;
 
+    markAresStage("mission-restore-start");
     getMyAresHiddenMission()
       .then(
         (
@@ -305,6 +392,7 @@ function MarsExploreScene({
           if (
             active
           ) {
+            markAresStage("mission-restore-ready");
             setHiddenMission(
               mission,
             );
@@ -350,7 +438,7 @@ function MarsExploreScene({
         args={[
           "#c98b70",
           "#170706",
-          0.38,
+          0.48,
         ]}
       />
 
@@ -363,9 +451,11 @@ function MarsExploreScene({
         intensity={2.65}
         color="#ffd7bd"
         castShadow
+        shadow-mapSize-width={1024}
+        shadow-mapSize-height={1024}
       />
 
-      <MarsExplorationTerrain />
+      <MarsExplorationTerrain resources={terrain} />
       <MarsSurfaceRocks />
       {/* BOBU_V12_REPLACES_OLD_ARES: old Genesis campus renderer removed. */}
       {/* One V12 campus; mount only after flight completion. */}
@@ -374,7 +464,7 @@ function MarsExploreScene({
       </Suspense></LocalV11Boundary>}
       <AresGroundDust />
       {landedHandoff && <AresParkedSpacecraft position={landedHandoff.ship} yaw={landedHandoff.yaw} />}
-      {flying && <AresFlightSession onEntry={setLandedHandoff} />}
+      {flying && <AresFlightSession onEntry={enterWalking} />}
       <AresExplorationLandmarks
         targetRef={bobuRef}
         onNavigation={
@@ -454,7 +544,8 @@ function MarsExploreScene({
 
 
 
-      {!flying && <BobuCharacterController
+      {interactive && terrain && <BobuCharacterController
+        terrainData={terrain.terrainData}
         walkableSurface={localCampusRuntime?.walkableSurface}
         characterRef={bobuRef}
         stairStateRef={
@@ -485,7 +576,7 @@ function MarsExploreScene({
         />
       </BobuCharacterController>}
 
-      {!flying && <MarsFollowCamera
+      {interactive && <MarsFollowCamera
         interiorAt={localCampusRuntime?.interiorAt}
         environmentAt={localCampusRuntime?.cameraEnvironmentAt}
         targetRef={bobuRef}
@@ -533,6 +624,36 @@ function MarsExploreScene({
   );
 }
 
+function AresSceneSuspension() {
+  useLayoutEffect(() => {
+    const finish = startAresStage("world-suspense-fallback");
+    return () => finish?.();
+  }, []);
+  return null;
+}
+
+function AuthorizedMarsExploreScene(props: Omit<MarsExploreSceneProps, "terrain">) {
+  const { resources, failed } = useMarsExplorationTerrain();
+
+  if (failed) {
+    return (
+      <Html center>
+        <div role="alert" style={{ color: "white", background: "#120805", padding: 16, width: 260 }}>
+          Unable to load the ARES surface. Return to Mars and try again.
+        </div>
+      </Html>
+    );
+  }
+
+  const scene = <MarsExploreScene {...props} terrain={resources} />;
+  const includesSpacecraft = new URLSearchParams(window.location.search).get("flightEntry") === "1";
+  return (
+    <Suspense fallback={import.meta.env.DEV ? <AresSceneSuspension /> : null}>
+      {includesSpacecraft ? <AresSpacecraftReflection>{scene}</AresSpacecraftReflection> : scene}
+    </Suspense>
+  );
+}
+
 function getMarsReturnHref(): string {
   if (typeof window === "undefined") {
     return "/mars";
@@ -551,6 +672,19 @@ function getMarsReturnHref(): string {
 export function MarsExploreWorld() {
   const { t, language } = useLanguage();
   const navigate = useNavigate();
+  const [renderDpr, setRenderDpr] = useState(1);
+  const [mobileRenderer] = useState(hasCoarseAresPointer);
+
+  useEffect(() => {
+    markAresStage("exploration-route-mounted");
+    const stopLongTasks = observeAresLongTasks();
+    const stopFrameGaps = observeAresFrameGaps();
+    return () => {
+      stopLongTasks?.();
+      stopFrameGaps?.();
+    };
+  }, []);
+
   // Preserve existing ARES audio route lifecycle; never run on Mars globe.
   useEffect(() => {
     aresArrivalSound.routeChanged('/mars/explore');
@@ -724,10 +858,12 @@ export function MarsExploreWorld() {
             null,
           );
 
+          markAresStage("access-request");
           const access =
             await getMyMarsAccess();
 
           if (active) {
+            markAresStage("access-response");
             setAresAccess(
               access,
             );
@@ -3253,10 +3389,7 @@ export function MarsExploreWorld() {
       )}
 
       <Canvas
-        shadows={!(typeof window !== "undefined" &&
-          window.matchMedia(
-            "(pointer: coarse), (max-width: 900px)"
-          ).matches)}
+        shadows={!mobileRenderer}
         camera={{
           position: [
             0,
@@ -3267,27 +3400,18 @@ export function MarsExploreWorld() {
           near: 0.1,
           far: 20000,
         }}
-        dpr={
-          typeof window !== "undefined" &&
-          window.matchMedia("(pointer: coarse), (max-width: 900px)").matches
-            ? 0.85
-            : [1, 1.25]
-        }
+        dpr={renderDpr}
         gl={{
-          antialias: !(typeof window !== "undefined" &&
-          window.matchMedia(
-            "(pointer: coarse), (max-width: 900px)"
-          ).matches),
+          antialias: !mobileRenderer,
           alpha: false,
           powerPreference:
             "high-performance",
         }}
       >
-        <Suspense
-          fallback={null}
-        >
-          {builderId && (
-            <MarsExploreScene
+        {import.meta.env.DEV && <AresRenderDiagnostics />}
+        <AresRenderQuality onDprChange={setRenderDpr} />
+        {builderId && (
+            <AuthorizedMarsExploreScene
         analogMovementRef={
           analogMovementRef
         }
@@ -3340,8 +3464,7 @@ export function MarsExploreWorld() {
                 colonyBuildingsRefreshKey
               }
             />
-          )}
-        </Suspense>
+        )}
       </Canvas>
     </div>
   );

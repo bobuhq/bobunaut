@@ -1,13 +1,57 @@
 import {Suspense} from 'react';
 import {RoomEnvironment} from 'three/examples/jsm/environments/RoomEnvironment.js';
-import {FirstPartySpacecraft} from './FirstPartySpacecraft';
+import {FirstPartySpacecraft,createSpacecraftShellGeometries} from './FirstPartySpacecraft';
 import {CockpitV6} from './CockpitV6';
 import type {flightTelemetry} from './flight-telemetry.mjs';
 import {PILOT_EYE} from './spacecraft-v5-geometry.mjs';
 import {BEACON,beaconLevel} from './spacecraft-lighting.mjs';
-import {useRef,useMemo,useEffect} from 'react';
+import {createContext,useContext,useRef,useMemo,useEffect,useState,type ReactNode} from 'react';
 import {useFrame,useThree} from '@react-three/fiber';
 import * as T from 'three';
+import { markAresStage, startAresStage } from "../engine/aresPerformance";
+
+const SpacecraftResources = createContext<{
+ reflection:T.WebGLRenderTarget;
+ shell:ReturnType<typeof createSpacecraftShellGeometries>;
+} | null>(null);
+
+export function AresSpacecraftReflection({ children }: { children: ReactNode }) {
+ const gl=useThree(state=>state.gl);
+ const [resources,setResources]=useState<React.ContextType<typeof SpacecraftResources>>(null);
+ useEffect(()=>{
+  let target:T.WebGLRenderTarget|undefined;
+  let shell:ReturnType<typeof createSpacecraftShellGeometries>|undefined;
+  const frame=requestAnimationFrame(()=>{
+   const finishReflection=startAresStage("spacecraft-reflection");
+   const generator=new T.PMREMGenerator(gl),room=new RoomEnvironment();
+   try {
+    target=generator.fromScene(room,.06);
+    markAresStage("spacecraft-reflection-ready");
+   } finally {
+    room.dispose();
+    generator.dispose();
+    finishReflection?.();
+   }
+   const finishShell=startAresStage("spacecraft-shell-create");
+   shell=createSpacecraftShellGeometries();
+   if(import.meta.env.DEV){
+    for(const geometry of shell){
+     const position=geometry.getAttribute("position") as T.BufferAttribute;
+     position.onUpload(()=>markAresStage("spacecraft-shell-upload",{bytes:position.array.byteLength}));
+    }
+   }
+   finishShell?.();
+   setResources({reflection:target,shell});
+  });
+  return ()=>{
+   cancelAnimationFrame(frame);
+   target?.dispose();
+   shell?.forEach(geometry=>geometry.dispose());
+  };
+ },[gl]);
+ return <SpacecraftResources.Provider value={resources}>{children}</SpacecraftResources.Provider>;
+}
+
 const metal=<meshStandardMaterial color="#b5c5ce" metalness={.85} roughness={.3}/>;
 function Text({position,fontSize,color,children}:{position:[number,number,number];fontSize:number;color:string;children:React.ReactNode}){const texture=useMemo(()=>{const c=document.createElement('canvas');c.width=1024;c.height=128;const ctx=c.getContext('2d')!;ctx.font='bold 54px monospace';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle=color;ctx.fillText(String(children),512,64);return new T.CanvasTexture(c);},[children,color]);useEffect(()=>()=>texture.dispose(),[texture]);return <mesh position={position}><planeGeometry args={[fontSize*String(children).length*.65,fontSize*1.6]}/><meshBasicMaterial map={texture} transparent depthWrite={false}/></mesh>;}
 
@@ -20,16 +64,17 @@ type Point=[number,number,number];
 export function AresSpacecraft({seat,telemetry=null,onAction=()=>{},cockpit=false,onExteriorReady,exitActive=false}:{seat:React.RefObject<T.Group|null>;telemetry?:ReturnType<typeof flightTelemetry>|null;onAction?:(name:string)=>void;cockpit?:boolean;onExteriorReady?:()=>void;exitActive?:boolean}){
  const {gl,scene:renderScene}=useThree();
  useEffect(()=>{
+  if(!import.meta.env.DEV)return;
   const inspect=()=>{const spotlights:unknown[]=[];renderScene.traverse(o=>{if(o instanceof T.SpotLight)spotlights.push({color:o.color.getHexString(),intensity:o.intensity,angle:o.angle,distance:o.distance,penumbra:o.penumbra,position:o.getWorldPosition(new T.Vector3()).toArray(),target:o.target.getWorldPosition(new T.Vector3()).toArray()});});return {exposure:gl.toneMappingExposure,toneMapping:gl.toneMapping,outputColorSpace:gl.outputColorSpace,spotlights,programs:gl.info.programs?.map(p=>({name:p.name,diagnostics:(p as unknown as {diagnostics?:unknown}).diagnostics}))};};
   const debug=window as unknown as {__aresV62Lighting?:()=>unknown};debug.__aresV62Lighting=inspect;
   return ()=>{if(debug.__aresV62Lighting===inspect)delete debug.__aresV62Lighting;};
  },[gl,renderScene]);
- const reflection=useMemo(()=>{const generator=new T.PMREMGenerator(gl),room=new RoomEnvironment();const target=generator.fromScene(room,.06);room.dispose();generator.dispose();return target;},[gl]);
- useEffect(()=>()=>reflection.dispose(),[reflection]);
+ const resources=useContext(SpacecraftResources);
+ if(!resources)return null;
  return <group name="BOBU-ARES-EXPLORER-V61">
   <group ref={seat} name="pilot-seat-eye" position={PILOT_EYE as Point}/>
   <Suspense fallback={null}>
-   <FirstPartySpacecraft interior={cockpit} reflection={reflection.texture} exitActive={exitActive} onReady={cockpit?undefined:onExteriorReady}/>
+   <FirstPartySpacecraft interior={cockpit} reflection={resources.reflection.texture} shell={resources.shell} exitActive={exitActive} onReady={cockpit?undefined:onExteriorReady}/>
    {cockpit&&<group><CockpitV6 telemetry={telemetry} onAction={onAction}/></group>}
   </Suspense>
   {!cockpit&&<>
