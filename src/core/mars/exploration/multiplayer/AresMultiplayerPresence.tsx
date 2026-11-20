@@ -29,8 +29,6 @@ const REMOTE_STALE_AFTER_MS =
 interface AresMultiplayerPresenceProps {
   characterRef:
     MutableRefObject<THREE.Group | null>;
-  remotePlayerPositionsRef:
-    MutableRefObject<Array<{ x: number; z: number }>>;
   builderId: string;
   displayName:
     | string
@@ -43,7 +41,6 @@ interface AresMultiplayerPresenceProps {
 
 export function AresMultiplayerPresence({
   characterRef,
-  remotePlayerPositionsRef,
   builderId,
   displayName,
   onOnlineCountChange,
@@ -97,13 +94,6 @@ export function AresMultiplayerPresence({
                 builder.updatedAt <
               REMOTE_STALE_AFTER_MS,
           );
-
-        remotePlayerPositionsRef.current = freshBuilders.map(
-          (builder) => ({
-            x: builder.transform.x,
-            z: builder.transform.z,
-          }),
-        );
 
         setRemoteBuilders(
           freshBuilders,
@@ -210,7 +200,6 @@ export function AresMultiplayerPresence({
       active = false;
       connectedRef.current =
         false;
-      remotePlayerPositionsRef.current = [];
 
       window.clearInterval(
         heartbeatTimer,
@@ -228,7 +217,6 @@ export function AresMultiplayerPresence({
     builderId,
     displayName,
     characterRef,
-    remotePlayerPositionsRef,
     onOnlineCountChange,
   ]);
 

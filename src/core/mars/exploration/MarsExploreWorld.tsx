@@ -71,8 +71,6 @@ import {
   type AresMobileInteractionTarget,
 } from "./components/AresMobileActions";
 
-import { AresMobileCombat } from "./components/AresMobileCombat";
-
 import {
   BobuCharacterVisual,
 } from "./components/BobuCharacterVisual";
@@ -272,9 +270,6 @@ function MarsExploreScene({
     useRef<THREE.Group | null>(
       null,
     );
-
-  const remotePlayerPositionsRef =
-    useRef<Array<{ x: number; z: number }>>([]);
 
   const [landedHandoff, setLandedHandoff] = useState<FlightHandoff | null>(null);
   const flying = new URLSearchParams(window.location.search).get("flightEntry") === "1" && landedHandoff === null;
@@ -561,7 +556,6 @@ function MarsExploreScene({
           analogMovementRef
         }
         startPosition={landedHandoff?.spawn ?? [0, 0, 0]}
-        remotePlayerPositionsRef={remotePlayerPositionsRef}
         collisionObstacles={[
           {
             x: 18,
@@ -577,8 +571,9 @@ function MarsExploreScene({
         ]}
       >
         <BobuCharacterVisual
-          stairStateRef={bobuStairStateRef}
-          analogMovementRef={analogMovementRef}
+          stairStateRef={
+            bobuStairStateRef
+          }
         />
       </BobuCharacterController>}
 
@@ -618,7 +613,6 @@ function MarsExploreScene({
 
       <AresMultiplayerPresence
         characterRef={bobuRef}
-        remotePlayerPositionsRef={remotePlayerPositionsRef}
         builderId={builderId}
         displayName={displayName}
         onOnlineCountChange={
@@ -2381,86 +2375,6 @@ export function MarsExploreWorld() {
           width: 100% !important;
           height: 100% !important;
         }
-
-        /* BOBU Explorer 2.0 — restore touch action controls */
-        @media (pointer: coarse) {
-          .mars-explore-world .ares-mobile-actions {
-            display: flex !important;
-            position: absolute !important;
-            right: max(12px, env(safe-area-inset-right)) !important;
-            bottom: max(18px, env(safe-area-inset-bottom)) !important;
-            z-index: 120 !important;
-            flex-direction: column !important;
-            align-items: center !important;
-            gap: 10px !important;
-            pointer-events: auto !important;
-            visibility: visible !important;
-            opacity: 1 !important;
-          }
-          .mars-explore-world .ares-mobile-action {
-            display: flex !important;
-            min-width: 58px;
-            min-height: 58px;
-            pointer-events: auto !important;
-            touch-action: none !important;
-          }
-        }
-
-
-        /* BOBU Explorer 2.0 - compact mobile combat controls */
-        .ares-mobile-combat {
-          display: none;
-        }
-
-        @media (pointer: coarse) and (orientation: landscape) {
-          .mars-explore-world .ares-mobile-combat {
-            position: absolute;
-            right: max(88px, calc(env(safe-area-inset-right) + 84px));
-            bottom: max(24px, env(safe-area-inset-bottom));
-            z-index: 125;
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            gap: 8px;
-            pointer-events: auto;
-            touch-action: none;
-          }
-
-          .mars-explore-world .ares-mobile-combat button {
-            width: 46px;
-            height: 46px;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            border-radius: 50%;
-            border: 1px solid rgba(188, 126, 255, .75);
-            background: rgba(15, 10, 29, .88);
-            color: #fff;
-            box-shadow: 0 0 12px rgba(142, 87, 255, .25);
-            -webkit-tap-highlight-color: transparent;
-            touch-action: none;
-            user-select: none;
-            cursor: pointer;
-          }
-
-          .mars-explore-world .ares-mobile-combat button:active {
-            transform: scale(.92);
-            background: rgba(83, 43, 139, .94);
-          }
-
-          .mars-explore-world .ares-mobile-combat strong {
-            font: 900 15px system-ui;
-            line-height: 18px;
-          }
-
-          .mars-explore-world .ares-mobile-combat small {
-            font: 800 7px system-ui;
-            letter-spacing: .04em;
-          }
-        }
-
         /* Orbit must remain visible when the separate flight HUD mounts. */
         .mars-explore-world .mars-explore-return-button {
           z-index: 95 !important;
@@ -2505,7 +2419,6 @@ export function MarsExploreWorld() {
           mobileInteractionTarget
         }
       />
-      <AresMobileCombat />
 
       <a
         className="mars-explore-return-button"

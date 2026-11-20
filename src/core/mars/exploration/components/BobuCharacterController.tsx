@@ -62,7 +62,6 @@ type BobuCharacterControllerProps = {
   boundary?: number;
   characterRef?: React.RefObject<THREE.Group | null>;
   collisionObstacles?: MarsCollisionObstacle[];
-  remotePlayerPositionsRef?: React.MutableRefObject<Array<{ x: number; z: number }>>;
   walkableSurface?: (terrain: AresGenesisTerrainData, x: number, z: number) => number | null;
   stairStateRef?: React.MutableRefObject<boolean>;
   analogMovementRef?: React.MutableRefObject<MarsAnalogMovement>;
@@ -93,7 +92,6 @@ export function BobuCharacterController({
     ARES_GENESIS_SAFE_BOUNDARY_METERS,
   characterRef,
   collisionObstacles = [],
-  remotePlayerPositionsRef,
   walkableSurface,
   stairStateRef,
   analogMovementRef,
@@ -459,28 +457,7 @@ export function BobuCharacterController({
                 minimumDistance
             );
           },
-        ) ||
-        (remotePlayerPositionsRef?.current ?? []).some((remote) => {
-          if (!Number.isFinite(remote.x) || !Number.isFinite(remote.z)) {
-            return false;
-          }
-
-          const dx = candidateX - remote.x;
-          const dz = candidateZ - remote.z;
-          const nextDistanceSq = dx * dx + dz * dz;
-
-          const currentDx = group.position.x - remote.x;
-          const currentDz = group.position.z - remote.z;
-          const currentDistanceSq =
-            currentDx * currentDx + currentDz * currentDz;
-
-          const minimumDistance = BOBU_COLLISION_RADIUS * 2;
-
-          return (
-            nextDistanceSq < minimumDistance * minimumDistance &&
-            nextDistanceSq < currentDistanceSq
-          );
-        });
+        );
 
       const movementX =
         nextX -
