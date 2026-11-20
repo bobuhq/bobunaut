@@ -86,11 +86,13 @@ export function CinematicLanding({flight=false,obstacles=[],onAresEntry}:{flight
  const release=()=>{keys.current.clear();touches.current.clear();input.current=emptyInput();controller.current?.pause();};
  const action=(name:string)=>{if(exitPhaseRef.current!=='FLIGHT')return;if(name==='gear'){controller.current?.toggleGear();}if(name==='touchdown')controller.current?.requestTouchdown();};
  useEffect(()=>{if(!flight)return;
-  const down=(e:KeyboardEvent)=>{if(onFootRef.current||exitPhaseRef.current!=='FLIGHT')return;if(e.target instanceof HTMLInputElement||e.target instanceof HTMLTextAreaElement)return;if(e.code in KEYMAP||['KeyG','KeyF','ArrowUp','ArrowDown'].includes(e.code)){e.preventDefault();keys.current.add(e.code);sync();if(!e.repeat)action(e.code==='KeyG'?'gear':e.code==='KeyF'?'touchdown':'');}};
+  const down=(e:KeyboardEvent)=>{if(onFootRef.current||exitPhaseRef.current!=='FLIGHT')return;if(e.target instanceof HTMLInputElement||
+   e.target instanceof HTMLTextAreaElement||
+   (e.target instanceof HTMLElement&&e.target.isContentEditable))return;if(e.code in KEYMAP||['KeyG','KeyF','ArrowUp','ArrowDown'].includes(e.code)){e.preventDefault();keys.current.add(e.code);sync();if(!e.repeat)action(e.code==='KeyG'?'gear':e.code==='KeyF'?'touchdown':'');}};
   const up=(e:KeyboardEvent)=>{keys.current.delete(e.code);sync();};
   const blur=()=>{focused.current=false;release();},focus=()=>{focused.current=true;release();},visibility=()=>release();
-  window.addEventListener('keydown',down);window.addEventListener('keyup',up);window.addEventListener('blur',blur);window.addEventListener('focus',focus);document.addEventListener('visibilitychange',visibility);
-  return()=>{release();window.removeEventListener('keydown',down);window.removeEventListener('keyup',up);window.removeEventListener('blur',blur);window.removeEventListener('focus',focus);document.removeEventListener('visibilitychange',visibility);};
+  document.addEventListener('keydown',down,true);document.addEventListener('keyup',up,true);window.addEventListener('blur',blur);window.addEventListener('focus',focus);document.addEventListener('visibilitychange',visibility);
+  return()=>{release();document.removeEventListener('keydown',down,true);document.removeEventListener('keyup',up,true);window.removeEventListener('blur',blur);window.removeEventListener('focus',focus);document.removeEventListener('visibilitychange',visibility);};
  },[flight]);
  const hold=(actionName:string,value:number)=>(e:React.PointerEvent<HTMLButtonElement>)=>{e.preventDefault();e.currentTarget.setPointerCapture(e.pointerId);touches.current.set(e.pointerId,{action:actionName,value});sync();};
  const unhold=(e:React.PointerEvent<HTMLElement>)=>{touches.current.delete(e.pointerId);touches.current.delete(-e.pointerId-1);sync();};
@@ -256,23 +258,41 @@ const manual=f.status==='MANUAL'||f.status==='LANDING ABORTED';
 const thrust=manual?input.current.forward:0;
 const frameDt=Math.min(Math.max(dt,0),.05);
 
+// BOBU_ARES_V65_REVERSE_WEB
+// W forward: 5..16 m/s
+// S reverse: 5..12 m/s
+// Opposite direction first brakes to zero.
 if(!manual){
  throttleSpeed.current=0;
 }else if(thrust>0.08){
- throttleSpeed.current=Math.min(
-  MAX_MANUAL_SPEED,
-  throttleSpeed.current+7*thrust*frameDt
- );
+ if(throttleSpeed.current<0){
+  throttleSpeed.current=Math.min(
+   0,throttleSpeed.current+12*frameDt
+  );
+ }else{
+  throttleSpeed.current=Math.min(
+   16,
+   Math.max(5,throttleSpeed.current+7*thrust*frameDt)
+  );
+ }
 }else if(thrust<-.08){
- throttleSpeed.current=Math.max(
-  0,
-  throttleSpeed.current+12*thrust*frameDt
- );
+ if(throttleSpeed.current>0){
+  throttleSpeed.current=Math.max(
+   0,throttleSpeed.current-12*frameDt
+  );
+ }else{
+  throttleSpeed.current=Math.max(
+   -12,
+   Math.min(-5,throttleSpeed.current+7*thrust*frameDt)
+  );
+ }
 }else{
- throttleSpeed.current=Math.max(
-  0,
-  throttleSpeed.current-3*frameDt
- );
+ const value=throttleSpeed.current;
+ const amount=3*frameDt;
+ throttleSpeed.current=
+  Math.abs(value)<=amount
+   ? 0
+   : value-Math.sign(value)*amount;
 }
 
 // In the web view, A/D now turn the spacecraft instead
@@ -408,7 +428,7 @@ f.step(
    <strong>{telemetry?.horizontal??'0'} <small>m/s</small></strong>
    <div className="ares-speed-controls"
     aria-label="Maximum flight speed">
-    <b>MAX 16 m/s</b>
+    <b>FWD 16 · REV 12 m/s</b>
    </div>
   </div>}
 

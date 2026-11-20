@@ -207,7 +207,8 @@ export class FlightV2 {
    this.yawVelocity+=(input.yaw*.8-this.yawVelocity)*(1-Math.exp(-8*dt));this.yaw+=this.yawVelocity*dt;
    // BOBU_ARES_V63_CORRECTED: optional mobile cruise.
    if(Number.isFinite(input.cruiseSpeed)){
-    const target=Math.max(0,Math.min(16,input.cruiseSpeed));
+    // BOBU_ARES_V65_REVERSE_WEB
+    const target=Math.max(-12,Math.min(16,input.cruiseSpeed));
     const blend=1-Math.exp(-1.4*dt);
     const desiredX=-Math.sin(this.yaw)*target;
     const desiredZ=-Math.cos(this.yaw)*target;
