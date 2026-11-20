@@ -277,6 +277,19 @@ function MarsExploreScene({
   // Mars globe entry and its 5.6-second transition are owned by untouched routes.
   const localV11Enabled = !flying;
   const interactive = !flying && terrain !== null;
+
+  // BOBU_MOBILE_ACTION_VISIBILITY_FIX_V1
+  useEffect(() => {
+    if (interactive) {
+      document.documentElement.dataset.aresCharacterReady = "true";
+    } else {
+      delete document.documentElement.dataset.aresCharacterReady;
+    }
+    return () => {
+      delete document.documentElement.dataset.aresCharacterReady;
+    };
+  }, [interactive]);
+
   const renderedTerrain = useRef(false);
   const renderedInteractive = useRef(false);
   const finishWalkingCommit = useRef<ReturnType<typeof startAresStage>>(undefined);
@@ -782,7 +795,10 @@ export function MarsExploreWorld() {
       return "desktop";
     }
 
-    const mobile = window.matchMedia("(max-width: 900px)").matches;
+    const mobile =
+      window.matchMedia("(max-width: 900px)").matches ||
+      window.matchMedia("(pointer: coarse), (any-pointer: coarse), (hover: none)").matches ||
+      navigator.maxTouchPoints > 0;
 
     if (!mobile) {
       return "desktop";
@@ -795,7 +811,10 @@ export function MarsExploreWorld() {
 
   useEffect(() => {
     const updateOrientation = () => {
-      const mobile = window.matchMedia("(max-width: 900px)").matches;
+      const mobile =
+      window.matchMedia("(max-width: 900px)").matches ||
+      window.matchMedia("(pointer: coarse), (any-pointer: coarse), (hover: none)").matches ||
+      navigator.maxTouchPoints > 0;
 
       if (!mobile) {
         setMobileOrientation("desktop");
@@ -2392,6 +2411,48 @@ export function MarsExploreWorld() {
           .mars-explore-world .ares-hud-objective strong { font-size: 10px !important; }
           .mars-explore-world .ares-hud-objective span { font-size: 9px !important; }
         }
+
+        /* Mobile walking controls independent of pointer media detection. */
+        .mars-explore-world .ares-mobile-actions {
+          display: none !important;
+          position: fixed !important;
+          right: max(14px, env(safe-area-inset-right)) !important;
+          bottom: max(20px, env(safe-area-inset-bottom)) !important;
+          z-index: 110 !important;
+          flex-direction: column !important;
+          align-items: center !important;
+          gap: 10px !important;
+          pointer-events: auto !important;
+          touch-action: none !important;
+        }
+        html[data-ares-character-ready="true"]
+        .mars-explore-world .ares-mobile-actions {
+          display: flex !important;
+        }
+        .mars-explore-world .ares-mobile-actions .ares-mobile-action {
+          display: flex !important;
+          flex-direction: column !important;
+          align-items: center !important;
+          justify-content: center !important;
+          flex: 0 0 60px !important;
+          width: 60px !important;
+          height: 60px !important;
+          padding: 0 !important;
+          border: 2px solid #63f5ff !important;
+          border-radius: 50% !important;
+          background: rgba(5, 18, 32, 0.94) !important;
+          color: white !important;
+          box-shadow: 0 0 15px rgba(99,245,255,.4) !important;
+          touch-action: none !important;
+          pointer-events: auto !important;
+        }
+        .mars-explore-world .ares-mobile-actions
+        .ares-mobile-action__label {
+          display: block !important;
+          color: white !important;
+          font-size: 9px !important;
+          font-weight: 900 !important;
+        }
       `}</style>
 
       <AresMobileJoystick
@@ -2414,11 +2475,11 @@ export function MarsExploreWorld() {
           )}>▼ {flightUi(language, 'lookDown')}</button>
       </div>
 
-      <AresMobileActions
-        interactionTarget={
-          mobileInteractionTarget
-        }
-      />
+      {mobileOrientation === "landscape" && (
+        <AresMobileActions
+          interactionTarget={mobileInteractionTarget}
+        />
+      )}
 
       <a
         className="mars-explore-return-button"
