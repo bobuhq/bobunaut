@@ -96,13 +96,15 @@ export function AresMobileActions({
         " ",
       );
 
+      // MOBILE_JUMP_FRAME_CAPTURE_FIX
+      // Keep Space active long enough for mobile render frames.
       window.setTimeout(() => {
         dispatchKeyboardEvent(
           "keyup",
           "Space",
           " ",
         );
-      }, 40);
+      }, 160);
     },
     [],
   );
