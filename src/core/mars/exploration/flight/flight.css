@@ -511,3 +511,99 @@ body:has(#ares-flight-viewport .flight-overlay) .ares-mobile-camera-pitch { z-in
   .mars-explore-world .ares-hud-objective {max-width: min(145px, 23vw) !important;}
   .mars-explore-world .ares-hud-onboarding {max-width: 130px !important; width: 130px !important;}
 }
+
+
+/* BOBU_ARES_V6_GEAR_STICK */
+
+/* Remove the unwanted large objective/protocol tutorial. */
+.mars-explore-world .ares-hud-onboarding {
+ display:none !important;
+}
+
+/* Flight joystick: independent from walking joystick. */
+@media (pointer:coarse), (max-width:900px) {
+ #ares-flight-viewport .flight-stick.flight-gear-stick {
+  position:fixed !important;
+  left:max(22px,env(safe-area-inset-left)) !important;
+  bottom:clamp(140px,31vh,205px) !important;
+  right:auto !important;
+  top:auto !important;
+  width:132px !important;
+  height:132px !important;
+  min-width:132px !important;
+  min-height:132px !important;
+  padding:0 !important;
+  box-sizing:border-box !important;
+  flex:none !important;
+  z-index:160 !important;
+  display:block !important;
+  border:2px solid #71ddff !important;
+  border-radius:50% !important;
+  background:radial-gradient(circle at 46% 37%,
+   #345b74 0%,#102e43 43%,#061521 85%) !important;
+  box-shadow:0 0 24px #28cfff55,
+   inset 0 0 24px #8ce9ff22 !important;
+  pointer-events:auto !important;
+  touch-action:none !important;
+  overscroll-behavior:none !important;
+  user-select:none !important;
+  -webkit-user-select:none !important;
+ }
+}
+
+#ares-flight-viewport .flight-gear-letter {
+ position:absolute;
+ font:bold 15px/1 system-ui,sans-serif;
+ color:#d6f7ff;
+ text-shadow:0 0 7px #4edcff;
+ pointer-events:none;
+}
+
+#ares-flight-viewport .flight-gear-w {
+ top:9px;left:50%;transform:translateX(-50%);
+}
+#ares-flight-viewport .flight-gear-a {
+ left:11px;top:50%;transform:translateY(-50%);
+}
+#ares-flight-viewport .flight-gear-s {
+ bottom:9px;left:50%;transform:translateX(-50%);
+}
+#ares-flight-viewport .flight-gear-d {
+ right:11px;top:50%;transform:translateY(-50%);
+}
+
+#ares-flight-viewport .flight-gear-knob {
+ position:absolute;
+ left:50%;
+ top:50%;
+ width:54px;
+ height:54px;
+ margin-left:-27px;
+ margin-top:-27px;
+ border:2px solid #9defff;
+ border-radius:50%;
+ box-sizing:border-box;
+ background:radial-gradient(circle at 35% 28%,
+  #a9dbf6,#4b8daa 25%,#132d47 70%,#071625);
+ box-shadow:0 0 16px #56ddff88,
+  inset 0 0 12px #ffffff33;
+ pointer-events:none;
+ will-change:transform;
+}
+
+#ares-flight-viewport .flight-gear-shine {
+ position:absolute;
+ width:19px;
+ height:10px;
+ top:9px;
+ left:12px;
+ border-radius:50%;
+ background:#ffffff88;
+ filter:blur(5px);
+ pointer-events:none;
+}
+
+/* Keep the other flight buttons unchanged and stationary. */
+#ares-flight-viewport .flight-buttons button:not(.flight-autoland){
+ animation:none !important;
+}

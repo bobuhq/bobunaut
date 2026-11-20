@@ -94,34 +94,79 @@ export function CinematicLanding({flight=false,obstacles=[],onAresEntry}:{flight
  },[flight]);
  const hold=(actionName:string,value:number)=>(e:React.PointerEvent<HTMLButtonElement>)=>{e.preventDefault();e.currentTarget.setPointerCapture(e.pointerId);touches.current.set(e.pointerId,{action:actionName,value});sync();};
  const unhold=(e:React.PointerEvent<HTMLElement>)=>{touches.current.delete(e.pointerId);touches.current.delete(-e.pointerId-1);sync();};
- // BOBU_TOUCH_V2_SAFE_PATCH: joystick = WASD analog movement, including native WebView touch events.
+
+ // BOBU_ARES_V6_GEAR_STICK: analogue W/A/S/D using existing FlightV2 inputs.
+ const stickKnob=useRef<HTMLDivElement>(null);
+ const activeStickPointer=useRef<number|null>(null);
  const clampAxis=(v:number)=>Math.max(-1,Math.min(1,v));
- const setStick=(id:number,x:number,y:number,b:DOMRect)=>{
-  touches.current.set(id,{action:'lateral',value:clampAxis((x-b.left-b.width/2)/(b.width*.4))});
-  touches.current.set(-id-1,{action:'forward',value:clampAxis(-(y-b.top-b.height/2)/(b.height*.4))});
-  sync();
- };
- const joystick=(e:React.PointerEvent<HTMLDivElement>)=>{
-  // Pointer capture provides stable multi-touch tracking on modern iOS/Android WebViews.
-  if(e.type==='pointerdown')e.currentTarget.setPointerCapture(e.pointerId);
-  if(!e.currentTarget.hasPointerCapture(e.pointerId))return;
-  e.preventDefault();setStick(e.pointerId,e.clientX,e.clientY,e.currentTarget.getBoundingClientRect());
- };
- const stickTouch=(e:React.TouchEvent<HTMLDivElement>)=>{
-  if(typeof window!=='undefined' && 'PointerEvent' in window)return;
+
+ const moveStick=(id:number,x:number,y:number,b:DOMRect)=>{
   if(exitPhaseRef.current!=='FLIGHT')return;
-  e.preventDefault();
-  const b=e.currentTarget.getBoundingClientRect();
-  for(const t of Array.from(e.changedTouches))setStick(100000+t.identifier*2,t.clientX,t.clientY,b);
- };
- const stopStickTouch=(e:React.TouchEvent<HTMLDivElement>)=>{
-  if(typeof window!=='undefined' && 'PointerEvent' in window)return;
-  e.preventDefault();
-  for(const t of Array.from(e.changedTouches)){
-   const id=100000+t.identifier*2;
-   touches.current.delete(id);touches.current.delete(-id-1);
+  const dx=x-(b.left+b.width/2);
+  const dy=y-(b.top+b.height/2);
+  const radius=Math.min(b.width,b.height)*.33;
+  const length=Math.hypot(dx,dy);
+  const scale=length>radius?radius/length:1;
+  const px=dx*scale,py=dy*scale;
+  const dead=.12;
+  const lateral=Math.abs(px/radius)<dead?0:clampAxis(px/radius);
+  const forward=Math.abs(py/radius)<dead?0:clampAxis(-py/radius);
+
+  touches.current.set(id,{action:'lateral',value:lateral});
+  touches.current.set(-id-1,{action:'forward',value:forward});
+
+  if(stickKnob.current){
+   stickKnob.current.style.transform=`translate3d(${px}px,${py}px,0)`;
   }
   sync();
+ };
+
+ const clearStick=(id:number)=>{
+  touches.current.delete(id);
+  touches.current.delete(-id-1);
+  if(stickKnob.current){
+   stickKnob.current.style.transform='translate3d(0,0,0)';
+  }
+  sync();
+ };
+
+ const joystick=(e:React.PointerEvent<HTMLDivElement>)=>{
+  if(exitPhaseRef.current!=='FLIGHT')return;
+  if(e.type==='pointerdown'){
+   if(activeStickPointer.current!==null)return;
+   activeStickPointer.current=e.pointerId;
+   try{e.currentTarget.setPointerCapture(e.pointerId);}catch{}
+  }
+  if(activeStickPointer.current!==e.pointerId)return;
+  e.preventDefault();
+  e.stopPropagation();
+  moveStick(e.pointerId,e.clientX,e.clientY,
+            e.currentTarget.getBoundingClientRect());
+ };
+
+ const stopJoystick=(e:React.PointerEvent<HTMLDivElement>)=>{
+  if(activeStickPointer.current!==e.pointerId)return;
+  activeStickPointer.current=null;
+  clearStick(e.pointerId);
+ };
+
+ // Native touch fallback for WebViews without reliable pointer capture.
+ const stickTouch=(e:React.TouchEvent<HTMLDivElement>)=>{
+  if(exitPhaseRef.current!=='FLIGHT')return;
+  if(activeStickPointer.current!==null)return;
+  e.preventDefault();
+  e.stopPropagation();
+  const b=e.currentTarget.getBoundingClientRect();
+  for(const t of Array.from(e.changedTouches)){
+   moveStick(100000+t.identifier*2,t.clientX,t.clientY,b);
+  }
+ };
+
+ const stopStickTouch=(e:React.TouchEvent<HTMLDivElement>)=>{
+  e.preventDefault();
+  for(const t of Array.from(e.changedTouches)){
+   clearStick(100000+t.identifier*2);
+  }
  };
  // Swipe the unobstructed 3D canvas to steer yaw and pitch; never steal joystick/button touches.
  useEffect(()=>{
@@ -283,7 +328,28 @@ export function CinematicLanding({flight=false,obstacles=[],onAresEntry}:{flight
  {exitPhase==='FLIGHT'&&mode==='CHASE'&&modelReady&&<FlightHUD telemetry={telemetry} onAudio={()=>audio.toggle()} language={flightLanguage}/>}
 
  {exitPhase!=='FLIGHT'&&<div role="status" style={{position:'fixed',top:16,left:'50%',transform:'translateX(-50%)',pointerEvents:'none',color:'#bcecff',background:'#07121ad9',padding:'9px 18px',borderRadius:7,fontFamily:'monospace',fontSize:13,zIndex:5}}>{exitPhase==='COCKPIT'?'BOBU · TOUCHDOWN / COCKPIT':exitPhase==='HATCH'?'BOBU · EXIT HATCH OPENING':exitPhase==='STAIRS'?'BOBU · DESCENDING TO MARS':'BOBU · MARS EXPLORATION · WASD'}</div>}
- {exitPhase==='FLIGHT'&&<><div ref={reticle} className="flight-reticle" aria-label="Mouse steering direction">·</div><div className="flight-touch"><div role="group" aria-label="Directional joystick" className="flight-stick" onPointerDown={joystick} onPointerMove={joystick} onPointerUp={unhold} onPointerCancel={unhold} onLostPointerCapture={unhold} onTouchStart={stickTouch} onTouchMove={stickTouch} onTouchEnd={stopStickTouch} onTouchCancel={stopStickTouch}>✥<small>W · A · S · D</small></div>
+ {exitPhase==='FLIGHT'&&<><div ref={reticle} className="flight-reticle" aria-label="Mouse steering direction">·</div><div className="flight-touch"><div
+ role="group"
+ aria-label="WASD flight joystick"
+ className="flight-stick flight-gear-stick"
+ onPointerDown={joystick}
+ onPointerMove={joystick}
+ onPointerUp={stopJoystick}
+ onPointerCancel={stopJoystick}
+ onLostPointerCapture={stopJoystick}
+ onTouchStart={stickTouch}
+ onTouchMove={stickTouch}
+ onTouchEnd={stopStickTouch}
+ onTouchCancel={stopStickTouch}
+>
+ <span className="flight-gear-letter flight-gear-w">W</span>
+ <span className="flight-gear-letter flight-gear-a">A</span>
+ <span className="flight-gear-letter flight-gear-s">S</span>
+ <span className="flight-gear-letter flight-gear-d">D</span>
+ <div ref={stickKnob} className="flight-gear-knob">
+  <span className="flight-gear-shine"/>
+ </div>
+</div>
  <div role="group" className="flight-look" aria-label="Cockpit look control" onPointerDown={dragLook} onPointerMove={dragLook} onPointerUp={()=>{lookPointer.current=null;}} onPointerCancel={()=>{lookPointer.current=null;}} style={{pointerEvents:'auto',touchAction:'none',background:'#102735cc',color:'#8efaff',padding:18,border:'1px solid #578ba2',borderRadius:12}}>{ui('dragToLook')}</div><div className="flight-buttons">{[[ui('ascend'),'vertical',1],[ui('descend'),'vertical',-1],[ui('rotateLeft'),'yaw',1],[ui('rotateRight'),'yaw',-1]].map(([label,a,v])=><button key={label} onPointerDown={hold(String(a),Number(v))} onPointerUp={unhold} onPointerCancel={unhold} onLostPointerCapture={unhold}>{label}</button>)}<button data-testid="camera-mode" onClick={switchCamera}>{mode==='CHASE'?ui('cockpit'):ui('exterior')} · C</button><button onClick={()=>action('gear')}>{ui('gear')} · G</button><div className="flight-auto-wrap">
   {/* BOBU_F_PROMPT_V3: separate animated guidance, shown before pressing F only. */}
   {!autoLanding && !hasLanded && (
