@@ -2453,6 +2453,39 @@ export function MarsExploreWorld() {
           font-size: 9px !important;
           font-weight: 900 !important;
         }
+
+        /* BOBU_V1_FOUR_BUTTON_GRID_LOCAL */
+        html[data-ares-character-ready="true"]
+        .mars-explore-world .ares-mobile-actions {
+          display: grid !important;
+          grid-template-columns: repeat(2, 56px) !important;
+          grid-template-rows: repeat(2, 56px) !important;
+          gap: 8px !important;
+          width: 120px !important;
+          height: 120px !important;
+          right: max(12px, env(safe-area-inset-right)) !important;
+          bottom: max(12px, env(safe-area-inset-bottom)) !important;
+          align-items: center !important;
+          justify-items: center !important;
+          z-index: 110 !important;
+        }
+
+        .mars-explore-world .ares-mobile-actions
+        .ares-mobile-action {
+          width: 56px !important;
+          height: 56px !important;
+          min-width: 56px !important;
+          min-height: 56px !important;
+          flex: none !important;
+          margin: 0 !important;
+          touch-action: none !important;
+        }
+
+        .mars-explore-world .ares-mobile-actions
+        .ares-mobile-action__label {
+          font-size: 8px !important;
+          letter-spacing: 0.02em !important;
+        }
       `}</style>
 
       <AresMobileJoystick

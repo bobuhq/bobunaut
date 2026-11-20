@@ -153,6 +153,41 @@ export function AresMobileActions({
           {interactionTarget ?? "INTERACT"}
         </span>
       </button>
+      {/* BOBU_V1_LOCAL_COMBAT_TEST */}
+      <button
+        type="button"
+        className="ares-mobile-action ares-mobile-action--punch"
+        aria-label="Punch"
+        onPointerDown={(event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          window.dispatchEvent(
+            new CustomEvent("bobu:ares-attack", {
+              detail: "punch",
+            }),
+          );
+        }}
+      >
+        <span className="ares-mobile-action__icon">✊</span>
+        <span className="ares-mobile-action__label">PUNCH</span>
+      </button>
+      <button
+        type="button"
+        className="ares-mobile-action ares-mobile-action--spin"
+        aria-label="Spin"
+        onPointerDown={(event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          window.dispatchEvent(
+            new CustomEvent("bobu:ares-attack", {
+              detail: "spin",
+            }),
+          );
+        }}
+      >
+        <span className="ares-mobile-action__icon">↻</span>
+        <span className="ares-mobile-action__label">SPIN</span>
+      </button>
     </div>
   );
 }

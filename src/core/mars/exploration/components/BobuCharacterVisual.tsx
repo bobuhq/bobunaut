@@ -58,6 +58,7 @@ export function BobuCharacterVisual({
   const {
     actions,
     names,
+    mixer,
   } =
     useAnimations(
       gltf.animations,
@@ -79,6 +80,12 @@ export function BobuCharacterVisual({
 
   const stairPhaseRef =
     useRef(0);
+
+  // BOBU_V1_LOCAL_COMBAT_TEST
+  const combatGroupRef = useRef<THREE.Group>(null);
+  const punchActionRef = useRef<THREE.AnimationAction | null>(null);
+  const punchElapsedRef = useRef(0);
+  const spinElapsedRef = useRef(-1);
 
   const legLeft =
     useMemo(
@@ -293,6 +300,101 @@ export function BobuCharacterVisual({
     names,
   ]);
 
+  useEffect(() => {
+    const arm = scene.getObjectByName("Arm_R");
+
+    if (!arm) {
+      console.warn("BOBU V1: right arm unavailable");
+      return;
+    }
+
+    const base = arm.rotation.x;
+
+    const punchClip = new THREE.AnimationClip(
+      "BOBU_V1_LocalPunch",
+      0.6,
+      [
+        new THREE.NumberKeyframeTrack(
+          "Arm_R.rotation[x]",
+          [0, 0.12, 0.25, 0.43, 0.6],
+          [base, base - 0.35, base - 1.15, base - 0.35, base],
+        ),
+      ],
+    );
+
+    const punch = mixer.clipAction(punchClip, scene);
+    punch.setLoop(THREE.LoopOnce, 1);
+    punch.clampWhenFinished = true;
+    punchActionRef.current = punch;
+
+    function onAttack(event: Event) {
+      const kind = (event as CustomEvent<string>).detail;
+
+      if (kind === "punch") {
+        if (spinElapsedRef.current >= 0) return;
+
+        punch.stop();
+        punch.reset();
+        punch.setEffectiveWeight(1);
+        punch.fadeIn(0.08).play();
+        punchElapsedRef.current = 0.001;
+      }
+
+      if (kind === "spin") {
+        if (punchElapsedRef.current > 0) return;
+        spinElapsedRef.current = 0;
+      }
+    }
+
+    window.addEventListener("bobu:ares-attack", onAttack);
+
+    return () => {
+      window.removeEventListener("bobu:ares-attack", onAttack);
+      punch.stop();
+      mixer.uncacheAction(punchClip, scene);
+      punchActionRef.current = null;
+      if (combatGroupRef.current) {
+        combatGroupRef.current.rotation.y = 0;
+      }
+    };
+  }, [mixer, scene]);
+
+  useFrame((_state, delta) => {
+    if (punchElapsedRef.current > 0) {
+      punchElapsedRef.current += delta;
+      if (punchElapsedRef.current >= 0.6) {
+        punchActionRef.current?.stop();
+        punchElapsedRef.current = 0;
+      } else if (punchElapsedRef.current >= 0.42) {
+        punchActionRef.current?.fadeOut(0.16);
+      }
+    }
+
+    if (spinElapsedRef.current >= 0) {
+      spinElapsedRef.current += delta;
+      // BOBU_V1_FULL_360_SPIN
+      // Constant angular speed ensures the entire turn is visible.
+      const duration = 0.9;
+      const progress = Math.min(
+        1,
+        spinElapsedRef.current / duration,
+      );
+
+      if (combatGroupRef.current) {
+        combatGroupRef.current.rotation.y =
+          THREE.MathUtils.lerp(0, Math.PI * 2, progress);
+      }
+
+      if (progress >= 1) {
+        spinElapsedRef.current = -1;
+        if (combatGroupRef.current) {
+          // 2 PI and 0 are the same facing direction.
+          combatGroupRef.current.rotation.y = 0;
+        }
+      }
+    }
+  });
+
   useFrame(
     (
       _state,
@@ -379,6 +481,7 @@ export function BobuCharacterVisual({
 
   return (
     <group
+      ref={combatGroupRef}
       position={[
         0,
         0,
