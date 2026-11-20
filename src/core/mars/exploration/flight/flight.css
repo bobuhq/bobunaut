@@ -673,3 +673,86 @@ body:has(#ares-flight-viewport .flight-overlay) .ares-mobile-camera-pitch { z-in
 .mars-explore-world .ares-hud-onboarding {
  display:none !important;
 }
+
+
+/* BOBU_ARES_V63_CORRECTED — TOP CENTER SPEED */
+#ares-flight-viewport .ares-speed-v63 {
+ position:fixed;
+ top:max(8px,env(safe-area-inset-top));
+ left:50%;
+ transform:translateX(-50%);
+ z-index:185;
+ display:flex;
+ flex-direction:column;
+ align-items:center;
+ gap:3px;
+ width:150px;
+ box-sizing:border-box;
+ padding:6px 9px;
+ border:1px solid #65d9fb;
+ border-radius:11px;
+ background:#071b2af0;
+ color:#e0f8ff;
+ box-shadow:0 0 20px #42cfff44;
+ font-family:system-ui,sans-serif;
+ font-variant-numeric:tabular-nums;
+ pointer-events:none;
+}
+
+#ares-flight-viewport .ares-speed-v63>span {
+ font-size:10px;
+ font-weight:900;
+ letter-spacing:.16em;
+ color:#8aeaff;
+}
+
+#ares-flight-viewport .ares-speed-v63 strong {
+ font-size:25px;
+ line-height:1.1;
+ white-space:nowrap;
+}
+
+#ares-flight-viewport .ares-speed-v63 strong small {
+ font-size:11px;
+}
+
+#ares-flight-viewport .ares-speed-controls {
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ gap:5px;
+ width:100%;
+ font-size:11px;
+}
+
+#ares-flight-viewport .ares-speed-controls button {
+ width:36px;
+ height:32px;
+ border:1px solid #79dfff;
+ border-radius:7px;
+ background:#173e56;
+ color:white;
+ font-size:22px;
+ font-weight:800;
+ touch-action:manipulation;
+ pointer-events:auto;
+ cursor:pointer;
+ animation:none !important;
+}
+
+#ares-flight-viewport .ares-speed-controls button:disabled {
+ opacity:.35;
+}
+
+@media(max-height:500px){
+ #ares-flight-viewport .ares-speed-v63 {
+  width:135px;
+  padding:4px 7px;
+ }
+ #ares-flight-viewport .ares-speed-v63 strong {
+  font-size:20px;
+ }
+ #ares-flight-viewport .ares-speed-controls button {
+  height:28px;
+ }
+}

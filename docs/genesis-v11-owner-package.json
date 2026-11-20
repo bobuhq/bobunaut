@@ -207,7 +207,7 @@
     "schema": 1,
     "scope": "repository geometry only; not production certification",
     "productionCertified": false,
-    "releaseDigest": "775b1a4e545af03e7c6b15aef5f1b94b86240c3361d78b236c756aa8dc8e4edf",
+    "releaseDigest": "5b974ba44b28a9310f38eab1fcf3c1da6c3780e207ae8736fae9bb910baac121",
     "sourceDigests": {
       "src/core/mars/exploration/engine/AresGenesisTerrainData.ts": "adbe51a6aefd27b8de4e317886754a72607a006eb9d33ba1388b9bbf19f1cc30",
       "public/mars/ares-genesis/ares-genesis-height-16.bin": "62b26ba12a7da83b2ddf58d46398231deacb993a996321b89db078bf364b47aa",
@@ -529,5 +529,5 @@
     "Fresh production world evidence, owner decision and new certificate are required",
     "Staging and authenticated live browser validation are required before deployment"
   ],
-  "packageSha256": "186d527328932d35b8a091fc881c6f226a81a6259fbd69c75d99af5e6e94ae4f"
+  "packageSha256": "a8bcf7a38cc308c54469042d7616b006c3dfb88fd2c784632dc4cb234a181398"
 }

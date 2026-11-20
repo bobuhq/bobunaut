@@ -96,7 +96,23 @@ export function CinematicLanding({flight=false,obstacles=[],onAresEntry}:{flight
  const unhold=(e:React.PointerEvent<HTMLElement>)=>{touches.current.delete(e.pointerId);touches.current.delete(-e.pointerId-1);sync();};
 
  // BOBU_ARES_V6_GEAR_STICK: analogue W/A/S/D using existing FlightV2 inputs.
+ // BOBU_ARES_V63_CORRECTED
  const stickKnob=useRef<HTMLDivElement>(null);
+ const mobilePitch=useRef(0);
+ const cruiseSpeed=useRef(0);
+ const cruiseEnabled=useRef(false);
+ const [targetSpeed,setTargetSpeed]=useState(0);
+
+ const adjustSpeed=(amount:number)=>{
+  if(exitPhaseRef.current!=='FLIGHT')return;
+  if(!controller.current ||
+     controller.current.status!=='MANUAL')return;
+  cruiseEnabled.current=true;
+  cruiseSpeed.current=Math.max(
+   0,Math.min(16,cruiseSpeed.current+amount)
+  );
+  setTargetSpeed(cruiseSpeed.current);
+ };
  const activeStickPointer=useRef<number|null>(null);
  const clampAxis=(v:number)=>Math.max(-1,Math.min(1,v));
 
@@ -112,8 +128,9 @@ export function CinematicLanding({flight=false,obstacles=[],onAresEntry}:{flight
   const lateral=Math.abs(px/radius)<dead?0:clampAxis(px/radius);
   const forward=Math.abs(py/radius)<dead?0:clampAxis(-py/radius);
 
-  touches.current.set(id,{action:'lateral',value:lateral});
-  touches.current.set(-id-1,{action:'forward',value:forward});
+  touches.current.set(id,{action:'yaw',value:-lateral});
+  touches.current.set(-id-1,{action:'forward',value:0});
+  mobilePitch.current=forward*0.24;
 
   if(stickKnob.current){
    stickKnob.current.style.transform=`translate3d(${px}px,${py}px,0)`;
@@ -122,6 +139,7 @@ export function CinematicLanding({flight=false,obstacles=[],onAresEntry}:{flight
  };
 
  const clearStick=(id:number)=>{
+  mobilePitch.current=0;
   touches.current.delete(id);
   touches.current.delete(-id-1);
   if(stickKnob.current){
@@ -241,7 +259,16 @@ export function CinematicLanding({flight=false,obstacles=[],onAresEntry}:{flight
    obstacleScan.current=clock.elapsedTime+2;
    f.obstacles=resolveSceneObstacles(scene,obstacles,ship.current);
   }
-  if(flight&&f){if(mouse.current.alt&&input.current.yaw===0&&f.status==='MANUAL')f.yawVelocity=0;const mouseYaw=mouse.current.step(Math.min(dt,.05));look.current=cockpitLook(mouse.current.look.x+touchLook.current.x,mouse.current.look.y+touchLook.current.y);if(reticle.current){reticle.current.style.transform=`translateX(${ -mouse.current.axis*65}px)`;reticle.current.textContent=mouse.current.active?'⊕':'·';}f.step(performance.now(),{...input.current,yaw:Math.max(-1,Math.min(1,input.current.yaw+mouseYaw))},!document.hidden&&focused.current);
+  if(flight&&f){if(mouse.current.alt&&input.current.yaw===0&&f.status==='MANUAL')f.yawVelocity=0;const mouseYaw=mouse.current.step(Math.min(dt,.05));look.current=cockpitLook(mouse.current.look.x+touchLook.current.x,mouse.current.look.y+touchLook.current.y);if(reticle.current){reticle.current.style.transform=`translateX(${ -mouse.current.axis*65}px)`;reticle.current.textContent=mouse.current.active?'⊕':'·';}f.step(performance.now(),{
+ ...input.current,
+ yaw:Math.max(-1,Math.min(1,input.current.yaw+mouseYaw)),
+ ...(cruiseEnabled.current
+  ? {
+     cruiseSpeed:cruiseSpeed.current,
+     pitch:mobilePitch.current
+    }
+  : {})
+},!document.hidden&&focused.current);
    // Post-touchdown handoff never writes the flight controller's position or velocity.
    if(canDisembark(f)){
     if(exitClock.current===null){exitClock.current=clock.elapsedTime;lastExitStep.current=-1;release();cameraMode.current='COCKPIT';setMode('COCKPIT');look.current={x:0,y:0};touchLook.current={x:0,y:0};}
@@ -270,7 +297,16 @@ export function CinematicLanding({flight=false,obstacles=[],onAresEntry}:{flight
   // Retain the original noninteractive demonstration when flight mode is off.
   const descent=g.state==='DESCENDING'?Math.min(g.elapsed/8,1):0;
   const altitude=flight&&f?f.y-5.15-f.inspect(f.x,f.z).highest:30-descent*18;
-  if(flight&&f){ship.current.position.set(f.x,f.y,f.z);ship.current.rotation.y=f.yaw;ship.current.updateMatrixWorld(true);const pc=camera as THREE.PerspectiveCamera;const near=cameraMode.current==='COCKPIT'?.05:.3;if(pc.near!==near){pc.near=near;pc.updateProjectionMatrix();}if(!onFootRef.current){
+  if(flight&&f){ship.current.position.set(f.x,f.y,f.z);ship.current.rotation.y=f.yaw;
+   const pitchTarget=
+    f.status==='MANUAL' &&
+    f.gear.state==='STOWED' &&
+    f.y-5.15-f.inspect(f.x,f.z).highest>12
+     ? mobilePitch.current : 0;
+   ship.current.rotation.x+=
+    (pitchTarget-ship.current.rotation.x)*
+    (1-Math.exp(-7*Math.min(dt,.05)));
+   ship.current.updateMatrixWorld(true);const pc=camera as THREE.PerspectiveCamera;const near=cameraMode.current==='COCKPIT'?.05:.3;if(pc.near!==near){pc.near=near;pc.updateProjectionMatrix();}if(!onFootRef.current){
     if(exitPhaseRef.current==='HATCH'||exitPhaseRef.current==='STAIRS'){
      const actor=actorRef.current;
      if(actor){const focus=actor.getWorldPosition(new THREE.Vector3());const c=Math.cos(f.yaw),si=Math.sin(f.yaw);camera.position.set(focus.x+si*8+c*6,focus.y+4,focus.z+c*8-si*6);camera.lookAt(focus.x,focus.y+1,focus.z);}
@@ -326,6 +362,22 @@ export function CinematicLanding({flight=false,obstacles=[],onAresEntry}:{flight
  return <>{flight&&<ViewportOverlay><div className="flight-overlay"><div ref={fade} aria-hidden="true" style={{position:'fixed',inset:0,background:'#02070c',opacity:0,transition:'opacity 140ms ease',pointerEvents:'none',zIndex:200}}/>
  {flight&&!modelReady&&<div role="status" style={{position:'fixed',inset:0,display:'grid',placeItems:'center',background:'#071016',color:'#dcefff',fontFamily:'monospace',letterSpacing:2,zIndex:250,pointerEvents:'none'}}>BOBU ARES · LOADING SPACECRAFT</div>}
  {exitPhase==='FLIGHT'&&mode==='CHASE'&&modelReady&&<FlightHUD telemetry={telemetry} onAudio={()=>audio.toggle()} language={flightLanguage}/>}
+ {exitPhase==='FLIGHT'&&modelReady&&
+  <div className="ares-speed-v63">
+   <span>SPEED</span>
+   <strong>{telemetry?.horizontal??'0'} <small>m/s</small></strong>
+   <div className="ares-speed-controls">
+    <button type="button"
+     aria-label="Decrease speed"
+     onClick={()=>adjustSpeed(-2)}
+     disabled={targetSpeed<=0}>−</button>
+    <b>{targetSpeed} / 16</b>
+    <button type="button"
+     aria-label="Increase speed"
+     onClick={()=>adjustSpeed(2)}
+     disabled={targetSpeed>=16}>+</button>
+   </div>
+  </div>}
 
  {exitPhase!=='FLIGHT'&&<div role="status" style={{position:'fixed',top:16,left:'50%',transform:'translateX(-50%)',pointerEvents:'none',color:'#bcecff',background:'#07121ad9',padding:'9px 18px',borderRadius:7,fontFamily:'monospace',fontSize:13,zIndex:5}}>{exitPhase==='COCKPIT'?'BOBU · TOUCHDOWN / COCKPIT':exitPhase==='HATCH'?'BOBU · EXIT HATCH OPENING':exitPhase==='STAIRS'?'BOBU · DESCENDING TO MARS':'BOBU · MARS EXPLORATION · WASD'}</div>}
  {exitPhase==='FLIGHT'&&<><div ref={reticle} className="flight-reticle" aria-label="Mouse steering direction">·</div><div className="flight-touch"><div

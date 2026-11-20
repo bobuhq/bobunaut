@@ -205,11 +205,37 @@ export class FlightV2 {
    }
   }else{
    this.yawVelocity+=(input.yaw*.8-this.yawVelocity)*(1-Math.exp(-8*dt));this.yaw+=this.yawVelocity*dt;
-   const n=Math.max(1,Math.hypot(forward,lateral)),c=Math.cos(this.yaw),s=Math.sin(this.yaw);
-   this.vx+=(lateral/n*c-forward/n*s)*12*dt;this.vz+=(-forward/n*c-lateral/n*s)*12*dt;
-   this.vx*=Math.exp(-1.2*dt);this.vz*=Math.exp(-1.2*dt);
-   const speed=Math.hypot(this.vx,this.vz);if(speed>16){this.vx*=16/speed;this.vz*=16/speed;}
-   this.vy=Math.max(-4,Math.min(6,(this.vy+vertical*9*dt)*Math.exp(-1.5*dt)));
+   // BOBU_ARES_V63_CORRECTED: optional mobile cruise.
+   if(Number.isFinite(input.cruiseSpeed)){
+    const target=Math.max(0,Math.min(16,input.cruiseSpeed));
+    const blend=1-Math.exp(-1.4*dt);
+    const desiredX=-Math.sin(this.yaw)*target;
+    const desiredZ=-Math.cos(this.yaw)*target;
+    this.vx+=(desiredX-this.vx)*blend;
+    this.vz+=(desiredZ-this.vz)*blend;
+
+    const speed=Math.hypot(this.vx,this.vz);
+    if(speed>16){
+     this.vx*=16/speed;
+     this.vz*=16/speed;
+    }
+
+    const pitch=Math.max(-.24,Math.min(.24,input.pitch||0));
+    const targetVy=Math.max(-4,Math.min(6,
+      vertical*6+target*Math.sin(pitch)));
+
+    this.vy+=(targetVy-this.vy)*
+      (1-Math.exp(-2*dt));
+
+    this.vy=Math.max(-4,Math.min(6,this.vy));
+   }else{
+    const n=Math.max(1,Math.hypot(forward,lateral)),c=Math.cos(this.yaw),s=Math.sin(this.yaw);
+    this.vx+=(lateral/n*c-forward/n*s)*12*dt;this.vz+=(-forward/n*c-lateral/n*s)*12*dt;
+    this.vx*=Math.exp(-1.2*dt);this.vz*=Math.exp(-1.2*dt);
+    const speed=Math.hypot(this.vx,this.vz);
+    if(speed>16){this.vx*=16/speed;this.vz*=16/speed;}
+    this.vy=Math.max(-4,Math.min(6,(this.vy+vertical*9*dt)*Math.exp(-1.5*dt)));
+   }
   }
   const x=this.x+this.vx*dt,z=this.z+this.vz*dt;
   // Reject the attempted substep at the perimeter; no teleport or wraparound.
