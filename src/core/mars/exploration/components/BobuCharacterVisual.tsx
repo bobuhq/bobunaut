@@ -14,14 +14,20 @@ import {
 } from "@react-three/fiber";
 
 import * as THREE from "three";
+import {
+  attachBobuEnergySword,
+  type BobuSwordMounts,
+} from "./BobuEnergySword";
+import { clone as cloneSkeleton } from "three/examples/jsm/utils/SkeletonUtils.js";
+
+// BOBU_EXPLORER_V2_LOCAL
 
 const BOBU_EXPLORER_MODEL_URL =
-  "/models/bobu/bobu-explorer-v1.glb";
+  "/models/bobu/bobu-explorer-v2.glb";
 
 type BobuAnimationName =
-  | "Idle"
-  | "Walk"
-  | "Run";
+  | "BOBU_Walk"
+  | "BOBU_Run";
 
 const MOVEMENT_KEYS =
   new Set([
@@ -38,10 +44,12 @@ const MOVEMENT_KEYS =
 type BobuCharacterVisualProps = {
   stairStateRef?:
     React.MutableRefObject<boolean>;
+  analogMovementRef?: React.MutableRefObject<{ x: number; y: number }>;
 };
 
 export function BobuCharacterVisual({
   stairStateRef,
+  analogMovementRef,
 }: BobuCharacterVisualProps) {
   const gltf =
     useGLTF(
@@ -51,7 +59,7 @@ export function BobuCharacterVisual({
   const scene =
     useMemo(
       () =>
-        gltf.scene.clone(true),
+        cloneSkeleton(gltf.scene),
       [gltf.scene],
     );
 
@@ -79,6 +87,25 @@ export function BobuCharacterVisual({
 
   const stairPhaseRef =
     useRef(0);
+
+  const swordMountsRef =
+    useRef<BobuSwordMounts | null>(null);
+
+  useEffect(() => {
+    const mounts = attachBobuEnergySword(scene);
+    swordMountsRef.current = mounts;
+
+    return () => {
+      swordMountsRef.current = null;
+      mounts?.dispose();
+    };
+  }, [scene]);
+
+  const attackClipRef = useRef<
+    "BOBU_Punch" | "BOBU_SpinAttack" | null
+  >(null);
+
+  const attackEndRef = useRef(0);
 
   const legLeft =
     useMemo(
@@ -148,7 +175,7 @@ export function BobuCharacterVisual({
       nextAction
         .reset()
         .setEffectiveTimeScale(
-          next === "Run"
+          next === "BOBU_Run"
             ? 1.18
             : 1,
         )
@@ -165,22 +192,24 @@ export function BobuCharacterVisual({
     }
 
     function updateAnimation() {
+      if (attackClipRef.current) return;
+
       const moving =
         pressedMovementKeys.current
           .size >
         0;
 
       if (!moving) {
-        playAnimation(
-          "Idle",
-        );
+        const previous = activeAnimationRef.current;
+        if (previous) actions[previous]?.fadeOut(0.16);
+        activeAnimationRef.current = null;
         return;
       }
 
       playAnimation(
         runningRef.current
-          ? "Run"
-          : "Walk",
+          ? "BOBU_Run"
+          : "BOBU_Walk",
       );
     }
 
@@ -244,9 +273,7 @@ export function BobuCharacterVisual({
       updateAnimation();
     }
 
-    playAnimation(
-      "Idle",
-    );
+    // The V2 export has no Idle clip; its rest pose is used.
 
     window.addEventListener(
       "keydown",
@@ -293,17 +320,149 @@ export function BobuCharacterVisual({
     names,
   ]);
 
+
+  useEffect(() => {
+    function startAttack(kind: "punch" | "spin") {
+      const now = performance.now();
+
+      if (attackClipRef.current || now < attackEndRef.current) {
+        return;
+      }
+
+      const clip = kind === "punch"
+        ? "BOBU_Punch"
+        : "BOBU_SpinAttack";
+
+      const action = actions[clip];
+      if (!action) {
+        console.warn("BOBU attack animation unavailable:", clip);
+        return;
+      }
+
+      const previous = activeAnimationRef.current;
+      if (previous) actions[previous]?.fadeOut(0.12);
+
+      attackClipRef.current = clip;
+
+      // Boxing Practice is a long training clip.
+      // Use a short, interruptible attack window.
+      const durationMs = kind === "punch" ? 700 : 1500;
+      attackEndRef.current = now + durationMs;
+
+      action
+        .reset()
+        .setLoop(THREE.LoopOnce, 1)
+        .setEffectiveTimeScale(kind === "punch" ? 1.3 : 1)
+        .setEffectiveWeight(1)
+        .fadeIn(0.12)
+        .play();
+
+      action.clampWhenFinished = false;
+    }
+
+    function handleAttackEvent(event: Event) {
+      const kind = (event as CustomEvent<string>).detail;
+
+      if (kind === "punch" || kind === "spin") {
+        startAttack(kind);
+      }
+    }
+
+    function handlePointerDown(event: PointerEvent) {
+      // Do not attack when clicking HUD, menus or dialogs.
+      if (!(event.target instanceof HTMLCanvasElement)) return;
+
+      if (event.button === 0) startAttack("punch");
+      if (event.button === 2) {
+        event.preventDefault();
+        startAttack("spin");
+      }
+    }
+
+    function handleContextMenu(event: MouseEvent) {
+      if (event.target instanceof HTMLCanvasElement) {
+        event.preventDefault();
+      }
+    }
+
+    window.addEventListener(
+      "bobu:ares-attack",
+      handleAttackEvent,
+    );
+    window.addEventListener("pointerdown", handlePointerDown);
+    window.addEventListener("contextmenu", handleContextMenu);
+
+    return () => {
+      window.removeEventListener(
+        "bobu:ares-attack",
+        handleAttackEvent,
+      );
+      window.removeEventListener("pointerdown", handlePointerDown);
+      window.removeEventListener("contextmenu", handleContextMenu);
+    };
+  }, [actions]);
+
   useFrame(
     (
       _state,
       delta,
     ) => {
+      const analog = analogMovementRef?.current;
+      const movingNow =
+        pressedMovementKeys.current.size > 0 ||
+        (!!analog && Math.hypot(analog.x, analog.y) > 0.08);
+
+      const spinning =
+        attackClipRef.current === "BOBU_SpinAttack";
+
+      const sword = swordMountsRef.current;
+      if (sword) {
+        const swordInHand = movingNow || spinning;
+        sword.hand.visible = swordInHand;
+        sword.back.visible = !swordInHand;
+      }
+
+      if (attackClipRef.current) {
+        if (performance.now() < attackEndRef.current) {
+          return;
+        }
+
+        actions[attackClipRef.current]?.fadeOut(0.12);
+        attackClipRef.current = null;
+        activeAnimationRef.current = null;
+      }
+
+      // Reuse analog from the beginning of this frame.
+      const analogMoving = !!analog && Math.hypot(
+        analog.x, analog.y,
+      ) > 0.08;
+      const keyboardMoving = pressedMovementKeys.current.size > 0;
+      const desired = keyboardMoving || analogMoving
+        ? (runningRef.current ? "BOBU_Run" : "BOBU_Walk")
+        : null;
+
+      if (desired !== activeAnimationRef.current) {
+        if (desired) {
+          const old = activeAnimationRef.current;
+          if (old) actions[old]?.fadeOut(0.16);
+          const next = actions[desired];
+          if (next) {
+            next.reset().fadeIn(0.16).play();
+            activeAnimationRef.current = desired;
+          }
+        } else {
+          const old = activeAnimationRef.current;
+          if (old) actions[old]?.fadeOut(0.16);
+          activeAnimationRef.current = null;
+        }
+      }
+
       const onStairs =
         stairStateRef?.current === true;
 
       const moving =
-        pressedMovementKeys.current
-          .size > 0;
+        pressedMovementKeys.current.size > 0 ||
+        analogMoving;
 
       if (
         !legLeft ||

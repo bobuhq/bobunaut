@@ -15,13 +15,16 @@ import {
 } from "@react-three/fiber";
 
 import * as THREE from "three";
+import { clone as cloneSkeleton } from "three/examples/jsm/utils/SkeletonUtils.js";
+
+// BOBU_EXPLORER_V2_LOCAL
 
 import type {
   AresRemoteBuilder as AresRemoteBuilderState,
 } from "./AresPresenceEngine";
 
 const BOBU_EXPLORER_MODEL_URL =
-  "/models/bobu/bobu-explorer-v1.glb";
+  "/models/bobu/bobu-explorer-v2.glb";
 
 interface AresRemoteBuilderProps {
   builder: AresRemoteBuilderState;
@@ -55,7 +58,7 @@ export function AresRemoteBuilder({
   const scene =
     useMemo(
       () =>
-        gltf.scene.clone(true),
+        cloneSkeleton(gltf.scene),
       [gltf.scene],
     );
 
@@ -109,17 +112,23 @@ export function AresRemoteBuilder({
       return;
     }
 
-    const previous =
-      actions[
-        activeAnimationRef.current
-      ];
+    const previous = activeAnimationRef.current === "Idle"
+      ? undefined
+      : actions[activeAnimationRef.current === "Run"
+          ? "BOBU_Run" : "BOBU_Walk"];
 
     const next =
-      actions[animation];
+      animation === "Idle" ? null :
+      actions[animation === "Run" ? "BOBU_Run" : "BOBU_Walk"];
 
-    if (!next) {
+    if (animation === "Idle") {
+      actions.BOBU_Walk?.fadeOut(0.16);
+      actions.BOBU_Run?.fadeOut(0.16);
+      activeAnimationRef.current = "Idle";
       return;
     }
+
+    if (!next) return;
 
     previous?.fadeOut(0.16);
 
@@ -139,25 +148,11 @@ export function AresRemoteBuilder({
   };
 
   useEffect(() => {
-    const idle =
-      actions.Idle;
-
-    if (!idle) {
-      return;
-    }
-
-    idle
-      .reset()
-      .fadeIn(0.16)
-      .play();
-
-    activeAnimationRef.current =
-      "Idle";
+    activeAnimationRef.current = "Idle";
 
     return () => {
-      actions.Idle?.stop();
-      actions.Walk?.stop();
-      actions.Run?.stop();
+      actions.BOBU_Walk?.stop();
+      actions.BOBU_Run?.stop();
     };
   }, [actions]);
 
