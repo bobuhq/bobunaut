@@ -86,7 +86,7 @@ export function CinematicLanding({flight=false,obstacles=[],onAresEntry}:{flight
  const release=()=>{keys.current.clear();touches.current.clear();input.current=emptyInput();controller.current?.pause();};
  const action=(name:string)=>{if(exitPhaseRef.current!=='FLIGHT')return;if(name==='gear'){controller.current?.toggleGear();}if(name==='touchdown')controller.current?.requestTouchdown();};
  useEffect(()=>{if(!flight)return;
-  const down=(e:KeyboardEvent)=>{if(onFootRef.current||exitPhaseRef.current!=='FLIGHT')return;if(e.target instanceof HTMLInputElement||e.target instanceof HTMLTextAreaElement)return;if(e.code in KEYMAP||['KeyG','KeyF'].includes(e.code)){e.preventDefault();keys.current.add(e.code);sync();if(!e.repeat)action(e.code==='KeyG'?'gear':e.code==='KeyF'?'touchdown':'');}};
+  const down=(e:KeyboardEvent)=>{if(onFootRef.current||exitPhaseRef.current!=='FLIGHT')return;if(e.target instanceof HTMLInputElement||e.target instanceof HTMLTextAreaElement)return;if(e.code in KEYMAP||['KeyG','KeyF','ArrowUp','ArrowDown'].includes(e.code)){e.preventDefault();keys.current.add(e.code);sync();if(!e.repeat)action(e.code==='KeyG'?'gear':e.code==='KeyF'?'touchdown':'');}};
   const up=(e:KeyboardEvent)=>{keys.current.delete(e.code);sync();};
   const blur=()=>{focused.current=false;release();},focus=()=>{focused.current=true;release();},visibility=()=>release();
   window.addEventListener('keydown',down);window.addEventListener('keyup',up);window.addEventListener('blur',blur);window.addEventListener('focus',focus);document.addEventListener('visibilitychange',visibility);
@@ -99,20 +99,11 @@ export function CinematicLanding({flight=false,obstacles=[],onAresEntry}:{flight
  // BOBU_ARES_V63_CORRECTED
  const stickKnob=useRef<HTMLDivElement>(null);
  const mobilePitch=useRef(0);
- const cruiseSpeed=useRef(0);
- const cruiseEnabled=useRef(false);
- const [targetSpeed,setTargetSpeed]=useState(0);
-
- const adjustSpeed=(amount:number)=>{
-  if(exitPhaseRef.current!=='FLIGHT')return;
-  if(!controller.current ||
-     controller.current.status!=='MANUAL')return;
-  cruiseEnabled.current=true;
-  cruiseSpeed.current=Math.max(
-   0,Math.min(16,cruiseSpeed.current+amount)
-  );
-  setTargetSpeed(cruiseSpeed.current);
- };
+ // BOBU_ARES_V64_HOLD_TO_ACCELERATE
+ const throttleSpeed=useRef(0);
+ // W accelerates gradually; S brakes; release coasts down.
+ // This is the same input source for web and mobile.
+ const MAX_MANUAL_SPEED=16;
  const activeStickPointer=useRef<number|null>(null);
  const clampAxis=(v:number)=>Math.max(-1,Math.min(1,v));
 
@@ -129,7 +120,7 @@ export function CinematicLanding({flight=false,obstacles=[],onAresEntry}:{flight
   const forward=Math.abs(py/radius)<dead?0:clampAxis(-py/radius);
 
   touches.current.set(id,{action:'yaw',value:-lateral});
-  touches.current.set(-id-1,{action:'forward',value:0});
+  touches.current.set(-id-1,{action:'forward',value:forward});
   mobilePitch.current=forward*0.24;
 
   if(stickKnob.current){
@@ -259,16 +250,61 @@ export function CinematicLanding({flight=false,obstacles=[],onAresEntry}:{flight
    obstacleScan.current=clock.elapsedTime+2;
    f.obstacles=resolveSceneObstacles(scene,obstacles,ship.current);
   }
-  if(flight&&f){if(mouse.current.alt&&input.current.yaw===0&&f.status==='MANUAL')f.yawVelocity=0;const mouseYaw=mouse.current.step(Math.min(dt,.05));look.current=cockpitLook(mouse.current.look.x+touchLook.current.x,mouse.current.look.y+touchLook.current.y);if(reticle.current){reticle.current.style.transform=`translateX(${ -mouse.current.axis*65}px)`;reticle.current.textContent=mouse.current.active?'⊕':'·';}f.step(performance.now(),{
+  if(flight&&f){if(mouse.current.alt&&input.current.yaw===0&&f.status==='MANUAL')f.yawVelocity=0;const mouseYaw=mouse.current.step(Math.min(dt,.05));look.current=cockpitLook(mouse.current.look.x+touchLook.current.x,mouse.current.look.y+touchLook.current.y);if(reticle.current){reticle.current.style.transform=`translateX(${ -mouse.current.axis*65}px)`;reticle.current.textContent=mouse.current.active?'⊕':'·';}// V6.4: both keyboard W/S and joystick W/S feed one
+// acceleration system. The real FlightV2 speed cap is 16 m/s.
+const manual=f.status==='MANUAL'||f.status==='LANDING ABORTED';
+const thrust=manual?input.current.forward:0;
+const frameDt=Math.min(Math.max(dt,0),.05);
+
+if(!manual){
+ throttleSpeed.current=0;
+}else if(thrust>0.08){
+ throttleSpeed.current=Math.min(
+  MAX_MANUAL_SPEED,
+  throttleSpeed.current+7*thrust*frameDt
+ );
+}else if(thrust<-.08){
+ throttleSpeed.current=Math.max(
+  0,
+  throttleSpeed.current+12*thrust*frameDt
+ );
+}else{
+ throttleSpeed.current=Math.max(
+  0,
+  throttleSpeed.current-3*frameDt
+ );
+}
+
+// In the web view, A/D now turn the spacecraft instead
+// of moving its body sideways.
+const keyboardTurn=
+ (keys.current.has('KeyA')?1:0)-
+ (keys.current.has('KeyD')?1:0);
+
+// ArrowUp / ArrowDown pitch the web spacecraft.
+// Mobile joystick vertical direction already controls pitch.
+const keyboardPitch=
+ (keys.current.has('ArrowUp')?1:0)-
+ (keys.current.has('ArrowDown')?1:0);
+
+const actualPitch=Math.max(-.24,Math.min(.24,
+ mobilePitch.current+keyboardPitch*.24
+));
+
+const flightCommand={
  ...input.current,
- yaw:Math.max(-1,Math.min(1,input.current.yaw+mouseYaw)),
- ...(cruiseEnabled.current
-  ? {
-     cruiseSpeed:cruiseSpeed.current,
-     pitch:mobilePitch.current
-    }
-  : {})
-},!document.hidden&&focused.current);
+ lateral:0,
+ yaw:Math.max(-1,Math.min(1,
+  input.current.yaw+keyboardTurn+mouseYaw
+ )),
+ cruiseSpeed:throttleSpeed.current,
+ pitch:actualPitch
+};
+f.step(
+ performance.now(),
+ flightCommand,
+ !document.hidden&&focused.current
+);
    // Post-touchdown handoff never writes the flight controller's position or velocity.
    if(canDisembark(f)){
     if(exitClock.current===null){exitClock.current=clock.elapsedTime;lastExitStep.current=-1;release();cameraMode.current='COCKPIT';setMode('COCKPIT');look.current={x:0,y:0};touchLook.current={x:0,y:0};}
@@ -302,7 +338,11 @@ export function CinematicLanding({flight=false,obstacles=[],onAresEntry}:{flight
     f.status==='MANUAL' &&
     f.gear.state==='STOWED' &&
     f.y-5.15-f.inspect(f.x,f.z).highest>12
-     ? mobilePitch.current : 0;
+     ? Math.max(-.24,Math.min(.24,
+     mobilePitch.current+
+     ((keys.current.has('ArrowUp')?1:0)-
+      (keys.current.has('ArrowDown')?1:0))*.24
+    )) : 0;
    ship.current.rotation.x+=
     (pitchTarget-ship.current.rotation.x)*
     (1-Math.exp(-7*Math.min(dt,.05)));
@@ -366,16 +406,9 @@ export function CinematicLanding({flight=false,obstacles=[],onAresEntry}:{flight
   <div className="ares-speed-v63">
    <span>SPEED</span>
    <strong>{telemetry?.horizontal??'0'} <small>m/s</small></strong>
-   <div className="ares-speed-controls">
-    <button type="button"
-     aria-label="Decrease speed"
-     onClick={()=>adjustSpeed(-2)}
-     disabled={targetSpeed<=0}>−</button>
-    <b>{targetSpeed} / 16</b>
-    <button type="button"
-     aria-label="Increase speed"
-     onClick={()=>adjustSpeed(2)}
-     disabled={targetSpeed>=16}>+</button>
+   <div className="ares-speed-controls"
+    aria-label="Maximum flight speed">
+    <b>MAX 16 m/s</b>
    </div>
   </div>}
 
