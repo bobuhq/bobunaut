@@ -204,6 +204,12 @@ export function App() {
             element={<LanguageSetup />}
           />
 
+          {/* Dedicated fullscreen ARES gameplay route. */}
+          <Route
+            path="/mars/explore"
+            element={<AresFlightGateway />}
+          />
+
           <Route element={<Shell />}>
           <Route
             path="/privacy"
@@ -225,10 +231,6 @@ export function App() {
           <Route path="/missions" element={<Missions />} />
           <Route path="/galaxy" element={<Galaxy />} />
           <Route path="/mars" element={<BuildMars />} />
-          <Route
-            path="/mars/explore"
-            element={<AresFlightGateway />}
-          />
           <Route
             path="/mars/advertiser"
             element={<MarsPixelAdvertiserCenter />}

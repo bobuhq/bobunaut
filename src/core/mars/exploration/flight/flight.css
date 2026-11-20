@@ -466,3 +466,19 @@
   }
   #ares-flight-viewport .flight-auto-wrap .flight-f-arrow-hint { font-size: 8px; padding: 3px 2px; }
 }
+
+
+/* BOBU ARES V4 FULLSCREEN SHELL CLEARANCE */
+
+/* Keep altitude telemetry below the Return to Orbit control. */
+#ares-flight-viewport .flight-altitude {
+  top: max(
+    110px,
+    calc(env(safe-area-inset-top) + 105px)
+  ) !important;
+}
+
+/* Only F may animate during automatic landing. */
+#ares-flight-viewport .flight-buttons button:not(.flight-autoland) {
+  animation: none !important;
+}
