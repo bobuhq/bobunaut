@@ -607,3 +607,69 @@ body:has(#ares-flight-viewport .flight-overlay) .ares-mobile-camera-pitch { z-in
 #ares-flight-viewport .flight-buttons button:not(.flight-autoland){
  animation:none !important;
 }
+
+
+/* BOBU_ARES_V61_MOBILE_ONLY_KNOB */
+
+/* Mobile touch layout: floating gear knob at the marked left position. */
+@media (hover:none), (pointer:coarse) {
+ #ares-flight-viewport .flight-stick.flight-gear-stick {
+  position:fixed !important;
+  left:max(28px, env(safe-area-inset-left)) !important;
+  right:auto !important;
+  top:auto !important;
+  bottom:clamp(115px, 29dvh, 190px) !important;
+  width:124px !important;
+  height:124px !important;
+  min-width:124px !important;
+  min-height:124px !important;
+  display:block !important;
+  flex:none !important;
+  z-index:180 !important;
+  pointer-events:auto !important;
+  touch-action:none !important;
+  border:2px solid #86e6ff !important;
+  border-radius:50% !important;
+  background:radial-gradient(circle at 40% 30%,
+    #366885, #112d43 50%, #07131f 100%) !important;
+  box-shadow:0 0 26px #52dfff66,
+    inset 0 0 18px #ffffff22 !important;
+  overflow:visible !important;
+ }
+
+ #ares-flight-viewport .flight-stick.flight-gear-stick
+ .flight-gear-knob {
+  width:54px !important;
+  height:54px !important;
+  margin-left:-27px !important;
+  margin-top:-27px !important;
+  border:2px solid #d4faff !important;
+  border-radius:50% !important;
+  background:radial-gradient(circle at 32% 24%,
+    #f2fcff 0%, #8bdfff 18%, #3989ae 48%,
+    #15324e 76%, #081624 100%) !important;
+  box-shadow:0 0 20px #63dcff99,
+    inset -5px -7px 12px #06121fcc,
+    inset 4px 4px 8px #ffffff55 !important;
+  pointer-events:none !important;
+  will-change:transform;
+ }
+
+ #ares-flight-viewport .flight-gear-letter {
+  font-size:14px !important;
+  color:#e3fbff !important;
+  text-shadow:0 0 8px #58dfff !important;
+ }
+}
+
+/* Desktop: physical WASD only; joystick hidden. */
+@media (hover:hover) and (pointer:fine) {
+ #ares-flight-viewport .flight-stick.flight-gear-stick {
+  display:none !important;
+ }
+}
+
+/* Keep the unwanted onboarding protocol panel absent. */
+.mars-explore-world .ares-hud-onboarding {
+ display:none !important;
+}
