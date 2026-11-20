@@ -19,6 +19,7 @@ export function flightTelemetry(f: any): {
     remaining: string;
     autoRemaining: string;
     phase: any;
+    trigger: any;
     localAGL: string;
     actualPadClearance: string;
     timing: any;

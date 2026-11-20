@@ -21,7 +21,7 @@ export function flightTelemetry(f){
   heading:headingDegrees(f.yaw).toFixed(0),gear:f.gear.state,
   autopilot:(f.status==='MANUAL'||f.status==='LANDING ABORTED')?'STANDBY':f.status==='LANDED'?'COMPLETE':'ENGAGED',
   remaining:Math.max(0,60-f.activeSeconds).toFixed(1),
-  autoRemaining:Math.max(0,60-f.autoSeconds).toFixed(1),phase:f.phase,
+  autoRemaining:Math.max(0,60-f.autoSeconds).toFixed(1),phase:f.phase,trigger:f.trigger,
   localAGL:(f.y-f.sample(f.x,f.z)).toFixed(1),
   actualPadClearance:f.support?.contactVerified?Math.max(...f.support.padClearances.map(Math.abs)).toFixed(2):(bodyAltitude-5*f.gear.extension-.15).toFixed(2),
   timing:f.touchdownSeconds===null?(f.deadlineReason||''):`${f.touchdownSeconds.toFixed(1)} s / ${f.touchdownSeconds<=60?'ON TIME':'DELAYED'}`,
