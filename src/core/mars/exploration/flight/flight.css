@@ -482,3 +482,32 @@
 #ares-flight-viewport .flight-buttons button:not(.flight-autoland) {
   animation: none !important;
 }
+
+/* BOBU ARES V5 mobile controls */
+/* The walking input is not active while the spacecraft control overlay is mounted. */
+body:has(#ares-flight-viewport .flight-overlay) .ares-mobile-joystick { display: none !important; }
+#ares-flight-viewport .flight-stick { pointer-events: auto !important; touch-action: none !important; user-select: none; -webkit-user-select: none; }
+#ares-flight-viewport .flight-stick small { font-size: 8px; letter-spacing: .025em; white-space: nowrap; }
+#ares-flight-viewport .flight-buttons { overflow-x: hidden !important; scrollbar-width: none; }
+#ares-flight-viewport .flight-buttons::-webkit-scrollbar { display: none; }
+#ares-flight-viewport .flight-buttons button:not(.flight-autoland) { animation: none !important; }
+/* Flight camera pitch buttons sit above the scene, clear of the flight control pad. */
+body:has(#ares-flight-viewport .flight-overlay) .ares-mobile-camera-pitch { z-index: 140 !important; }
+/* Keep mission guidance & onboarding unobtrusive without disabling missions. */
+.mars-explore-world .ares-hud-objective {
+  min-width: 0 !important; max-width: min(170px, 27vw) !important;
+  padding: 3px 5px !important; gap: 4px !important;
+  border-radius: 6px !important; font-size: 9px !important;
+  box-shadow: none !important;
+}
+.mars-explore-world .ares-hud-objective strong { font-size: 9px !important; line-height: 1.08 !important; }
+.mars-explore-world .ares-hud-objective span { font-size: 8px !important; }
+.mars-explore-world .ares-hud-onboarding {
+  width: min(160px, 26vw) !important; max-width: min(160px, 26vw) !important;
+  padding: 4px 6px !important; border-radius: 6px !important;
+  box-shadow: none !important; pointer-events: none !important;
+}
+@media (pointer: coarse), (max-height: 650px) {
+  .mars-explore-world .ares-hud-objective {max-width: min(145px, 23vw) !important;}
+  .mars-explore-world .ares-hud-onboarding {max-width: 130px !important; width: 130px !important;}
+}

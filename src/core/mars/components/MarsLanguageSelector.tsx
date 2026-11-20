@@ -32,7 +32,7 @@ export default function MarsLanguageSelector({
 
   if (
     typeof document === "undefined" ||
-    isNativeMars
+    (isNativeMars && window.location.pathname !== '/mars/explore')
   ) {
     return null;
   }

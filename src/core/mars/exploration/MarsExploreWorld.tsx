@@ -96,6 +96,7 @@ import {
 
 import { useLanguage } from "../../language";
 import MarsLanguageSelector from "../components/MarsLanguageSelector";
+import {flightUi} from "./flight/FlightUiLabels";
 
 import {
   useBuilderStore,
@@ -2404,13 +2405,13 @@ export function MarsExploreWorld() {
             new CustomEvent("bobu:ares-camera-pitch", {
               detail: THREE.MathUtils.degToRad(12)
             })
-          )}>▲ LOOK UP</button>
+          )}>▲ {flightUi(language, 'lookUp')}</button>
         <button type="button" aria-label="Look down"
           onClick={() => window.dispatchEvent(
             new CustomEvent("bobu:ares-camera-pitch", {
               detail: -THREE.MathUtils.degToRad(12)
             })
-          )}>▼ LOOK DOWN</button>
+          )}>▼ {flightUi(language, 'lookDown')}</button>
       </div>
 
       <AresMobileActions

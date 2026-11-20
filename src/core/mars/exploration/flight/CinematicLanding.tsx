@@ -1,6 +1,7 @@
 /* BOBU_AUTO_LAND_13_LANG_V1 */
 import { useLanguage } from "../../../language";
 import { autoLandLabels } from "./AutoLandLabels";
+import { flightUi } from "./FlightUiLabels";
 import {resolveSceneObstacles} from './scene-obstacles.mjs';
 import {flightTelemetry} from './flight-telemetry.mjs';
 import {FlightHUD} from './FlightHUD';
@@ -49,6 +50,7 @@ export function CinematicLanding({flight=false,obstacles=[],onAresEntry}:{flight
    (languageContext as { language?: string }).language ?? "en"
  );
  const landingLabels = autoLandLabels(flightLanguage);
+ const ui=(key: Parameters<typeof flightUi>[1])=>flightUi(flightLanguage,key);
 
  // Derived from the flight controller's live telemetry, not from
  // button presses. Rejected touchdown requests remain red.
@@ -100,18 +102,20 @@ export function CinematicLanding({flight=false,obstacles=[],onAresEntry}:{flight
   sync();
  };
  const joystick=(e:React.PointerEvent<HTMLDivElement>)=>{
-  if(e.pointerType==='touch')return; // Native TouchEvents below prevent duplicate inputs on mobile.
+  // Pointer capture provides stable multi-touch tracking on modern iOS/Android WebViews.
   if(e.type==='pointerdown')e.currentTarget.setPointerCapture(e.pointerId);
   if(!e.currentTarget.hasPointerCapture(e.pointerId))return;
   e.preventDefault();setStick(e.pointerId,e.clientX,e.clientY,e.currentTarget.getBoundingClientRect());
  };
  const stickTouch=(e:React.TouchEvent<HTMLDivElement>)=>{
+  if(typeof window!=='undefined' && 'PointerEvent' in window)return;
   if(exitPhaseRef.current!=='FLIGHT')return;
   e.preventDefault();
   const b=e.currentTarget.getBoundingClientRect();
   for(const t of Array.from(e.changedTouches))setStick(100000+t.identifier*2,t.clientX,t.clientY,b);
  };
  const stopStickTouch=(e:React.TouchEvent<HTMLDivElement>)=>{
+  if(typeof window!=='undefined' && 'PointerEvent' in window)return;
   e.preventDefault();
   for(const t of Array.from(e.changedTouches)){
    const id=100000+t.identifier*2;
@@ -157,6 +161,18 @@ export function CinematicLanding({flight=false,obstacles=[],onAresEntry}:{flight
   el.addEventListener('touchend',finish);
   el.addEventListener('touchcancel',finish);
   return()=>{el.style.touchAction=previousTouchAction;el.removeEventListener('touchstart',start);el.removeEventListener('touchmove',move);el.removeEventListener('touchend',finish);el.removeEventListener('touchcancel',finish);if(swipe){touches.current.delete(-700000-swipe.id);sync();}};
+ },[flight,onFoot]);
+ // Flight camera pitch receives the same command as walking camera; only the active camera applies it.
+ useEffect(()=>{
+  if(!flight||onFoot)return;
+  const changePitch=(event:Event)=>{
+   if(exitPhaseRef.current!=='FLIGHT')return;
+   const delta=(event as CustomEvent<number>).detail;
+   if(!Number.isFinite(delta))return;
+   touchLook.current=cockpitLook(touchLook.current.x,touchLook.current.y+delta);
+  };
+  window.addEventListener('bobu:ares-camera-pitch',changePitch);
+  return()=>window.removeEventListener('bobu:ares-camera-pitch',changePitch);
  },[flight,onFoot]);
  const [terrain,setTerrain]=useState<Awaited<ReturnType<typeof loadAresGenesisTerrainData>>|null>(null);
  useEffect(()=>{let live=true;loadAresGenesisTerrainData().then(t=>{if(live)setTerrain(t);}).catch(console.error);return()=>{live=false;audio.stopLanding();};},[]);
@@ -213,7 +229,7 @@ export function CinematicLanding({flight=false,obstacles=[],onAresEntry}:{flight
     if(exitPhaseRef.current==='HATCH'||exitPhaseRef.current==='STAIRS'){
      const actor=actorRef.current;
      if(actor){const focus=actor.getWorldPosition(new THREE.Vector3());const c=Math.cos(f.yaw),si=Math.sin(f.yaw);camera.position.set(focus.x+si*8+c*6,focus.y+4,focus.z+c*8-si*6);camera.lookAt(focus.x,focus.y+1,focus.z);}
-    }else if(cameraMode.current==='COCKPIT'&&seat.current){seat.current.getWorldPosition(camera.position);seat.current.getWorldQuaternion(camera.quaternion);camera.quaternion.multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(look.current.y,look.current.x,0,'YXZ')));}else{camera.position.set(f.x+Math.sin(f.yaw)*38,f.y+22,f.z+Math.cos(f.yaw)*38);camera.lookAt(f.x,f.y,f.z);}
+    }else if(cameraMode.current==='COCKPIT'&&seat.current){seat.current.getWorldPosition(camera.position);seat.current.getWorldQuaternion(camera.quaternion);camera.quaternion.multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(look.current.y,look.current.x,0,'YXZ')));}else{camera.position.set(f.x+Math.sin(f.yaw)*38,f.y+22,f.z+Math.cos(f.yaw)*38);camera.lookAt(f.x,f.y+Math.tan(look.current.y)*38,f.z);}
    }}else ship.current.position.set(110,data.support.highest+altitude,-70);
   if(!flight&&g.state==='DESCENDING'&&g.elapsed>=10){g.transition('RETRACTING');audio.landingCue('shutdown');}
   if(g.state==='STOWED'&&r.last==='RETRACTING')r.active=false;
@@ -264,11 +280,11 @@ export function CinematicLanding({flight=false,obstacles=[],onAresEntry}:{flight
  if(!data)return null;
  return <>{flight&&<ViewportOverlay><div className="flight-overlay"><div ref={fade} aria-hidden="true" style={{position:'fixed',inset:0,background:'#02070c',opacity:0,transition:'opacity 140ms ease',pointerEvents:'none',zIndex:200}}/>
  {flight&&!modelReady&&<div role="status" style={{position:'fixed',inset:0,display:'grid',placeItems:'center',background:'#071016',color:'#dcefff',fontFamily:'monospace',letterSpacing:2,zIndex:250,pointerEvents:'none'}}>BOBU ARES · LOADING SPACECRAFT</div>}
- {exitPhase==='FLIGHT'&&mode==='CHASE'&&modelReady&&<FlightHUD telemetry={telemetry} onAudio={()=>audio.toggle()}/>}
+ {exitPhase==='FLIGHT'&&mode==='CHASE'&&modelReady&&<FlightHUD telemetry={telemetry} onAudio={()=>audio.toggle()} language={flightLanguage}/>}
 
  {exitPhase!=='FLIGHT'&&<div role="status" style={{position:'fixed',top:16,left:'50%',transform:'translateX(-50%)',pointerEvents:'none',color:'#bcecff',background:'#07121ad9',padding:'9px 18px',borderRadius:7,fontFamily:'monospace',fontSize:13,zIndex:5}}>{exitPhase==='COCKPIT'?'BOBU · TOUCHDOWN / COCKPIT':exitPhase==='HATCH'?'BOBU · EXIT HATCH OPENING':exitPhase==='STAIRS'?'BOBU · DESCENDING TO MARS':'BOBU · MARS EXPLORATION · WASD'}</div>}
- {exitPhase==='FLIGHT'&&<><div ref={reticle} className="flight-reticle" aria-label="Mouse steering direction">·</div><div className="flight-touch"><div role="group" aria-label="Directional joystick" className="flight-stick" onPointerDown={joystick} onPointerMove={joystick} onPointerUp={unhold} onPointerCancel={unhold} onLostPointerCapture={unhold} onTouchStart={stickTouch} onTouchMove={stickTouch} onTouchEnd={stopStickTouch} onTouchCancel={stopStickTouch}>✥<small>MOVE</small></div>
- <div role="group" className="flight-look" aria-label="Cockpit look control" onPointerDown={dragLook} onPointerMove={dragLook} onPointerUp={()=>{lookPointer.current=null;}} onPointerCancel={()=>{lookPointer.current=null;}} style={{pointerEvents:'auto',touchAction:'none',background:'#102735cc',color:'#8efaff',padding:18,border:'1px solid #578ba2',borderRadius:12}}>DRAG TO LOOK</div><div className="flight-buttons">{[['ASCEND','vertical',1],['DESCEND','vertical',-1],['ROTATE LEFT','yaw',1],['ROTATE RIGHT','yaw',-1]].map(([label,a,v])=><button key={label} onPointerDown={hold(String(a),Number(v))} onPointerUp={unhold} onPointerCancel={unhold} onLostPointerCapture={unhold}>{label}</button>)}<button data-testid="camera-mode" onClick={switchCamera}>{mode==='CHASE'?'COCKPIT':'EXTERIOR'} · C</button><button onClick={()=>action('gear')}>GEAR · G</button><div className="flight-auto-wrap">
+ {exitPhase==='FLIGHT'&&<><div ref={reticle} className="flight-reticle" aria-label="Mouse steering direction">·</div><div className="flight-touch"><div role="group" aria-label="Directional joystick" className="flight-stick" onPointerDown={joystick} onPointerMove={joystick} onPointerUp={unhold} onPointerCancel={unhold} onLostPointerCapture={unhold} onTouchStart={stickTouch} onTouchMove={stickTouch} onTouchEnd={stopStickTouch} onTouchCancel={stopStickTouch}>✥<small>W · A · S · D</small></div>
+ <div role="group" className="flight-look" aria-label="Cockpit look control" onPointerDown={dragLook} onPointerMove={dragLook} onPointerUp={()=>{lookPointer.current=null;}} onPointerCancel={()=>{lookPointer.current=null;}} style={{pointerEvents:'auto',touchAction:'none',background:'#102735cc',color:'#8efaff',padding:18,border:'1px solid #578ba2',borderRadius:12}}>{ui('dragToLook')}</div><div className="flight-buttons">{[[ui('ascend'),'vertical',1],[ui('descend'),'vertical',-1],[ui('rotateLeft'),'yaw',1],[ui('rotateRight'),'yaw',-1]].map(([label,a,v])=><button key={label} onPointerDown={hold(String(a),Number(v))} onPointerUp={unhold} onPointerCancel={unhold} onLostPointerCapture={unhold}>{label}</button>)}<button data-testid="camera-mode" onClick={switchCamera}>{mode==='CHASE'?ui('cockpit'):ui('exterior')} · C</button><button onClick={()=>action('gear')}>{ui('gear')} · G</button><div className="flight-auto-wrap">
   {/* BOBU_F_PROMPT_V3: separate animated guidance, shown before pressing F only. */}
   {!autoLanding && !hasLanded && (
     <span className="flight-f-arrow-hint" aria-hidden="true">
