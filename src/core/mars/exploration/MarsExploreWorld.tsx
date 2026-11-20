@@ -2355,6 +2355,42 @@ export function MarsExploreWorld() {
           }
         }
 
+
+        /* BOBU_ARES_FULLSCREEN_V3: viewport-bound ARES in flight AND walking. */
+        .mars-explore-world {
+          position: fixed !important;
+          inset: 0 !important;
+          width: 100vw !important;
+          max-width: none !important;
+          height: 100dvh !important;
+          min-height: 0 !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          z-index: 90;
+          overflow: hidden !important;
+        }
+        body:has(.mars-explore-world) { overflow: hidden !important; }
+        .mars-explore-world > div:has(> canvas) {
+          width: 100% !important;
+          height: 100% !important;
+        }
+        /* Orbit must remain visible when the separate flight HUD mounts. */
+        .mars-explore-world .mars-explore-return-button {
+          z-index: 95 !important;
+        }
+        @media (pointer: coarse), (max-height: 600px) {
+          .mars-explore-world .ares-hud-objective {
+            min-width: 0 !important;
+            max-width: min(190px, 34vw) !important;
+            padding: 4px 6px !important;
+            gap: 4px !important;
+            font-size: 9px !important;
+            line-height: 1.15 !important;
+            pointer-events: none !important;
+          }
+          .mars-explore-world .ares-hud-objective strong { font-size: 10px !important; }
+          .mars-explore-world .ares-hud-objective span { font-size: 9px !important; }
+        }
       `}</style>
 
       <AresMobileJoystick

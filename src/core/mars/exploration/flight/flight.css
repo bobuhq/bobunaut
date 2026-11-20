@@ -395,3 +395,74 @@
     animation: none !important;
   }
 }
+
+/* BOBU ARES mobile interaction fix V2: scope pulse only to F. */
+#ares-flight-viewport .flight-buttons button:not(.flight-autoland) { animation: none !important; }
+#ares-flight-viewport .flight-autoland:not(.is-active):not(.is-complete) {
+  background: linear-gradient(145deg,#b5152f,#f04752) !important;
+  border-color:#ff8f94 !important;
+  color:#fff !important;
+}
+#ares-flight-viewport .flight-f-arrow-hint {
+  display:block; padding:2px 3px; margin-bottom:4px;
+  border:1px solid #ffb2b6; border-radius:5px;
+  background:#fff0f0; color:#8e1529;
+  font:800 10px/1.25 system-ui,sans-serif;
+  animation:bobu-landing-hint-blink 1s steps(2,start) infinite;
+}
+@keyframes bobu-landing-hint-blink { to{opacity:.36;} }
+@media (pointer:coarse), (max-width:900px) {
+  #ares-flight-viewport .flight-controls-guide { display:none !important; }
+  #ares-flight-viewport .flight-stick { pointer-events:auto !important; touch-action:none !important; z-index:5; }
+  #ares-flight-viewport .flight-touch { pointer-events:none; }
+  #ares-flight-viewport .flight-buttons { pointer-events:auto; }
+  #ares-flight-viewport .flight-altitude {
+    top:max(62px,env(safe-area-inset-top)) !important;
+    left:max(5px,env(safe-area-inset-left)) !important;
+    max-width:150px !important;
+  }
+  #ares-flight-viewport .flight-f-arrow-hint {font-size:9px;}
+}
+
+
+/* BOBU ARES V3: separate F instruction + no other pulsing controls. */
+#ares-flight-viewport .flight-auto-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-end;
+  gap: 4px;
+  min-width: 0;
+}
+#ares-flight-viewport .flight-auto-wrap .flight-autoland {
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+}
+#ares-flight-viewport .flight-auto-wrap .flight-f-arrow-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 5px 3px;
+  margin: 0;
+  border: 1px solid #ffc1c6;
+  border-radius: 7px;
+  background: #ffebee;
+  color: #851121;
+  font: 800 10px/1.1 system-ui,sans-serif;
+  text-align: center;
+  animation: bobu-landing-hint-blink .9s steps(2,start) infinite;
+  pointer-events: none;
+}
+#ares-flight-viewport .flight-auto-wrap .flight-f-arrow { font-size: 16px; line-height: 1; }
+#ares-flight-viewport .flight-buttons button:not(.flight-autoland) { animation: none !important; }
+@media (pointer:coarse), (max-height:600px) {
+  #ares-flight-viewport .flight-altitude {
+    top: max(118px, calc(env(safe-area-inset-top) + 112px)) !important;
+    left: max(6px, env(safe-area-inset-left)) !important;
+    width: min(140px, 25vw) !important;
+    max-width: min(140px, 25vw) !important;
+  }
+  #ares-flight-viewport .flight-auto-wrap .flight-f-arrow-hint { font-size: 8px; padding: 3px 2px; }
+}

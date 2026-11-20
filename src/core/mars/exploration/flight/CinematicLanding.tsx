@@ -92,7 +92,72 @@ export function CinematicLanding({flight=false,obstacles=[],onAresEntry}:{flight
  },[flight]);
  const hold=(actionName:string,value:number)=>(e:React.PointerEvent<HTMLButtonElement>)=>{e.preventDefault();e.currentTarget.setPointerCapture(e.pointerId);touches.current.set(e.pointerId,{action:actionName,value});sync();};
  const unhold=(e:React.PointerEvent<HTMLElement>)=>{touches.current.delete(e.pointerId);touches.current.delete(-e.pointerId-1);sync();};
- const joystick=(e:React.PointerEvent<HTMLDivElement>)=>{if(e.type==='pointerdown')e.currentTarget.setPointerCapture(e.pointerId);if(!e.currentTarget.hasPointerCapture(e.pointerId))return;e.preventDefault();const b=e.currentTarget.getBoundingClientRect(),x=(e.clientX-b.left-b.width/2)/(b.width*.4),y=(e.clientY-b.top-b.height/2)/(b.height*.4);touches.current.set(e.pointerId,{action:'lateral',value:Math.max(-1,Math.min(1,x))});touches.current.set(-e.pointerId-1,{action:'forward',value:Math.max(-1,Math.min(1,-y))});sync();};
+ // BOBU_TOUCH_V2_SAFE_PATCH: joystick = WASD analog movement, including native WebView touch events.
+ const clampAxis=(v:number)=>Math.max(-1,Math.min(1,v));
+ const setStick=(id:number,x:number,y:number,b:DOMRect)=>{
+  touches.current.set(id,{action:'lateral',value:clampAxis((x-b.left-b.width/2)/(b.width*.4))});
+  touches.current.set(-id-1,{action:'forward',value:clampAxis(-(y-b.top-b.height/2)/(b.height*.4))});
+  sync();
+ };
+ const joystick=(e:React.PointerEvent<HTMLDivElement>)=>{
+  if(e.pointerType==='touch')return; // Native TouchEvents below prevent duplicate inputs on mobile.
+  if(e.type==='pointerdown')e.currentTarget.setPointerCapture(e.pointerId);
+  if(!e.currentTarget.hasPointerCapture(e.pointerId))return;
+  e.preventDefault();setStick(e.pointerId,e.clientX,e.clientY,e.currentTarget.getBoundingClientRect());
+ };
+ const stickTouch=(e:React.TouchEvent<HTMLDivElement>)=>{
+  if(exitPhaseRef.current!=='FLIGHT')return;
+  e.preventDefault();
+  const b=e.currentTarget.getBoundingClientRect();
+  for(const t of Array.from(e.changedTouches))setStick(100000+t.identifier*2,t.clientX,t.clientY,b);
+ };
+ const stopStickTouch=(e:React.TouchEvent<HTMLDivElement>)=>{
+  e.preventDefault();
+  for(const t of Array.from(e.changedTouches)){
+   const id=100000+t.identifier*2;
+   touches.current.delete(id);touches.current.delete(-id-1);
+  }
+  sync();
+ };
+ // Swipe the unobstructed 3D canvas to steer yaw and pitch; never steal joystick/button touches.
+ useEffect(()=>{
+  if(!flight||onFoot)return;
+  const canvas=document.querySelector('.mars-explore-world canvas');
+  if(!canvas)return;
+  const el=canvas as HTMLCanvasElement;
+  const previousTouchAction=el.style.touchAction;
+  el.style.touchAction='none';
+  let swipe:{id:number;x:number;y:number}|null=null;
+  const start=(e:TouchEvent)=>{
+   if(exitPhaseRef.current!=='FLIGHT'||e.changedTouches.length===0||swipe)return;
+   const t=e.changedTouches[0];swipe={id:t.identifier,x:t.clientX,y:t.clientY};
+  };
+  const move=(e:TouchEvent)=>{
+   if(!swipe||exitPhaseRef.current!=='FLIGHT')return;
+   for(const t of Array.from(e.changedTouches)){
+    if(t.identifier!==swipe.id)continue;
+    e.preventDefault();
+    const dx=t.clientX-swipe.x,dy=t.clientY-swipe.y;
+    swipe.x=t.clientX;swipe.y=t.clientY;
+    // Temporary yaw command is released when finger lifts; camera pitch follows drag.
+    touches.current.set(-700000-t.identifier,{action:'yaw',value:clampAxis(dx/12)});
+    touchLook.current=cockpitLook(touchLook.current.x, touchLook.current.y-dy*.005);
+    sync();
+    break;
+   }
+  };
+  const finish=(e:TouchEvent)=>{
+   if(!swipe)return;
+   for(const t of Array.from(e.changedTouches))if(t.identifier===swipe.id){
+    touches.current.delete(-700000-t.identifier);swipe=null;sync();break;
+   }
+  };
+  el.addEventListener('touchstart',start,{passive:true});
+  el.addEventListener('touchmove',move,{passive:false});
+  el.addEventListener('touchend',finish);
+  el.addEventListener('touchcancel',finish);
+  return()=>{el.style.touchAction=previousTouchAction;el.removeEventListener('touchstart',start);el.removeEventListener('touchmove',move);el.removeEventListener('touchend',finish);el.removeEventListener('touchcancel',finish);if(swipe){touches.current.delete(-700000-swipe.id);sync();}};
+ },[flight,onFoot]);
  const [terrain,setTerrain]=useState<Awaited<ReturnType<typeof loadAresGenesisTerrainData>>|null>(null);
  useEffect(()=>{let live=true;loadAresGenesisTerrainData().then(t=>{if(live)setTerrain(t);}).catch(console.error);return()=>{live=false;audio.stopLanding();};},[]);
  const data=useMemo(()=>{if(!terrain)return null;const surface=(x:number,z:number)=>sample(terrain,x,z);const support=inspectSupport(surface);return {support};},[terrain]);
@@ -202,8 +267,15 @@ export function CinematicLanding({flight=false,obstacles=[],onAresEntry}:{flight
  {exitPhase==='FLIGHT'&&mode==='CHASE'&&modelReady&&<FlightHUD telemetry={telemetry} onAudio={()=>audio.toggle()}/>}
 
  {exitPhase!=='FLIGHT'&&<div role="status" style={{position:'fixed',top:16,left:'50%',transform:'translateX(-50%)',pointerEvents:'none',color:'#bcecff',background:'#07121ad9',padding:'9px 18px',borderRadius:7,fontFamily:'monospace',fontSize:13,zIndex:5}}>{exitPhase==='COCKPIT'?'BOBU · TOUCHDOWN / COCKPIT':exitPhase==='HATCH'?'BOBU · EXIT HATCH OPENING':exitPhase==='STAIRS'?'BOBU · DESCENDING TO MARS':'BOBU · MARS EXPLORATION · WASD'}</div>}
- {exitPhase==='FLIGHT'&&<><div ref={reticle} className="flight-reticle" aria-label="Mouse steering direction">·</div><div className="flight-touch"><div role="group" aria-label="Directional joystick" className="flight-stick" onPointerDown={joystick} onPointerMove={joystick} onPointerUp={unhold} onPointerCancel={unhold} onLostPointerCapture={unhold}>✥<small>MOVE</small></div>
- <div role="group" className="flight-look" aria-label="Cockpit look control" onPointerDown={dragLook} onPointerMove={dragLook} onPointerUp={()=>{lookPointer.current=null;}} onPointerCancel={()=>{lookPointer.current=null;}} style={{pointerEvents:'auto',touchAction:'none',background:'#102735cc',color:'#8efaff',padding:18,border:'1px solid #578ba2',borderRadius:12}}>DRAG TO LOOK</div><div className="flight-buttons">{[['ASCEND','vertical',1],['DESCEND','vertical',-1],['ROTATE LEFT','yaw',1],['ROTATE RIGHT','yaw',-1]].map(([label,a,v])=><button key={label} onPointerDown={hold(String(a),Number(v))} onPointerUp={unhold} onPointerCancel={unhold} onLostPointerCapture={unhold}>{label}</button>)}<button data-testid="camera-mode" onClick={switchCamera}>{mode==='CHASE'?'COCKPIT':'EXTERIOR'} · C</button><button onClick={()=>action('gear')}>GEAR · G</button><button
+ {exitPhase==='FLIGHT'&&<><div ref={reticle} className="flight-reticle" aria-label="Mouse steering direction">·</div><div className="flight-touch"><div role="group" aria-label="Directional joystick" className="flight-stick" onPointerDown={joystick} onPointerMove={joystick} onPointerUp={unhold} onPointerCancel={unhold} onLostPointerCapture={unhold} onTouchStart={stickTouch} onTouchMove={stickTouch} onTouchEnd={stopStickTouch} onTouchCancel={stopStickTouch}>✥<small>MOVE</small></div>
+ <div role="group" className="flight-look" aria-label="Cockpit look control" onPointerDown={dragLook} onPointerMove={dragLook} onPointerUp={()=>{lookPointer.current=null;}} onPointerCancel={()=>{lookPointer.current=null;}} style={{pointerEvents:'auto',touchAction:'none',background:'#102735cc',color:'#8efaff',padding:18,border:'1px solid #578ba2',borderRadius:12}}>DRAG TO LOOK</div><div className="flight-buttons">{[['ASCEND','vertical',1],['DESCEND','vertical',-1],['ROTATE LEFT','yaw',1],['ROTATE RIGHT','yaw',-1]].map(([label,a,v])=><button key={label} onPointerDown={hold(String(a),Number(v))} onPointerUp={unhold} onPointerCancel={unhold} onLostPointerCapture={unhold}>{label}</button>)}<button data-testid="camera-mode" onClick={switchCamera}>{mode==='CHASE'?'COCKPIT':'EXTERIOR'} · C</button><button onClick={()=>action('gear')}>GEAR · G</button><div className="flight-auto-wrap">
+  {/* BOBU_F_PROMPT_V3: separate animated guidance, shown before pressing F only. */}
+  {!autoLanding && !hasLanded && (
+    <span className="flight-f-arrow-hint" aria-hidden="true">
+      {landingLabels.prompt} <span className="flight-f-arrow">↓</span>
+    </span>
+  )}
+<button
   type="button"
   data-testid="auto-land-button"
   className={`flight-autoland${autoLanding ? " is-active" : ""}${hasLanded ? " is-complete" : ""}`}
@@ -213,9 +285,8 @@ export function CinematicLanding({flight=false,obstacles=[],onAresEntry}:{flight
   onClick={()=>action('touchdown')}
 >
   <strong>{hasLanded ? landingLabels.complete : autoLanding ? landingLabels.active : landingLabels.action}</strong>
-  {!hasLanded && !autoLanding && <small>{landingLabels.prompt}</small>}
   {autoLanding && <small>●</small>}
-</button></div></div></>}
+</button></div></div></div></>}
  </div></ViewportOverlay>}<primitive object={landingTarget}/><group name="dev-only-cinematic-landing">
   {!flight&&<Html position={[110,data.support.highest+35,-70]} center distanceFactor={70}><div style={{background:'#151525',color:'#eee',padding:12,width:340}}><b>ARES · DEVELOPMENT TEST RIG</b><div ref={label}>STOWED · touchdown disabled</div><button onClick={start}>REPLAY GEAR / DESCENT</button><div>Unsafe ring: airborne demonstration; no placement authorization.</div></div></Html>}
   <group ref={ship} visible={!flight||modelReady} position={[110,data.support.highest+30,-70]}>
