@@ -129,7 +129,27 @@ export default function BuilderIdentity() {
           if (!verified) setRelinkMessage(t("identity.x.failed"));
         } catch (error) {
           console.error("[BOBU X OAuth] Callback failed:", error);
-          setRelinkMessage(t("identity.x.failed"));
+          // BOBU_X_RECOVERY_V2:
+          // Show actionable messages without exposing OAuth tokens.
+          const detail =
+            error instanceof Error ? error.message : "";
+
+          if (detail.includes("original X account") ||
+              detail.includes("account does not match")) {
+            setRelinkMessage(
+              "Please reconnect the original X account used for BOBU verification. Your GP is unchanged."
+            );
+          } else if (detail.includes("connection expired")) {
+            setRelinkMessage(
+              "X authorization expired. Select Reconnect and complete authorization again."
+            );
+          } else if (detail.includes("fresh_x_oauth_required")) {
+            setRelinkMessage(
+              "A fresh authorization from your original X account is required."
+            );
+          } else {
+            setRelinkMessage(t("identity.x.failed"));
+          }
         } finally {
           await clearXLink();
 
@@ -202,6 +222,18 @@ export default function BuilderIdentity() {
     );
 
     if (provider === "x") {
+      // BOBU_X_RECOVERY_V1: failed status checks
+      // must not permanently disable the action.
+      if (xVerification.canRetry) {
+        setRelinkMessage(null);
+        try {
+          await xVerification.refresh();
+        } catch {
+          setRelinkMessage(t("identity.x.failed"));
+        }
+        return;
+      }
+
       if (!xVerification.canConnect) {
         return;
       }
@@ -318,7 +350,7 @@ export default function BuilderIdentity() {
                       : xVerification.busy
                         ? t("identity.status.checking")
                         : xVerification.checkStatus === "error"
-                        ? t("identity.x.failed")
+                        ? t("identity.x.retry")
                         : xVerification.reconnect
                           ? t("identity.x.relink")
                           : xVerification.phase === "error"
@@ -340,7 +372,8 @@ export default function BuilderIdentity() {
                 (task.provider === "telegram" &&
                   telegramVerification.busy) ||
                 (task.provider === "x" &&
-                  !xVerification.canConnect) ||
+                  !xVerification.canConnect &&
+                  !xVerification.canRetry) ||
                 (task.provider === "instagram" &&
                   instagramVerification.busy)
               }
@@ -363,7 +396,10 @@ export default function BuilderIdentity() {
                     ? (
                         relinkMessage ??
                         xVerification.errorMessage ??
-                        xVerification.message
+                        (xVerification.reconnect &&
+                        !xVerification.completed
+                          ? t("identity.x.relink")
+                          : xVerification.message)
                       )
                     : task.provider === "instagram"
                       ? (

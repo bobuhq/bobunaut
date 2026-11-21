@@ -72,10 +72,23 @@ export function useXVerification(_options: { initiallyVerified: boolean }) {
         throw new Error(t("identity.x.failed"));
       }
 
+      // BOBU_X_RECOVERY_V4:
+      // Only authoritative server verification can release
+      // an interrupted local OAuth recovery. Never infer success
+      // from local storage or the presence of an X identity alone.
+      if (recovery && linked && status.verified) {
+        await finishXRecovery(id);
+        assertCurrent(id);
+      }
+
+      const recoveryPending =
+        recovery && !(linked && status.verified);
+
       const result = {
         linked,
-        reconnect: recovery || status.pending,
-        verified: linked && !recovery && status.verified,
+        reconnect: recoveryPending || status.pending,
+        verified: linked && !recoveryPending && status.verified,
+        serverVerified: linked && status.verified,
         serverStatus: status.status,
       };
 
@@ -142,10 +155,28 @@ export function useXVerification(_options: { initiallyVerified: boolean }) {
       await restoreAuthenticatedBuilder(userId);
       const status = await refresh();
       assertCurrent(userId);
-      // Keep local recovery evidence until the server confirms the identity.
-      if (!status?.verified) throw new Error("X verification was not confirmed by the server.");
+      // BOBU_X_RECOVERY_V2:
+      // A successful server claim must be confirmed independently
+      // of the local recovery flag. Never clear recovery before proof.
+      if (!status?.serverVerified) {
+        throw new Error(
+          "X verification was not confirmed by the server."
+        );
+      }
+
       await finishXRecovery(userId);
       await clearXLink();
+
+      // Re-read after recovery cleanup so the UI can become complete.
+      const confirmed = await refresh();
+      assertCurrent(userId);
+
+      if (!confirmed?.verified) {
+        throw new Error(
+          "X verification succeeded but the final status check failed."
+        );
+      }
+
       setPhase("idle");
       return true;
     } catch (error) {
@@ -221,7 +252,15 @@ export function useXVerification(_options: { initiallyVerified: boolean }) {
     !busy &&
     !lock.current;
 
+  // BOBU_X_RECOVERY_V1: allow an explicit retry after
+  // temporary status-service failure, never bypass verification.
+  const canRetry =
+    Boolean(userId) &&
+    checkStatus === "error" &&
+    !lock.current;
+
   return {
+    canRetry,
     phase,
     errorMessage,
     message: completed ? t("identity.x.done") : null,
