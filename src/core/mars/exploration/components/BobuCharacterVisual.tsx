@@ -492,10 +492,12 @@ export function BobuCharacterVisual({
         0,
         0,
       ]}
+      // BOBU_V1_COMPACT_CHARACTER_LOCAL
+      // Keep the approved smaller character.
       scale={[
-        0.82,
-        0.82,
-        0.82,
+        0.65,
+        0.65,
+        0.65,
       ]}
     >
       <primitive
