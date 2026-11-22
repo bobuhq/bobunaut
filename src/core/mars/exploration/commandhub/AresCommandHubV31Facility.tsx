@@ -74,9 +74,21 @@ function DomeBeacon({
 }) {
   const lamp = useRef<THREE.MeshBasicMaterial>(null);
   const halo = useRef<THREE.MeshBasicMaterial>(null);
+  const lastPulseUpdate = useRef(-Infinity);
 
   useFrame(({ clock }) => {
     const t = clock.elapsedTime;
+
+    // V22.1: limit continuous pulse material updates to 30 Hz.
+    // Preserve the original timing of single/double flashes.
+    if (mode === "pulse") {
+      if (
+        t >= lastPulseUpdate.current &&
+        t - lastPulseUpdate.current < 1 / 30
+      ) return;
+      lastPulseUpdate.current = t;
+    }
+
     const phase = t % 2.4;
 
     let brightness: number;
@@ -93,8 +105,21 @@ function DomeBeacon({
       brightness = (t % 1.65) < 0.22 ? 1 : 0.12;
     }
 
-    if (lamp.current) lamp.current.opacity = brightness;
-    if (halo.current) halo.current.opacity = brightness * 0.65;
+    // Avoid redundant writes while a beacon holds its brightness.
+    if (
+      lamp.current &&
+      Math.abs(lamp.current.opacity - brightness) > 0.001
+    ) {
+      lamp.current.opacity = brightness;
+    }
+
+    const haloBrightness = brightness * 0.65;
+    if (
+      halo.current &&
+      Math.abs(halo.current.opacity - haloBrightness) > 0.001
+    ) {
+      halo.current.opacity = haloBrightness;
+    }
   });
 
   return (
