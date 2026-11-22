@@ -38,10 +38,14 @@ const MOVEMENT_KEYS =
 type BobuCharacterVisualProps = {
   stairStateRef?:
     React.MutableRefObject<boolean>;
+  onSpinReadyChange?: (ready: boolean) => void;
+  onLeftArmReadyChange?: (ready: boolean) => void;
 };
 
 export function BobuCharacterVisual({
   stairStateRef,
+  onSpinReadyChange,
+  onLeftArmReadyChange,
 }: BobuCharacterVisualProps) {
   const gltf =
     useGLTF(
@@ -54,6 +58,56 @@ export function BobuCharacterVisual({
         gltf.scene.clone(true),
       [gltf.scene],
     );
+
+  const leftArm = useMemo(() => {
+    const joint = scene.getObjectByName("Arm_L");
+    if (!joint?.isObject3D || !(joint instanceof THREE.Bone)) return null;
+
+    const shoulderCap = joint.children.find(child => child.name === "Shoulder_-1");
+    if (!(shoulderCap instanceof THREE.Mesh)) return null;
+
+    return {
+      joint,
+      shoulderCap,
+      capPosition: shoulderCap.position.clone(),
+      capRotation: shoulderCap.quaternion.clone(),
+      baseRotation: new THREE.Quaternion(),
+      rotation: new THREE.Quaternion(),
+      capCorrection: new THREE.Quaternion(),
+      outwardAxis: new THREE.Vector3(0, 0, -1),
+    };
+  }, [scene]);
+  const armElapsedRef = useRef(-1);
+  const armOverlayAppliedRef = useRef(false);
+
+  function restoreLeftArmPose() {
+    if (!leftArm || !armOverlayAppliedRef.current) return;
+    leftArm.joint.quaternion.copy(leftArm.baseRotation);
+    leftArm.shoulderCap.position.copy(leftArm.capPosition);
+    leftArm.shoulderCap.quaternion.copy(leftArm.capRotation);
+    armOverlayAppliedRef.current = false;
+  }
+
+  // Restore the clip pose before Drei's mixer advances, including when the
+  // mixer reuses an unchanged value for a held keyframe.
+  useFrame(restoreLeftArmPose, -1);
+
+  useEffect(() => {
+    if (!leftArm || !onLeftArmReadyChange) return;
+
+    function handleLeftArm() {
+      if (armElapsedRef.current < 0) armElapsedRef.current = 0;
+    }
+
+    window.addEventListener("bobu:ares-left-arm", handleLeftArm);
+    onLeftArmReadyChange(true);
+    return () => {
+      window.removeEventListener("bobu:ares-left-arm", handleLeftArm);
+      restoreLeftArmPose();
+      armElapsedRef.current = -1;
+      onLeftArmReadyChange(false);
+    };
+  }, [leftArm, onLeftArmReadyChange]);
 
   const {
     actions,
@@ -79,6 +133,28 @@ export function BobuCharacterVisual({
 
   const stairPhaseRef =
     useRef(0);
+
+  const visualGroupRef = useRef<THREE.Group>(null);
+  const spinElapsedRef = useRef(-1);
+
+  useEffect(() => {
+    if (!onSpinReadyChange) return;
+
+    function handleSpin(event: Event) {
+      if ((event as CustomEvent<unknown>).detail === "spin") {
+        spinElapsedRef.current = 0;
+      }
+    }
+
+    window.addEventListener("bobu:ares-attack", handleSpin);
+    onSpinReadyChange(true);
+    return () => {
+      window.removeEventListener("bobu:ares-attack", handleSpin);
+      onSpinReadyChange(false);
+      spinElapsedRef.current = -1;
+      if (visualGroupRef.current) visualGroupRef.current.rotation.y = 0;
+    };
+  }, [onSpinReadyChange]);
 
   const legLeft =
     useMemo(
@@ -298,6 +374,38 @@ export function BobuCharacterVisual({
       _state,
       delta,
     ) => {
+      const visualGroup = visualGroupRef.current;
+      if (visualGroup && spinElapsedRef.current >= 0) {
+        spinElapsedRef.current += delta;
+        const progress = Math.min(1, spinElapsedRef.current / 0.9);
+        visualGroup.rotation.y = progress * Math.PI * 2;
+        if (progress === 1) {
+          spinElapsedRef.current = -1;
+          visualGroup.rotation.y = 0;
+        }
+      }
+
+      if (leftArm && armElapsedRef.current >= 0) {
+        armElapsedRef.current += delta;
+        const progress = Math.min(1, armElapsedRef.current / 0.72);
+        if (progress === 1) {
+          armElapsedRef.current = -1;
+        } else {
+          const { joint, shoulderCap, baseRotation, rotation, capCorrection } = leftArm;
+          baseRotation.copy(joint.quaternion);
+          const lift = Math.sin(Math.PI * progress) ** 2;
+          rotation.setFromAxisAngle(leftArm.outwardAxis, 0.68 * lift);
+          joint.quaternion.premultiply(rotation);
+
+          // The cap overlaps the neck guard during an outward roll. Keep it
+          // in the clip pose by canceling the overlay in joint-local space.
+          capCorrection.copy(joint.quaternion).invert().multiply(baseRotation);
+          shoulderCap.position.copy(leftArm.capPosition).applyQuaternion(capCorrection);
+          shoulderCap.quaternion.copy(leftArm.capRotation).premultiply(capCorrection);
+          armOverlayAppliedRef.current = true;
+        }
+      }
+
       const onStairs =
         stairStateRef?.current === true;
 
@@ -379,6 +487,7 @@ export function BobuCharacterVisual({
 
   return (
     <group
+      ref={visualGroupRef}
       position={[
         0,
         0,

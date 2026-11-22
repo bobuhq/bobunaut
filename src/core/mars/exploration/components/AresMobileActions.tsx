@@ -38,11 +38,27 @@ export type AresMobileInteractionTarget =
 
 type AresMobileActionsProps = {
   interactionTarget?: AresMobileInteractionTarget;
+  canSpin?: boolean;
+  canMoveLeftArm?: boolean;
 };
 
 export function AresMobileActions({
   interactionTarget = null,
+  canSpin = false,
+  canMoveLeftArm = false,
 }: AresMobileActionsProps) {
+  function handleSpin(event: ReactPointerEvent<HTMLButtonElement>) {
+    event.preventDefault();
+    event.stopPropagation();
+    window.dispatchEvent(new CustomEvent("bobu:ares-attack", { detail: "spin" }));
+  }
+
+  function handleLeftArm(event: ReactPointerEvent<HTMLButtonElement>) {
+    event.preventDefault();
+    event.stopPropagation();
+    window.dispatchEvent(new Event("bobu:ares-left-arm"));
+  }
+
   const handleInteractionDown = useCallback(
     (event: ReactPointerEvent<HTMLButtonElement>) => {
       event.preventDefault();
@@ -151,6 +167,32 @@ export function AresMobileActions({
           {interactionTarget ?? "INTERACT"}
         </span>
       </button>
+
+      {canSpin && (
+        <button
+          type="button"
+          className="ares-mobile-action ares-mobile-action--spin"
+          aria-label="Spin"
+          onPointerDown={handleSpin}
+        >
+          <span className="ares-mobile-action__icon">↻</span>
+          <span className="ares-mobile-action__label">SPIN</span>
+        </button>
+      )}
+      {canMoveLeftArm && (
+        <button
+          type="button"
+          className="ares-mobile-action ares-mobile-action--left-arm"
+          aria-label="Left arm"
+          onPointerDown={handleLeftArm}
+          onClick={(event) => {
+            if (event.detail === 0) window.dispatchEvent(new Event("bobu:ares-left-arm"));
+          }}
+        >
+          <span className="ares-mobile-action__icon" aria-hidden="true">↖</span>
+          <span className="ares-mobile-action__label">LEFT ARM</span>
+        </button>
+      )}
     </div>
   );
 }

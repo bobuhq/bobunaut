@@ -223,6 +223,8 @@ interface MarsExploreSceneProps {
       | "COMMAND",
     active: boolean,
   ) => void;
+  onSpinReadyChange: (ready: boolean) => void;
+  onLeftArmReadyChange: (ready: boolean) => void;
   placementItem:
     | MarsInventoryItem
     | null;
@@ -257,6 +259,8 @@ function MarsExploreScene({
   onArchiveOpenChange,
   onArchiveRecordChange,
   onMobileInteractionChange,
+  onSpinReadyChange,
+  onLeftArmReadyChange,
   placementItem,
   placementDefinition,
   placementColonyId,
@@ -571,6 +575,8 @@ function MarsExploreScene({
         ]}
       >
         <BobuCharacterVisual
+          onSpinReadyChange={onSpinReadyChange}
+          onLeftArmReadyChange={onLeftArmReadyChange}
           stairStateRef={
             bobuStairStateRef
           }
@@ -722,6 +728,8 @@ export function MarsExploreWorld() {
       RESEARCH: false,
       COMMAND: false,
     });
+  const [canSpin, setCanSpin] = useState(false);
+  const [canMoveLeftArm, setCanMoveLeftArm] = useState(false);
 
   const handleMobileInteractionChange =
     useCallback(
@@ -2007,6 +2015,112 @@ export function MarsExploreWorld() {
           }
         }
 
+        @media (max-width: 900px) and (orientation: landscape),
+               (pointer: coarse) and (orientation: landscape) {
+          .ares-mobile-actions {
+            position: absolute;
+            right: max(16px, calc(env(safe-area-inset-right) + 10px));
+            bottom: max(18px, calc(env(safe-area-inset-bottom) + 8px));
+            z-index: 45;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            pointer-events: auto;
+            touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+          }
+
+          .ares-mobile-action {
+            appearance: none;
+            -webkit-appearance: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 62px;
+            height: 62px;
+            padding: 0;
+            border: 1px solid rgba(99, 245, 255, 0.42);
+            border-radius: 50%;
+            background:
+              radial-gradient(
+                circle at 38% 30%,
+                rgba(99, 245, 255, 0.18),
+                rgba(7, 12, 22, 0.88) 62%
+              );
+            color: #ffffff;
+            box-shadow:
+              inset 0 0 18px rgba(99, 245, 255, 0.08),
+              0 0 18px rgba(99, 245, 255, 0.08);
+            touch-action: none;
+            -webkit-tap-highlight-color: transparent;
+          }
+
+          .ares-mobile-action:active {
+            transform: scale(0.94);
+            border-color: rgba(99, 245, 255, 0.85);
+            background:
+              radial-gradient(
+                circle at 38% 30%,
+                rgba(99, 245, 255, 0.34),
+                rgba(7, 12, 22, 0.94) 65%
+              );
+          }
+
+          .ares-mobile-action--jump {
+            width: 58px;
+            height: 58px;
+          }
+
+          .ares-mobile-action--spin,
+          .ares-mobile-action--left-arm {
+            position: absolute;
+            top: 0;
+            right: calc(100% + 8px);
+            width: 56px;
+            height: 56px;
+          }
+
+          .ares-mobile-action--left-arm {
+            right: calc(100% + 72px);
+          }
+
+          .ares-mobile-action__icon {
+            color: #63f5ff;
+            font-size: 22px;
+            line-height: 18px;
+            font-weight: 900;
+          }
+
+          .ares-mobile-action__key {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border: 1px solid rgba(199, 149, 255, 0.7);
+            border-radius: 7px;
+            color: #d9b4ff;
+            font-size: 14px;
+            font-weight: 900;
+          }
+
+          .ares-mobile-action__label {
+            margin-top: 3px;
+            color: rgba(255, 255, 255, 0.82);
+            font-size: 6px;
+            font-weight: 900;
+            letter-spacing: 0.12em;
+          }
+        }
+
+        @media (pointer: fine) {
+          .ares-mobile-action--left-arm { display: none; }
+        }
+
         @media (max-width: 900px) and (orientation: landscape) {
           .mars-explore-world {
             height: 100dvh;
@@ -2070,93 +2184,6 @@ export function MarsExploreWorld() {
             color: #ffffff !important;
             box-shadow: 0 0 18px rgba(99, 245, 255, 0.5) !important;
           }
-
-          .ares-mobile-actions {
-            position: absolute;
-            right: max(16px, calc(env(safe-area-inset-right) + 10px));
-            bottom: max(18px, calc(env(safe-area-inset-bottom) + 8px));
-            z-index: 45;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-            pointer-events: auto;
-            touch-action: none;
-            user-select: none;
-            -webkit-user-select: none;
-            -webkit-touch-callout: none;
-          }
-
-          .ares-mobile-action {
-            appearance: none;
-            -webkit-appearance: none;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            width: 62px;
-            height: 62px;
-            padding: 0;
-            border: 1px solid rgba(99, 245, 255, 0.42);
-            border-radius: 50%;
-            background:
-              radial-gradient(
-                circle at 38% 30%,
-                rgba(99, 245, 255, 0.18),
-                rgba(7, 12, 22, 0.88) 62%
-              );
-            color: #ffffff;
-            box-shadow:
-              inset 0 0 18px rgba(99, 245, 255, 0.08),
-              0 0 18px rgba(99, 245, 255, 0.08);
-            touch-action: none;
-            -webkit-tap-highlight-color: transparent;
-          }
-
-          .ares-mobile-action:active {
-            transform: scale(0.94);
-            border-color: rgba(99, 245, 255, 0.85);
-            background:
-              radial-gradient(
-                circle at 38% 30%,
-                rgba(99, 245, 255, 0.34),
-                rgba(7, 12, 22, 0.94) 65%
-              );
-          }
-
-          .ares-mobile-action--jump {
-            width: 58px;
-            height: 58px;
-          }
-
-          .ares-mobile-action__icon {
-            color: #63f5ff;
-            font-size: 22px;
-            line-height: 18px;
-            font-weight: 900;
-          }
-
-          .ares-mobile-action__key {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 24px;
-            height: 24px;
-            border: 1px solid rgba(199, 149, 255, 0.7);
-            border-radius: 7px;
-            color: #d9b4ff;
-            font-size: 14px;
-            font-weight: 900;
-          }
-
-          .ares-mobile-action__label {
-            margin-top: 3px;
-            color: rgba(255, 255, 255, 0.82);
-            font-size: 6px;
-            font-weight: 900;
-            letter-spacing: 0.12em;
-          }
-
 
           .ares-terminal-panel {
             box-sizing: border-box !important;
@@ -2424,6 +2451,8 @@ export function MarsExploreWorld() {
       </div>
 
       <AresMobileActions
+        canSpin={canSpin}
+        canMoveLeftArm={canMoveLeftArm}
         interactionTarget={
           mobileInteractionTarget
         }
@@ -3491,6 +3520,8 @@ export function MarsExploreWorld() {
               onMobileInteractionChange={
                 handleMobileInteractionChange
               }
+              onSpinReadyChange={setCanSpin}
+              onLeftArmReadyChange={setCanMoveLeftArm}
               placementItem={
                 placementItem
               }
