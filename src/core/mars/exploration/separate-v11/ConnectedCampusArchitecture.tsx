@@ -25,7 +25,17 @@ function Panel({at,size,color='#a9b6c1',glow=false,glass=false}:{at:Vec3;size:Ve
   return <mesh position={at} castShadow={!glow&&!glass} receiveShadow={!glow}>
     <boxGeometry args={size}/>
     {glow?<meshBasicMaterial color={color} toneMapped={false}/>:glass?
-      <meshPhysicalMaterial color={color} transparent opacity={mobileVisuals ? .42 : .52} metalness={.16} roughness={mobileVisuals ? .23 : .15} emissive="#1b4357" emissiveIntensity={mobileVisuals ? .3 : 0} side={2} depthWrite={false}/>:
+      <meshPhysicalMaterial
+        color={color}
+        transparent
+        opacity={mobileVisuals ? 0.44 : 0.38}
+        metalness={0.28}
+        roughness={mobileVisuals ? 0.22 : 0.12}
+        emissive="#286b8c"
+        emissiveIntensity={mobileVisuals ? 0.22 : 0.16}
+        side={2}
+        depthWrite={false}
+      />:
       <meshStandardMaterial color={color} metalness={mobileVisuals ? .48 : .65} roughness={.36} emissive={color} emissiveIntensity={mobileVisuals ? .075 : 0}/>}
   </mesh>;
 }

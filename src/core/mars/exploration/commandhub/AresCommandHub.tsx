@@ -1740,6 +1740,41 @@ function ExteriorFacility() {
       <CommandShipShell />
       <AresCommandCenterV2Exterior />
 
+      {/* V21.7: front facade xenon accents.
+          Decorative only; no collision or additional point lights. */}
+      <group name="ares-v21-front-facade-xenon">
+        <mesh position={[0, 3.38, 8.28]}>
+          <boxGeometry args={[4.85, 0.11, 0.09]} />
+          <meshBasicMaterial
+            color="#a8f5ff"
+            toneMapped={false}
+          />
+        </mesh>
+
+        {[-1, 1].map((side) => (
+          <group key={side}>
+            <mesh position={[side * 2.38, 1.98, 8.28]}>
+              <boxGeometry args={[0.11, 2.65, 0.09]} />
+              <meshBasicMaterial
+                color="#80eaff"
+                toneMapped={false}
+              />
+            </mesh>
+
+            <mesh position={[side * 2.38, 1.98, 8.27]}>
+              <boxGeometry args={[0.26, 2.7, 0.025]} />
+              <meshBasicMaterial
+                color="#2680b5"
+                transparent
+                opacity={0.3}
+                depthWrite={false}
+                toneMapped={false}
+              />
+            </mesh>
+          </group>
+        ))}
+      </group>
+
       <mesh
         position={[
           0,

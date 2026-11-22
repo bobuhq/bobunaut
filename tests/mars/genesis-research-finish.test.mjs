@@ -167,6 +167,10 @@ test("V20 protects production paths with approved release fingerprints", () => {
       "4857e10af5d594fac00407c0bb62ee4dbc34e90bb4727ff59a4174b1f065b118",
     "src/core/mars/exploration/components/AresMobileActions.tsx":
       "a964405cde5e8292fa9c1feee087e6f625cbd48f5719d143ee0a4c6f738c3d87",
+    "src/core/mars/exploration/commandhub/AresCommandHub.tsx":
+      "80cbabae1196699a497837f376b156fee0cc286d996f4f85d2952a751430138a",
+    "src/core/mars/exploration/commandhub/AresCommandHubV31Facility.tsx":
+      "6b2f37a88de5df3244aa4313d59ff67a78844146872d7bab4b2c26737d742e65",
   };
 
   const protectedChanges = changed.filter(path =>

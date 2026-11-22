@@ -1,4 +1,6 @@
 import * as THREE from "three";
+import { useRef } from "react";
+import { useFrame } from "@react-three/fiber";
 
 /**
  * Command Hub V3.1 main silhouette upgrade.
@@ -56,6 +58,84 @@ function PanoramicPane({ x, z, ry = 0 }: { x: number; z: number; ry?: number }) 
   );
 }
 
+
+type DomeBeaconMode = "double" | "pulse" | "single";
+
+function DomeBeacon({
+  name,
+  position,
+  color,
+  mode,
+}: {
+  name: string;
+  position: [number, number, number];
+  color: string;
+  mode: DomeBeaconMode;
+}) {
+  const lamp = useRef<THREE.MeshBasicMaterial>(null);
+  const halo = useRef<THREE.MeshBasicMaterial>(null);
+
+  useFrame(({ clock }) => {
+    const t = clock.elapsedTime;
+    const phase = t % 2.4;
+
+    let brightness: number;
+
+    if (mode === "double") {
+      brightness =
+        (phase < 0.14 || (phase > 0.3 && phase < 0.44))
+          ? 1
+          : 0.12;
+    } else if (mode === "pulse") {
+      brightness = 0.2 + 0.8 *
+        (0.5 + 0.5 * Math.sin(t * Math.PI * 1.2));
+    } else {
+      brightness = (t % 1.65) < 0.22 ? 1 : 0.12;
+    }
+
+    if (lamp.current) lamp.current.opacity = brightness;
+    if (halo.current) halo.current.opacity = brightness * 0.65;
+  });
+
+  return (
+    <group name={`ares-v21-beacon-${name}`} position={position}>
+      <mesh>
+        <cylinderGeometry args={[0.24, 0.34, 0.34, 10]} />
+        <meshStandardMaterial
+          color="#bdcbd8"
+          metalness={0.8}
+          roughness={0.24}
+        />
+      </mesh>
+
+      <mesh position={[0, 0.26, 0]}>
+        <sphereGeometry args={[0.33, 12, 10]} />
+        <meshBasicMaterial
+          ref={lamp}
+          color={color}
+          transparent
+          opacity={1}
+          toneMapped={false}
+          depthWrite={false}
+        />
+      </mesh>
+
+      <mesh position={[0, 0.26, 0]}>
+        <sphereGeometry args={[0.52, 12, 10]} />
+        <meshBasicMaterial
+          ref={halo}
+          color={color}
+          transparent
+          opacity={0.25}
+          side={THREE.BackSide}
+          depthWrite={false}
+          toneMapped={false}
+        />
+      </mesh>
+    </group>
+  );
+}
+
 function GlassCommandDome() {
   return (
     <group position={[0, 5.2, -0.9]}>
@@ -63,27 +143,41 @@ function GlassCommandDome() {
       <mesh renderOrder={3}>
         <sphereGeometry args={[10.4, 48, 24, 0, Math.PI * 2, 0, Math.PI / 2]} />
         <meshPhysicalMaterial
-          color="#5b9bb8"
+          color="#b9e7f5"
           transparent
-          opacity={0.27}
-          metalness={0.22}
-          roughness={0.1}
-          clearcoat={1}
-          clearcoatRoughness={0.05}
+          opacity={0.12}
+          metalness={0.08}
+          roughness={0.12}
+          clearcoat={0.85}
+          clearcoatRoughness={0.08}
+          emissive="#234c69"
+          emissiveIntensity={0.19}
           depthWrite={false}
-          side={THREE.DoubleSide}
+          side={THREE.FrontSide}
         />
       </mesh>
       {/* True curved dome ribs and perimeter rings. */}
       {Array.from({ length: 8 }, (_, i) => (
         <mesh key={i} rotation={[0, (Math.PI / 8) * i, 0]}>
           <torusGeometry args={[10.42, 0.13, 8, 56, Math.PI]} />
-          <meshStandardMaterial color="#899dae" metalness={0.86} roughness={0.23} />
+          <meshStandardMaterial
+            color="#bdcbd8"
+            metalness={0.76}
+            roughness={0.24}
+            emissive="#263c50"
+            emissiveIntensity={0.25}
+          />
         </mesh>
       ))}
       <mesh rotation={[Math.PI / 2, 0, 0]}>
         <torusGeometry args={[10.47, 0.38, 10, 80]} />
-        <meshStandardMaterial color="#37485a" metalness={0.88} roughness={0.24} />
+        <meshStandardMaterial
+          color="#8fa9bd"
+          metalness={0.78}
+          roughness={0.25}
+          emissive="#20364c"
+          emissiveIntensity={0.24}
+        />
       </mesh>
       <mesh position={[0, 1.1, 0]} rotation={[Math.PI / 2, 0, 0]}>
         <torusGeometry args={[10.35, 0.045, 6, 80]} />
@@ -97,6 +191,89 @@ function GlassCommandDome() {
         <sphereGeometry args={[0.28, 12, 12]} />
         <meshBasicMaterial color={GREEN} toneMapped={false} />
       </mesh>
+
+      {/* V21: decorative BOBU purple crystal energy core.
+          Visual only: no gameplay or resource production changes. */}
+      <group name="ares-v21-dome-crystal" position={[0, 4.1, 0]}>
+        <mesh rotation={[0, Math.PI / 4, 0]}>
+          <octahedronGeometry args={[1.65, 0]} />
+          <meshStandardMaterial
+            color="#cb93ff"
+            emissive="#8b39f5"
+            emissiveIntensity={3.4}
+            roughness={0.14}
+            metalness={0.16}
+            toneMapped={false}
+          />
+        </mesh>
+
+        <mesh rotation={[Math.PI / 2.8, 0, 0]}>
+          <torusGeometry args={[2.15, 0.055, 8, 64]} />
+          <meshBasicMaterial
+            color="#b06aff"
+            toneMapped={false}
+          />
+        </mesh>
+
+        <mesh rotation={[0, Math.PI / 3, Math.PI / 2.8]}>
+          <torusGeometry args={[2.35, 0.04, 8, 64]} />
+          <meshBasicMaterial
+            color="#6eeaff"
+            toneMapped={false}
+          />
+        </mesh>
+      </group>
+
+      {/* V21.5: animated visual-only aviation beacons. */}
+      <group name="ares-v21-navigation-beacons">
+        <DomeBeacon name="red" position={[-6.2, 5.65, 6.2]}
+          color="#ff3333" mode="double" />
+        <DomeBeacon name="amber" position={[0, 5.65, 9]}
+          color="#ffcc22" mode="pulse" />
+        <DomeBeacon name="green" position={[6.2, 5.65, 6.2]}
+          color="#39ff65" mode="single" />
+      </group>
+
+      {/* V21.6: xenon-blue architectural accent rails.
+          Decorative emissive surfaces; no additional scene lights. */}
+      <group name="ares-v21-xenon-dome-accents">
+        {[-1, 1].map((side) => (
+          <group key={side}>
+            <mesh
+              position={[side * 4.8, 0.75, 8.7]}
+              rotation={[0, side * 0.48, 0]}
+            >
+              <boxGeometry args={[3.4, 0.12, 0.08]} />
+              <meshBasicMaterial
+                color="#8ef2ff"
+                toneMapped={false}
+              />
+            </mesh>
+
+            <mesh
+              position={[side * 4.8, 0.63, 8.69]}
+              rotation={[0, side * 0.48, 0]}
+            >
+              <boxGeometry args={[3.5, 0.035, 0.09]} />
+              <meshBasicMaterial
+                color="#3b8cb4"
+                transparent
+                opacity={0.75}
+                toneMapped={false}
+                depthWrite={false}
+              />
+            </mesh>
+          </group>
+        ))}
+
+        <mesh position={[0, 0.69, 9.15]}>
+          <boxGeometry args={[5.4, 0.085, 0.08]} />
+          <meshBasicMaterial
+            color="#7feaff"
+            toneMapped={false}
+          />
+        </mesh>
+      </group>
     </group>
   );
 }
