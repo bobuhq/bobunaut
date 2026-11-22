@@ -1,5 +1,4 @@
 import { AresCommandHubV4Architecture } from "./AresCommandHubV4Architecture";
-import { AresV17InteriorLighting } from "./AresV17InteriorLighting";
 import { aresArrivalSound } from "../audio/AresArrivalSound";
 import { AresCommandHubV37RadarCrown } from "./AresCommandHubV37RadarCrown";
 import {
@@ -349,7 +348,6 @@ function CommandInterior({
   return (
     <group>
       <AresCommandCenterV2Interior />
-      <AresV17InteriorLighting />
       <mesh
         position={[
           0,

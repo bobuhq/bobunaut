@@ -21,7 +21,6 @@ import { createCampusLandscape } from './campus-landscape.mjs';
 import { getAresCommandHubFloorY } from '../commandhub/AresCommandHubWalkableSurface';
 import type { MarsCollisionObstacle } from '../components/BobuCharacterController';
 import { ConnectedCampusArchitecture } from './ConnectedCampusArchitecture';
-import { AresV17GenesisInterior } from './AresV17GenesisInterior';
 
 // Local ARES architecture: original greenhouse left, original research dome right
 // Individual terrain-fitted foundations; no shared campus platform.
@@ -58,13 +57,6 @@ function IndividualBuilding({ building,onHullObstacles }: { building: PlannedBui
     <CampusAssets plan={building.plan} traversable onHullObstacles={hullObstacles}/>
     <CampusArchitecture plan={building.plan} traversable />
     {building.id === 'greenhouse' && <GreenhouseGarden deck={site.deck} position={site} />}
-    {building.id === 'habitat' && (
-      <AresV17GenesisInterior
-        deck={site.deck}
-        halfWidth={building.footprint.halfX}
-        halfDepth={building.footprint.halfZ}
-      />
-    )}
   </group>;
 }
 

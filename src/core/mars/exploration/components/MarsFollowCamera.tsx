@@ -103,11 +103,6 @@ export function MarsFollowCamera({
   const followRadius=useRef(OUTDOOR_CAMERA_RADIUS);
   const cameraDistance=useRef(OUTDOOR_CAMERA_RADIUS);
 
-  // Only the local avatar visual is hidden when the lens
-  // becomes too close. World geometry remains untouched.
-  const avatarVisibleRef = useRef(true);
-
-
   const desiredPosition =
     useRef(new THREE.Vector3());
 
@@ -431,26 +426,6 @@ export function MarsFollowCamera({
       // Recheck the interpolated eye: interpolation alone can cut a U corner.
       if(environmentAt)cameraDistance.current=clearance.current.solve(lookTarget.current,camera.position,environment);
       else cameraDistance.current=camera.position.distanceTo(lookTarget.current);
-      // V17: prevent the helmet from filling the screen
-      // in narrow interiors and near walls.
-      const avatar = target.children[0];
-
-      if (avatar) {
-        if (
-          avatarVisibleRef.current &&
-          cameraDistance.current < 1.45
-        ) {
-          avatar.visible = false;
-          avatarVisibleRef.current = false;
-        } else if (
-          !avatarVisibleRef.current &&
-          cameraDistance.current > 1.85
-        ) {
-          avatar.visible = true;
-          avatarVisibleRef.current = true;
-        }
-      }
-
       camera.lookAt(
         lookTarget.current,
       );

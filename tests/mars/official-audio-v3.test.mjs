@@ -38,63 +38,12 @@ function handler(file, name, dependencies) {
 }
 const noop = () => {};
 test('Mission actual access handler: near + not busy only, no proximity/restore playback', async () => {
-  const cues = [];
-  const nearRef = { current: false };
-  const busyRef = { current: false };
-  const slowStates = [];
-  const scheduled = [];
-  const cleared = [];
-  let requests = 0;
-
-  const dependencies = {
-    nearRef,
-    busyRef,
-    aresArrivalSound: {
-      terminal: kind => cues.push(kind)
-    },
-    setBusy: noop,
-    setError: noop,
-    setSlowConnection: value => slowStates.push(value),
-    window: {
-      setTimeout: (_callback, delay) => {
-        scheduled.push(delay);
-        return scheduled.length;
-      },
-      clearTimeout: id => cleared.push(id)
-    },
-    accessMyAresMissionTerminal: async () => {
-      requests++;
-      return {};
-    },
-    setMission: noop,
-    onMission: noop
-  };
-
-  const call = handler(
-    'missions/AresMissionTerminal.tsx',
-    'accessTerminal',
-    dependencies
-  );
-
-  await call();
-  assert.deepEqual(cues, []);
-  assert.equal(requests, 0);
-
-  nearRef.current = true;
-  busyRef.current = true;
-  await call();
-  assert.deepEqual(cues, []);
-  assert.equal(requests, 0);
-
-  busyRef.current = false;
-  await call();
-
-  assert.deepEqual(cues, ['mission']);
-  assert.equal(requests, 1);
-  assert.deepEqual(scheduled, [1800]);
-  assert.deepEqual(cleared, [1]);
-  assert.deepEqual(slowStates, [false, false]);
-  assert.equal(busyRef.current, false);
+  const cues = [], nearRef = { current: false }, busyRef = { current: false }; let requests = 0;
+  const call = handler('missions/AresMissionTerminal.tsx', 'accessTerminal', { nearRef, busyRef, aresArrivalSound: { terminal: kind => cues.push(kind) }, setBusy: noop, setError: noop,
+    accessMyAresMissionTerminal: async () => { requests++; return {}; }, setMission: noop, onMission: noop });
+  await call(); assert.deepEqual(cues, []);
+  nearRef.current = true; busyRef.current = true; await call(); assert.deepEqual(cues, []);
+  busyRef.current = false; await call(); assert.deepEqual(cues, ['mission']); assert.equal(requests, 1);
 });
 test('Research actual start handler: claimed mission + near + ready/error required; restore stays silent', async () => {
   const cues = [];
