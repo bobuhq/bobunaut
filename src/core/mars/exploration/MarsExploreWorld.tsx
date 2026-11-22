@@ -681,8 +681,12 @@ function getMarsReturnHref(): string {
 export function MarsExploreWorld() {
   const { t, language } = useLanguage();
   const navigate = useNavigate();
-  // Character controls appear only after the existing flight handoff.
-  const [isWalkingMode, setIsWalkingMode] = useState(false);
+  // Direct campus entry starts in walking mode.
+  // Flight entry keeps controls hidden until landing handoff.
+  const [isWalkingMode, setIsWalkingMode] = useState(
+    () =>
+      new URLSearchParams(window.location.search).get("flightEntry") !== "1",
+  );
 
   useEffect(() => {
     const onReady = () => setIsWalkingMode(true);
