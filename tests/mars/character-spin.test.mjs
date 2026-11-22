@@ -38,7 +38,7 @@ function loadComponent(name, window, overrides = {}) {
 test("a second touch starts SPIN or LEFT ARM while the walking stick retains its pointer", () => {
   const window = new EventTarget();
   const MobileActions = loadComponent("AresMobileActions", window);
-  assert.equal(MobileActions({}).props.children.filter(Boolean).length, 2);
+  assert.equal(MobileActions({}).props.children.filter(child => child?.type === "button").length, 2);
   const [jump, interact, spin, leftArm] = MobileActions({ canSpin: true, canMoveLeftArm: true }).props.children;
   assert.equal(leftArm.props["aria-label"], "Punch");
   assert.equal(jump.props["aria-label"], "Jump");

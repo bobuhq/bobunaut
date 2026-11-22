@@ -193,6 +193,49 @@ export function AresMobileActions({
           <span className="ares-mobile-action__label">PUNCH</span>
         </button>
       )}
+      <style>{`
+        /* V20.1: show existing combat controls on desktop walking mode. */
+        @media (hover: hover) and (pointer: fine) {
+          .mars-explore-world .ares-mobile-actions {
+            display: flex !important;
+            position: fixed !important;
+            top: auto !important;
+            left: auto !important;
+            right: 20px !important;
+            bottom: 85px !important;
+            z-index: 210 !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            gap: 8px !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            pointer-events: auto !important;
+          }
+
+          .mars-explore-world .ares-mobile-action {
+            display: flex !important;
+            position: relative !important;
+            width: 60px !important;
+            min-height: 54px !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            background: rgba(9, 15, 32, 0.92) !important;
+            border: 1px solid rgba(120, 230, 255, 0.7) !important;
+            border-radius: 14px !important;
+            color: white !important;
+            cursor: pointer !important;
+            pointer-events: auto !important;
+            visibility: visible !important;
+          }
+
+          .mars-explore-world .ares-mobile-action__label {
+            display: block !important;
+            color: white !important;
+            font: 800 9px/12px system-ui !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }
