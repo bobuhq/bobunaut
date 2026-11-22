@@ -1,3 +1,4 @@
+import { usesAresMobileVisuals } from "../components/AresRenderQuality";
 import { useLoader } from '@react-three/fiber';
 import { CampusGLTFLoader } from './CampusGLTFLoader';
 import { markAresStage, startAresStage } from '../engine/aresPerformance';
@@ -82,7 +83,7 @@ function IndependentRelays({ terrain, relaySites }: { terrain: AresGenesisTerrai
   const target = useMemo(() => [HUB.x + 12, surface(HUB.x, HUB.z) + 28, HUB.z - 20] as const, [surface]);
   return <group name="v11-individual-relays">
     {relaySites.map(spec => <BuildingBoundary key={spec.id} name={spec.id}>
-      <Suspense fallback={null}><Dish spec={spec} surface={surface} target={target} /></Suspense>
+      <Suspense fallback={null}><Dish spec={spec} surface={surface} target={target} mobileVisuals={usesAresMobileVisuals()} /></Suspense>
     </BuildingBoundary>)}
   </group>;
 }

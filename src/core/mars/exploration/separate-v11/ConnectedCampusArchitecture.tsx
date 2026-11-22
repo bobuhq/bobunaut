@@ -1,3 +1,4 @@
+import { usesAresMobileVisuals } from "../components/AresRenderQuality";
 import { useEffect, useMemo } from 'react';
 import * as THREE from 'three';
 import type { AresGenesisTerrainData } from '../engine/AresGenesisTerrainData';
@@ -19,11 +20,12 @@ function Sign({position,width,height,text}:{position:Vec3;width:number;height:nu
   return <mesh position={position}><planeGeometry args={[width,height]}/><meshBasicMaterial map={texture} transparent depthWrite={false} toneMapped={false}/></mesh>;
 }
 function Panel({at,size,color='#a9b6c1',glow=false,glass=false}:{at:Vec3;size:Vec3;color?:string;glow?:boolean;glass?:boolean}) {
+  const mobileVisuals = usesAresMobileVisuals();
   return <mesh position={at} castShadow={!glow&&!glass} receiveShadow={!glow}>
     <boxGeometry args={size}/>
     {glow?<meshBasicMaterial color={color} toneMapped={false}/>:glass?
-      <meshPhysicalMaterial color={color} transparent opacity={.52} metalness={.16} roughness={.15} side={2} depthWrite={false}/>:
-      <meshStandardMaterial color={color} metalness={.65} roughness={.36}/>}
+      <meshPhysicalMaterial color={color} transparent opacity={mobileVisuals ? .42 : .52} metalness={.16} roughness={mobileVisuals ? .23 : .15} emissive="#1b4357" emissiveIntensity={mobileVisuals ? .3 : 0} side={2} depthWrite={false}/>:
+      <meshStandardMaterial color={color} metalness={mobileVisuals ? .48 : .65} roughness={.36} emissive={color} emissiveIntensity={mobileVisuals ? .075 : 0}/>}
   </mesh>;
 }
 function EnclosedLink({link,terrainAt}:{link:Connector;terrainAt:(x:number,z:number)=>number}) {
@@ -78,7 +80,7 @@ function ResearchEntrance({building,terrainAt}:{building:Building;terrainAt:(x:n
     {[-1,1].map(side=><group key={side}>
       <Panel at={[x+side*2.3,deck+1.9,front+.1]} size={[.18,3.8,.24]}/>
       <Panel at={[x+side*2.17,deck+1.9,front+.24]} size={[.065,3.5,.04]} color="#63e9ff" glow/>
-      <pointLight position={[x+side*2.3,deck+2.6,front+.7]} color="#ffd19a" intensity={2.4} distance={6} decay={2}/>
+      <pointLight position={[x+side*2.3,deck+2.6,front+.7]} color="#ffd19a" intensity={usesAresMobileVisuals() ? 4 : 2.4} distance={6} decay={2}/>
 
     </group>)}
   </group>;
@@ -111,6 +113,10 @@ export function ConnectedCampusArchitecture({terrain,buildings,model}:{terrain:A
       <Panel at={[0,3.08,.29]} size={[2.8,.04,.04]} color="#b780ef" glow/>
     </group>)}
     {botanical&&<BotanicalForecourt building={botanical} terrainAt={terrainAt}/>}
+    {research&&usesAresMobileVisuals()&&<pointLight
+      position={[research.worldX,research.plan.sites[0].deck+3.4,research.worldZ]}
+      color="#cbe5ff" intensity={9} distance={8} decay={2}
+    />}
     {research&&<ResearchEntrance building={research} terrainAt={terrainAt}/>}
   </group>;
 }

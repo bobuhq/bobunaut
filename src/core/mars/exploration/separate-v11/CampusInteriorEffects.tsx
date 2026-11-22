@@ -1,9 +1,11 @@
+import { usesAresMobileVisuals } from "../components/AresRenderQuality";
 import {useEffect,useMemo,useRef,type RefObject} from 'react';
 import {useFrame} from '@react-three/fiber';
 import * as THREE from 'three';
 import {aresArrivalSound} from '../audio/AresArrivalSound';
 import {DoorPassageSensor,type CampusDoor,type createCampusExperience} from './campus-experience';
 function PassageDoor({door,targetRef}:{door:CampusDoor;targetRef?:RefObject<THREE.Group|null>}){
+ const mobileVisuals=usesAresMobileVisuals();
  const left=useRef<THREE.Group>(null),right=useRef<THREE.Group>(null),opening=useRef(0),position=useMemo(()=>new THREE.Vector3(),[]);
  const primed=useRef(false);
  const sensor=useMemo(()=>new DoorPassageSensor(door),[door]);
@@ -21,8 +23,12 @@ function PassageDoor({door,targetRef}:{door:CampusDoor;targetRef?:RefObject<THRE
  });
  return <group name={door.id+'-automatic-sliding-panels'} position={[door.x,door.floor,door.z]}>
   {[-1,1].map(side=><group key={side} ref={side<0?left:right} position={[side*.67,0,0]}>
-   <mesh name="automatic-door-glass" position={[0,1.36,0]}><boxGeometry args={[1.3,2.68,.055]}/><meshPhysicalMaterial color="#456f83" transparent opacity={.28} depthWrite={false} metalness={.2} roughness={.15}/></mesh>
-   <mesh position={[side*-.61,1.36,.04]}><boxGeometry args={[.035,2.64,.025]}/><meshBasicMaterial color="#68dcf5" toneMapped={false}/></mesh>
+   <mesh name="automatic-door-glass" position={[0,1.36,0]}><boxGeometry args={[1.3,2.68,.055]}/><meshPhysicalMaterial color={mobileVisuals?"#75b0c8":"#456f83"} transparent opacity={mobileVisuals?.54:.28} depthWrite={false} metalness={.2} roughness={mobileVisuals?.23:.15} emissive="#1e4759" emissiveIntensity={mobileVisuals?.28:0}/></mesh>
+   <mesh position={[side*-.61,1.36,.04]} userData={{cameraIgnore:mobileVisuals}}><boxGeometry args={[mobileVisuals?.065:.035,2.64,.025]}/><meshBasicMaterial color="#68dcf5" toneMapped={false}/></mesh>
+   {mobileVisuals&&<mesh userData={{cameraIgnore:true}} position={[0,.25,0]}>
+    <boxGeometry args={[1.3,.2,.09]}/>
+    <meshStandardMaterial color="#536d80" metalness={.38} roughness={.36} emissive="#233b4d" emissiveIntensity={.35}/>
+   </mesh>}
   </group>)}
  </group>;
 }

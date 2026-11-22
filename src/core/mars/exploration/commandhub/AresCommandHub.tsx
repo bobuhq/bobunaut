@@ -1,3 +1,4 @@
+import { usesAresMobileVisuals } from "../components/AresRenderQuality";
 import { AresCommandHubV4Architecture } from "./AresCommandHubV4Architecture";
 import { aresArrivalSound } from "../audio/AresArrivalSound";
 import { AresCommandHubV37RadarCrown } from "./AresCommandHubV37RadarCrown";
@@ -538,7 +539,7 @@ function CommandInterior({
           2.8,
         ]}
         color="#ffd9c3"
-        intensity={4.2}
+        intensity={usesAresMobileVisuals() ? 9 : 4.2}
         distance={12}
         decay={2}
       />
@@ -549,8 +550,8 @@ function CommandInterior({
           2,
           -3.5,
         ]}
-        color="#8277d0"
-        intensity={3.4}
+        color={usesAresMobileVisuals() ? "#c2d6ff" : "#8277d0"}
+        intensity={usesAresMobileVisuals() ? 7 : 3.4}
         distance={9}
         decay={2}
       />
@@ -2166,8 +2167,8 @@ export function AresCommandHub({
             2.1,
             0.55,
           ]}
-          color="#a64de5"
-          intensity={5}
+          color={usesAresMobileVisuals() ? "#e3c6ff" : "#a64de5"}
+          intensity={usesAresMobileVisuals() ? 8 : 5}
           distance={8}
           decay={2}
         />

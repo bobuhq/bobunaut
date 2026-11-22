@@ -1,3 +1,4 @@
+import { usesAresMobileVisuals } from "../components/AresRenderQuality";
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
@@ -12,6 +13,7 @@ export function AresSensorAirlockV36({
 }: {
   targetRef: React.RefObject<THREE.Group | null>;
 }) {
+  const mobileVisuals = usesAresMobileVisuals();
   const leftRef = useRef<THREE.Group>(null);
   const rightRef = useRef<THREE.Group>(null);
   const lightRef = useRef<THREE.MeshBasicMaterial>(null);
@@ -42,28 +44,28 @@ export function AresSensorAirlockV36({
       <group ref={leftRef} position={[-0.86, 0, 0]}>
         <mesh position={[0, 1.65, 0.14]} castShadow>
           <boxGeometry args={[1.69, 3.3, 0.14]} />
-          <meshStandardMaterial color="#172735" metalness={0.85} roughness={0.24} />
+          <meshStandardMaterial color={mobileVisuals ? "#435d71" : "#172735"} metalness={mobileVisuals ? .46 : .85} roughness={0.24} />
         </mesh>
         <mesh position={[0, 1.65, 0.23]}>
           <boxGeometry args={[1.49, 2.6, 0.018]} />
-          <meshPhysicalMaterial color="#426c85" transparent opacity={0.59} roughness={0.06} metalness={0.17} clearcoat={1} depthWrite={false} />
+          <meshPhysicalMaterial color={mobileVisuals ? "#7eafc8" : "#426c85"} emissive="#294b60" emissiveIntensity={mobileVisuals ? .42 : 0} transparent opacity={0.59} roughness={0.06} metalness={0.17} clearcoat={1} depthWrite={false} />
         </mesh>
-        <mesh position={[0.72, 1.65, 0.25]}>
-          <boxGeometry args={[0.06, 2.95, 0.018]} />
+        <mesh position={[0.72, 1.65, 0.25]} userData={{ cameraIgnore: mobileVisuals }}>
+          <boxGeometry args={[mobileVisuals ? .1 : .06, 2.95, 0.018]} />
           <meshBasicMaterial color="#79ff6b" toneMapped={false} />
         </mesh>
       </group>
       <group ref={rightRef} position={[0.86, 0, 0]}>
         <mesh position={[0, 1.65, 0.14]} castShadow>
           <boxGeometry args={[1.69, 3.3, 0.14]} />
-          <meshStandardMaterial color="#172735" metalness={0.85} roughness={0.24} />
+          <meshStandardMaterial color={mobileVisuals ? "#435d71" : "#172735"} metalness={mobileVisuals ? .46 : .85} roughness={0.24} />
         </mesh>
         <mesh position={[0, 1.65, 0.23]}>
           <boxGeometry args={[1.49, 2.6, 0.018]} />
-          <meshPhysicalMaterial color="#426c85" transparent opacity={0.59} roughness={0.06} metalness={0.17} clearcoat={1} depthWrite={false} />
+          <meshPhysicalMaterial color={mobileVisuals ? "#7eafc8" : "#426c85"} emissive="#294b60" emissiveIntensity={mobileVisuals ? .42 : 0} transparent opacity={0.59} roughness={0.06} metalness={0.17} clearcoat={1} depthWrite={false} />
         </mesh>
-        <mesh position={[-0.72, 1.65, 0.25]}>
-          <boxGeometry args={[0.06, 2.95, 0.018]} />
+        <mesh position={[-0.72, 1.65, 0.25]} userData={{ cameraIgnore: mobileVisuals }}>
+          <boxGeometry args={[mobileVisuals ? .1 : .06, 2.95, 0.018]} />
           <meshBasicMaterial color="#79ff6b" toneMapped={false} />
         </mesh>
       </group>
@@ -75,6 +77,12 @@ export function AresSensorAirlockV36({
         <boxGeometry args={[1.0, 0.11, 0.024]} />
         <meshBasicMaterial ref={lightRef} color="#ffd06d" toneMapped={false} transparent opacity={1} />
       </mesh>
+      {mobileVisuals && [-1, 1].map(side => (
+        <mesh key={side} userData={{ cameraIgnore: true }} position={[side * 1.83, 1.68, .32]}>
+          <boxGeometry args={[.08, 3.3, .045]} />
+          <meshBasicMaterial color="#b1efca" toneMapped={false} />
+        </mesh>
+      ))}
       <mesh position={[0, 3.9, 0.35]}>
         <sphereGeometry args={[0.13, 12, 10]} />
         <meshBasicMaterial color="#79ff6b" toneMapped={false} />

@@ -1,3 +1,4 @@
+import { usesAresMobileVisuals } from "../components/AresRenderQuality";
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
@@ -23,10 +24,11 @@ function ArmorPanel({
   color?: string;
   rotation?: [number, number, number];
 }) {
+  const mobileVisuals = usesAresMobileVisuals();
   return (
     <mesh position={position} rotation={rotation} castShadow receiveShadow>
       <boxGeometry args={args} />
-      <meshStandardMaterial color={color} metalness={0.79} roughness={0.28} />
+      <meshStandardMaterial color={color} metalness={mobileVisuals ? .53 : .79} roughness={mobileVisuals ? .34 : .28} />
     </mesh>
   );
 }
@@ -38,6 +40,7 @@ function GlassFacade({
   args: [number, number, number];
   color?: string;
 }) {
+  const mobileVisuals = usesAresMobileVisuals();
   return (
     <mesh position={position}>
       <boxGeometry args={args} />
@@ -46,12 +49,12 @@ function GlassFacade({
         metalness={0.14}
         roughness={0.1}
         transparent
-        opacity={0.64}
-        transmission={0.12}
-        clearcoat={0.94}
+        opacity={mobileVisuals ? .52 : .64}
+        transmission={mobileVisuals ? 0 : .12}
+        clearcoat={mobileVisuals ? .6 : .94}
         clearcoatRoughness={0.08}
         emissive="#123443"
-        emissiveIntensity={0.22}
+        emissiveIntensity={mobileVisuals ? .4 : .22}
         depthWrite={false}
       />
     </mesh>

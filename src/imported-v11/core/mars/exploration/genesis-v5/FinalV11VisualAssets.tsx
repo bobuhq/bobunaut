@@ -7,7 +7,44 @@ import { applyRelayCycle, RELAY_CONVERGENCE } from './3d/campus-relay-cycle.mjs'
 import { RELAY_BORESIGHT, RELAY_EMITTER } from './3d/relay-motion.mjs';
 import { towers, greenhouse } from './v11-composition.mjs';
 type Surface=(x:number,z:number)=>number|null;
-export function Dish({spec,surface,target=RELAY_CONVERGENCE}:{spec:typeof towers[number];surface:Surface;target?:readonly number[]}){
+function mobileRelayMaterial(color: string) {
+ return new THREE.ShaderMaterial({
+  transparent: true,
+  depthWrite: false,
+  depthTest: true,
+  side: THREE.FrontSide,
+  toneMapped: false,
+  uniforms: { tint: { value: new THREE.Color(color) } },
+  vertexShader: `
+   varying float alongBeam;
+   varying vec3 viewPosition;
+   varying vec3 viewNormal;
+   void main() {
+    alongBeam = uv.y;
+    vec4 positionInView = modelViewMatrix * vec4(position, 1.0);
+    viewPosition = positionInView.xyz;
+    viewNormal = normalMatrix * normal;
+    gl_Position = projectionMatrix * positionInView;
+   }
+  `,
+  fragmentShader: `
+   uniform vec3 tint;
+   varying float alongBeam;
+   varying vec3 viewPosition;
+   varying vec3 viewNormal;
+   void main() {
+    float facing = dot(normalize(viewNormal), normalize(-viewPosition));
+    // Retain coverage near the silhouette when the beam is only a few pixels wide.
+    float opacity = mix(0.48, 0.98, smoothstep(0.0, 0.65, facing));
+    float tip = mix(1.0, 0.75, smoothstep(0.92, 1.0, alongBeam));
+    gl_FragColor = vec4(mix(tint, vec3(1.0), 0.10), opacity * tip);
+    #include <colorspace_fragment>
+   }
+  `,
+ });
+}
+
+export function Dish({spec,surface,target=RELAY_CONVERGENCE,mobileVisuals=false}:{spec:typeof towers[number];surface:Surface;target?:readonly number[];mobileVisuals?:boolean}){
  const gltf=useLoader(CampusGLTFLoader,'/mars/final-v11/campus/comms-dish-7b129a.glb');
  const kit=useMemo(()=>{
  const scene=gltf.scene.clone(true),az=scene.getObjectByName('dish-azimuth')!,el=scene.getObjectByName('dish-elevation')!;
@@ -20,13 +57,21 @@ export function Dish({spec,surface,target=RELAY_CONVERGENCE}:{spec:typeof towers
  ring(az,[0,.17,0],.58,Math.PI/2);
  for(const y of [.12,.28,1.25])ring(scene,[0,y,0],.48,Math.PI/2);
  const beam=new THREE.Group();beam.position.set(...RELAY_EMITTER);beam.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),new THREE.Vector3(...RELAY_BORESIGHT));el.add(beam);
- const beamGeo=new THREE.CylinderGeometry(.045,.045,125,12,1,true);beamGeo.translate(0,62.5,0);
- const materials=[.95,.14,.035].map((opacity,i)=>new THREE.ShaderMaterial({transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,toneMapped:false,side:THREE.DoubleSide,uniforms:{tint:{value:new THREE.Color(spec.color)},alpha:{value:opacity},core:{value:i===0?1:0}},vertexShader:'varying vec2 uvBeam;void main(){uvBeam=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',fragmentShader:'varying vec2 uvBeam;uniform vec3 tint;uniform float alpha;uniform float core;void main(){float feather=pow(sin(uvBeam.x*3.14159265),2.);float fade=1.-smoothstep(.60,1.,uvBeam.y);gl_FragColor=vec4(mix(tint,vec3(1.),core*.4),alpha*feather*fade);}' }));
- materials.forEach((m,i)=>{const mesh=new THREE.Mesh(beamGeo,m);mesh.scale.set([1,5,14][i],1,[1,5,14][i]);mesh.renderOrder=4;beam.add(mesh);});
+ // The translated cylinder runs along local +Y, with UV.y = 0 at the emitter.
+ const beamGeo=new THREE.CylinderGeometry(mobileVisuals ? .20 : .045,mobileVisuals ? .12 : .045,125,12,1,true);beamGeo.translate(0,62.5,0);
+ const materials=mobileVisuals ? [mobileRelayMaterial(spec.color)] : [.95,.14,.035].map((opacity,i)=>new THREE.ShaderMaterial({transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,toneMapped:false,side:THREE.DoubleSide,uniforms:{tint:{value:new THREE.Color(spec.color)},alpha:{value:opacity},core:{value:i===0?1:0}},vertexShader:'varying vec2 uvBeam;void main(){uvBeam=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',fragmentShader:'varying vec2 uvBeam;uniform vec3 tint;uniform float alpha;uniform float core;void main(){float feather=pow(sin(uvBeam.x*3.14159265),2.);float fade=1.-smoothstep(.60,1.,uvBeam.y);gl_FragColor=vec4(mix(tint,vec3(1.),core*.4),alpha*feather*fade);}' }));
+ materials.forEach((material, i) => {
+  const mesh = new THREE.Mesh(beamGeo, material);
+  const radiusScale = [1,5,14][i];
+  mesh.scale.set(radiusScale, 1, radiusScale);
+  if (mobileVisuals) mesh.userData.cameraIgnore = true;
+  else mesh.renderOrder = 4;
+  beam.add(mesh);
+ });
  const origin=new THREE.Vector3(),direction=new THREE.Vector3(),scale=new THREE.Vector3();
  const targetPoint=new THREE.Vector3(target[0],target[1],target[2]);
  return {scene,az,el,beam,beamGeo,ringGeo,glow,materials,origin,direction,scale,target:targetPoint};
- },[gltf,spec,target]);
+ },[gltf,spec,target,mobileVisuals]);
  useEffect(()=>()=>{kit.beamGeo.dispose();kit.ringGeo.dispose();kit.glow.dispose();kit.materials.forEach(m=>m.dispose());},[kit]);
  useFrame(({clock})=>{const s=applyRelayCycle(kit.az,kit.el,clock.elapsedTime,spec,target);
  kit.beam.getWorldPosition(kit.origin);

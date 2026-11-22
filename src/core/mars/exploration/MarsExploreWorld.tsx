@@ -51,7 +51,7 @@ import {
 
 import * as THREE from "three";
 import { Html } from "@react-three/drei";
-import { AresRenderQuality, hasCoarseAresPointer } from "./components/AresRenderQuality";
+import { AresRenderQuality, hasCoarseAresPointer, usesAresMobileVisuals } from "./components/AresRenderQuality";
 import { markAresStage, observeAresFrameGaps, observeAresLongTasks, startAresStage } from "./engine/aresPerformance";
 import { AresRenderDiagnostics } from "./components/AresRenderDiagnostics";
 import { AresSpacecraftReflection } from "./flight/AresSpacecraft";
@@ -3447,6 +3447,9 @@ export function MarsExploreWorld() {
           far: 20000,
         }}
         dpr={renderDpr}
+        onCreated={({ gl }) => {
+          if (usesAresMobileVisuals()) gl.transmissionResolutionScale = 0.65;
+        }}
         gl={{
           antialias: !mobileRenderer,
           alpha: false,

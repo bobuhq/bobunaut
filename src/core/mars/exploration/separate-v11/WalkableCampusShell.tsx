@@ -1,3 +1,4 @@
+import { usesAresMobileVisuals } from "../components/AresRenderQuality";
 import { useEffect, useMemo } from 'react';
 import * as THREE from 'three';
 import { CONNECTOR_HEIGHT as HEIGHT } from './connected-campus-layout.mjs';
@@ -15,23 +16,30 @@ export function surfaceGeometry(cells:Rect[],sample:(x:number,z:number)=>number)
  const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(vertices,3));geometry.computeVertexNormals();return geometry;
 }
 export function WalkableCampusShell({model}:{model:Traversal}){
+ const mobileVisuals=usesAresMobileVisuals();
  const kit=useMemo(()=>{
   const floor=surfaceGeometry(model.cells,(x,z)=>model.floor(x,z)!);
   const roof=surfaceGeometry(model.cells,(x,z)=>model.floor(x,z)!+HEIGHT);
   return {floor,roof};
  },[model]);
  useEffect(()=>()=>{kit.floor.dispose();kit.roof.dispose();},[kit]);
+ const lightPositions=mobileVisuals
+  ? model.links.slice(1).map(({a,b})=>[(a[0]+b[0])/2,(a[2]+b[2])/2])
+  : [[-40,-80],[-40,-89],[-29,-93.5],[-17,-93.5],[-7,-90]];
  return <group name="v12-complete-walkable-rear-U">
-  <mesh name="rear-U-continuous-walkable-floor" geometry={kit.floor} receiveShadow><meshStandardMaterial color="#657482" emissive="#123b50" emissiveIntensity={.12} metalness={.5} roughness={.48} side={THREE.DoubleSide}/></mesh>
-  <mesh name="rear-U-continuous-roof" geometry={kit.roof} castShadow receiveShadow><meshStandardMaterial color="#465564" emissive="#173443" emissiveIntensity={.18} metalness={.6} roughness={.4} side={THREE.DoubleSide}/></mesh>
+  <mesh name="rear-U-continuous-walkable-floor" geometry={kit.floor} receiveShadow><meshStandardMaterial color="#657482" emissive="#123b50" emissiveIntensity={mobileVisuals ? .42 : .12} metalness={.5} roughness={.48} side={THREE.DoubleSide}/></mesh>
+  <mesh name="rear-U-continuous-roof" geometry={kit.roof} castShadow receiveShadow><meshStandardMaterial color="#465564" emissive="#173443" emissiveIntensity={mobileVisuals ? .45 : .18} metalness={.6} roughness={.4} side={THREE.DoubleSide}/></mesh>
   {[{x:-40,z:-76.55},{x:model.links[3].b[0],z:model.links[3].b[2]-1.4}].map((p,i)=>{
    const floor=model.floor(p.x,p.z)!;
    return <group key={'portal-'+i} name={i?'genesis-real-rear-door-frame':'hub-real-rear-door-frame'} position={[p.x,floor,p.z]}>
     {[-1,1].map(side=><group key={side}>
      <mesh position={[side*1.47,1.55,0]} castShadow><boxGeometry args={[.14,3.1,.4]}/><meshStandardMaterial color="#aab9c4" metalness={.7} roughness={.35}/></mesh>
-     <mesh position={[side*1.39,1.55,.22]}><boxGeometry args={[.035,2.98,.035]}/><meshBasicMaterial color="#67dfff" toneMapped={false}/></mesh>
+     <mesh position={[side*1.39,1.55,.22]} userData={{cameraIgnore:mobileVisuals}}><boxGeometry args={[mobileVisuals ? .065 : .035,2.98,.035]}/><meshBasicMaterial color="#67dfff" toneMapped={false}/></mesh>
     </group>)}
     <mesh name="rear-portal-slim-lintel" position={[0,3.1,0]} castShadow><boxGeometry args={[3.08,.075,.18]}/><meshStandardMaterial color="#aab9c4" emissive="#204354" emissiveIntensity={.2} metalness={.7} roughness={.35}/></mesh>
+    {mobileVisuals&&<mesh userData={{cameraIgnore:true}} position={[0,3.1,.105]}>
+     <boxGeometry args={[2.8,.05,.025]}/><meshBasicMaterial color="#67dfff" toneMapped={false}/>
+    </mesh>}
    </group>;
   })}
   {model.walls.map((edge,index)=>{
@@ -51,7 +59,7 @@ export function WalkableCampusShell({model}:{model:Traversal}){
     </group>;
    });
   })}
-  {[[-40,-80],[-40,-89],[-29,-93.5],[-17,-93.5],[-7,-90]].map(([x,z])=><pointLight key={x+','+z} name="rear-U-low-blue-bounce" position={[x,model.floor(x,z)!+.65,z]} color="#58bfe5" intensity={.65} distance={4.2} decay={2}/>)}
+  {lightPositions.map(([x,z])=><pointLight key={x+','+z} name="rear-U-low-blue-bounce" position={[x,model.floor(x,z)!+(mobileVisuals ? 2.8 : .65),z]} color={mobileVisuals ? "#b9def5" : "#58bfe5"} intensity={mobileVisuals ? 7 : .65} distance={mobileVisuals ? 10 : 4.2} decay={2}/>)}
  </group>;
 }
 export function CampusFoundation({building,terrainAt}:{building:PlannedBuilding;terrainAt:(x:number,z:number)=>number}){

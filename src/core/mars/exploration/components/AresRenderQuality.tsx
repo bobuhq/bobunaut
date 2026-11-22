@@ -13,12 +13,18 @@ function isBobuNativeMars(): boolean {
     navigator.userAgent.includes("BOBU-Mobile");
 }
 
+export function usesAresMobileVisuals() {
+  return isBobuNativeMars() && hasCoarseAresPointer();
+}
+
 function getDprLimit(width: number, height: number) {
   const mobile = hasCoarseAresPointer();
-  const pixelBudget = mobile ? (isBobuNativeMars() ? 1_650_000 : 1_300_000) : 3_200_000;
+  const nativeMobile = mobile && isBobuNativeMars();
+  // Native mobile uses a single-sample backbuffer. Cap resolved pixels as Safari viewport size changes.
+  const pixelBudget = mobile ? (nativeMobile ? 1_650_000 : 1_300_000) : 3_200_000;
   return Math.min(
     window.devicePixelRatio || 1,
-    mobile ? (isBobuNativeMars() ? 1.6 : 1.5) : 2,
+    mobile ? (nativeMobile ? 1.75 : 1.5) : 2,
     Math.sqrt(pixelBudget / Math.max(1, width * height)),
   );
 }
