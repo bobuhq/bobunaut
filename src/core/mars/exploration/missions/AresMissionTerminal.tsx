@@ -89,6 +89,8 @@ export function AresMissionTerminal({
       null,
     );
 
+  const [slowConnection, setSlowConnection] = useState(false);
+
   useFrame(
     ({
       clock,
@@ -166,10 +168,21 @@ export function AresMissionTerminal({
 
       setBusy(true);
       setError(null);
+      setSlowConnection(false);
+
+      const startedAt = performance.now();
+      const slowTimer = window.setTimeout(() => {
+        setSlowConnection(true);
+      }, 1800);
 
       try {
         const result =
           await accessMyAresMissionTerminal();
+
+        console.info(
+          "[ARES Mission Terminal] access completed",
+          { elapsedMs: Math.round(performance.now() - startedAt) }
+        );
 
         setMission(
           result,
@@ -190,10 +203,18 @@ export function AresMissionTerminal({
           "TERMINAL LINK FAILED",
         );
       } finally {
+        window.clearTimeout(slowTimer);
+
+        console.info(
+          "[ARES Mission Terminal] request finished",
+          { elapsedMs: Math.round(performance.now() - startedAt) }
+        );
+
         busyRef.current =
           false;
 
         setBusy(false);
+        setSlowConnection(false);
       }
     }
 
@@ -407,7 +428,9 @@ export function AresMissionTerminal({
                 }}
               >
                 {busy
-                  ? t("mars.mission.connecting")
+                  ? slowConnection
+                    ? "VERIFYING MISSION..."
+                    : t("mars.mission.connecting")
                   : t("mars.mission.accessTerminal")}
               </div>
             </>

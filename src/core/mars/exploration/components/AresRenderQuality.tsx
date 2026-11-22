@@ -8,10 +8,10 @@ export function hasCoarseAresPointer() {
 
 function getDprLimit(width: number, height: number) {
   const mobile = hasCoarseAresPointer();
-  const pixelBudget = mobile ? 1_300_000 : 3_200_000;
+  const pixelBudget = mobile ? 1_650_000 : 3_200_000;
   return Math.min(
     window.devicePixelRatio || 1,
-    mobile ? 1.5 : 2,
+    mobile ? 1.6 : 2,
     Math.sqrt(pixelBudget / Math.max(1, width * height)),
   );
 }
@@ -41,7 +41,7 @@ export function AresRenderQuality({ onDprChange }: { onDprChange: (dpr: number) 
     const average = sample.elapsed / sample.count;
     sample.elapsed = sample.count = 0;
     const ceiling = getDprLimit(width, height);
-    const floor = Math.min(ceiling, hasCoarseAresPointer() ? 0.85 : 1);
+    const floor = Math.min(ceiling, hasCoarseAresPointer() ? 0.9 : 1);
     sample.fastWindows = average < 0.019 ? sample.fastWindows + 1 : 0;
     const next = average > 0.026
       ? Math.max(floor, current.current - 0.15)
