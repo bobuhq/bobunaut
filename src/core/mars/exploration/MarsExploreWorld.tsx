@@ -439,7 +439,7 @@ function MarsExploreScene({
         args={[
           "#c98b70",
           "#170706",
-          0.48,
+          hasCoarseAresPointer() && new URLSearchParams(window.location.search).get("nativeBridge") === "1" ? 0.92 : 0.48,
         ]}
       />
 
@@ -449,7 +449,7 @@ function MarsExploreScene({
           34,
           90,
         ]}
-        intensity={2.65}
+        intensity={hasCoarseAresPointer() && new URLSearchParams(window.location.search).get("nativeBridge") === "1" ? 3.1 : 2.65}
         color="#ffd7bd"
         castShadow
         shadow-mapSize-width={1024}
@@ -846,6 +846,15 @@ export function MarsExploreWorld() {
     );
 
   useEffect(() => {
+    // BOBU_ARES_AUTH_GATE_V1
+    // Never call the protected access RPC without a session.
+    if (!session?.user.id) {
+      setAresAccess(null);
+      setAresAccessLoading(false);
+      setAresAccessError(null);
+      return;
+    }
+
     let active = true;
 
     const verifyAresAccess =
@@ -898,7 +907,7 @@ export function MarsExploreWorld() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [session?.user.id]);
 
   const [
     onlineCount,
