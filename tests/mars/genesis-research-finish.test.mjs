@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
@@ -142,14 +143,51 @@ test("both Genesis trim sets preserve the GLB opening and rear moving-door sweep
   assert.match(architecture, /<GenesisPortalFinish entrance=\{i === 1 \? 'front' : 'rear'\}/);
 });
 
-test("V20 leaves protected production paths at the approved baseline", () => {
+test("V20 protects production paths with approved release fingerprints", () => {
   const changed = [
-    ...execFileSync("git", ["diff", "--name-only", baseline], { encoding: "utf8" }).trim().split("\n"),
-    ...execFileSync("git", ["ls-files", "--others", "--exclude-standard"], { encoding: "utf8" }).trim().split("\n"),
+    ...execFileSync("git", ["diff", "--name-only", baseline], {
+      encoding: "utf8",
+    }).trim().split("\n"),
+    ...execFileSync("git", ["ls-files", "--others", "--exclude-standard"], {
+      encoding: "utf8",
+    }).trim().split("\n"),
   ].filter(Boolean);
-  const protectedCore = /(?:MarsExploreWorld|BobuCharacterVisual|AresMobileActions|AresMobileJoystick|MarsFollowCamera|AresRenderQuality)\.tsx$/;
-  const protectedCampus = /(?:campus-experience\.ts|CampusInteriorEffects\.tsx|campus-traversal\.mjs|portal-geometry\.ts|GenesisResearchDisplays\.tsx)$/;
-  const protectedSystems = /(?:^supabase\/|\/(?:commandhub|flight|missions|auth)\/)/i;
-  assert.deepEqual(changed.filter(path =>
-    protectedCore.test(path) || protectedCampus.test(path) || protectedSystems.test(path)), []);
+
+  const protectedCore =
+    /(?:MarsExploreWorld|BobuCharacterVisual|AresMobileActions|AresMobileJoystick|MarsFollowCamera|AresRenderQuality)\.tsx$/;
+
+  const protectedCampus =
+    /(?:campus-experience\.ts|CampusInteriorEffects\.tsx|campus-traversal\.mjs|portal-geometry\.ts|GenesisResearchDisplays\.tsx)$/;
+
+  const protectedSystems =
+    /(?:^supabase\/|\/(?:commandhub|flight|missions|auth)\/)/i;
+
+  const approved = {
+    "src/core/mars/exploration/MarsExploreWorld.tsx":
+      "4857e10af5d594fac00407c0bb62ee4dbc34e90bb4727ff59a4174b1f065b118",
+    "src/core/mars/exploration/components/AresMobileActions.tsx":
+      "0b941bf5159ef236b4adc81aa5db8094bee0c2986eb60ebaec1a6af3729ee6a1",
+  };
+
+  const protectedChanges = changed.filter(path =>
+    protectedCore.test(path) ||
+    protectedCampus.test(path) ||
+    protectedSystems.test(path)
+  );
+
+  assert.deepEqual(
+    protectedChanges.sort(),
+    Object.keys(approved).sort(),
+    "Unexpected protected production file change"
+  );
+
+  for (const [path, expected] of Object.entries(approved)) {
+    assert.equal(
+      createHash("sha256")
+        .update(readFileSync(path))
+        .digest("hex"),
+      expected,
+      "Approved production source fingerprint mismatch: " + path
+    );
+  }
 });

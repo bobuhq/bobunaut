@@ -72,8 +72,8 @@ import {
 } from "./components/AresMobileActions";
 
 import {
-  BobuCharacterVisual,
-} from "./components/BobuCharacterVisual";
+  BobuExplorerV2Visual,
+} from "./components/BobuExplorerV2Visual";
 
 import {
   MarsExplorationTerrain,
@@ -287,6 +287,7 @@ function MarsExploreScene({
   const enterWalking = useCallback((handoff: FlightHandoff) => {
     finishWalkingCommit.current = startAresStage("walking-transition");
     setLandedHandoff(handoff);
+    window.dispatchEvent(new Event("bobu:ares-walking-ready"));
   }, []);
   useLayoutEffect(() => {
     if (!landedHandoff) return;
@@ -574,7 +575,8 @@ function MarsExploreScene({
           ...([-1,1] as const).map(side=>({kind:'box' as const,x:-44+side*11.5,z:-69.6,halfWidth:4.8,halfDepth:8.5})),
         ]}
       >
-        <BobuCharacterVisual
+        <BobuExplorerV2Visual
+          analogMovementRef={analogMovementRef}
           onSpinReadyChange={onSpinReadyChange}
           onLeftArmReadyChange={onLeftArmReadyChange}
           stairStateRef={
@@ -679,6 +681,16 @@ function getMarsReturnHref(): string {
 export function MarsExploreWorld() {
   const { t, language } = useLanguage();
   const navigate = useNavigate();
+  // Character controls appear only after the existing flight handoff.
+  const [isWalkingMode, setIsWalkingMode] = useState(false);
+
+  useEffect(() => {
+    const onReady = () => setIsWalkingMode(true);
+    window.addEventListener("bobu:ares-walking-ready", onReady);
+    return () =>
+      window.removeEventListener("bobu:ares-walking-ready", onReady);
+  }, []);
+
   const [renderDpr, setRenderDpr] = useState(1);
   const [mobileRenderer] = useState(hasCoarseAresPointer);
 
@@ -1821,6 +1833,55 @@ export function MarsExploreWorld() {
           display: none;
         }
 
+        /* V20: mobile walking actions, independent of viewport width */
+        @media (pointer: coarse) and (orientation: landscape) {
+          .mars-explore-world .ares-mobile-actions {
+            position: fixed !important;
+            top: auto !important;
+            left: auto !important;
+            right: max(12px, env(safe-area-inset-right)) !important;
+            bottom: max(14px, env(safe-area-inset-bottom)) !important;
+            z-index: 130 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            gap: 7px !important;
+            pointer-events: auto;
+            touch-action: none;
+          }
+
+          .mars-explore-world .ares-mobile-action {
+            display: flex !important;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+            width: 48px !important;
+            height: 48px !important;
+            padding: 0 !important;
+            border: 1px solid rgba(99,245,255,.65);
+            border-radius: 50%;
+            background: rgba(9,15,32,.90);
+            color: white;
+            touch-action: none;
+            -webkit-tap-highlight-color: transparent;
+          }
+
+          .mars-explore-world .ares-mobile-action__icon,
+          .mars-explore-world .ares-mobile-action__key {
+            color: #8beaff;
+            font: 900 17px/19px system-ui;
+          }
+
+          .mars-explore-world .ares-mobile-action__label {
+            margin-top: 2px;
+            color: white;
+            font: 800 7px/9px system-ui;
+          }
+        }
+
+
+
 
         .mars-explore-world {
           position: relative;
@@ -2434,22 +2495,7 @@ export function MarsExploreWorld() {
         onMove={handleJoystickMove}
       />
 
-      <div className="ares-mobile-camera-pitch"
-           role="group" aria-label="Vertical camera controls">
-        <button type="button" aria-label="Look up"
-          onClick={() => window.dispatchEvent(
-            new CustomEvent("bobu:ares-camera-pitch", {
-              detail: THREE.MathUtils.degToRad(12)
-            })
-          )}>▲ {flightUi(language, 'lookUp')}</button>
-        <button type="button" aria-label="Look down"
-          onClick={() => window.dispatchEvent(
-            new CustomEvent("bobu:ares-camera-pitch", {
-              detail: -THREE.MathUtils.degToRad(12)
-            })
-          )}>▼ {flightUi(language, 'lookDown')}</button>
-      </div>
-
+      {isWalkingMode && (
       <AresMobileActions
         canSpin={canSpin}
         canMoveLeftArm={canMoveLeftArm}
@@ -2457,6 +2503,7 @@ export function MarsExploreWorld() {
           mobileInteractionTarget
         }
       />
+      )}
 
       <a
         className="mars-explore-return-button"

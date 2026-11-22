@@ -56,7 +56,7 @@ export function AresMobileActions({
   function handleLeftArm(event: ReactPointerEvent<HTMLButtonElement>) {
     event.preventDefault();
     event.stopPropagation();
-    window.dispatchEvent(new Event("bobu:ares-left-arm"));
+    window.dispatchEvent(new CustomEvent("bobu:ares-attack", { detail: "punch" }));
   }
 
   const handleInteractionDown = useCallback(
@@ -183,14 +183,14 @@ export function AresMobileActions({
         <button
           type="button"
           className="ares-mobile-action ares-mobile-action--left-arm"
-          aria-label="Left arm"
+          aria-label="Punch"
           onPointerDown={handleLeftArm}
           onClick={(event) => {
-            if (event.detail === 0) window.dispatchEvent(new Event("bobu:ares-left-arm"));
+            if (event.detail === 0) window.dispatchEvent(new CustomEvent("bobu:ares-attack", { detail: "punch" }));
           }}
         >
           <span className="ares-mobile-action__icon" aria-hidden="true">↖</span>
-          <span className="ares-mobile-action__label">LEFT ARM</span>
+          <span className="ares-mobile-action__label">PUNCH</span>
         </button>
       )}
     </div>
