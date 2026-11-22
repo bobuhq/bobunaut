@@ -3,6 +3,7 @@ import { useEffect, useMemo } from 'react';
 import * as THREE from 'three';
 import type { AresGenesisTerrainData } from '../engine/AresGenesisTerrainData';
 import { sampleAresGenesisRenderedSurfaceMeters } from '../engine/AresGenesisTerrainData';
+import { GenesisPortalFinish } from './GenesisResearchFinish';
 import { WalkableCampusShell } from './WalkableCampusShell';
 import type { Traversal } from './campus-traversal.mjs';
 import { CONNECTOR_WIDTH as WIDTH, CONNECTOR_HEIGHT as HEIGHT, type Connector } from './connected-campus-layout.mjs';
@@ -108,6 +109,7 @@ export function ConnectedCampusArchitecture({terrain,buildings,model}:{terrain:A
         <Panel at={[side*1.5,1.6,0]} size={[.18,3.2,.55]}/>
         <Panel at={[side*1.39,1.6,.29]} size={[.04,3.05,.04]} color="#65e5ff" glow/>
       </group>)}
+      <GenesisPortalFinish entrance={i === 1 ? 'front' : 'rear'} />
       {/* Rear U already owns a structural lintel at this same doorway. */}
       {i===1&&<Panel at={[0,3.2,0]} size={[3.2,.18,.55]}/>}
       <Panel at={[0,3.08,.29]} size={[2.8,.04,.04]} color="#b780ef" glow/>

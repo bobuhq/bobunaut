@@ -1,0 +1,155 @@
+import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
+import { readFileSync } from "node:fs";
+import { runInNewContext } from "node:vm";
+import test from "node:test";
+import * as THREE from "three";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
+import ts from "typescript";
+import { campusArchitecture } from "../../src/imported-v11/core/mars/exploration/genesis-v5/campus-architecture.mjs";
+import { buildings, hubFloor, loadTs, terrainAt } from "../genesis-v12/campus-fixture.mjs";
+import { createCampusTraversal } from "../../src/core/mars/exploration/separate-v11/campus-traversal.mjs";
+
+const root = "src/core/mars/exploration/separate-v11/";
+const baseline = "0ddba9c961cfb35fc322be8ea71cb68ff37b4294";
+const research = buildings.find(b => b.id === "habitat");
+const site = research.plan.sites[0];
+const model = createCampusTraversal(buildings, terrainAt, hubFloor);
+
+function renderFinish() {
+  const cleanups = [];
+  const labels = [];
+  const canvas = { getContext: () => ({ fillRect() {}, fillText: label => labels.push(label) }) };
+  const jsx = (type, props) => typeof type === "function" ? type(props) : { type, props };
+  const modules = {
+    react: { useMemo: create => create(), useEffect: effect => cleanups.push(effect()) },
+    "react/jsx-runtime": { jsx, jsxs: jsx },
+    three: THREE,
+    "three/addons/utils/BufferGeometryUtils.js": { mergeGeometries },
+    "../../../../imported-v11/core/mars/exploration/genesis-v5/campus-architecture.mjs": { campusArchitecture },
+  };
+  const exports = {};
+  const { outputText } = ts.transpileModule(readFileSync(root + "GenesisResearchFinish.tsx", "utf8"), {
+    compilerOptions: { jsx: ts.JsxEmit.ReactJSX, module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
+  });
+  runInNewContext(outputText, {
+    exports, document: { createElement: () => ({ ...canvas }) }, require: id => modules[id],
+  });
+  return { ...exports, labels, cleanups };
+}
+
+function boxBounds(geometry) {
+  const positions = geometry.attributes.position;
+  // Each merged BoxGeometry contributes 24 vertices (four per face).
+  return Array.from({ length: positions.count / 24 }, (_, i) => {
+    const bounds = new THREE.Box3();
+    for (let j = 0; j < 24; j++) bounds.expandByPoint(new THREE.Vector3().fromBufferAttribute(positions, i * 24 + j));
+    return bounds;
+  });
+}
+
+async function loadResearchHull() {
+  const bytes = readFileSync("public/mars/final-v11/campus/" + site.file);
+  const { scene } = await new GLTFLoader().parseAsync(bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength), "");
+  scene.scale.setScalar(site.scale);
+  scene.updateMatrixWorld(true);
+  return scene;
+}
+
+test("laboratory finish hugs the actual wing collision envelope or sits overhead", async () => {
+  const { GenesisResearchFinish, cleanups } = renderFinish();
+  const mount = GenesisResearchFinish({ site });
+  const mesh = mount.props.children;
+  assert.equal(mesh.props.userData.cameraIgnore, true);
+  assert.deepEqual(Array.from(mount.props.position), [site.x, site.deck, site.z]);
+  const geometry = mesh.props.geometry;
+  assert.equal(geometry.groups.length, 2);
+  assert.ok(geometry.index.count / 3 < 1000);
+
+  const scene = await loadResearchHull();
+  let overhead = 0;
+  for (const bounds of boxBounds(geometry)) {
+    if (bounds.min.y > 4) {
+      overhead++;
+      const center = bounds.getCenter(new THREE.Vector3());
+      // The panel must be visible from below the production hull.
+      const origin = new THREE.Vector3(center.x, 2.6, center.z);
+      const ray = new THREE.Raycaster(origin, new THREE.Vector3(0, 1, 0), 0, bounds.min.y - origin.y - .01);
+      assert.equal(ray.intersectObject(scene, true).length, 0);
+      continue;
+    }
+    const center = bounds.getCenter(new THREE.Vector3());
+    const wing = model.obstacles.find(o => o.kind === "box" && o.halfWidth === 1.2 &&
+      Math.sign(o.x - research.worldX) === Math.sign(center.x));
+    assert.ok(wing);
+    assert.ok(bounds.min.x >= wing.x - research.worldX - wing.halfWidth);
+    assert.ok(bounds.max.x <= wing.x - research.worldX + wing.halfWidth);
+    assert.ok(bounds.min.z >= -wing.halfDepth && bounds.max.z <= wing.halfDepth);
+  }
+  assert.equal(overhead, 8);
+  let disposed = false;
+  geometry.addEventListener("dispose", () => { disposed = true; });
+  cleanups.forEach(cleanup => cleanup());
+  assert.equal(disposed, true);
+});
+
+test("both Genesis trim sets preserve the GLB opening and rear moving-door sweep", async () => {
+  const { GenesisPortalFinish, cleanups, labels } = renderFinish();
+  const { createCampusExperience } = loadTs(root + "campus-experience.ts");
+  const experience = createCampusExperience(model, buildings, hubFloor);
+  const rear = experience.doors.find(door => door.id === "v12-genesis-rear");
+  assert.equal(rear.z, research.worldZ - 5.4);
+  assert.equal(rear.floor, site.deck + .4);
+
+  // Cut the actual production mesh in unscaled scene space, just as the campus loader does.
+  const scene = await loadResearchHull();
+  scene.scale.setScalar(1);
+  const { openResearchShell } = loadTs(root + "portal-geometry.ts");
+  const owned = openResearchShell(scene, site.scale);
+  scene.scale.setScalar(site.scale);
+  scene.updateMatrixWorld(true);
+
+  let disposed = 0;
+  for (const entrance of ["front", "rear"]) {
+    const [mesh, sign] = GenesisPortalFinish({ entrance }).props.children;
+    assert.equal(mesh.props.userData.cameraIgnore, true);
+    assert.equal(sign.props.userData.cameraIgnore, true);
+    const bounds = boxBounds(mesh.props.geometry);
+    const opening = new THREE.Box3(new THREE.Vector3(-1.4, 0, -.45), new THREE.Vector3(1.4, 3.12, .45));
+    for (const box of bounds) {
+      assert.equal(box.intersectsBox(opening), false);
+      // Includes the V19 mobile door's deepest hardware (the cyan edge and base).
+      assert.ok(box.min.z > .06);
+    }
+    assert.ok(sign.props.position[1] - sign.props.children[0].props.args[1] / 2 > opening.max.y);
+    const frameZ = entrance === "front" ? 6.4 : rear.z - research.worldZ;
+    const signZ = frameZ + sign.props.position[2];
+    const signY = .4 + sign.props.position[1];
+    for (const x of [-.7, 0, .7]) {
+      const ray = new THREE.Raycaster(new THREE.Vector3(x, signY, signZ + 1), new THREE.Vector3(0, 0, -1), 0, .999);
+      assert.equal(ray.intersectObject(scene, true).length, 0, entrance + " sign is visible from its approach");
+    }
+    sign.props.children[1].props.map.addEventListener("dispose", () => disposed++);
+  }
+  owned.forEach(geometry => geometry.dispose());
+  assert.deepEqual(labels, ["GENESIS ACCESS", "RESEARCH LAB"]);
+  cleanups.forEach(cleanup => cleanup());
+  assert.equal(disposed, 2);
+
+  const architecture = readFileSync(root + "ConnectedCampusArchitecture.tsx", "utf8");
+  assert.match(architecture, /research&&\[-5\.4,6\.4\]\.map/);
+  assert.match(architecture, /<GenesisPortalFinish entrance=\{i === 1 \? 'front' : 'rear'\}/);
+});
+
+test("V20 leaves protected production paths at the approved baseline", () => {
+  const changed = [
+    ...execFileSync("git", ["diff", "--name-only", baseline], { encoding: "utf8" }).trim().split("\n"),
+    ...execFileSync("git", ["ls-files", "--others", "--exclude-standard"], { encoding: "utf8" }).trim().split("\n"),
+  ].filter(Boolean);
+  const protectedCore = /(?:MarsExploreWorld|BobuCharacterVisual|AresMobileActions|AresMobileJoystick|MarsFollowCamera|AresRenderQuality)\.tsx$/;
+  const protectedCampus = /(?:campus-experience\.ts|CampusInteriorEffects\.tsx|campus-traversal\.mjs|portal-geometry\.ts|GenesisResearchDisplays\.tsx)$/;
+  const protectedSystems = /(?:^supabase\/|\/(?:commandhub|flight|missions|auth)\/)/i;
+  assert.deepEqual(changed.filter(path =>
+    protectedCore.test(path) || protectedCampus.test(path) || protectedSystems.test(path)), []);
+});
