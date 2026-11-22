@@ -9,7 +9,8 @@ export function hasCoarseAresPointer() {
 
 function isBobuNativeMars(): boolean {
   return typeof window !== "undefined" &&
-    new URLSearchParams(window.location.search).get("nativeBridge") === "1";
+    window.location.pathname.startsWith("/mars") &&
+    navigator.userAgent.includes("BOBU-Mobile");
 }
 
 function getDprLimit(width: number, height: number) {

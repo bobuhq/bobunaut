@@ -439,7 +439,7 @@ function MarsExploreScene({
         args={[
           "#c98b70",
           "#170706",
-          hasCoarseAresPointer() && new URLSearchParams(window.location.search).get("nativeBridge") === "1" ? 0.92 : 0.48,
+          hasCoarseAresPointer() && navigator.userAgent.includes("BOBU-Mobile") ? 0.92 : 0.48,
         ]}
       />
 
@@ -449,7 +449,7 @@ function MarsExploreScene({
           34,
           90,
         ]}
-        intensity={hasCoarseAresPointer() && new URLSearchParams(window.location.search).get("nativeBridge") === "1" ? 3.1 : 2.65}
+        intensity={hasCoarseAresPointer() && navigator.userAgent.includes("BOBU-Mobile") ? 3.1 : 2.65}
         color="#ffd7bd"
         castShadow
         shadow-mapSize-width={1024}
