@@ -2,7 +2,7 @@
   "schema": 1,
   "scope": "repository geometry only; not production certification",
   "productionCertified": false,
-  "releaseDigest": "49506ff4719c1d844f9fcd6be0f15fa187aec05bfe81395d88fc78e9bd69aef7",
+  "releaseDigest": "89b0b251b3719ea0b90fe7bc48237446341debcc5b0caef55ab1c02b5ddd86be",
   "sourceDigests": {
     "src/core/mars/exploration/engine/AresGenesisTerrainData.ts": "adbe51a6aefd27b8de4e317886754a72607a006eb9d33ba1388b9bbf19f1cc30",
     "public/mars/ares-genesis/ares-genesis-height-16.bin": "62b26ba12a7da83b2ddf58d46398231deacb993a996321b89db078bf364b47aa",
