@@ -275,24 +275,11 @@ export function BuildMars() {
           window.location.search,
         ).get("nativeBridge") === "1";
 
-      const mobileEntry =
-        typeof window !== "undefined" &&
-        window.matchMedia("(pointer: coarse), (max-width: 900px)").matches;
-
-      const params = new URLSearchParams({ sector: "ares" });
-
-      if (nativeBridge) params.set("nativeBridge", "1");
-      if (!mobileEntry) params.set("flightEntry", "1");
-
-      const destination =
-        `/mars/explore?${params.toString()}`;
-
-      if (mobileEntry) {
-        window.location.assign(destination);
-        return;
-      }
-
-      navigate(destination);
+      navigate(
+        nativeBridge
+          ? "/mars/explore?sector=ares&nativeBridge=1&flightEntry=1"
+          : "/mars/explore?sector=ares&flightEntry=1",
+      );
     }, 5550);
   };
 
