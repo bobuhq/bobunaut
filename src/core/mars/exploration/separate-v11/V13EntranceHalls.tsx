@@ -1,6 +1,6 @@
-import { Suspense, useMemo } from 'react';
+import { useMemo } from 'react';
 import * as THREE from 'three';
-import { Text } from '@react-three/drei';
+import { CampusIlluminatedSign } from './CampusIlluminatedSign';
 // BOBU_V13_EXTENDED_ENTRY_HALLS_V2
 import type { PlannedBuilding } from './connected-campus-layout.mjs';
 
@@ -18,6 +18,7 @@ type PortalProps = {
 // Every support is outside the 5m-wide centre approach. No road ribbons,
 // stepping-stone grid, second terrain slab, planters, or rock scatter.
 function EntrancePortal({label, x, frontZ, width, depth, roofHeight, terrainAt}: PortalProps) {
+  const isHub = label === 'command-hub';
   const half = width / 2;
   const zCenter = frontZ + depth / 2;
   const offsets = [-half, half];
@@ -38,22 +39,14 @@ function EntrancePortal({label, x, frontZ, width, depth, roofHeight, terrainAt}:
         <boxGeometry args={[Math.min(width-.35,7.8),.74,.12]}/>
         <meshStandardMaterial color="#151b29" metalness={.7} roughness={.32}/>
       </mesh>
-      <Suspense fallback={null}>
-      <Text
-        position={[0,0,.012]}
-        fontSize={label==='command-hub'?.39:.44}
-        maxWidth={width-1.05}
-        anchorX="center"
-        anchorY="middle"
-        color="#e5b5ff"
-        outlineWidth={.008}
-        outlineColor="#7c2cd1"
-        material-toneMapped={false}
-      >
-        {label==='command-hub'?'COMMAND HUB':'GENESIS'}
-      </Text>
-      </Suspense>
-      <pointLight position={[0,.2,1.0]} color="#aa50ff" intensity={3.0} distance={5.5} decay={2}/>
+      <CampusIlluminatedSign
+        position={[0, 0, .012]}
+        width={width - 1.05}
+        height={.59}
+        text={isHub ? 'COMMAND HUB' : 'GENESIS'}
+        tint={isHub ? '#e6aaff' : '#c8afff'}
+        phase={isHub ? 0 : 2.1}
+      />
     </group>
     {/* Elevated titanium canopy, open central passage, warm underside. */}
     <mesh position={[x, topY, zCenter]} castShadow receiveShadow>

@@ -31,7 +31,7 @@ export function courtGeometry(court:Court, sample:Landscape['terrainAt']) {
         positions.push(x,sample(x,z)+.038,z);
         uvs.push(x/2.4,z/1.2);
         const edge=Math.min(x-a,b-x,z-c,d-z);
-        const tint=new THREE.Color(edge<.22?'#7f8b99':'#bbc1c5');
+        const tint=new THREE.Color(edge<.22?'#424e5b':'#626d79');
         colors.push(tint.r,tint.g,tint.b);
       }
     }
@@ -72,7 +72,7 @@ export function CampusLandscape({plan}: {plan: Landscape}) {
     // A single broad arrival court unites the botanical entrance and Hub.
     // East edge respects Water; north edge stops before the original stairs.
     return [
-      {xMin:-79,xMax:-42.5,zMin:-58.4,zMax:-44},
+      {xMin:-79,xMax:-42.5,zMin:-58.4,zMax:-40},
       {xMin:researchX-7,xMax:researchX+7,zMin:-72.5,zMax:-66.5},
     ].map(court=>courtGeometry(court,plan.terrainAt));
   },[plan]);
