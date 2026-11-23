@@ -1,5 +1,5 @@
-import { usesAresMobileVisuals } from "../components/AresRenderQuality";
-import { useLoader } from '@react-three/fiber';
+import { hasCoarseAresPointer, usesAresMobileVisuals } from "../components/AresRenderQuality";
+import { useLoader, useThree } from '@react-three/fiber';
 import { CampusGLTFLoader } from './CampusGLTFLoader';
 import { markAresStage, startAresStage } from '../engine/aresPerformance';
 import { V13FacadeXenonLighting } from './V13FacadeXenonLighting';
@@ -15,7 +15,7 @@ import { CONNECTED_CAMPUS_ASSETS } from '../../../../imported-v11/dev/connected-
 import { CONNECTED_RELAYS } from '../../../../imported-v11/dev/connected-relays';
 import type { WallObstacle } from './mesh-wall-obstacles';
 import { CampusFoundation } from './WalkableCampusShell';
-import { CampusLandscape } from './CampusLandscape';
+import { PremiumCampusLandscape } from './PremiumCampusLandscape';
 import { V13EntranceHalls } from './V13EntranceHalls';
 import { createCampusTraversal } from './campus-traversal.mjs';
 import { createCampusLandscape } from './campus-landscape.mjs';
@@ -107,7 +107,13 @@ export function SeparateV11Campus({ targetRef, onRuntime }: { targetRef?: RefObj
     });
   },[]);
   const hullObstacles=useMemo(()=>Object.values(hullsByBuilding).flat(),[hullsByBuilding]);
-  const [terrain, setTerrain] = useState<AresGenesisTerrainData | null>(null);
+  const [mobile] = useState(hasCoarseAresPointer);
+  const scene = useThree(state => state.scene);
+  const [surface, setSurface] = useState<{
+    terrain: AresGenesisTerrainData;
+    parkedShip?: [number, number, number];
+  } | null>(null);
+  const terrain = surface?.terrain ?? null;
   useEffect(() => {
     markAresStage('campus-mounted');
     let alive = true;
@@ -115,12 +121,18 @@ export function SeparateV11Campus({ targetRef, onRuntime }: { targetRef?: RefObj
       if (alive) {
         markAresStage('campus-terrain-ready');
         reportCampus('TERRAIN_READY', `${data.width}x${data.height}`);
-        setTerrain(data);
+        // The parked craft commits with handoff, before the terrain promise
+        // resolves. Capture its location before generating any landscaping.
+        const craft = scene.getObjectByName('BOBU-Ares-landed-spacecraft');
+        setSurface({
+          terrain: data,
+          parkedShip: craft?.getWorldPosition(new THREE.Vector3()).toArray(),
+        });
       }
     })
       .catch(error => { console.error('V11_TERRAIN_LOAD_FAILED', error); reportCampus('TERRAIN_LOAD_FAILED',String(error)); });
     return () => { alive = false; markAresStage('campus-unmounted'); };
-  }, []);
+  }, [scene]);
   const buildings = useMemo(() => terrain ? selectCampusBuildings(CONNECTED_CAMPUS_ASSETS, (x, z) => sampleAresGenesisRenderedSurfaceMeters(terrain, x, z)) : [], [terrain]);
   useEffect(() => {
     if (!terrain) return;
@@ -149,11 +161,18 @@ export function SeparateV11Campus({ targetRef, onRuntime }: { targetRef?: RefObj
     </BuildingBoundary>)}
     {experience&&<CampusInteriorEffects experience={experience} targetRef={targetRef}/>}
     <ConnectedCampusArchitecture terrain={terrain} buildings={buildings} model={model}/>
-    {terrainAt && <V13EntranceHalls terrainAt={terrainAt} buildings={buildings}/>}
+    {terrainAt && <V13EntranceHalls terrainAt={terrainAt} buildings={buildings} mobile={mobile}/>}
 
     {terrainAt&&buildings.filter(b=>b.id==='habitat').map(building=><CampusFoundation key={building.id} building={building} terrainAt={terrainAt}/>)}
-    {landscape&&<CampusLandscape plan={landscape}/>}
-    {terrainAt && <V13FacadeXenonLighting terrainAt={terrainAt} buildings={buildings} />}
+    {terrainAt && landscape && <PremiumCampusLandscape
+      plan={landscape}
+      terrainAt={terrainAt}
+      greenhouse={buildings.find(building => building.id === 'greenhouse')}
+      genesis={buildings.find(building => building.id === 'habitat')}
+      parkedShip={surface?.parkedShip}
+      mobile={mobile}
+    />}
+    {terrainAt && <V13FacadeXenonLighting terrainAt={terrainAt} buildings={buildings} mobile={mobile} />}
     <IndependentRelays terrain={terrain} relaySites={relaySites} />
   </group>;
 }

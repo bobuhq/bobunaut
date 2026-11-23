@@ -15,6 +15,7 @@ export function courtGeometry(court:Court, sample:Landscape['terrainAt']) {
   const positions:number[]=[],colors:number[]=[],uvs:number[]=[];
   const grid=ARES_GENESIS_SIZE_METERS/ARES_GENESIS_RENDER_SEGMENTS;
   const cross=(a:Point,b:Point,p:Point)=>(b[0]-a[0])*(p[1]-a[1])-(b[1]-a[1])*(p[0]-a[0]);
+  const edgeTint=new THREE.Color('#424e5b'), interiorTint=new THREE.Color('#626d79');
   const clip=(triangle:Point[])=>{
     let polygon=triangle;
     outline.forEach((start,i)=>{
@@ -31,7 +32,7 @@ export function courtGeometry(court:Court, sample:Landscape['terrainAt']) {
         positions.push(x,sample(x,z)+.038,z);
         uvs.push(x/2.4,z/1.2);
         const edge=Math.min(x-a,b-x,z-c,d-z);
-        const tint=new THREE.Color(edge<.22?'#7f8b99':'#bbc1c5');
+        const tint=edge<.22?edgeTint:interiorTint;
         colors.push(tint.r,tint.g,tint.b);
       }
     }
@@ -50,11 +51,11 @@ export function courtGeometry(court:Court, sample:Landscape['terrainAt']) {
 
 /** Continuous paving: flush mortar joints, never separated stepping stones.
  * All vertices follow the rendered terrain; this adds no collision bodies. */
-export function pavingTexture() {
-  const size=256,data=new Uint8Array(size*size*4);
+export function pavingTexture(size = 256) {
+  const data=new Uint8Array(size*size*4);
   for(let y=0;y<size;y++)for(let x=0;x<size;x++) {
     const i=(y*size+x)*4;
-    const joint=x<2||y<3;
+    const joint=x<size/128||y<3*size/256;
     const grain=((x*73+y*151+(x*y)%97)%19)-9;
     const v=joint?103:219+grain;
     data[i]=v;data[i+1]=v;data[i+2]=v;data[i+3]=255;
@@ -65,22 +66,21 @@ export function pavingTexture() {
   texture.needsUpdate=true;
   return texture;
 }
-export function CampusLandscape({plan}: {plan: Landscape}) {
+export function CampusLandscape({plan, texture, mobile}: {plan: Landscape; texture: THREE.Texture; mobile: boolean}) {
   const surfaces=useMemo(()=>{
     const researchPath=plan.paths[plan.paths.length-1];
     const researchX=(researchPath.xMin+researchPath.xMax)/2;
     // A single broad arrival court unites the botanical entrance and Hub.
     // East edge respects Water; north edge stops before the original stairs.
     return [
-      {xMin:-79,xMax:-42.5,zMin:-58.4,zMax:-44},
+      {xMin:-79,xMax:-42.5,zMin:-58.4,zMax:-40},
       {xMin:researchX-7,xMax:researchX+7,zMin:-72.5,zMax:-66.5},
     ].map(court=>courtGeometry(court,plan.terrainAt));
   },[plan]);
-  const texture=useMemo(pavingTexture,[]);
-  useEffect(()=>()=>{surfaces.forEach(surface=>surface.dispose());texture.dispose();},[surfaces,texture]);
+  useEffect(()=>()=>surfaces.forEach(surface=>surface.dispose()),[surfaces]);
   return <group name="v13-terrain-fitted-architectural-forecourts">
     {surfaces.map((geometry,i)=><mesh key={i} name="continuous-mineral-stone-and-titanium-court" geometry={geometry} receiveShadow userData={{cameraIgnore:true}}>
-      <meshStandardMaterial map={texture} bumpMap={texture} bumpScale={.018} vertexColors roughness={.64} metalness={.24} polygonOffset polygonOffsetFactor={-1} polygonOffsetUnits={-1}/>
+      <meshStandardMaterial map={texture} bumpMap={mobile ? null : texture} bumpScale={.018} vertexColors roughness={.64} metalness={.24} polygonOffset polygonOffsetFactor={-1} polygonOffsetUnits={-1}/>
     </mesh>)}
     {/* Shielded wing-base uplights: warm pools rather than emissive road bands. */}
     {[-75,-64,-55,-44].map(x=><group key={x} position={[x,plan.terrainAt(x,-58.1)+.045,-58.1]}>
@@ -90,7 +90,7 @@ export function CampusLandscape({plan}: {plan: Landscape}) {
       <mesh rotation={[-Math.PI/2,0,0]} userData={{cameraIgnore:true}}>
         <circleGeometry args={[.095,24]}/><meshStandardMaterial color="#ffe0b0" emissive="#ffc783" emissiveIntensity={2}/>
       </mesh>
-      <pointLight position={[0,.65,0]} color="#ffd09a" intensity={18} distance={9} decay={2}/>
+      {!mobile && <pointLight position={[0,.65,0]} color="#ffd09a" intensity={18} distance={9} decay={2}/>}
     </group>)}
   </group>;
 }

@@ -1,6 +1,6 @@
-import { Suspense, useMemo } from 'react';
+import { useMemo } from 'react';
 import * as THREE from 'three';
-import { Text } from '@react-three/drei';
+import { CampusIlluminatedSign } from './CampusIlluminatedSign';
 // BOBU_V13_EXTENDED_ENTRY_HALLS_V2
 import type { PlannedBuilding } from './connected-campus-layout.mjs';
 
@@ -13,11 +13,13 @@ type PortalProps = {
   depth: number;
   roofHeight: number;
   terrainAt: TerrainAt;
+  mobile: boolean;
 };
 
 // Every support is outside the 5m-wide centre approach. No road ribbons,
 // stepping-stone grid, second terrain slab, planters, or rock scatter.
-function EntrancePortal({label, x, frontZ, width, depth, roofHeight, terrainAt}: PortalProps) {
+function EntrancePortal({label, x, frontZ, width, depth, roofHeight, terrainAt, mobile}: PortalProps) {
+  const isHub = label === 'command-hub';
   const half = width / 2;
   const zCenter = frontZ + depth / 2;
   const offsets = [-half, half];
@@ -38,22 +40,15 @@ function EntrancePortal({label, x, frontZ, width, depth, roofHeight, terrainAt}:
         <boxGeometry args={[Math.min(width-.35,7.8),.74,.12]}/>
         <meshStandardMaterial color="#151b29" metalness={.7} roughness={.32}/>
       </mesh>
-      <Suspense fallback={null}>
-      <Text
-        position={[0,0,.012]}
-        fontSize={label==='command-hub'?.39:.44}
-        maxWidth={width-1.05}
-        anchorX="center"
-        anchorY="middle"
-        color="#e5b5ff"
-        outlineWidth={.008}
-        outlineColor="#7c2cd1"
-        material-toneMapped={false}
-      >
-        {label==='command-hub'?'COMMAND HUB':'GENESIS'}
-      </Text>
-      </Suspense>
-      <pointLight position={[0,.2,1.0]} color="#aa50ff" intensity={3.0} distance={5.5} decay={2}/>
+      <CampusIlluminatedSign
+        position={[0, 0, .012]}
+        width={width - 1.05}
+        height={.59}
+        text={isHub ? 'COMMAND HUB' : 'GENESIS'}
+        tint={isHub ? '#e6aaff' : '#c8afff'}
+        phase={isHub ? 0 : 2.1}
+        mobile={mobile}
+      />
     </group>
     {/* Elevated titanium canopy, open central passage, warm underside. */}
     <mesh position={[x, topY, zCenter]} castShadow receiveShadow>
@@ -103,7 +98,7 @@ function EntrancePortal({label, x, frontZ, width, depth, roofHeight, terrainAt}:
       <pointLight position={[x + dx * .76, topY - .42, frontZ + depth - .65]} color="#ffc995" intensity={7.0} distance={9.5} decay={2}/>
     </group>)}
     {/* Mid-span illumination: lights stay mounted under the canopy, not in the walkway. */}
-    {offsets.map((dx,i)=><pointLight
+    {!mobile && offsets.map((dx,i)=><pointLight
       key={`mid-light-${i}`}
       position={[x+dx*.68,topY-.35,frontZ+depth*.52]}
       color="#ffd2a6" intensity={4.6} distance={7.5} decay={2}
@@ -116,11 +111,11 @@ function EntrancePortal({label, x, frontZ, width, depth, roofHeight, terrainAt}:
   </group>;
 }
 
-export function V13EntranceHalls({terrainAt, buildings}: {terrainAt: TerrainAt; buildings: PlannedBuilding[]}) {
+export function V13EntranceHalls({terrainAt, buildings, mobile}: {terrainAt: TerrainAt; buildings: PlannedBuilding[]; mobile: boolean}) {
   const habitat = buildings.find(building => building.id === 'habitat');
   return <group name="v13-two-architectural-entry-halls">
     {/* Existing Hub entrance/stairs at Z≈-59. The portal fronts toward +Z. */}
-    <EntrancePortal label="command-hub" x={-44} frontZ={-57.1} width={8.4} depth={7.9} roofHeight={4.5} terrainAt={terrainAt}/>
+    <EntrancePortal label="command-hub" x={-44} frontZ={-57.1} width={8.4} depth={7.9} roofHeight={4.5} terrainAt={terrainAt} mobile={mobile}/>
     {habitat && <EntrancePortal
       label="genesis-habitat"
       x={habitat.worldX}
@@ -128,7 +123,7 @@ export function V13EntranceHalls({terrainAt, buildings}: {terrainAt: TerrainAt; 
       width={7.0}
       depth={6.7}
       roofHeight={4.35}
-      terrainAt={terrainAt}
+      terrainAt={terrainAt} mobile={mobile}
     />}
   </group>;
 }
