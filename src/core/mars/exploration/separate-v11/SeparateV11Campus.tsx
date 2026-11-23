@@ -1,4 +1,4 @@
-import { usesAresMobileVisuals, hasCoarseAresPointer } from "../components/AresRenderQuality";
+import { usesAresMobileVisuals } from "../components/AresRenderQuality";
 import { useLoader } from '@react-three/fiber';
 import { CampusGLTFLoader } from './CampusGLTFLoader';
 import { markAresStage, startAresStage } from '../engine/aresPerformance';
@@ -16,7 +16,6 @@ import { CONNECTED_RELAYS } from '../../../../imported-v11/dev/connected-relays'
 import type { WallObstacle } from './mesh-wall-obstacles';
 import { CampusFoundation } from './WalkableCampusShell';
 import { CampusLandscape } from './CampusLandscape';
-import { PremiumCampusLandscape } from './PremiumCampusLandscape';
 import { V13EntranceHalls } from './V13EntranceHalls';
 import { createCampusTraversal } from './campus-traversal.mjs';
 import { createCampusLandscape } from './campus-landscape.mjs';
@@ -154,11 +153,6 @@ export function SeparateV11Campus({ targetRef, onRuntime }: { targetRef?: RefObj
 
     {terrainAt&&buildings.filter(b=>b.id==='habitat').map(building=><CampusFoundation key={building.id} building={building} terrainAt={terrainAt}/>)}
     {landscape&&<CampusLandscape plan={landscape}/>}
-    {terrainAt && !hasCoarseAresPointer() && <PremiumCampusLandscape
-      terrainAt={terrainAt}
-      greenhouse={buildings.find(building => building.id === 'greenhouse')}
-      genesis={buildings.find(building => building.id === 'habitat')}
-    />}
     {terrainAt && <V13FacadeXenonLighting terrainAt={terrainAt} buildings={buildings} />}
     <IndependentRelays terrain={terrain} relaySites={relaySites} />
   </group>;
