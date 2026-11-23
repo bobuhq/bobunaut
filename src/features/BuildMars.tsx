@@ -284,7 +284,15 @@ export function BuildMars() {
       if (nativeBridge) params.set("nativeBridge", "1");
       if (!mobileEntry) params.set("flightEntry", "1");
 
-      navigate(`/mars/explore?${params.toString()}`);
+      const destination =
+        `/mars/explore?${params.toString()}`;
+
+      if (mobileEntry) {
+        window.location.assign(destination);
+        return;
+      }
+
+      navigate(destination);
     }, 5550);
   };
 
