@@ -126,7 +126,13 @@ test('a delayed frame bounds walking displacement and still checks Hub wall coll
  group.position.set(0,0,0);
  mounted.listeners.get('keydown')({code:'KeyW',preventDefault(){}});
  mounted.frame(2);
- assert.ok(Math.abs(group.position.z+.3)<1e-12);
+ assert.ok(
+    Math.abs(
+      group.position.z +
+      movement.DEFAULT_MARS_MOVEMENT_CONFIG.walkSpeed * 0.05
+    ) < 1e-12,
+    'long stalls preserve bounded walking displacement'
+  );
 });
 
 test('orbit uses the captured pointer and actual client motion outside pointer lock',()=>{

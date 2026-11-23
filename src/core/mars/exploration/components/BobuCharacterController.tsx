@@ -189,7 +189,7 @@ export function BobuCharacterController({
   const groundedRef =
     useRef(true);
 
-  const JUMP_VELOCITY = 4.8;
+  const JUMP_VELOCITY = 2.9;
   const MARS_GRAVITY = 3.71;
 
   useEffect(() => {
