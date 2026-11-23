@@ -319,7 +319,10 @@ export function BobuCharacterController({
 
   useFrame((_, delta) => {
     const group = groupRef.current;
-    // A delayed frame must not replay a long movement or gravity step.
+    // Recover normal frame-time movement without replaying long stalls.
+    // Large pauses retain the original collision-safe displacement limit.
+    const movementDelta =
+      delta > 0.25 ? 0.05 : Math.min(delta, 0.15);
     delta = Math.min(delta, 0.05);
 
     if (!group) {
@@ -425,7 +428,7 @@ export function BobuCharacterController({
           group.position.x +
             movementDirectionRef.current.x *
               speed *
-              delta,
+              movementDelta,
           -boundary,
           boundary,
         );
@@ -435,7 +438,7 @@ export function BobuCharacterController({
           group.position.z +
             movementDirectionRef.current.z *
               speed *
-              delta,
+              movementDelta,
           -boundary,
           boundary,
         );
@@ -631,15 +634,13 @@ export function BobuCharacterController({
         facingAngleRef.current,
       );
 
-    facingAngleRef.current =
-      THREE.MathUtils.lerp(
-        facingAngleRef.current,
-        targetAngle,
-        Math.min(
-          1,
-          delta * 12,
-        ),
-      );
+    const shortestTurn = Math.atan2(
+      Math.sin(targetAngle - facingAngleRef.current),
+      Math.cos(targetAngle - facingAngleRef.current),
+    );
+
+    facingAngleRef.current +=
+      shortestTurn * Math.min(1, delta * 12);
 
     group.rotation.y =
       facingAngleRef.current;
