@@ -17,7 +17,7 @@ export function usesAresMobileVisuals() {
   return isBobuNativeMars() && hasCoarseAresPointer();
 }
 
-const WALKING_PIXEL_BUDGET = 1_000_000;
+const WALKING_PIXEL_BUDGET = 1_600_000;
 const WALKING_PREFERRED_DPR = 1.25;
 const WALKING_UPGRADE_DELAY_SECONDS = 30;
 

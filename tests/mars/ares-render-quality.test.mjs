@@ -157,7 +157,7 @@ test("walking viewport changes preserve a stall downgrade and enforce a tighter 
   quality.resize(390, 844);
   assert.equal(quality.dpr, 0.85);
   quality.resize(2_000, 2_000);
-  assert.equal(quality.dpr, 0.5);
+  assert.equal(quality.dpr, Math.sqrt(1_600_000 / 4_000_000));
 });
 
 test("mobile flight and landing retain the native and browser legacy floors", () => {
@@ -216,15 +216,22 @@ test("device and pixel-budget ceilings take precedence over the walking floor", 
   assert.equal(deviceLimited.dpr, 0.8);
 
   for (const [mobile, native, outdoorWalking, budget] of [
-    [true, false, true, 1_000_000],
-    [true, true, true, 1_000_000],
+    [true, false, true, 1_600_000],
+    [true, true, true, 1_600_000],
     [true, false, false, 1_300_000],
     [true, true, false, 1_650_000],
     [false, false, true, 3_200_000],
   ]) {
     const quality = mountQuality({ mobile, native, outdoorWalking, width: 2_000, height: 2_000 });
     quality.advance(0.016, 1);
-    assert.equal(quality.dpr, Math.sqrt(budget / 4_000_000));
+    // The initial non-walking budget may be tighter than walking HD.
+    const initialBudget = mobile
+      ? native ? 1_650_000 : 1_300_000
+      : 3_200_000;
+    assert.equal(
+      quality.dpr,
+      Math.sqrt(Math.min(budget, initialBudget) / 4_000_000)
+    );
     quality.advance(0.04, 500);
     quality.advance(0.3, 2);
     quality.advance(0.01, 5_000);

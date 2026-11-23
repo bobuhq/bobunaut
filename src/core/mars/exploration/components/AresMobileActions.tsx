@@ -178,7 +178,12 @@ export function AresMobileActions({
 
   return (
     <div
-      className="ares-mobile-actions"
+      className={
+        typeof navigator !== "undefined" &&
+        navigator.userAgent.includes("BOBU-Mobile")
+          ? "ares-mobile-actions ares-mobile-actions--native"
+          : "ares-mobile-actions"
+      }
       aria-label="Ares mobile controls"
     >
       <button
@@ -262,9 +267,36 @@ export function AresMobileActions({
       <style>{`
         /* RUN is a touch control; desktop already uses Shift. */
         @media (pointer: fine) {
-          .mars-explore-world .ares-mobile-action--run {
+          .mars-explore-world .ares-mobile-actions:not(.ares-mobile-actions--native) .ares-mobile-action--run {
             display: none !important;
           }
+        }
+
+        /* Native BOBU WebView: do not rely on pointer media detection. */
+        .mars-explore-world .ares-mobile-actions--native {
+          display: flex !important;
+          position: fixed !important;
+          top: auto !important;
+          left: auto !important;
+          right: max(12px, env(safe-area-inset-right)) !important;
+          bottom: max(14px, env(safe-area-inset-bottom)) !important;
+          z-index: 210 !important;
+          flex-direction: column !important;
+          align-items: center !important;
+          gap: 7px !important;
+          visibility: visible !important;
+          pointer-events: auto !important;
+        }
+
+        .mars-explore-world .ares-mobile-actions--native .ares-mobile-action--run {
+          display: flex !important;
+          position: relative !important;
+          visibility: visible !important;
+          opacity: 1 !important;
+          width: 48px !important;
+          height: 48px !important;
+          pointer-events: auto !important;
+          touch-action: none !important;
         }
 
         /* V20.1: show existing combat controls on desktop walking mode. */
