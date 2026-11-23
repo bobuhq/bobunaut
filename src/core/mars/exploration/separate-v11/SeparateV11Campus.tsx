@@ -1,4 +1,4 @@
-import { usesAresMobileVisuals } from "../components/AresRenderQuality";
+import { usesAresMobileVisuals, hasCoarseAresPointer } from "../components/AresRenderQuality";
 import { useLoader } from '@react-three/fiber';
 import { CampusGLTFLoader } from './CampusGLTFLoader';
 import { markAresStage, startAresStage } from '../engine/aresPerformance';
@@ -154,7 +154,7 @@ export function SeparateV11Campus({ targetRef, onRuntime }: { targetRef?: RefObj
 
     {terrainAt&&buildings.filter(b=>b.id==='habitat').map(building=><CampusFoundation key={building.id} building={building} terrainAt={terrainAt}/>)}
     {landscape&&<CampusLandscape plan={landscape}/>}
-    {terrainAt && <PremiumCampusLandscape
+    {terrainAt && !hasCoarseAresPointer() && <PremiumCampusLandscape
       terrainAt={terrainAt}
       greenhouse={buildings.find(building => building.id === 'greenhouse')}
       genesis={buildings.find(building => building.id === 'habitat')}
