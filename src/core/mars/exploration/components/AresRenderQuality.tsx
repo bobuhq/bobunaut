@@ -18,6 +18,7 @@ export function usesAresMobileVisuals() {
 }
 
 const WALKING_PIXEL_BUDGET = 1_600_000;
+const NATIVE_HD_PIXEL_BUDGET = 2_200_000;
 const WALKING_PREFERRED_DPR = 1.25;
 const WALKING_UPGRADE_DELAY_SECONDS = 30;
 
@@ -27,8 +28,11 @@ function getDprLimit(width: number, height: number, mobileOutdoorWalking: boolea
   if (mobileOutdoorWalking) {
     return Math.min(
       window.devicePixelRatio || 1,
-      1.5,
-      Math.sqrt(WALKING_PIXEL_BUDGET / Math.max(1, width * height)),
+      nativeMobile ? 1.75 : 1.5,
+      Math.sqrt(
+        (nativeMobile ? NATIVE_HD_PIXEL_BUDGET : WALKING_PIXEL_BUDGET) /
+        Math.max(1, width * height),
+      ),
     );
   }
 

@@ -90,9 +90,9 @@ test("mobile walking caps both Safari and native WebViews at HD DPR 1.5", () => 
   for (const native of [false, true]) {
     const quality = mountQuality({ native, outdoorWalking: true });
     quality.advance(0.016, 1);
-    assert.equal(quality.dpr, 1.5);
+    assert.equal(quality.dpr, native ? 1.75 : 1.5);
     quality.advance(0.016, 3_000);
-    assert.equal(quality.dpr, 1.5);
+    assert.equal(quality.dpr, native ? 1.75 : 1.5);
   }
 });
 
@@ -136,7 +136,7 @@ test("walking retains its lower stall floor and waits for fast frames before rec
     quality.advance(0.021, 500);
     assert.equal(quality.dpr, stallFloor);
     quality.advance(0.01, 5_000);
-    assert.equal(quality.dpr, 1.5);
+    assert.equal(quality.dpr, native ? 1.75 : 1.5);
   }
 });
 
@@ -176,7 +176,7 @@ test("walking handoff and interior transitions start fresh performance samples",
   quality.advance(0.3, 1);
   quality.setOutdoorWalking(true);
   quality.advance(0.3, 1);
-  assert.equal(quality.dpr, 1.5);
+  assert.equal(quality.dpr, 1.75);
   quality.advance(0.04, 500);
   assert.equal(quality.dpr, 1);
   quality.setOutdoorWalking(false);
@@ -217,7 +217,7 @@ test("device and pixel-budget ceilings take precedence over the walking floor", 
 
   for (const [mobile, native, outdoorWalking, budget] of [
     [true, false, true, 1_600_000],
-    [true, true, true, 1_600_000],
+    [true, true, true, 2_200_000],
     [true, false, false, 1_300_000],
     [true, true, false, 1_650_000],
     [false, false, true, 3_200_000],

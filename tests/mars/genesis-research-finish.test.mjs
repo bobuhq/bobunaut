@@ -164,13 +164,13 @@ test("V20 protects production paths with approved release fingerprints", () => {
 
   const approved = {
     "src/core/mars/exploration/MarsExploreWorld.tsx":
-      "b8ae4bda9c030af6c74519e7b8c4337de2430ccabc88103af61330503c8a6624",
+      "fcf28b443428c5044aaeb6bacc732fddda0cdf97acd3d5e91e26edd0a9bc4c4b",
     "src/core/mars/exploration/components/AresMobileActions.tsx":
       "550710637718f23013eb8053f39c1de68980bea41fa24082a27833cc5134bf97",
     "src/core/mars/exploration/components/AresMobileJoystick.tsx":
       "5b77d24db946c17939e41dfdafdf278edc7740489485be3132a0fed3d8bf44b0",
     "src/core/mars/exploration/components/AresRenderQuality.tsx":
-      "019e488f65769e1ed4c3a530ec724a1c1f2d5a4ea0d79f394685df4c601853d1",
+      "52ea6c46290775b015b3b74ac71af2f0f02f93abae0e60d3105f77ca09f78a49",
     "src/core/mars/exploration/components/MarsFollowCamera.tsx":
       "a62c9175480f9d5ac73349842da544922ba440a7262cba63b72872501f3ca5c8",
     "src/core/mars/exploration/commandhub/AresCommandHub.tsx":

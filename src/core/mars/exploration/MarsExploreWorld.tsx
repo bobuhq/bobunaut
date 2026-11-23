@@ -3548,7 +3548,7 @@ export function MarsExploreWorld() {
           if (usesAresMobileVisuals()) gl.transmissionResolutionScale = 0.65;
         }}
         gl={{
-          antialias: !mobileRenderer,
+          antialias: !mobileRenderer || usesAresMobileVisuals(),
           alpha: false,
           powerPreference:
             "high-performance",
