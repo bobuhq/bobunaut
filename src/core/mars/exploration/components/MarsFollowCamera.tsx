@@ -20,6 +20,7 @@ import {
 
 type MarsFollowCameraProps = {
   targetRef: React.RefObject<THREE.Group | null>;
+  mobileWalking?: boolean;
   environmentAt?: (x:number,z:number)=>CameraEnvironment|null;
   interiorAt?: (x: number, z: number) => boolean;
   constrainCamera?: (look: THREE.Vector3, eye: THREE.Vector3) => void;
@@ -41,6 +42,8 @@ const OUTDOOR_CAMERA_RADIUS =
         OUTDOOR_CAMERA_HEIGHT,
   );
 
+const MOBILE_OUTDOOR_CAMERA_RADIUS = OUTDOOR_CAMERA_RADIUS * 0.85;
+
 const INDOOR_CAMERA_RADIUS =
   Math.sqrt(
     INDOOR_CAMERA_HORIZONTAL_DISTANCE *
@@ -55,7 +58,7 @@ const INITIAL_PITCH =
     OUTDOOR_CAMERA_HORIZONTAL_DISTANCE,
   );
 
-function isInsideAresCommandHub(
+export function isInsideAresCommandHub(
   position: THREE.Vector3,
 ): boolean {
   const dx =
@@ -89,6 +92,7 @@ const INDOOR_CAMERA_FOV = 48;
 
 export function MarsFollowCamera({
   targetRef,
+  mobileWalking = false,
   interiorAt,
   environmentAt,
   constrainCamera,
@@ -100,8 +104,9 @@ export function MarsFollowCamera({
   const clearance=useRef(new MarsCameraClearance());
   const clearanceRefresh=useRef(-Infinity);
   const projectedCamera=useRef({fov:NaN,near:NaN});
-  const followRadius=useRef(OUTDOOR_CAMERA_RADIUS);
-  const cameraDistance=useRef(OUTDOOR_CAMERA_RADIUS);
+  const outdoorRadius = mobileWalking ? MOBILE_OUTDOOR_CAMERA_RADIUS : OUTDOOR_CAMERA_RADIUS;
+  const followRadius=useRef(outdoorRadius);
+  const cameraDistance=useRef(outdoorRadius);
 
   const desiredPosition =
     useRef(new THREE.Vector3());
@@ -341,7 +346,7 @@ export function MarsFollowCamera({
         ) || interiorAt?.(worldPosition.current.x, worldPosition.current.z) === true;
 
       const environment=environmentAt?.(worldPosition.current.x,worldPosition.current.z)??null;
-      const targetRadius=environment?.narrow?3.6:insideCommandHub?INDOOR_CAMERA_RADIUS:OUTDOOR_CAMERA_RADIUS;
+      const targetRadius=environment?.narrow?3.6:insideCommandHub?INDOOR_CAMERA_RADIUS:outdoorRadius;
       followRadius.current=followCameraRadius(followRadius.current,targetRadius,delta);
       const cameraRadius=followRadius.current;
 

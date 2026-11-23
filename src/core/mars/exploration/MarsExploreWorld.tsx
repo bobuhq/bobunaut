@@ -87,6 +87,7 @@ import {
 
 import {
   MarsFollowCamera,
+  isInsideAresCommandHub,
 } from "./components/MarsFollowCamera";
 
 
@@ -183,6 +184,7 @@ import type {
 
 
 interface MarsExploreSceneProps {
+  outdoorWalkingCheck: MutableRefObject<(() => boolean) | null>;
   terrain: ReturnType<typeof useMarsExplorationTerrain>["resources"];
   analogMovementRef: MutableRefObject<MarsAnalogMovement>;
   builderId: string;
@@ -246,6 +248,7 @@ interface MarsExploreSceneProps {
 }
 
 function MarsExploreScene({
+  outdoorWalkingCheck,
   terrain,
   analogMovementRef,
   builderId,
@@ -358,6 +361,18 @@ function MarsExploreScene({
 
 
   const [localCampusRuntime,setLocalCampusRuntime]=useState<CampusRuntime|null>(null);
+  useLayoutEffect(() => {
+    if (!interactive) return;
+    const position = new THREE.Vector3();
+    outdoorWalkingCheck.current = () => {
+      const character = bobuRef.current;
+      if (!character) return false;
+      character.getWorldPosition(position);
+      return !isInsideAresCommandHub(position) &&
+        localCampusRuntime?.interiorAt(position.x, position.z) !== true;
+    };
+    return () => { outdoorWalkingCheck.current = null; };
+  }, [interactive, localCampusRuntime, outdoorWalkingCheck]);
 
 
   useEffect(() => {
@@ -586,6 +601,7 @@ function MarsExploreScene({
       </BobuCharacterController>}
 
       {interactive && <MarsFollowCamera
+        mobileWalking={window.matchMedia("(pointer: coarse)").matches}
         interiorAt={localCampusRuntime?.interiorAt}
         environmentAt={localCampusRuntime?.cameraEnvironmentAt}
         targetRef={bobuRef}
@@ -696,6 +712,7 @@ export function MarsExploreWorld() {
   }, []);
 
   const [renderDpr, setRenderDpr] = useState(1);
+  const outdoorWalkingCheck = useRef<(() => boolean) | null>(null);
   const [mobileRenderer] = useState(hasCoarseAresPointer);
 
   useEffect(() => {
@@ -3538,9 +3555,10 @@ export function MarsExploreWorld() {
         }}
       >
         {import.meta.env.DEV && <AresRenderDiagnostics />}
-        <AresRenderQuality onDprChange={setRenderDpr} />
+        <AresRenderQuality onDprChange={setRenderDpr} outdoorWalkingCheck={outdoorWalkingCheck} />
         {builderId && (
             <AuthorizedMarsExploreScene
+              outdoorWalkingCheck={outdoorWalkingCheck}
         analogMovementRef={
           analogMovementRef
         }

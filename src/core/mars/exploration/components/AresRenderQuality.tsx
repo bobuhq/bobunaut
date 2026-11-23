@@ -1,5 +1,5 @@
 import { markAresStage } from "../engine/aresPerformance";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type RefObject } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 
 export function hasCoarseAresPointer() {
@@ -29,10 +29,17 @@ function getDprLimit(width: number, height: number) {
   );
 }
 
-export function AresRenderQuality({ onDprChange }: { onDprChange: (dpr: number) => void }) {
+export function AresRenderQuality({
+  onDprChange,
+  outdoorWalkingCheck,
+}: {
+  onDprChange: (dpr: number) => void;
+  outdoorWalkingCheck: RefObject<(() => boolean) | null>;
+}) {
   const { width, height } = useThree((state) => state.size);
   const current = useRef(1);
   const samples = useRef({ elapsed: 0, count: 0, fastWindows: 0 });
+  const wasMobileOutdoorWalking = useRef(false);
   // BOBU_ARES_STALL_RECOVERY_V1
   const stallState = useRef({ count: 0, lastAt: 0 });
 
@@ -51,10 +58,20 @@ export function AresRenderQuality({ onDprChange }: { onDprChange: (dpr: number) 
       return;
     }
 
+    const checkOutdoorWalking = outdoorWalkingCheck.current;
+    const mobileOutdoorWalking = checkOutdoorWalking !== null &&
+      window.matchMedia("(pointer: coarse)").matches && checkOutdoorWalking();
+    if (mobileOutdoorWalking !== wasMobileOutdoorWalking.current) {
+      sample.elapsed = sample.count = sample.fastWindows = 0;
+      stallState.current.count = 0;
+      wasMobileOutdoorWalking.current = mobileOutdoorWalking;
+    }
+
     if (delta > 0.25) {
       sample.elapsed = sample.count = sample.fastWindows = 0;
 
-      if (isBobuNativeMars() && hasCoarseAresPointer()) {
+      const nativeMobile = usesAresMobileVisuals();
+      if (nativeMobile || mobileOutdoorWalking) {
         const now = performance.now();
         const stall = stallState.current;
 
@@ -66,8 +83,9 @@ export function AresRenderQuality({ onDprChange }: { onDprChange: (dpr: number) 
         if (stall.count >= 2) {
           stall.count = 0;
           const ceiling = getDprLimit(width, height);
-          const floor = Math.min(ceiling, 0.9);
-          const next = Math.max(floor, current.current - 0.15);
+          const floor = Math.min(ceiling, nativeMobile ? 0.9 : 0.85);
+          const reduced = Math.max(floor, current.current - 0.15);
+          const next = mobileOutdoorWalking ? Math.min(ceiling, reduced) : reduced;
 
           if (next < current.current) {
             current.current = next;
@@ -88,13 +106,20 @@ export function AresRenderQuality({ onDprChange }: { onDprChange: (dpr: number) 
     const average = sample.elapsed / sample.count;
     sample.elapsed = sample.count = 0;
     const ceiling = getDprLimit(width, height);
-    const floor = Math.min(ceiling, hasCoarseAresPointer() ? (isBobuNativeMars() ? 0.9 : 0.85) : 1);
+    const preferredFloor = mobileOutdoorWalking || !hasCoarseAresPointer()
+      ? 1
+      : isBobuNativeMars() ? 0.9 : 0.85;
+    const floor = Math.min(ceiling, preferredFloor);
     sample.fastWindows = average < 0.019 ? sample.fastWindows + 1 : 0;
-    const next = average > 0.026
+    const adjusted = average > 0.026
       ? Math.max(floor, current.current - 0.15)
       : sample.fastWindows >= 4
         ? Math.min(ceiling, current.current + 0.15)
         : current.current;
+    // Require the usual fast windows to raise walking DPR after a stall reduction.
+    const next = mobileOutdoorWalking
+      ? Math.min(ceiling, average > 0.026 ? Math.min(current.current, adjusted) : adjusted)
+      : adjusted;
 
     if (next === current.current) return;
     sample.fastWindows = 0;
