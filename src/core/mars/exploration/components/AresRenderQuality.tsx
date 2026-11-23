@@ -1,5 +1,5 @@
 import { markAresStage } from "../engine/aresPerformance";
-import { useEffect, useRef, type RefObject } from "react";
+import { useEffect, useMemo, useRef, type RefObject } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 
 export function hasCoarseAresPointer() {
@@ -17,10 +17,21 @@ export function usesAresMobileVisuals() {
   return isBobuNativeMars() && hasCoarseAresPointer();
 }
 
-function getDprLimit(width: number, height: number) {
+const WALKING_PIXEL_BUDGET = 1_000_000;
+const WALKING_PREFERRED_DPR = 1.25;
+const WALKING_UPGRADE_DELAY_SECONDS = 30;
+
+function getDprLimit(width: number, height: number, mobileOutdoorWalking: boolean) {
   const mobile = hasCoarseAresPointer();
   const nativeMobile = mobile && isBobuNativeMars();
-  // Native mobile uses a single-sample backbuffer. Cap resolved pixels as Safari viewport size changes.
+  if (mobileOutdoorWalking) {
+    return Math.min(
+      window.devicePixelRatio || 1,
+      1.5,
+      Math.sqrt(WALKING_PIXEL_BUDGET / Math.max(1, width * height)),
+    );
+  }
+
   const pixelBudget = mobile ? (nativeMobile ? 1_650_000 : 1_300_000) : 3_200_000;
   return Math.min(
     window.devicePixelRatio || 1,
@@ -37,20 +48,42 @@ export function AresRenderQuality({
   outdoorWalkingCheck: RefObject<(() => boolean) | null>;
 }) {
   const { width, height } = useThree((state) => state.size);
-  const current = useRef(1);
+  const coarsePointer = useMemo(() => window.matchMedia("(pointer: coarse)"), []);
+  const current = useRef<number | null>(null);
   const samples = useRef({ elapsed: 0, count: 0, fastWindows: 0 });
   const wasMobileOutdoorWalking = useRef(false);
+  const walkingSeconds = useRef(0);
   // BOBU_ARES_STALL_RECOVERY_V1
-  const stallState = useRef({ count: 0, lastAt: 0 });
+  const stallState = useRef({ count: 0, lastAt: 0, recovering: false });
 
   useEffect(() => {
-    current.current = getDprLimit(width, height);
+    const walking = wasMobileOutdoorWalking.current;
+    const ceiling = getDprLimit(width, height, walking);
+    // Resizing can tighten the ceiling, but recovery still requires fast frames.
+    current.current = Math.min(current.current ?? ceiling, ceiling);
     onDprChange(current.current);
     markAresStage("render-dpr-initial", { dpr: current.current, width, height });
     samples.current = { elapsed: 0, count: 0, fastWindows: 0 };
   }, [width, height, onDprChange]);
 
+  const discardResumeFrame = useRef(false);
+  useEffect(() => {
+    const onVisibilityChange = () => {
+      discardResumeFrame.current = true;
+      samples.current = { elapsed: 0, count: 0, fastWindows: 0 };
+      stallState.current.count = 0;
+    };
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", onVisibilityChange);
+  }, []);
+
   useFrame((_, delta) => {
+    if (discardResumeFrame.current && !document.hidden) {
+      discardResumeFrame.current = false;
+      return;
+    }
+    let dpr = current.current;
+    if (dpr === null) return;
     const sample = samples.current;
     if (document.hidden) {
       sample.elapsed = sample.count = sample.fastWindows = 0;
@@ -60,18 +93,33 @@ export function AresRenderQuality({
 
     const checkOutdoorWalking = outdoorWalkingCheck.current;
     const mobileOutdoorWalking = checkOutdoorWalking !== null &&
-      window.matchMedia("(pointer: coarse)").matches && checkOutdoorWalking();
+      coarsePointer.matches && checkOutdoorWalking();
     if (mobileOutdoorWalking !== wasMobileOutdoorWalking.current) {
       sample.elapsed = sample.count = sample.fastWindows = 0;
       stallState.current.count = 0;
       wasMobileOutdoorWalking.current = mobileOutdoorWalking;
+      walkingSeconds.current = 0;
+      stallState.current.recovering = false;
+      if (mobileOutdoorWalking) {
+        const ceiling = getDprLimit(width, height, true);
+        if (dpr > ceiling) {
+          dpr = current.current = ceiling;
+          onDprChange(ceiling);
+        }
+        markAresStage("mobile-walking-dpr-policy", {
+          dpr,
+          ceiling,
+          pixelBudget: WALKING_PIXEL_BUDGET,
+        });
+      }
     }
 
     if (delta > 0.25) {
-      sample.elapsed = sample.count = sample.fastWindows = 0;
+      sample.fastWindows = 0;
 
       const nativeMobile = usesAresMobileVisuals();
       if (nativeMobile || mobileOutdoorWalking) {
+        sample.elapsed = sample.count = 0;
         const now = performance.now();
         const stall = stallState.current;
 
@@ -82,12 +130,14 @@ export function AresRenderQuality({
 
         if (stall.count >= 2) {
           stall.count = 0;
-          const ceiling = getDprLimit(width, height);
+          const ceiling = getDprLimit(width, height, mobileOutdoorWalking);
           const floor = Math.min(ceiling, nativeMobile ? 0.9 : 0.85);
-          const reduced = Math.max(floor, current.current - 0.15);
+          const reduced = Math.max(floor, dpr - 0.15);
           const next = mobileOutdoorWalking ? Math.min(ceiling, reduced) : reduced;
 
-          if (next < current.current) {
+          if (next < dpr) {
+            stall.recovering = mobileOutdoorWalking;
+            if (mobileOutdoorWalking) walkingSeconds.current = 0;
             current.current = next;
             onDprChange(next);
             markAresStage("mobile-stall-dpr-recovery", {
@@ -96,32 +146,45 @@ export function AresRenderQuality({
             });
           }
         }
+        return;
       }
-      return;
+      // Repeated foreground desktop stalls are evidence of slow frames.
+      // Bound their weight so one long foreground gap cannot set the DPR.
+      delta = 0.25;
     }
+    if (mobileOutdoorWalking) walkingSeconds.current += delta;
     sample.elapsed += delta;
     sample.count += 1;
     if (sample.elapsed < 2) return;
 
     const average = sample.elapsed / sample.count;
+    const canUpgrade = !mobileOutdoorWalking ||
+      walkingSeconds.current - sample.elapsed >= WALKING_UPGRADE_DELAY_SECONDS;
     sample.elapsed = sample.count = 0;
-    const ceiling = getDprLimit(width, height);
+    const ceiling = getDprLimit(width, height, mobileOutdoorWalking);
     const preferredFloor = mobileOutdoorWalking || !hasCoarseAresPointer()
       ? 1
       : isBobuNativeMars() ? 0.9 : 0.85;
     const floor = Math.min(ceiling, preferredFloor);
-    sample.fastWindows = average < 0.019 ? sample.fastWindows + 1 : 0;
+    const approachingPreferredDpr = mobileOutdoorWalking &&
+      !stallState.current.recovering && dpr >= 1 && dpr < WALKING_PREFERRED_DPR;
+    // Keep the stricter gate after a stall and above the preferred target.
+    const fastThreshold = approachingPreferredDpr ? 0.022 : 0.019;
+    const requiredFastWindows = approachingPreferredDpr ? 2 : 4;
+    const upgradeCeiling = approachingPreferredDpr ? Math.min(ceiling, WALKING_PREFERRED_DPR) : ceiling;
+    // Start counting recovery windows after the walking scene has settled.
+    sample.fastWindows = canUpgrade && average < fastThreshold ? sample.fastWindows + 1 : 0;
     const adjusted = average > 0.026
-      ? Math.max(floor, current.current - 0.15)
-      : sample.fastWindows >= 4
-        ? Math.min(ceiling, current.current + 0.15)
-        : current.current;
-    // Require the usual fast windows to raise walking DPR after a stall reduction.
-    const next = mobileOutdoorWalking
-      ? Math.min(ceiling, average > 0.026 ? Math.min(current.current, adjusted) : adjusted)
-      : adjusted;
+      ? Math.max(floor, dpr - 0.15)
+      : sample.fastWindows >= requiredFastWindows
+        ? Math.min(upgradeCeiling, dpr + 0.15)
+        : dpr;
+    // A slow window cannot raise DPR from below the usual floor.
+    const next = Math.min(ceiling, average > 0.026 ? Math.min(dpr, adjusted) : adjusted);
 
-    if (next === current.current) return;
+    if (next === dpr) return;
+    if (mobileOutdoorWalking && next < dpr) walkingSeconds.current = 0;
+    if (next > dpr) stallState.current.recovering = false;
     sample.fastWindows = 0;
     current.current = next;
     onDprChange(next);

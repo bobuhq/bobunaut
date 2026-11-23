@@ -102,7 +102,6 @@ export function MarsFollowCamera({
   } = useThree();
 
   const clearance=useRef(new MarsCameraClearance());
-  const clearanceRefresh=useRef(-Infinity);
   const projectedCamera=useRef({fov:NaN,near:NaN});
   const outdoorRadius = mobileWalking ? MOBILE_OUTDOOR_CAMERA_RADIUS : OUTDOOR_CAMERA_RADIUS;
   const followRadius=useRef(outdoorRadius);
@@ -126,123 +125,60 @@ export function MarsFollowCamera({
   const orbitPitch =
     useRef(INITIAL_PITCH);
 
-  const dragging =
-    useRef(false);
-
-  const touchPointerX =
-    useRef<number | null>(null);
-  const touchPointerY = useRef<number | null>(null);
-
   useEffect(() => {
-    const element =
-      gl.domElement;
+    const element = gl.domElement;
+    const coarsePointer = window.matchMedia("(pointer: coarse)");
+    let activePointer: number | null = null;
+    let previousX = 0;
+    let previousY = 0;
 
-    function isMobileTouchInput(
-      event: PointerEvent,
-    ) {
-      return (
-        event.pointerType === "touch" ||
-        window.matchMedia(
-          "(pointer: coarse)",
-        ).matches
+    function handlePointerDown(event: PointerEvent) {
+      if (event.button !== 0 || activePointer !== null) return;
+
+      element.setPointerCapture?.(event.pointerId);
+      activePointer = event.pointerId;
+      previousX = event.clientX;
+      previousY = event.clientY;
+      element.style.cursor = "grabbing";
+    }
+
+    function stopDragging(event?: PointerEvent) {
+      if (activePointer === null || (event && event.pointerId !== activePointer)) return;
+
+      const pointerId = activePointer;
+      activePointer = null;
+      if (element.hasPointerCapture?.(pointerId)) element.releasePointerCapture(pointerId);
+      element.style.cursor = "grab";
+    }
+
+    function handlePointerMove(event: PointerEvent) {
+      if (event.pointerId !== activePointer) return;
+      const touch = event.pointerType === "touch" || coarsePointer.matches;
+      if (event.pointerType === "mouse" && !(event.buttons & 1)) {
+        stopDragging(event);
+        return;
+      }
+
+      const locked = document.pointerLockElement === element;
+      const deltaX = locked ? event.movementX : event.clientX - previousX;
+      const deltaY = locked ? event.movementY : event.clientY - previousY;
+      previousX = event.clientX;
+      previousY = event.clientY;
+
+      orbitYaw.current -= deltaX * (touch ? 0.008 : MOUSE_SENSITIVITY);
+      orbitPitch.current = THREE.MathUtils.clamp(
+        orbitPitch.current - deltaY * (touch ? 0.006 : MOUSE_SENSITIVITY),
+        MIN_PITCH,
+        MAX_PITCH,
       );
-    }
-
-    function handlePointerDown(
-      event: PointerEvent,
-    ) {
-      if (event.button !== 0) {
-        return;
-      }
-
-      dragging.current = true;
-
-      if (isMobileTouchInput(event)) {
-        touchPointerX.current =
-          event.clientX;
-        touchPointerY.current = event.clientY;
-      }
-
-      element.setPointerCapture?.(
-        event.pointerId,
-      );
-
-      element.style.cursor =
-        "grabbing";
-    }
-
-    function handlePointerMove(
-      event: PointerEvent,
-    ) {
-      if (!dragging.current) {
-        return;
-      }
-
-      if (isMobileTouchInput(event)) {
-        const previousX =
-          touchPointerX.current ??
-          event.clientX;
-
-        const deltaX =
-          event.clientX -
-          previousX;
-
-        touchPointerX.current =
-          event.clientX;
-
-        orbitYaw.current -=
-          deltaX * 0.008;
-
-        const previousY = touchPointerY.current ?? event.clientY;
-        const deltaY = event.clientY - previousY;
-        touchPointerY.current = event.clientY;
-        orbitPitch.current = THREE.MathUtils.clamp(
-          orbitPitch.current - deltaY * 0.006,
-          MIN_PITCH,
-          MAX_PITCH
-        );
-
-        return;
-      }
-
-      orbitYaw.current -=
-        event.movementX *
-        MOUSE_SENSITIVITY;
-
-      orbitPitch.current =
-        THREE.MathUtils.clamp(
-          orbitPitch.current -
-            event.movementY *
-              MOUSE_SENSITIVITY,
-          MIN_PITCH,
-          MAX_PITCH,
-        );
-    }
-
-    function stopDragging(
-      event?: PointerEvent,
-    ) {
-      dragging.current = false;
-      touchPointerX.current = null;
-      touchPointerY.current = null;
-
-      if (
-        event &&
-        element.hasPointerCapture?.(
-          event.pointerId,
-        )
-      ) {
-        element.releasePointerCapture?.(
-          event.pointerId,
-        );
-      }
-
-      element.style.cursor =
-        "grab";
     }
 
     function handleWindowBlur() {
       stopDragging();
+    }
+
+    function handleVisibilityChange() {
+      if (document.hidden) stopDragging();
     }
 
     function handleCameraPitch(event: Event) {
@@ -255,75 +191,53 @@ export function MarsFollowCamera({
       );
     }
 
-    element.style.cursor =
-      "grab";
-
-    element.addEventListener(
-      "pointerdown",
-      handlePointerDown,
-    );
-
-    element.addEventListener(
-      "pointermove",
-      handlePointerMove,
-    );
-
-    element.addEventListener(
-      "pointerup",
-      stopDragging,
-    );
-
-    element.addEventListener(
-      "pointercancel",
-      stopDragging,
-    );
-
-    window.addEventListener(
-      "blur",
-      handleWindowBlur,
-    );
-
-    window.addEventListener(
-      "bobu:ares-camera-pitch", handleCameraPitch
-    );
+    element.style.cursor = "grab";
+    element.addEventListener("pointerdown", handlePointerDown);
+    element.addEventListener("pointermove", handlePointerMove);
+    element.addEventListener("pointerup", stopDragging);
+    element.addEventListener("pointercancel", stopDragging);
+    element.addEventListener("lostpointercapture", stopDragging);
+    window.addEventListener("blur", handleWindowBlur);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("bobu:ares-camera-pitch", handleCameraPitch);
 
     return () => {
-      window.removeEventListener(
-        "bobu:ares-camera-pitch", handleCameraPitch
-      );
-      element.removeEventListener(
-        "pointerdown",
-        handlePointerDown,
-      );
-
-      element.removeEventListener(
-        "pointermove",
-        handlePointerMove,
-      );
-
-      element.removeEventListener(
-        "pointerup",
-        stopDragging,
-      );
-
-      element.removeEventListener(
-        "pointercancel",
-        stopDragging,
-      );
-
-      window.removeEventListener(
-        "blur",
-        handleWindowBlur,
-      );
-
+      element.removeEventListener("pointerdown", handlePointerDown);
+      element.removeEventListener("pointermove", handlePointerMove);
+      element.removeEventListener("pointerup", stopDragging);
+      element.removeEventListener("pointercancel", stopDragging);
+      element.removeEventListener("lostpointercapture", stopDragging);
+      window.removeEventListener("blur", handleWindowBlur);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("bobu:ares-camera-pitch", handleCameraPitch);
+      stopDragging();
       element.style.cursor = "";
     };
   }, [
     gl,
   ]);
 
+  useEffect(() => {
+    if (!environmentAt) return;
+
+    const rootNames = [
+      "campus-original-hub-rear-aperture",
+      "v11-independent-buildings-no-common-platform",
+      "persistent-player-owned-colony-buildings",
+    ];
+    const refreshClearance = () => {
+      if (document.hidden) return;
+      const roots = rootNames.map(name => scene.getObjectByName(name))
+        .filter((object): object is THREE.Object3D => object !== undefined);
+      clearance.current.refresh(roots);
+    };
+    refreshClearance();
+    const interval = window.setInterval(refreshClearance, 400);
+    return () => window.clearInterval(interval);
+  }, [environmentAt, scene]);
+
   useFrame(
-    ({ camera,clock }, delta) => {
+    ({ camera }, delta) => {
       const target =
         targetRef.current;
 
@@ -335,6 +249,7 @@ export function MarsFollowCamera({
         worldPosition.current,
       );
 
+      delta = Math.min(delta, 0.05);
       const pitch = orbitPitch.current;
 
       const yaw =
@@ -415,12 +330,8 @@ export function MarsFollowCamera({
 
       lookTarget.current.set(worldPosition.current.x,worldPosition.current.y+LOOK_HEIGHT,worldPosition.current.z);
       if(environment)lookTarget.current.y=THREE.MathUtils.clamp(lookTarget.current.y,environment.floor+.7,environment.ceiling-.65);
-      if(environmentAt){
-        if(clock.elapsedTime-clearanceRefresh.current>.4){
-          clearanceRefresh.current=clock.elapsedTime;
-          clearance.current.refresh(['campus-original-hub-rear-aperture','v11-independent-buildings-no-common-platform','persistent-player-owned-colony-buildings'].map(name=>scene.getObjectByName(name)).filter((o):o is THREE.Object3D=>Boolean(o)));
-        }
-        clearance.current.solve(lookTarget.current,desiredPosition.current,environment);
+      if (environmentAt) {
+        clearance.current.solve(lookTarget.current, desiredPosition.current, environment);
       }
       camera.position.lerp(
         desiredPosition.current,

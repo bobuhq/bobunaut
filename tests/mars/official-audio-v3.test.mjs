@@ -30,7 +30,7 @@ function extract(file, name) {
     ts.forEachChild(node, visit);
   };
   visit(source); assert(found, name);
-  const raw = ts.isFunctionDeclaration(found) ? found.getText(source) : `const ${name} = ${found.getText(source)};`;
+  const raw = ts.isFunctionDeclaration(found) ? found.getText(source).replace(/^export /, '') : `const ${name} = ${found.getText(source)};`;
   return ts.transpileModule(raw, { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.None } }).outputText;
 }
 function handler(file, name, dependencies) {
@@ -40,11 +40,86 @@ const noop = () => {};
 test('Mission actual access handler: near + not busy only, no proximity/restore playback', async () => {
   const cues = [], nearRef = { current: false }, busyRef = { current: false }; let requests = 0;
   const call = handler('missions/AresMissionTerminal.tsx', 'accessTerminal', { nearRef, busyRef, aresArrivalSound: { terminal: kind => cues.push(kind) }, setBusy: noop, setError: noop,
-    accessMyAresMissionTerminal: async () => { requests++; return {}; }, setMission: noop, onMission: noop });
+    window: { location: { search: '?aresMissionTrace=0' } },
+    accessMyAresMissionTerminal: async trace => { assert.equal(trace, undefined); requests++; return {}; },
+    setMission: noop, onMission: noop, setTrace: noop });
   await call(); assert.deepEqual(cues, []);
   nearRef.current = true; busyRef.current = true; await call(); assert.deepEqual(cues, []);
   busyRef.current = false; await call(); assert.deepEqual(cues, ['mission']); assert.equal(requests, 1);
 });
+
+for (const failed of [false, true]) {
+  test(`Mission trace measures one access RPC through ${failed ? 'error commit' : 'ready frame'}`, async () => {
+    let now = 10;
+    const performance = { now: () => now };
+    const requests = [];
+    let resolveRpc, rejectRpc;
+    const response = new Promise((resolve, reject) => {
+      resolveRpc = resolve;
+      rejectRpc = reject;
+    });
+    const rpc = name => { requests.push(name); return response; };
+    const mapMission = handler('missions/AresHiddenMissionService.ts', 'mapMission', {});
+    const access = handler('missions/AresHiddenMissionService.ts', 'accessMyAresMissionTerminal', {
+      supabase: { rpc }, performance, mapMission,
+    });
+    let trace, mission, error;
+    const reports = [];
+    const console = {
+      error: (...args) => assert.deepEqual(args, ['Failed to access Ares mission terminal']),
+      info: (...args) => reports.push(args),
+    };
+    const call = handler('missions/AresMissionTerminal.tsx', 'accessTerminal', {
+      nearRef: { current: true }, busyRef: { current: false },
+      window: { location: { search: '?aresMissionTrace=1' } },
+      aresArrivalSound: { terminal: () => { now = 12; } },
+      performance, console, setBusy: noop,
+      setError: value => { error = value; },
+      setMission: value => { mission = value; }, onMission: noop,
+      setTrace: value => { trace = value; },
+      accessMyAresMissionTerminal: access,
+    });
+    const interaction = call();
+    await call();
+    assert.deepEqual(requests, ['access_my_ares_mission_terminal']);
+    assert.equal(trace, undefined);
+    now = 112;
+    if (failed) rejectRpc(new Error('private error details'));
+    else resolveRpc({ data: [{ title: 'private mission title' }], error: null });
+    await interaction;
+    assert.equal(mission?.title, failed ? undefined : 'private mission title');
+    assert.equal(error, failed ? 'TERMINAL LINK FAILED' : null);
+
+    const frames = [];
+    const commit = handler('missions/AresMissionTerminal.tsx', 'MissionTraceCommit', {
+      useLayoutEffect: effect => effect(), performance, console,
+      document: { visibilityState: 'visible' },
+      requestAnimationFrame: callback => frames.push(callback),
+      cancelAnimationFrame: noop,
+    });
+    now = 119;
+    commit({ trace, isNear: true, failed });
+    if (!failed) {
+      assert.deepEqual(reports, []);
+      now = 127;
+      frames.shift()();
+      assert.deepEqual(reports, []);
+      now = 143;
+      frames.shift()();
+    }
+    commit({ trace, isNear: true, failed });
+    assert.deepEqual(frames, []);
+    assert.deepEqual(reports, [['[Ares Mission Trace]', {
+      outcome: failed ? 'failed' : 'ready',
+      acceptedToRpcStartMs: 2,
+      rpcStartToSettledMs: 100,
+      rpcSettledToCommitMs: 7,
+      commitToReadyFrameMs: failed ? null : 24,
+      acceptedToReadyFrameMs: failed ? null : 133,
+    }]]);
+    assert.equal(requests.length, 1);
+  });
+}
 test('Research actual start handler: claimed mission + near + ready/error required; restore stays silent', async () => {
   const cues = [];
   const dependencies = { missionKey: 'test', missionClaimed: true, isNear: true, state: 'ready', aresArrivalSound: { terminal: kind => cues.push(kind) }, setProgress: noop, setState: noop,

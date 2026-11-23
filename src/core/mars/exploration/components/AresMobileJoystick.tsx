@@ -1,5 +1,6 @@
 import {
   useCallback,
+  useEffect,
   useRef,
   useState,
   type PointerEvent as ReactPointerEvent,
@@ -42,6 +43,26 @@ export function AresMobileJoystick({
 
     marsAudio.step(false);
   }, [onMove]);
+
+  useEffect(() => {
+    const stop = () => {
+      const pointerId = activePointerRef.current;
+      if (pointerId === null) return;
+      reset();
+      const base = baseRef.current;
+      if (base?.hasPointerCapture(pointerId)) base.releasePointerCapture(pointerId);
+    };
+    const onVisibilityChange = () => {
+      if (document.hidden) stop();
+    };
+    window.addEventListener("blur", stop);
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    return () => {
+      window.removeEventListener("blur", stop);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+      stop();
+    };
+  }, [reset]);
 
   const updateFromPointer = useCallback(
     (
@@ -107,8 +128,8 @@ export function AresMobileJoystick({
   const handlePointerDown = (
     event: ReactPointerEvent<HTMLDivElement>,
   ) => {
-    activePointerRef.current =
-      event.pointerId;
+    if (event.button !== 0 || activePointerRef.current !== null) return;
+    activePointerRef.current = event.pointerId;
 
     event.currentTarget.setPointerCapture(
       event.pointerId,
@@ -152,6 +173,8 @@ export function AresMobileJoystick({
       return;
     }
 
+    reset();
+
     if (
       event.currentTarget.hasPointerCapture(
         event.pointerId,
@@ -161,8 +184,6 @@ export function AresMobileJoystick({
         event.pointerId,
       );
     }
-
-    reset();
 
     event.preventDefault();
     event.stopPropagation();
@@ -180,6 +201,7 @@ export function AresMobileJoystick({
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerEnd}
         onPointerCancel={handlePointerEnd}
+        onLostPointerCapture={handlePointerEnd}
       >
         <div className="ares-mobile-joystick__ring" />
 

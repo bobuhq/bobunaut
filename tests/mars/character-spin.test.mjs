@@ -19,6 +19,7 @@ function loadComponent(name, window, overrides = {}) {
   const modules = {
     react: {
       useCallback: (callback) => callback,
+      useEffect: (effect) => effect(),
       useMemo: (factory) => factory(),
       useRef: (current) => ({ current }),
       useState: (initial) => [initial, () => {}],
@@ -30,7 +31,7 @@ function loadComponent(name, window, overrides = {}) {
   };
   const exports = {};
   runInNewContext(outputText, {
-    exports, window, Event, CustomEvent, require: (id) => modules[id],
+    exports, window, document: new EventTarget(), Event, CustomEvent, require: (id) => modules[id],
   });
   return exports[name];
 }
@@ -58,7 +59,7 @@ test("a second touch starts SPIN or LEFT ARM while the walking stick retains its
   base.props.ref.current = target;
   const stopped = [];
   const pointer = (pointerId, clientX) => ({
-    pointerId, clientX, clientY: 58, currentTarget: target,
+    pointerId, button: 0, clientX, clientY: 58, currentTarget: target,
     isPrimary: pointerId === 1,
     preventDefault() { stopped.push("default"); },
     stopPropagation() { stopped.push("propagation"); },

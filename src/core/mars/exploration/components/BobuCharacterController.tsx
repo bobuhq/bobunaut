@@ -20,6 +20,7 @@ import {
 
 import {
   isAresCommandHubStairPosition,
+  isInsideHubFloor,
   sampleAresCommandHubWalkableSurfaceMeters,
 } from "../commandhub/AresCommandHubWalkableSurface";
 
@@ -84,6 +85,35 @@ const KEY_TO_INPUT: Record<
   ArrowRight: "right",
 };
 
+const NO_COLLISION_OBSTACLES: MarsCollisionObstacle[] = [];
+const BOBU_COLLISION_RADIUS = 0.48;
+const COLLISION_QUERY_RADIUS = 4;
+const FOOT_SAMPLE_RADIUS = 0.34;
+const FOOT_SAMPLE_OFFSETS = [
+  [0, 0],
+  [0, FOOT_SAMPLE_RADIUS],
+  [0, -FOOT_SAMPLE_RADIUS],
+  [-FOOT_SAMPLE_RADIUS, 0],
+  [FOOT_SAMPLE_RADIUS, 0],
+] as const;
+
+function isBlockedAt(obstacles: MarsCollisionObstacle[], x: number, z: number) {
+  for (const obstacle of obstacles) {
+    if (obstacle.kind === "box") {
+      const dx = Math.max(0, Math.abs(x - obstacle.x) - obstacle.halfWidth);
+      if (dx >= BOBU_COLLISION_RADIUS) continue;
+      const dz = Math.max(0, Math.abs(z - obstacle.z) - obstacle.halfDepth);
+      if (dx * dx + dz * dz < BOBU_COLLISION_RADIUS * BOBU_COLLISION_RADIUS) return true;
+    } else {
+      const dx = x - obstacle.x;
+      const dz = z - obstacle.z;
+      const minimumDistance = BOBU_COLLISION_RADIUS + obstacle.radius;
+      if (dx * dx + dz * dz < minimumDistance * minimumDistance) return true;
+    }
+  }
+  return false;
+}
+
 export function BobuCharacterController({
   children,
   terrainData,
@@ -91,7 +121,7 @@ export function BobuCharacterController({
   boundary =
     ARES_GENESIS_SAFE_BOUNDARY_METERS,
   characterRef,
-  collisionObstacles = [],
+  collisionObstacles = NO_COLLISION_OBSTACLES,
   walkableSurface,
   stairStateRef,
   analogMovementRef,
@@ -117,6 +147,8 @@ export function BobuCharacterController({
   const facingAngleRef =
     useRef(0);
 
+  const inputDirectionRef = useRef(new THREE.Vector3());
+
   const movementDirectionRef =
     useRef(new THREE.Vector3());
 
@@ -133,6 +165,20 @@ export function BobuCharacterController({
     useRef<AresGenesisTerrainData | null>(
       null,
     );
+
+  const collisionQueryRef = useRef({
+    obstacles: null as MarsCollisionObstacle[] | null,
+    nearby: [] as MarsCollisionObstacle[],
+    x: 0,
+    z: 0,
+  });
+
+  const groundSampleRef = useRef({
+    terrain: null as AresGenesisTerrainData | null,
+    x: NaN,
+    z: NaN,
+    height: 0,
+  });
 
   const verticalVelocityRef =
     useRef(0);
@@ -230,6 +276,11 @@ export function BobuCharacterController({
         createEmptyMarsMovementInput();
     }
 
+    function handleVisibilityChange() {
+      if (document.hidden) resetInput();
+    }
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
     window.addEventListener(
       "keydown",
       handleKeyDown,
@@ -248,6 +299,7 @@ export function BobuCharacterController({
     finishStartup?.();
 
     return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
       window.removeEventListener(
         "keydown",
         handleKeyDown,
@@ -267,6 +319,8 @@ export function BobuCharacterController({
 
   useFrame((_, delta) => {
     const group = groupRef.current;
+    // A delayed frame must not replay a long movement or gravity step.
+    delta = Math.min(delta, 0.05);
 
     if (!group) {
       return;
@@ -283,6 +337,7 @@ export function BobuCharacterController({
     const direction =
       getMarsMovementDirection(
         input,
+        inputDirectionRef.current,
       );
 
     const analogMovement =
@@ -385,80 +440,6 @@ export function BobuCharacterController({
           boundary,
         );
 
-      const BOBU_COLLISION_RADIUS =
-        0.48;
-
-      const isBlockedAt = (
-        candidateX: number,
-        candidateZ: number,
-      ): boolean =>
-        collisionObstacles.some(
-          (obstacle) => {
-            if (
-              obstacle.kind ===
-              "box"
-            ) {
-              const closestX =
-                THREE.MathUtils.clamp(
-                  candidateX,
-                  obstacle.x -
-                    obstacle.halfWidth,
-                  obstacle.x +
-                    obstacle.halfWidth,
-                );
-
-              const closestZ =
-                THREE.MathUtils.clamp(
-                  candidateZ,
-                  obstacle.z -
-                    obstacle.halfDepth,
-                  obstacle.z +
-                    obstacle.halfDepth,
-                );
-
-              const dx =
-                candidateX -
-                closestX;
-
-              const dz =
-                candidateZ -
-                closestZ;
-
-              return (
-                dx * dx +
-                  dz * dz <
-                BOBU_COLLISION_RADIUS *
-                  BOBU_COLLISION_RADIUS
-              );
-            }
-
-            if (
-              !("radius" in obstacle)
-            ) {
-              return false;
-            }
-
-            const dx =
-              candidateX -
-              obstacle.x;
-
-            const dz =
-              candidateZ -
-              obstacle.z;
-
-            const minimumDistance =
-              BOBU_COLLISION_RADIUS +
-              obstacle.radius;
-
-            return (
-              dx * dx +
-                dz * dz <
-              minimumDistance *
-                minimumDistance
-            );
-          },
-        );
-
       const movementX =
         nextX -
         group.position.x;
@@ -474,6 +455,33 @@ export function BobuCharacterController({
           movementZ *
             movementZ,
         );
+
+      const query = collisionQueryRef.current;
+      if (
+        query.obstacles !== collisionObstacles ||
+        Math.abs(group.position.x - query.x) > COLLISION_QUERY_RADIUS ||
+        Math.abs(group.position.z - query.z) > COLLISION_QUERY_RADIUS ||
+        Math.abs(nextX - query.x) > COLLISION_QUERY_RADIUS ||
+        Math.abs(nextZ - query.z) > COLLISION_QUERY_RADIUS
+      ) {
+        query.obstacles = collisionObstacles;
+        query.x = group.position.x;
+        query.z = group.position.z;
+        query.nearby.length = 0;
+        // Include every obstacle whose expanded footprint can touch a sweep
+        // within this square. Substeps still use the exact circle/box tests.
+        const reach = COLLISION_QUERY_RADIUS + BOBU_COLLISION_RADIUS;
+        for (const obstacle of collisionObstacles) {
+          const extentX = obstacle.kind === "box" ? obstacle.halfWidth : obstacle.radius;
+          const extentZ = obstacle.kind === "box" ? obstacle.halfDepth : obstacle.radius;
+          if (
+            Math.abs(obstacle.x - query.x) <= reach + extentX &&
+            Math.abs(obstacle.z - query.z) <= reach + extentZ
+          ) {
+            query.nearby.push(obstacle);
+          }
+        }
+      }
 
       const maxCollisionStep =
         0.18;
@@ -492,9 +500,6 @@ export function BobuCharacterController({
 
       let safeZ =
         group.position.z;
-
-      let blocked =
-        false;
 
       for (
         let step = 1;
@@ -517,13 +522,11 @@ export function BobuCharacterController({
 
         if (
           isBlockedAt(
+            query.nearby,
             candidateX,
             candidateZ,
           )
         ) {
-          blocked =
-            true;
-
           break;
         }
 
@@ -553,101 +556,36 @@ export function BobuCharacterController({
       terrainData ?? terrainDataRef.current;
 
     if (terrain) {
-      const FOOT_SAMPLE_RADIUS =
-        0.34;
+      const { x, z } = group.position;
+      const sample = groundSampleRef.current;
+      if (sample.terrain !== terrain || sample.x !== x || sample.z !== z) {
+        // The built floor supports the character even where the outdoor
+        // heightfield would otherwise raise it through the interior.
+        const hubFloor = isInsideHubFloor(x, z)
+          ? sampleAresCommandHubWalkableSurfaceMeters(terrain, x, z)
+          : null;
+        let height = hubFloor ?? -Infinity;
+        if (hubFloor === null) {
+          for (const [offsetX, offsetZ] of FOOT_SAMPLE_OFFSETS) {
+            const sampleX = x + offsetX;
+            const sampleZ = z + offsetZ;
+            height = Math.max(height, sampleAresGenesisRenderedSurfaceMeters(terrain, sampleX, sampleZ));
+            const hubGround = sampleAresCommandHubWalkableSurfaceMeters(terrain, sampleX, sampleZ);
+            if (hubGround !== null) height = Math.max(height, hubGround);
+          }
+        }
+        sample.terrain = terrain;
+        sample.x = x;
+        sample.z = z;
+        sample.height = height;
+      }
 
-      const centerGround =
-        sampleAresGenesisRenderedSurfaceMeters(
-          terrain,
-          group.position.x,
-          group.position.z,
-        );
-
-      const frontGround =
-        sampleAresGenesisRenderedSurfaceMeters(
-          terrain,
-          group.position.x,
-          group.position.z +
-            FOOT_SAMPLE_RADIUS,
-        );
-
-      const backGround =
-        sampleAresGenesisRenderedSurfaceMeters(
-          terrain,
-          group.position.x,
-          group.position.z -
-            FOOT_SAMPLE_RADIUS,
-        );
-
-      const leftGround =
-        sampleAresGenesisRenderedSurfaceMeters(
-          terrain,
-          group.position.x -
-            FOOT_SAMPLE_RADIUS,
-          group.position.z,
-        );
-
-      const rightGround =
-        sampleAresGenesisRenderedSurfaceMeters(
-          terrain,
-          group.position.x +
-            FOOT_SAMPLE_RADIUS,
-          group.position.z,
-        );
-
-      const terrainGround =
-        Math.max(
-          centerGround,
-          frontGround,
-          backGround,
-          leftGround,
-          rightGround,
-        );
-
-      const hubGroundSamples = [
-        sampleAresCommandHubWalkableSurfaceMeters(
-          terrain,
-          group.position.x,
-          group.position.z,
-        ),
-        sampleAresCommandHubWalkableSurfaceMeters(
-          terrain,
-          group.position.x,
-          group.position.z +
-            FOOT_SAMPLE_RADIUS,
-        ),
-        sampleAresCommandHubWalkableSurfaceMeters(
-          terrain,
-          group.position.x,
-          group.position.z -
-            FOOT_SAMPLE_RADIUS,
-        ),
-        sampleAresCommandHubWalkableSurfaceMeters(
-          terrain,
-          group.position.x -
-            FOOT_SAMPLE_RADIUS,
-          group.position.z,
-        ),
-        sampleAresCommandHubWalkableSurfaceMeters(
-          terrain,
-          group.position.x +
-            FOOT_SAMPLE_RADIUS,
-          group.position.z,
-        ),
-      ].filter(
-        (
-          value,
-        ): value is number =>
-          value !== null,
-      );
-
-      const campusGround = walkableSurface?.(terrain, group.position.x, group.position.z);
-      const groundHeight =
-        Math.max(
-          terrainGround,
-          ...hubGroundSamples,
-          typeof campusGround === "number" && Number.isFinite(campusGround) ? campusGround : -Infinity,
-        ) + 0.09;
+      let ground = sample.height;
+      const campusGround = walkableSurface?.(terrain, x, z);
+      if (typeof campusGround === "number" && Number.isFinite(campusGround)) {
+        ground = Math.max(ground, campusGround);
+      }
+      const groundHeight = ground + 0.09;
 
       if (!groundedRef.current) {
         verticalVelocityRef.current -=

@@ -30,8 +30,9 @@ export function createEmptyMarsMovementInput(): MarsMovementInput {
 
 export function getMarsMovementDirection(
   input: MarsMovementInput,
+  direction = new THREE.Vector3(),
 ): THREE.Vector3 {
-  const direction = new THREE.Vector3();
+  direction.set(0, 0, 0);
 
   if (input.forward) {
     direction.z -= 1;

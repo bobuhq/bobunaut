@@ -103,16 +103,21 @@ Promise<AresHiddenMission | null> {
   );
 }
 
-export async function accessMyAresMissionTerminal():
-Promise<AresHiddenMission> {
-  const {
-    data,
-    error,
-  } =
-    await supabase.rpc(
+export async function accessMyAresMissionTerminal(trace?: {
+  rpcStartedAt?: number;
+  rpcSettledAt?: number;
+}): Promise<AresHiddenMission> {
+  if (trace) trace.rpcStartedAt = performance.now();
+  let response;
+  try {
+    response = await supabase.rpc(
       "access_my_ares_mission_terminal",
     );
+  } finally {
+    if (trace) trace.rpcSettledAt = performance.now();
+  }
 
+  const { data, error } = response;
   if (error) {
     throw error;
   }

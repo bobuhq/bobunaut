@@ -5,6 +5,7 @@ import type {
 } from "../engine/AresGenesisTerrainData";
 
 import {
+  sampleAresGenesisGameplaySurfaceMeters,
   sampleAresGenesisRenderedSurfaceMeters,
 } from "../engine/AresGenesisTerrainData";
 
@@ -58,7 +59,7 @@ export function getAresCommandHubBaseY(
   terrain: AresGenesisTerrainData,
 ): number {
   return (
-    sampleAresGenesisRenderedSurfaceMeters(
+    sampleAresGenesisGameplaySurfaceMeters(
       terrain,
       ARES_COMMAND_HUB_POSITION.x,
       ARES_COMMAND_HUB_POSITION.z,
@@ -78,7 +79,7 @@ export function getAresCommandHubFloorY(
   );
 }
 
-function isInsideHubFloor(
+export function isInsideHubFloor(
   worldX: number,
   worldZ: number,
 ): boolean {
@@ -105,21 +106,13 @@ export function sampleAresCommandHubWalkableSurfaceMeters(
   worldX: number,
   worldZ: number,
 ): number | null {
-  const baseY =
-    getAresCommandHubBaseY(
-      terrain,
-    );
-
   if (
     isInsideHubFloor(
       worldX,
       worldZ,
     )
   ) {
-    return (
-      baseY +
-      ARES_COMMAND_HUB_FLOOR_LOCAL_Y
-    );
+    return getAresCommandHubFloorY(terrain);
   }
 
   const halfWidth =
@@ -179,7 +172,7 @@ export function sampleAresCommandHubWalkableSurfaceMeters(
     );
 
   const targetY =
-    baseY +
+    getAresCommandHubBaseY(terrain) +
     ARES_COMMAND_HUB_ENTRY_PLATFORM_LOCAL_Y;
 
   return THREE.MathUtils.lerp(

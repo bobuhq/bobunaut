@@ -167,14 +167,22 @@ test("V20 protects production paths with approved release fingerprints", () => {
       "b8ae4bda9c030af6c74519e7b8c4337de2430ccabc88103af61330503c8a6624",
     "src/core/mars/exploration/components/AresMobileActions.tsx":
       "a964405cde5e8292fa9c1feee087e6f625cbd48f5719d143ee0a4c6f738c3d87",
+    "src/core/mars/exploration/components/AresMobileJoystick.tsx":
+      "5b77d24db946c17939e41dfdafdf278edc7740489485be3132a0fed3d8bf44b0",
     "src/core/mars/exploration/components/AresRenderQuality.tsx":
-      "1f46be599b1063f6d63619c170d013c59ad43b2755e057cf43409a258271576c",
+      "b8fb984689bf39cc0723025c8c14a9862381db1629e076ed8c849654c5f4f468",
     "src/core/mars/exploration/components/MarsFollowCamera.tsx":
-      "d9dee421eef71593610b9f7603466742f2f3a1e6a615023f57100385a3758a62",
+      "a62c9175480f9d5ac73349842da544922ba440a7262cba63b72872501f3ca5c8",
     "src/core/mars/exploration/commandhub/AresCommandHub.tsx":
       "80cbabae1196699a497837f376b156fee0cc286d996f4f85d2952a751430138a",
     "src/core/mars/exploration/commandhub/AresCommandHubV31Facility.tsx":
       "4a503a988f6608c958fbef47050921eb4723e7bd73a01e577bd4cacfc02e9899",
+    "src/core/mars/exploration/commandhub/AresCommandHubWalkableSurface.ts":
+      "9e42a20e2b584330e8fdd9dcc4fdd218a38e323949cc7c1981db2d5da8ac87f8",
+    "src/core/mars/exploration/missions/AresHiddenMissionService.ts":
+      "f03f58c4ba424646163085e7903459a17eb6de9f293c9fd2a6844e34145e48a8",
+    "src/core/mars/exploration/missions/AresMissionTerminal.tsx":
+      "75ad23a3013c63a6fb82b22007c9b5d90a1668eee9b719b92a371c47c651872b",
   };
 
   const protectedChanges = changed.filter(path =>

@@ -1,5 +1,6 @@
 import {
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
 } from "react";
@@ -45,6 +46,53 @@ type Props = {
 const ACCESS_DISTANCE =
   2.8;
 
+type MissionTrace = {
+  acceptedAt: number;
+  rpcStartedAt?: number;
+  rpcSettledAt?: number;
+  committedAt?: number;
+  reported?: boolean;
+};
+
+function MissionTraceCommit({ trace, isNear, failed }: {
+  trace: MissionTrace;
+  isNear: boolean;
+  failed: boolean;
+}) {
+  useLayoutEffect(() => {
+    const { acceptedAt, rpcStartedAt, rpcSettledAt } = trace;
+    if (trace.reported || rpcStartedAt === undefined || rpcSettledAt === undefined) return;
+
+    const committedAt = trace.committedAt ??= performance.now();
+    const report = (readyFrameAt?: number) => {
+      trace.reported = true;
+      console.info("[Ares Mission Trace]", {
+        outcome: failed ? "failed" : "ready",
+        acceptedToRpcStartMs: rpcStartedAt - acceptedAt,
+        rpcStartToSettledMs: rpcSettledAt - rpcStartedAt,
+        rpcSettledToCommitMs: committedAt - rpcSettledAt,
+        commitToReadyFrameMs: readyFrameAt === undefined ? null : readyFrameAt - committedAt,
+        acceptedToReadyFrameMs: readyFrameAt === undefined ? null : readyFrameAt - acceptedAt,
+      });
+    };
+
+    if (failed || !isNear || document.visibilityState !== "visible") {
+      report();
+      return;
+    }
+
+    // The second callback follows a browser paint opportunity for the committed DOM.
+    let frame = requestAnimationFrame(() => {
+      frame = requestAnimationFrame(() => {
+        report(document.visibilityState === "visible" ? performance.now() : undefined);
+      });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [trace, isNear, failed]);
+
+  return null;
+}
+
 export function AresMissionTerminal({
   onMobileInteractionChange,
   targetRef,
@@ -62,6 +110,8 @@ export function AresMissionTerminal({
 
   const busyRef =
     useRef(false);
+
+  const [trace, setTrace] = useState<MissionTrace>();
 
   const [
     isNear,
@@ -162,6 +212,11 @@ export function AresMissionTerminal({
 
       busyRef.current =
         true;
+      const trace: MissionTrace | undefined =
+        typeof window !== "undefined" &&
+        new URLSearchParams(window.location.search).get("aresMissionTrace") === "1"
+          ? { acceptedAt: performance.now() }
+          : undefined;
       aresArrivalSound.terminal("mission");
 
       setBusy(true);
@@ -169,7 +224,7 @@ export function AresMissionTerminal({
 
       try {
         const result =
-          await accessMyAresMissionTerminal();
+          await accessMyAresMissionTerminal(trace);
 
         setMission(
           result,
@@ -178,18 +233,16 @@ export function AresMissionTerminal({
         onMission(
           result,
         );
-      } catch (
-        accessError
-      ) {
+      } catch {
         console.error(
           "Failed to access Ares mission terminal",
-          accessError,
         );
 
         setError(
           "TERMINAL LINK FAILED",
         );
       } finally {
+        setTrace(trace);
         busyRef.current =
           false;
 
@@ -494,6 +547,9 @@ export function AresMissionTerminal({
                     : `REWARD ${mission.rewardGp} GP`}
               </div>
             </>
+          )}
+          {trace && !busy && (
+            <MissionTraceCommit trace={trace} isNear={isNear} failed={error !== null} />
           )}
         </div>
         </Html>

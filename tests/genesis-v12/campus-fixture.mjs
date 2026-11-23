@@ -14,5 +14,6 @@ const values=new Float32Array(256*256);for(let i=0;i<values.length;i++)values[i]
 export const terrain={width:256,height:256,elevations:values};
 export const terrainAt=(x,z)=>sampler.sampleAresGenesisRenderedSurfaceMeters(terrain,x,z);
 export const buildings=selectCampusBuildings(INTEGRATED_ASSETS,terrainAt);
-export const hubFloor=terrainAt(-44,-68)+.06;
-export const hubBase=sampler.sampleAresGenesisGameplaySurfaceMeters(terrain,-44,-68)+.05;
+const hubSurface=loadTs('src/core/mars/exploration/commandhub/AresCommandHubWalkableSurface.ts');
+export const hubBase=hubSurface.getAresCommandHubBaseY(terrain);
+export const hubFloor=hubSurface.getAresCommandHubFloorY(terrain);
