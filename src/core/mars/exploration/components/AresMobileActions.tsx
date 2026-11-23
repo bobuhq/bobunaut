@@ -1,13 +1,15 @@
 import {
   useCallback,
+  useEffect,
+  useRef,
   type PointerEvent as ReactPointerEvent,
 } from "react";
 import { marsAudio } from "../audio/MarsAudioEngine";
 
 function dispatchKeyboardEvent(
   type: "keydown" | "keyup",
-  code: "KeyE" | "Space",
-  key: "e" | " ",
+  code: "KeyE" | "Space" | "ShiftLeft",
+  key: "e" | " " | "Shift",
 ) {
   if (
     type === "keydown" &&
@@ -47,6 +49,57 @@ export function AresMobileActions({
   canSpin = false,
   canMoveLeftArm = false,
 }: AresMobileActionsProps) {
+  const runPointerRef = useRef<number | null>(null);
+
+  const releaseRun = useCallback(() => {
+    if (runPointerRef.current === null) return;
+    runPointerRef.current = null;
+    dispatchKeyboardEvent("keyup", "ShiftLeft", "Shift");
+  }, []);
+
+  useEffect(() => {
+    const onVisibilityChange = () => {
+      if (document.hidden) releaseRun();
+    };
+
+    window.addEventListener("blur", releaseRun);
+    document.addEventListener("visibilitychange", onVisibilityChange);
+
+    return () => {
+      releaseRun();
+      window.removeEventListener("blur", releaseRun);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+    };
+  }, [releaseRun]);
+
+  const handleRunDown = useCallback(
+    (event: ReactPointerEvent<HTMLButtonElement>) => {
+      if (runPointerRef.current !== null) return;
+      event.preventDefault();
+      event.stopPropagation();
+
+      runPointerRef.current = event.pointerId;
+      event.currentTarget.setPointerCapture(event.pointerId);
+
+      dispatchKeyboardEvent("keydown", "ShiftLeft", "Shift");
+    },
+    [],
+  );
+
+  const handleRunUp = useCallback(
+    (event: ReactPointerEvent<HTMLButtonElement>) => {
+      if (runPointerRef.current !== event.pointerId) return;
+      event.preventDefault();
+      event.stopPropagation();
+      releaseRun();
+
+      if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+        event.currentTarget.releasePointerCapture(event.pointerId);
+      }
+    },
+    [releaseRun],
+  );
+
   function handleSpin(event: ReactPointerEvent<HTMLButtonElement>) {
     event.preventDefault();
     event.stopPropagation();
@@ -168,6 +221,19 @@ export function AresMobileActions({
         </span>
       </button>
 
+      <button
+        type="button"
+        className="ares-mobile-action ares-mobile-action--run"
+        aria-label="Hold to run"
+        onPointerDown={handleRunDown}
+        onPointerUp={handleRunUp}
+        onPointerCancel={handleRunUp}
+        onLostPointerCapture={handleRunUp}
+      >
+        <span className="ares-mobile-action__icon">»</span>
+        <span className="ares-mobile-action__label">RUN</span>
+      </button>
+
       {canSpin && (
         <button
           type="button"
@@ -194,6 +260,13 @@ export function AresMobileActions({
         </button>
       )}
       <style>{`
+        /* RUN is a touch control; desktop already uses Shift. */
+        @media (pointer: fine) {
+          .mars-explore-world .ares-mobile-action--run {
+            display: none !important;
+          }
+        }
+
         /* V20.1: show existing combat controls on desktop walking mode. */
         @media (hover: hover) and (pointer: fine) {
           .mars-explore-world .ares-mobile-actions {

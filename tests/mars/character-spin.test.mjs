@@ -31,7 +31,15 @@ function loadComponent(name, window, overrides = {}) {
   };
   const exports = {};
   runInNewContext(outputText, {
-    exports, window, document: new EventTarget(), Event, CustomEvent, require: (id) => modules[id],
+    exports, window, document: new EventTarget(), Event, CustomEvent,
+    KeyboardEvent: class extends Event {
+      constructor(type, options = {}) {
+        super(type, options);
+        this.code = options.code;
+        this.key = options.key;
+      }
+    },
+    require: (id) => modules[id],
   });
   return exports[name];
 }
@@ -39,12 +47,13 @@ function loadComponent(name, window, overrides = {}) {
 test("a second touch starts SPIN or LEFT ARM while the walking stick retains its pointer", () => {
   const window = new EventTarget();
   const MobileActions = loadComponent("AresMobileActions", window);
-  assert.equal(MobileActions({}).props.children.filter(child => child?.type === "button").length, 2);
-  const [jump, interact, spin, leftArm] = MobileActions({ canSpin: true, canMoveLeftArm: true }).props.children;
+  assert.equal(MobileActions({}).props.children.filter(child => child?.type === "button").length, 3);
+  const [jump, interact, run, spin, leftArm] = MobileActions({ canSpin: true, canMoveLeftArm: true }).props.children;
   assert.equal(leftArm.props["aria-label"], "Punch");
   assert.equal(jump.props["aria-label"], "Jump");
   assert.equal(interact.props["aria-label"], "No interaction available");
   assert.equal(spin.props["aria-label"], "Spin");
+  assert.equal(run.props["aria-label"], "Hold to run");
 
   const Joystick = loadComponent("AresMobileJoystick", window);
   const movement = [];
@@ -66,6 +75,23 @@ test("a second touch starts SPIN or LEFT ARM while the walking stick retains its
   });
 
   base.props.onPointerDown(pointer(1, 100));
+
+  const runEvents = [];
+  window.addEventListener("keydown", event => {
+    if (event.code === "ShiftLeft") runEvents.push("down");
+  });
+  window.addEventListener("keyup", event => {
+    if (event.code === "ShiftLeft") runEvents.push("up");
+  });
+
+  run.props.onPointerDown(pointer(3, 0));
+  assert.deepEqual(runEvents, ["down"]);
+  assert.deepEqual([...captured], [1, 3]);
+
+  run.props.onPointerUp(pointer(3, 0));
+  assert.deepEqual(runEvents, ["down", "up"]);
+  assert.deepEqual([...captured], [1]);
+
   const attacks = [];
   window.addEventListener("bobu:ares-attack", (event) => attacks.push(event.detail));
   stopped.length = 0;
