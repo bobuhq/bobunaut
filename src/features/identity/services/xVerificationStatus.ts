@@ -1,11 +1,44 @@
 import { supabase } from "../../../lib/supabase";
 
 export type XVerificationStatus = "pending" | "relinked" | "rewarded" | "no_reset" | "invalid_session" | "unavailable";
-export type XVerification = { verified: boolean; pending: boolean; status: XVerificationStatus };
+export type XRecoveryState =
+  | "missing_identity"
+  | "old_identity"
+  | "fresh_identity"
+  | "different_identity"
+  | "review_required"
+  | "unavailable";
+
+export type XVerification = {
+  verified: boolean;
+  pending: boolean;
+  status: XVerificationStatus;
+  recoveryState: XRecoveryState;
+};
+
+export function parseXRecoveryState(
+  value: unknown
+): XRecoveryState {
+  switch (value) {
+    case "missing_identity":
+    case "old_identity":
+    case "fresh_identity":
+    case "different_identity":
+    case "review_required":
+      return value;
+    default:
+      return "unavailable";
+  }
+}
 
 /** No client registry reads or cached identity fallback: only authenticated server evidence. */
 export async function readXVerification(userId: string): Promise<XVerification> {
-  const failed = (status: XVerificationStatus = "unavailable"): XVerification => ({ verified: false, pending: false, status });
+  const failed = (status: XVerificationStatus = "unavailable"): XVerification => ({
+    verified: false,
+    pending: false,
+    status,
+    recoveryState: "unavailable",
+  });
   try {
     const { data: { session }, error: sessionError } = await supabase.auth.getSession();
     if (sessionError || !session?.access_token || session.user.id !== userId) return failed("invalid_session");
@@ -21,6 +54,7 @@ export async function readXVerification(userId: string): Promise<XVerification> 
       status: data.status,
       verified: (data.status === "rewarded" || data.status === "no_reset") && data.verified === true,
       pending: data.status === "pending" || data.status === "relinked",
+      recoveryState: parseXRecoveryState(data.recovery_state),
     };
   } catch {
     return failed();

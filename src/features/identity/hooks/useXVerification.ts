@@ -84,9 +84,21 @@ export function useXVerification(_options: { initiallyVerified: boolean }) {
       const recoveryPending =
         recovery && !(linked && status.verified);
 
+      // BOBU_X_RECOVERY_V6: server evidence controls recovery.
+      if (status.pending && (
+        status.recoveryState === "unavailable" ||
+        (status.recoveryState === "missing_identity" && linked) ||
+        (status.recoveryState === "fresh_identity" && !linked) ||
+        (status.recoveryState === "old_identity" && !linked)
+      )) {
+        throw new Error("X recovery status unavailable. Please retry.");
+      }
+
       const result = {
         linked,
-        reconnect: recoveryPending || status.pending,
+        recoveryState: status.recoveryState,
+        reconnect: status.pending &&
+          status.recoveryState === "old_identity",
         verified: linked && !recoveryPending && status.verified,
         serverVerified: linked && status.verified,
         serverStatus: status.status,
@@ -149,6 +161,22 @@ export function useXVerification(_options: { initiallyVerified: boolean }) {
       if (preflight?.serverStatus === "rewarded" && !preflight.verified) {
         throw new Error("X account requires a secure identity review. No GP claim was made.");
       }
+      if (!preflight?.linked) {
+        throw new Error("X identity is not linked.");
+      }
+
+      if (preflight.verified) {
+        setPhase("idle");
+        return true;
+      }
+
+      if (
+        preflight.serverStatus !== "no_reset" &&
+        preflight.recoveryState !== "fresh_identity"
+      ) {
+        throw new Error("X recovery requires valid server identity evidence.");
+      }
+
       const result = await gpRewardService.claimGenesisReward("x", userId);
       assertCurrent(userId);
       if (!result.verified) throw new Error(result.message || t("identity.x.failed"));
@@ -183,7 +211,13 @@ export function useXVerification(_options: { initiallyVerified: boolean }) {
       if (current.current === userId) {
         if (error instanceof Error && error.message.includes("fresh_x_oauth_required")) setState({userId, verified: false, reconnect: true});
         else setState(s => ({...s, verified: false}));
-        setPhase("error"); setError(t("identity.x.failed"));
+        setPhase("error");
+        setError(
+          error instanceof Error &&
+          error.message.includes("secure identity review")
+            ? error.message
+            : t("identity.x.failed")
+        );
       }
       return false;
     } finally { lock.current = false; }
@@ -212,7 +246,26 @@ export function useXVerification(_options: { initiallyVerified: boolean }) {
         setError("X identity mismatch: secure BOBU support review required. Your GP has not been changed.");
         return;
       }
-      if (status.reconnect && status.linked) {
+      if (
+        status.serverStatus === "pending" ||
+        status.serverStatus === "relinked"
+      ) {
+        if (
+          status.recoveryState === "different_identity" ||
+          status.recoveryState === "review_required" ||
+          status.recoveryState === "unavailable"
+        ) {
+          setPhase("error");
+          setError("X recovery requires secure review of the original X account. No GP claim was made.");
+          return;
+        }
+      }
+
+      if (
+        status.recoveryState === "old_identity" &&
+        status.reconnect &&
+        status.linked
+      ) {
         // Only unlink if an X identity actually exists. Pending accounts with
         // no linked X identity must be allowed to start fresh browser OAuth.
         if (!window.confirm(t("identity.x.relinkConfirm"))) { setPhase("idle"); return; }

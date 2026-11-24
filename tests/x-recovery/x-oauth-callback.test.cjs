@@ -114,6 +114,18 @@ function createHarness({
       if (specifier.endsWith("/lib/supabase")) {
         return { supabase };
       }
+      // BOBU_X_RECOVERY_V6_STATUS_MOCK
+      if (specifier === "./xVerificationStatus") {
+        return {
+          readXVerification: async () => ({
+            verified: false,
+            pending: false,
+            status: "unavailable",
+            recoveryState: "unavailable"
+          })
+        };
+      }
+
       throw new Error(
         `Unexpected dependency: ${specifier}`
       );

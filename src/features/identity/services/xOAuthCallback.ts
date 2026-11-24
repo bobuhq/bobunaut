@@ -1,5 +1,6 @@
 const AsyncStorage = { getItem: async (key: string) => localStorage.getItem(key), setItem: async (key: string, value: string) => localStorage.setItem(key, value), removeItem: async (key: string) => localStorage.removeItem(key) };
 import { supabase } from "../../../lib/supabase";
+import { readXVerification } from "./xVerificationStatus";
 
 const PENDING_KEY = "bobu:oauth:x-link:v1";
 const MAX_AGE = 10 * 60_000;
@@ -38,11 +39,6 @@ export async function prepareXReconnect(userId: string, confirmed: boolean): Pro
   }
   const identity = identities.find(identity => identity.provider === "x" && identity.user_id === userId);
   let recovery = await recoveryFor(userId);
-  if (!recovery) {
-    if (!identity?.identity_id || !identity.id) throw new Error("Original X identity is unavailable. Reconnect cancelled.");
-    recovery = { userId, identityId: identity.identity_id, providerId: identity.id, startedAt: Date.now() };
-    await AsyncStorage.setItem(recoveryKey(userId), JSON.stringify(recovery));
-  }
   // Revalidate immediately before the destructive step; never use a cached session.
   const current = await activeUser(userId);
   if (!(current.identities ?? []).some(item => item.provider !== "x" && item.user_id === userId)) {
@@ -50,7 +46,53 @@ export async function prepareXReconnect(userId: string, confirmed: boolean): Pro
   }
   const currentX = current.identities?.find(item => item.provider === "x" && item.user_id === userId);
   if (currentX) {
-    const { error } = await supabase.auth.unlinkIdentity(currentX);
+    // V6: never unlink a newly authorized identity.
+    if (
+      !identity ||
+      currentX.identity_id !== identity.identity_id ||
+      currentX.id !== identity.id
+    ) {
+      throw new Error("X identity changed. Reconnect cancelled.");
+    }
+
+    const proof = await readXVerification(userId);
+
+    if (
+      !proof.pending ||
+      proof.verified ||
+      proof.recoveryState !== "old_identity"
+    ) {
+      throw new Error("X unlink not authorized by current server evidence.");
+    }
+
+    const latest = await activeUser(userId);
+    const latestX = (latest.identities ?? []).filter(
+      item => item.provider === "x" && item.user_id === userId
+    );
+
+    if (
+      latestX.length !== 1 ||
+      latestX[0].identity_id !== currentX.identity_id ||
+      latestX[0].id !== currentX.id ||
+      !(latest.identities ?? []).some(
+        item => item.provider !== "x" && item.user_id === userId
+      )
+    ) {
+      throw new Error("X identity changed. Reconnect cancelled.");
+    }
+
+    // V6: persist recovery only after server authorization.
+    if (recovery && recovery.providerId !== latestX[0].id) {
+      throw new Error("X recovery requires secure identity review.");
+    }
+
+    if (!recovery) {
+      if (!identity?.identity_id || !identity.id) throw new Error("Original X identity is unavailable. Reconnect cancelled.");
+      recovery = { userId, identityId: identity.identity_id, providerId: identity.id, startedAt: Date.now() };
+      await AsyncStorage.setItem(recoveryKey(userId), JSON.stringify(recovery));
+    }
+
+    const { error } = await supabase.auth.unlinkIdentity(latestX[0]);
     if (error) throw error;
   }
   if (await requireXIdentity(userId)) throw new Error("Old X identity could not be disconnected.");
