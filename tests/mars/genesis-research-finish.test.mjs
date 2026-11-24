@@ -183,6 +183,8 @@ test("V20 protects production paths with approved release fingerprints", () => {
       "f03f58c4ba424646163085e7903459a17eb6de9f293c9fd2a6844e34145e48a8",
     "src/core/mars/exploration/missions/AresMissionTerminal.tsx":
       "75ad23a3013c63a6fb82b22007c9b5d90a1668eee9b719b92a371c47c651872b",
+    "supabase/functions/x-verification-status/index.ts":
+      "ea33955ebeb2952738ac23880671254a8119bd49e58fa723f07c61e5ce7469f0",
   };
 
   const protectedChanges = changed.filter(path =>
