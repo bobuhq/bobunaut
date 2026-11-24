@@ -19,6 +19,12 @@ import {
 } from "../commandhub/AresCommandHubCollision";
 
 type MarsFollowCameraProps = {
+  initialOrbitYaw?: number;
+  initialOrbitPitch?: number;
+  checkpointCameraRef?: React.MutableRefObject<{
+    yaw: number;
+    pitch: number;
+  }>;
   targetRef: React.RefObject<THREE.Group | null>;
   mobileWalking?: boolean;
   environmentAt?: (x:number,z:number)=>CameraEnvironment|null;
@@ -92,6 +98,9 @@ const INDOOR_CAMERA_FOV = 48;
 
 export function MarsFollowCamera({
   targetRef,
+  initialOrbitYaw = 0,
+  initialOrbitPitch = INITIAL_PITCH,
+  checkpointCameraRef,
   mobileWalking = false,
   interiorAt,
   environmentAt,
@@ -120,10 +129,22 @@ export function MarsFollowCamera({
     useRef(new THREE.Vector3());
 
   const orbitYaw =
-    useRef(0);
+    useRef(
+      Number.isFinite(initialOrbitYaw)
+        ? initialOrbitYaw
+        : 0
+    );
 
   const orbitPitch =
-    useRef(INITIAL_PITCH);
+    useRef(
+      Number.isFinite(initialOrbitPitch)
+        ? THREE.MathUtils.clamp(
+            initialOrbitPitch,
+            MIN_PITCH,
+            MAX_PITCH
+          )
+        : INITIAL_PITCH
+    );
 
   useEffect(() => {
     const element = gl.domElement;
@@ -254,6 +275,11 @@ export function MarsFollowCamera({
 
       const yaw =
         orbitYaw.current;
+
+      if (checkpointCameraRef) {
+        checkpointCameraRef.current.yaw = yaw;
+        checkpointCameraRef.current.pitch = pitch;
+      }
 
       const insideCommandHub =
         isInsideAresCommandHub(

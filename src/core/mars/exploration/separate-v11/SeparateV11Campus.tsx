@@ -53,11 +53,21 @@ class BuildingBoundary extends Component<{ children: ReactNode; name: string }, 
   render() { return this.state.failed ? null : this.props.children; }
 }
 
-function IndividualBuilding({ building,onHullObstacles }: { building: PlannedBuilding;onHullObstacles:(id:string,o:WallObstacle[])=>void }) {
+function IndividualBuilding({ building,onHullObstacles,onAssetReady }: {
+  building: PlannedBuilding;
+  onHullObstacles:(id:string,o:WallObstacle[])=>void;
+  onAssetReady:(id:string,ready:boolean)=>void;
+}) {
+  const reportAssetReady=useCallback(
+    (siteId:string,ready:boolean)=>{
+      onAssetReady(`${building.id}:${siteId}`,ready);
+    },
+    [building.id,onAssetReady]
+  );
   const hullObstacles=useCallback((o:WallObstacle[])=>onHullObstacles(building.id,o.map(p=>({...p,x:p.x+building.worldX,z:p.z+building.worldZ}))),[building.id,building.worldX,building.worldZ,onHullObstacles]);
   const site = building.plan.sites[0];
   return <group name={'v11-individual-' + building.id} position={[building.worldX, 0, building.worldZ]}>
-    <CampusAssets plan={building.plan} traversable onHullObstacles={hullObstacles}/>
+    <CampusAssets plan={building.plan} traversable onHullObstacles={hullObstacles} onAssetReady={reportAssetReady}/>
     <CampusArchitecture plan={building.plan} traversable />
     {building.id === 'habitat' && <GenesisResearchDisplays site={site} />}
     {building.id === 'habitat' && <GenesisResearchFinish site={site} />}
@@ -94,11 +104,23 @@ function IndependentRelays({ terrain, relaySites }: { terrain: AresGenesisTerrai
 
 // Keep the existing public component API: the current opt-in, on-foot ARES
 // bridge mounts SeparateV11Campus; no ARES files or controls need editing.
-export type CampusRuntime={interiorAt:(x:number,z:number)=>boolean;cameraEnvironmentAt:(x:number,z:number)=>CameraEnvironment|null;obstacles:MarsCollisionObstacle[];walkableSurface:(terrain:AresGenesisTerrainData,x:number,z:number)=>number|null};
+export type CampusRuntime={checkpointGeometryReady:boolean;interiorAt:(x:number,z:number)=>boolean;cameraEnvironmentAt:(x:number,z:number)=>CameraEnvironment|null;obstacles:MarsCollisionObstacle[];walkableSurface:(terrain:AresGenesisTerrainData,x:number,z:number)=>number|null};
 export function SeparateV11Campus({ targetRef, onRuntime }: { targetRef?: RefObject<THREE.Group | null>;onRuntime?:(runtime:CampusRuntime|null)=>void }) {
   // BOBU_V13_PER_BUILDING_HULL_AGGREGATION_V1
   // Each building owns its wall obstacles; async GLB loads must not erase a neighbour's walls.
   const [hullsByBuilding,setHullsByBuilding]=useState<Record<string,WallObstacle[]>>({});
+
+  const [readyAssets,setReadyAssets]=useState<Record<string,boolean>>({});
+
+  const updateAssetReady=useCallback(
+    (id:string,ready:boolean)=>{
+      setReadyAssets(previous=>{
+        if(previous[id]===ready)return previous;
+        return {...previous,[id]:ready};
+      });
+    },
+    []
+  );
   const updateBuildingHulls=useCallback((id:string,walls:WallObstacle[])=>{
     setHullsByBuilding(previous=>{
       const old=previous[id];
@@ -140,6 +162,26 @@ export function SeparateV11Campus({ targetRef, onRuntime }: { targetRef?: RefObj
     reportCampus(buildings.length ? 'BUILDINGS_PLANNED' : 'NO_SAFE_BUILDINGS',
       `${buildings.length}/${CONNECTED_CAMPUS_ASSETS.length} buildings: ${names || 'no safe placements'}`);
   }, [terrain, buildings]);
+  const checkpointGeometryReady = useMemo(
+    () =>
+      terrain !== null &&
+      buildings.length > 0 &&
+      buildings.every(building =>
+        building.plan.sites.length > 0 &&
+        building.plan.sites.every(site =>
+          readyAssets[`${building.id}:${site.id}`] === true
+        ) &&
+        (
+          !building.plan.sites.some(site => site.id === 'habitat') ||
+          (
+            Array.isArray(hullsByBuilding[building.id]) &&
+            hullsByBuilding[building.id].length > 0
+          )
+        )
+      ),
+    [terrain, buildings, readyAssets, hullsByBuilding]
+  );
+
   const relaySites=useMemo(()=>terrain?selectRelaySites(buildings):[],[terrain,buildings]);
   // Restrict movement around actual relay bodies, not their beams.
   // Radius matches the relay selection footprint (2.5m); preserve walking between towers.
@@ -151,13 +193,13 @@ export function SeparateV11Campus({ targetRef, onRuntime }: { targetRef?: RefObj
   useEffect(()=>{
     if(!model||!landscape||!experience){onRuntime?.(null);return;}
     markAresStage('campus-runtime-ready');
-    onRuntime?.({interiorAt:experience.interiorAt,cameraEnvironmentAt:experience.environmentAt,obstacles:[...model.obstacles,...landscape.obstacles,...hullObstacles,...relayBodyObstacles],walkableSurface:(_terrain,x,z)=>model.walkable(x,z)??landscape.floor(x,z)});
+    onRuntime?.({checkpointGeometryReady,interiorAt:experience.interiorAt,cameraEnvironmentAt:experience.environmentAt,obstacles:[...model.obstacles,...landscape.obstacles,...hullObstacles,...relayBodyObstacles],walkableSurface:(_terrain,x,z)=>model.walkable(x,z)??landscape.floor(x,z)});
     return()=>onRuntime?.(null);
-  },[model,landscape,hullObstacles,relayBodyObstacles,experience,onRuntime]);
+  },[model,landscape,hullObstacles,relayBodyObstacles,experience,onRuntime,checkpointGeometryReady]);
   if (!terrain) return null;
   return <group name="v11-independent-buildings-no-common-platform">
     {buildings.map(building => <BuildingBoundary key={building.id} name={building.id}>
-      <Suspense fallback={null}><IndividualBuilding building={building} onHullObstacles={updateBuildingHulls}/></Suspense>
+      <Suspense fallback={null}><IndividualBuilding building={building} onHullObstacles={updateBuildingHulls} onAssetReady={updateAssetReady}/></Suspense>
     </BuildingBoundary>)}
     {experience&&<CampusInteriorEffects experience={experience} targetRef={targetRef}/>}
     <ConnectedCampusArchitecture terrain={terrain} buildings={buildings} model={model}/>

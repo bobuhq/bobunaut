@@ -36,6 +36,24 @@ class LocalV11Boundary extends Component<{children: ReactNode}, {failed: boolean
 
 import { AresParkedSpacecraft } from "./AresParkedSpacecraft";
 import type { FlightHandoff } from "./flight/handoff.mjs";
+import {
+  useAresCheckpointRestore,
+} from "./session/useAresCheckpointRestore";
+
+import {
+  validateAresRestorePosition,
+  type AresRestoredPosition,
+  type AresRestoreObstacle,
+} from "./session/aresCheckpointRestore.mjs";
+
+import {
+  ARES_GENESIS_SAFE_BOUNDARY_METERS,
+} from "./engine/AresGenesisTerrainData";
+import {
+  saveAresCheckpoint,
+  clearAresCheckpoint,
+  type AresPoint,
+} from "./session/aresCheckpoint.mjs";
 import { aresArrivalSound } from "./audio/AresArrivalSound";
 import {
   Suspense,
@@ -65,6 +83,8 @@ import { AresSpacecraftReflection } from "./flight/AresSpacecraft";
 import {
   BobuCharacterController,
   type MarsAnalogMovement,
+  type MarsCollisionObstacle,
+  sampleAresCheckpointGround,
 } from "./components/BobuCharacterController";
 
 import {
@@ -190,6 +210,7 @@ import type {
 
 
 interface MarsExploreSceneProps {
+  checkpointEnabled?: boolean;
   outdoorWalkingCheck: MutableRefObject<(() => boolean) | null>;
   terrain: ReturnType<typeof useMarsExplorationTerrain>["resources"];
   analogMovementRef: MutableRefObject<MarsAnalogMovement>;
@@ -254,6 +275,7 @@ interface MarsExploreSceneProps {
 }
 
 function MarsExploreScene({
+  checkpointEnabled = false,
   outdoorWalkingCheck,
   terrain,
   analogMovementRef,
@@ -285,11 +307,56 @@ function MarsExploreScene({
     );
 
   const [landedHandoff, setLandedHandoff] = useState<FlightHandoff | null>(null);
-  const flying = new URLSearchParams(window.location.search).get("flightEntry") === "1" && landedHandoff === null;
+  const resumeParams =
+    new URLSearchParams(window.location.search);
+
+  const resumeRequested =
+    checkpointEnabled &&
+    window.location.origin === "https://bobunaut.com" &&
+    resumeParams.get("nativeBridge") === "1" &&
+    resumeParams.get("resume") === "1";
+
+  const restoreState = useAresCheckpointRestore(
+    builderId,
+    checkpointEnabled,
+    resumeRequested
+  );
+
+  const [restoreResolution, setRestoreResolution] =
+    useState<
+      | { status: "fallback" }
+      | {
+          status: "restored";
+          result: AresRestoredPosition;
+        }
+      | null
+    >(null);
+
+  const restoredPosition =
+    resumeRequested &&
+    restoreResolution?.status === "restored"
+      ? restoreResolution.result
+      : null;
+
+  const restoring =
+    resumeRequested &&
+    restoreResolution === null;
+
+  const flying =
+    !restoring &&
+    !restoredPosition &&
+    resumeParams.get("flightEntry") === "1" &&
+    landedHandoff === null;
   // BOBU_V12_REPLACES_OLD_ARES: V12 mounts after flight handoff only.
   // Mars globe entry and its 5.6-second transition are owned by untouched routes.
-  const localV11Enabled = !flying;
-  const interactive = !flying && terrain !== null;
+  const localV11Enabled =
+    !flying &&
+    (!restoring || restoreState.status === "ready");
+
+  const interactive =
+    !restoring &&
+    !flying &&
+    terrain !== null;
   const renderedTerrain = useRef(false);
   const renderedInteractive = useRef(false);
   const finishWalkingCommit = useRef<ReturnType<typeof startAresStage>>(undefined);
@@ -367,6 +434,258 @@ function MarsExploreScene({
 
 
   const [localCampusRuntime,setLocalCampusRuntime]=useState<CampusRuntime|null>(null);
+
+  // Shared geometry for walking and checkpoint validation.
+  const walkingCollisionObstacles: MarsCollisionObstacle[] = [
+          {
+            x: 18,
+            z: -28,
+            radius: 1.35,
+          },
+
+          ...(localV11Enabled&&localCampusRuntime?hubObstaclesWithRearDoor(ARES_COMMAND_HUB_COLLISION_OBSTACLES):ARES_COMMAND_HUB_COLLISION_OBSTACLES),
+          ...MARS_SURFACE_ROCK_COLLISION_OBSTACLES,
+          ...(localCampusRuntime?.obstacles??[]),
+          // Measured original exterior annexes remain solid, including windows.
+          ...([-1,1] as const).map(side=>({kind:'box' as const,x:-44+side*11.5,z:-69.6,halfWidth:4.8,halfDepth:8.5})),
+
+  ];
+
+
+  // Timeout applies to the entire recovery, including campus assets.
+  useEffect(() => {
+    if (!restoring) return;
+
+    const timeout = window.setTimeout(() => {
+      setRestoreResolution(previous =>
+        previous ?? { status: "fallback" }
+      );
+    }, 15000);
+
+    return () => window.clearTimeout(timeout);
+  }, [restoring]);
+
+  useLayoutEffect(() => {
+    if (!restoring || !checkpointEnabled) return;
+
+    if (restoreState.status === "fallback") {
+      setRestoreResolution({ status: "fallback" });
+      return;
+    }
+
+    if (
+      restoreState.status !== "ready" ||
+      restoreState.owner !== builderId ||
+      !terrain ||
+      localCampusRuntime?.checkpointGeometryReady !== true
+    ) return;
+
+    try {
+    const serverObstacles: AresRestoreObstacle[] =
+      restoreState.shared.buildings.map(area => {
+        if (
+          area.kind !== "box" ||
+          !Number.isFinite(area.halfWidth) ||
+          !Number.isFinite(area.halfDepth)
+        ) {
+          throw new Error("Invalid server building footprint");
+        }
+
+        // Conservative square covers both orthogonal orientations.
+        const extent =
+          Math.max(area.halfWidth!, area.halfDepth!) * 2;
+
+        return {
+          kind: "box",
+          x: area.x,
+          z: area.z,
+          halfWidth: extent,
+          halfDepth: extent,
+        };
+      });
+
+    const result = validateAresRestorePosition(
+      restoreState.checkpoint,
+      builderId,
+      {
+        ready: true,
+        authorized: checkpointEnabled,
+        boundary: ARES_GENESIS_SAFE_BOUNDARY_METERS,
+        obstacles: [
+          ...walkingCollisionObstacles,
+          ...serverObstacles,
+        ],
+        sampleGround: (x, z) =>
+          sampleAresCheckpointGround(
+            terrain.terrainData,
+            x,
+            z,
+            localCampusRuntime.walkableSurface
+          ),
+      }
+    );
+
+    setRestoreResolution(
+      result
+        ? { status: "restored", result }
+        : { status: "fallback" }
+    );
+    } catch {
+      setRestoreResolution({ status: "fallback" });
+    }
+  });
+
+  useEffect(() => {
+    if (restoredPosition) {
+      window.dispatchEvent(
+        new Event("bobu:ares-walking-ready")
+      );
+    }
+  }, [restoredPosition]);
+
+  const checkpointCameraRef = useRef({
+    yaw: 0,
+    pitch: Math.atan2(3, 4.9),
+  });
+
+  const checkpointActiveRef = useRef(false);
+
+  const lastSafeCheckpointRef = useRef<{
+    position: AresPoint;
+    yaw: number;
+  } | null>(null);
+
+  const checkpointLeavingRef = useRef(false);
+
+  const canSaveCheckpoint =
+    checkpointEnabled &&
+    !!builderId &&
+    interactive &&
+    !flying &&
+    !!terrain &&
+    localCampusRuntime?.checkpointGeometryReady === true;
+
+  useLayoutEffect(() => {
+    checkpointActiveRef.current = canSaveCheckpoint;
+
+    return () => {
+      checkpointActiveRef.current = false;
+    };
+  }, [canSaveCheckpoint]);
+
+  const persistCheckpoint = useCallback(
+    (position: AresPoint, yaw: number) => {
+      if (
+        !checkpointActiveRef.current ||
+        checkpointLeavingRef.current ||
+        window.location.origin !== "https://bobunaut.com" ||
+        window.location.pathname.replace(/\/+$/, "") !== "/mars/explore"
+      ) return;
+
+      const params = new URLSearchParams(window.location.search);
+
+      if (params.get("nativeBridge") !== "1") return;
+
+      try {
+        saveAresCheckpoint(window.localStorage, builderId, {
+          version: 1,
+          owner: builderId,
+          mode: "walking",
+          savedAt: Date.now(),
+          position,
+          yaw,
+          cameraYaw: checkpointCameraRef.current.yaw,
+          cameraPitch: checkpointCameraRef.current.pitch,
+          parkedShip: null,
+        });
+      } catch {
+        // Storage failure must never interrupt ARES.
+      }
+    },
+    [builderId]
+  );
+
+  const captureSafeCheckpoint = useCallback(
+    (position: AresPoint, yaw: number) => {
+      if (!checkpointActiveRef.current) return;
+
+      lastSafeCheckpointRef.current = {
+        position: [...position] as AresPoint,
+        yaw,
+      };
+
+      persistCheckpoint(position, yaw);
+    },
+    [persistCheckpoint]
+  );
+
+  useEffect(() => {
+    if (!builderId) return;
+
+    const params = new URLSearchParams(window.location.search);
+
+    if (
+      window.location.origin !== "https://bobunaut.com" ||
+      params.get("nativeBridge") !== "1"
+    ) return;
+
+    const onExplicitExit = () => {
+      checkpointLeavingRef.current = true;
+      lastSafeCheckpointRef.current = null;
+
+      try {
+        clearAresCheckpoint(window.localStorage, builderId);
+      } catch {
+        // Navigation must remain available.
+      }
+    };
+
+    window.addEventListener(
+      "bobu:ares-explicit-exit", onExplicitExit
+    );
+
+    return () => {
+      window.removeEventListener(
+        "bobu:ares-explicit-exit", onExplicitExit
+      );
+    };
+  }, [builderId]);
+
+  useEffect(() => {
+    if (!canSaveCheckpoint) {
+      lastSafeCheckpointRef.current = null;
+      return;
+    }
+
+    const flush = () => {
+      const snapshot = lastSafeCheckpointRef.current;
+      if (snapshot) {
+        persistCheckpoint(snapshot.position, snapshot.yaw);
+      }
+    };
+
+    const onVisibilityChange = () => {
+      if (document.hidden) flush();
+    };
+
+    document.addEventListener(
+      "visibilitychange",
+      onVisibilityChange
+    );
+
+    window.addEventListener("pagehide", flush);
+    window.addEventListener("bobu:ares-checkpoint-flush", flush);
+
+    return () => {
+      document.removeEventListener(
+        "visibilitychange",
+        onVisibilityChange
+      );
+
+      window.removeEventListener("pagehide", flush);
+      window.removeEventListener("bobu:ares-checkpoint-flush", flush);
+    };
+  }, [canSaveCheckpoint, builderId, persistCheckpoint]);
   useLayoutEffect(() => {
     if (!interactive) return;
     const position = new THREE.Vector3();
@@ -491,6 +810,19 @@ function MarsExploreScene({
       </Suspense></LocalV11Boundary>}
       <AresGroundDust />
       {landedHandoff && <AresParkedSpacecraft position={landedHandoff.ship} yaw={landedHandoff.yaw} />}
+      {restoring && (
+        <Html center>
+          <div style={{
+            color: "#ffffff",
+            background: "#101827",
+            padding: "12px 20px",
+            borderRadius: 8,
+            whiteSpace: "nowrap",
+          }}>
+            Restoring ARES session...
+          </div>
+        </Html>
+      )}
       {flying && <AresFlightSession onEntry={enterWalking} />}
       <AresExplorationLandmarks
         targetRef={bobuRef}
@@ -581,20 +913,16 @@ function MarsExploreScene({
         analogMovementRef={
           analogMovementRef
         }
-        startPosition={landedHandoff?.spawn ?? [0, 0, 0]}
-        collisionObstacles={[
-          {
-            x: 18,
-            z: -28,
-            radius: 1.35,
-          },
-
-          ...(localV11Enabled&&localCampusRuntime?hubObstaclesWithRearDoor(ARES_COMMAND_HUB_COLLISION_OBSTACLES):ARES_COMMAND_HUB_COLLISION_OBSTACLES),
-          ...MARS_SURFACE_ROCK_COLLISION_OBSTACLES,
-          ...(localCampusRuntime?.obstacles??[]),
-          // Measured original exterior annexes remain solid, including windows.
-          ...([-1,1] as const).map(side=>({kind:'box' as const,x:-44+side*11.5,z:-69.6,halfWidth:4.8,halfDepth:8.5})),
-        ]}
+        onSafeCheckpoint={
+          canSaveCheckpoint ? captureSafeCheckpoint : undefined
+        }
+        initialFacingYaw={restoredPosition?.yaw}
+        startPosition={
+          restoredPosition?.position ??
+          landedHandoff?.spawn ??
+          [0, 0, 0]
+        }
+        collisionObstacles={walkingCollisionObstacles}
       >
         <BobuExplorerV2Visual
           analogMovementRef={analogMovementRef}
@@ -607,6 +935,11 @@ function MarsExploreScene({
       </BobuCharacterController>}
 
       {interactive && <MarsFollowCamera
+        initialOrbitYaw={restoredPosition?.cameraYaw}
+        initialOrbitPitch={restoredPosition?.cameraPitch}
+        checkpointCameraRef={
+          canSaveCheckpoint ? checkpointCameraRef : undefined
+        }
         mobileWalking={window.matchMedia("(pointer: coarse)").matches}
         interiorAt={localCampusRuntime?.interiorAt}
         environmentAt={localCampusRuntime?.cameraEnvironmentAt}
@@ -744,6 +1077,23 @@ export function MarsExploreWorld() {
     event: React.MouseEvent<HTMLAnchorElement>,
   ): void {
     event.preventDefault();
+    window.dispatchEvent(new Event("bobu:ares-explicit-exit"));
+
+    if (
+      session?.user.id &&
+      new URLSearchParams(window.location.search)
+        .get("nativeBridge") === "1"
+    ) {
+      try {
+        clearAresCheckpoint(
+          window.localStorage,
+          session.user.id
+        );
+      } catch {
+        // Explicit navigation must remain available.
+      }
+    }
+
     navigate(marsReturnHref);
   }
 
@@ -892,10 +1242,17 @@ export function MarsExploreWorld() {
       null,
     );
 
+  const [checkpointAccessOwner, setCheckpointAccessOwner] =
+    useState<string | null>(null);
+
   useEffect(() => {
     // BOBU_ARES_AUTH_GATE_V1
     // Never call the protected access RPC without a session.
-    if (!session?.user.id) {
+    setCheckpointAccessOwner(null);
+
+    const accessOwner = session?.user.id;
+
+    if (!accessOwner) {
       setAresAccess(null);
       setAresAccessLoading(false);
       setAresAccessError(null);
@@ -921,6 +1278,7 @@ export function MarsExploreWorld() {
 
           if (active) {
             markAresStage("access-response");
+            setCheckpointAccessOwner(accessOwner);
             setAresAccess(
               access,
             );
@@ -3578,6 +3936,15 @@ export function MarsExploreWorld() {
         <AresRenderQuality onDprChange={setRenderDpr} outdoorWalkingCheck={outdoorWalkingCheck} />
         {builderId && (
             <AuthorizedMarsExploreScene
+              key={builderId}
+              checkpointEnabled={
+                checkpointAccessOwner === builderId &&
+                !aresAccessLoading &&
+                !aresAccessError &&
+                aresAccess?.unlocked === true &&
+                new URLSearchParams(window.location.search)
+                  .get("nativeBridge") === "1"
+              }
               outdoorWalkingCheck={outdoorWalkingCheck}
         analogMovementRef={
           analogMovementRef

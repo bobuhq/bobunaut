@@ -32,6 +32,57 @@ import {
   type MarsMovementInput,
 } from "../engine/MarsCharacterMovement";
 
+export function sampleAresCheckpointGround(
+  terrain: AresGenesisTerrainData,
+  x: number,
+  z: number,
+  walkableSurface?: (
+    terrain: AresGenesisTerrainData,
+    x: number,
+    z: number
+  ) => number | null,
+): number {
+  const hubFloor = isInsideHubFloor(x, z)
+    ? sampleAresCommandHubWalkableSurfaceMeters(terrain, x, z)
+    : null;
+
+  let height = hubFloor ?? -Infinity;
+
+  if (hubFloor === null) {
+    for (const [offsetX, offsetZ] of FOOT_SAMPLE_OFFSETS) {
+      const sampleX = x + offsetX;
+      const sampleZ = z + offsetZ;
+
+      height = Math.max(
+        height,
+        sampleAresGenesisRenderedSurfaceMeters(
+          terrain, sampleX, sampleZ
+        )
+      );
+
+      const hubGround =
+        sampleAresCommandHubWalkableSurfaceMeters(
+          terrain, sampleX, sampleZ
+        );
+
+      if (hubGround !== null) {
+        height = Math.max(height, hubGround);
+      }
+    }
+  }
+
+  const campusGround = walkableSurface?.(terrain, x, z);
+
+  if (
+    typeof campusGround === "number" &&
+    Number.isFinite(campusGround)
+  ) {
+    height = Math.max(height, campusGround);
+  }
+
+  return height;
+}
+
 export type MarsCollisionObstacle =
   | {
       kind?: "circle";
@@ -53,6 +104,11 @@ export type MarsAnalogMovement = {
 };
 
 type BobuCharacterControllerProps = {
+  initialFacingYaw?: number;
+  onSafeCheckpoint?: (
+    position: [number, number, number],
+    yaw: number
+  ) => void;
   children?: React.ReactNode;
   terrainData?: AresGenesisTerrainData;
   startPosition?: [
@@ -118,6 +174,8 @@ export function BobuCharacterController({
   children,
   terrainData,
   startPosition = [0, 0, 0],
+  initialFacingYaw = 0,
+  onSafeCheckpoint,
   boundary =
     ARES_GENESIS_SAFE_BOUNDARY_METERS,
   characterRef,
@@ -145,7 +203,9 @@ export function BobuCharacterController({
   const startedFrame = useRef(false);
 
   const facingAngleRef =
-    useRef(0);
+    useRef(initialFacingYaw);
+
+  const lastCheckpointAt = useRef(0);
 
   const inputDirectionRef = useRef(new THREE.Vector3());
 
@@ -644,6 +704,38 @@ export function BobuCharacterController({
 
     group.rotation.y =
       facingAngleRef.current;
+
+    const now = onSafeCheckpoint ? performance.now() : 0;
+
+    if (
+      onSafeCheckpoint &&
+      !document.hidden &&
+      terrain &&
+      groundedRef.current &&
+      Math.abs(jumpOffsetRef.current) < 0.001 &&
+      now - lastCheckpointAt.current >= 1500 &&
+      Number.isFinite(group.position.x) &&
+      Number.isFinite(group.position.y) &&
+      Number.isFinite(group.position.z) &&
+      Math.abs(group.position.x) <= boundary &&
+      Math.abs(group.position.z) <= boundary &&
+      !isBlockedAt(
+        collisionObstacles,
+        group.position.x,
+        group.position.z
+      )
+    ) {
+      lastCheckpointAt.current = now;
+
+      onSafeCheckpoint(
+        [
+          group.position.x,
+          group.position.y,
+          group.position.z
+        ],
+        facingAngleRef.current
+      );
+    }
   });
 
   return (

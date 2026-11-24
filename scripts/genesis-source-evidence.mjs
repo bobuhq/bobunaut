@@ -43,7 +43,14 @@ export function collectGenesisSourceEvidence({includeGeometry=false}={}){
   const worldAst=ts.createSourceFile(sources.world,readFileSync(sources.world,'utf8'),ts.ScriptTarget.Latest,true,ts.ScriptKind.TSX);
   const worldPoints=[];
   function readWorld(node){
-   if(ts.isJsxAttribute(node)&&node.name.getText(worldAst)==='collisionObstacles'){
+   if(
+    (ts.isJsxAttribute(node)&&
+     node.name.getText(worldAst)==='collisionObstacles') ||
+    (ts.isVariableDeclaration(node)&&
+     node.name.getText(worldAst)==='walkingCollisionObstacles'&&
+     node.initializer&&
+     ts.isArrayLiteralExpression(node.initializer))
+   ){
     function point(n){
      if(ts.isObjectLiteralExpression(n)){
       const value={};

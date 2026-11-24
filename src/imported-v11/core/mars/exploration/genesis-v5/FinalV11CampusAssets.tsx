@@ -7,7 +7,7 @@ import { markAresStage, startAresStage } from '../../../../../core/mars/explorat
 import { meshWallObstacles, type WallObstacle } from '../../../../../core/mars/exploration/separate-v11/mesh-wall-obstacles';
 import { openResearchShell } from '../../../../../core/mars/exploration/separate-v11/portal-geometry';
 import type { CampusPlan, CampusSite } from './3d/campus-layout.mjs';
-function Asset({site,traversable=false,onHullObstacles}:{site:CampusSite;traversable?:boolean;onHullObstacles?:(o:WallObstacle[])=>void}){
+function Asset({site,traversable=false,onHullObstacles,onAssetReady}:{site:CampusSite;traversable?:boolean;onHullObstacles?:(o:WallObstacle[])=>void;onAssetReady?:(id:string,ready:boolean)=>void}){
  const gltf=useLoader(CampusGLTFLoader,'/mars/final-v11/campus/'+site.file);
  const kit = useMemo(() => {
    const finishKit = startAresStage('campus-glb-prepare');
@@ -65,8 +65,12 @@ function Asset({site,traversable=false,onHullObstacles}:{site:CampusSite;travers
  useEffect(()=>()=>{kit.owned.forEach(m=>m.dispose());kit.geometries.forEach(g=>g.dispose());},[kit]);
  useEffect(()=>{markAresStage('campus-glb-commit');},[kit]);
  useEffect(()=>{if(site.id==='habitat')onHullObstacles?.(kit.obstacles);},[kit,onHullObstacles,site.id]);
+ useEffect(()=>{
+   onAssetReady?.(site.id,true);
+   return()=>onAssetReady?.(site.id,false);
+ },[kit,onAssetReady,site.id]);
  return <group position={[site.x,site.deck,site.z]} scale={site.scale}><primitive object={kit.scene}/></group>;
 }
-export function CampusAssets({plan,traversable=false,onHullObstacles}:{plan:CampusPlan;traversable?:boolean;onHullObstacles?:(o:WallObstacle[])=>void}){
- return <group name="v11-preserved-campus-assets">{plan.sites.map(s=><group key={s.id}><Asset site={s} traversable={traversable} onHullObstacles={onHullObstacles}/><mesh position={[s.x,s.deck-.09,s.z]}><boxGeometry args={[s.width,.18,s.depth]}/><meshStandardMaterial color="#74675d" roughness={.65}/></mesh>{(traversable&&s.id==='habitat'?[]:s.feet).map((f,i)=><mesh key={i} position={[f.x,(f.ground+s.deck)/2-.1,f.z]}><cylinderGeometry args={[.3,.5,Math.max(.15,s.deck-f.ground),8]}/><meshStandardMaterial color="#62574e"/></mesh>)}</group>)}</group>;
+export function CampusAssets({plan,traversable=false,onHullObstacles,onAssetReady}:{plan:CampusPlan;traversable?:boolean;onHullObstacles?:(o:WallObstacle[])=>void;onAssetReady?:(id:string,ready:boolean)=>void}){
+ return <group name="v11-preserved-campus-assets">{plan.sites.map(s=><group key={s.id}><Asset site={s} traversable={traversable} onHullObstacles={onHullObstacles} onAssetReady={onAssetReady}/><mesh position={[s.x,s.deck-.09,s.z]}><boxGeometry args={[s.width,.18,s.depth]}/><meshStandardMaterial color="#74675d" roughness={.65}/></mesh>{(traversable&&s.id==='habitat'?[]:s.feet).map((f,i)=><mesh key={i} position={[f.x,(f.ground+s.deck)/2-.1,f.z]}><cylinderGeometry args={[.3,.5,Math.max(.15,s.deck-f.ground),8]}/><meshStandardMaterial color="#62574e"/></mesh>)}</group>)}</group>;
 }

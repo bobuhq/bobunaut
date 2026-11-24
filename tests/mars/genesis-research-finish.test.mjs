@@ -163,8 +163,24 @@ test("V20 protects production paths with approved release fingerprints", () => {
     /(?:^supabase\/|\/(?:commandhub|flight|missions|auth)\/|\/multiplayer\/AresColonyVoiceEngine\.ts$)/i;
 
   const approved = {
+    "src/core/mars/exploration/session/useAresCheckpointRestore.ts":
+      "8b30189002a861ce930665615b801ba2ed43abfeeb5a68fcdb244598c655ec71",
+    "src/core/mars/exploration/session/aresCheckpointRestore.mjs":
+      "bee3b93e37b9eee6ef425dbfe9006808ac1c46b22daabb64320535714184a5a2",
+    "src/core/mars/exploration/session/aresCheckpointRestore.d.mts":
+      "f9356d7017f4cb14a7d07106c3f4bf8cbab4f471aceeef185f07753ebafdaeee",
+    "src/core/mars/exploration/session/aresCheckpoint.mjs":
+      "cd4f99c1ffcbc0e3a42ccd767997ce4c2670b7b5bff8247b995f150934ab103e",
+    "src/core/mars/exploration/session/aresCheckpoint.d.mts":
+      "8344d6d64e30bfe1ab12af5faa14b3a32e4b0bdd54ab2cf056efab95fc2a2d25",
+    "src/imported-v11/core/mars/exploration/genesis-v5/FinalV11CampusAssets.tsx":
+      "41b0a992e37ecdf70e7cf27e6f00604a68085c8e30ec0fc4e5ec14c13d59ee64",
+    "src/core/mars/exploration/separate-v11/SeparateV11Campus.tsx":
+      "1a5c741e9759819adf4adb1e6e8fbe5a3bbdfa2682893cd94061b4035dad575f",
+    "src/core/mars/exploration/components/BobuCharacterController.tsx":
+      "e87f1b51154bcf93e639e637c21249583b5e0233660d200aeb64b5e8ff3887f8",
     "src/core/mars/exploration/MarsExploreWorld.tsx":
-      "c658212e81cfaa7763aa8d5d05f20a05fb3b002ff62d6d0dbd9171ab3996bba4",
+      "5772809db6d0dda2fa0669a848e1705dc9954ed3116bd91eaba1be681379c923",
     "src/core/mars/exploration/components/AresMobileActions.tsx":
       "550710637718f23013eb8053f39c1de68980bea41fa24082a27833cc5134bf97",
     "src/core/mars/exploration/components/AresMobileJoystick.tsx":
@@ -172,7 +188,7 @@ test("V20 protects production paths with approved release fingerprints", () => {
     "src/core/mars/exploration/components/AresRenderQuality.tsx":
       "52ea6c46290775b015b3b74ac71af2f0f02f93abae0e60d3105f77ca09f78a49",
     "src/core/mars/exploration/components/MarsFollowCamera.tsx":
-      "a62c9175480f9d5ac73349842da544922ba440a7262cba63b72872501f3ca5c8",
+      "e930e65374888e33902f8bd63d059838c3b243f309d5cb2a667d40eb16563f1d",
     "src/core/mars/exploration/commandhub/AresCommandHub.tsx":
       "80cbabae1196699a497837f376b156fee0cc286d996f4f85d2952a751430138a",
     "src/core/mars/exploration/commandhub/AresCommandHubV31Facility.tsx":
@@ -209,10 +225,14 @@ test("V20 protects production paths with approved release fingerprints", () => {
       "ea33955ebeb2952738ac23880671254a8119bd49e58fa723f07c61e5ce7469f0",
   };
 
+  const protectedResume =
+    /(?:BobuCharacterController|SeparateV11Campus|FinalV11CampusAssets)\.tsx$|\/exploration\/session\//;
+
   const protectedChanges = changed.filter(path =>
     protectedCore.test(path) ||
     protectedCampus.test(path) ||
-    protectedSystems.test(path)
+    protectedSystems.test(path) ||
+    protectedResume.test(path)
   );
 
   assert.deepEqual(
