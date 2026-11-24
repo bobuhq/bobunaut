@@ -1,3 +1,9 @@
+import { AresColonyVoicePanel } from "./multiplayer/AresColonyVoicePanel";
+import {
+  AresLocalVoiceTestPanel,
+  isLocalVoiceTestEnabled,
+} from "./multiplayer/AresLocalVoiceTestPanel";
+
 import {CampusHubRearOpening} from './separate-v11/CampusHubRearOpening';
 import {hubObstaclesWithRearDoor} from './separate-v11/campus-traversal.mjs';
 import type {CampusRuntime} from './separate-v11/SeparateV11Campus';
@@ -3529,6 +3535,20 @@ export function MarsExploreWorld() {
             {v13CampusDiagnostic.detail}
           </div>
         </div>
+      )}
+
+      {session?.access_token && (
+        import.meta.env.DEV && isLocalVoiceTestEnabled() ? (
+          <AresLocalVoiceTestPanel
+            key={session.user.id}
+          />
+        ) : (
+          <AresColonyVoicePanel
+            key={session.user.id}
+            builderId={session.user.id}
+            accessToken={session.access_token}
+          />
+        )
       )}
 
       <Canvas

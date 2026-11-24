@@ -154,17 +154,17 @@ test("V20 protects production paths with approved release fingerprints", () => {
   ].filter(Boolean);
 
   const protectedCore =
-    /(?:MarsExploreWorld|BobuCharacterVisual|AresMobileActions|AresMobileJoystick|MarsFollowCamera|AresRenderQuality)\.tsx$/;
+    /(?:MarsExploreWorld|BobuCharacterVisual|AresMobileActions|AresMobileJoystick|MarsFollowCamera|AresRenderQuality|AresColonyVoicePanel)\.tsx$/;
 
   const protectedCampus =
     /(?:campus-experience\.ts|CampusInteriorEffects\.tsx|campus-traversal\.mjs|portal-geometry\.ts|GenesisResearchDisplays\.tsx)$/;
 
   const protectedSystems =
-    /(?:^supabase\/|\/(?:commandhub|flight|missions|auth)\/)/i;
+    /(?:^supabase\/|\/(?:commandhub|flight|missions|auth)\/|\/multiplayer\/AresColonyVoiceEngine\.ts$)/i;
 
   const approved = {
     "src/core/mars/exploration/MarsExploreWorld.tsx":
-      "fcf28b443428c5044aaeb6bacc732fddda0cdf97acd3d5e91e26edd0a9bc4c4b",
+      "c658212e81cfaa7763aa8d5d05f20a05fb3b002ff62d6d0dbd9171ab3996bba4",
     "src/core/mars/exploration/components/AresMobileActions.tsx":
       "550710637718f23013eb8053f39c1de68980bea41fa24082a27833cc5134bf97",
     "src/core/mars/exploration/components/AresMobileJoystick.tsx":
@@ -183,6 +183,28 @@ test("V20 protects production paths with approved release fingerprints", () => {
       "f03f58c4ba424646163085e7903459a17eb6de9f293c9fd2a6844e34145e48a8",
     "src/core/mars/exploration/missions/AresMissionTerminal.tsx":
       "75ad23a3013c63a6fb82b22007c9b5d90a1668eee9b719b92a371c47c651872b",
+    "src/core/mars/exploration/multiplayer/AresColonyVoiceEngine.ts":
+      "3aabe4eaa7e1415c08491420114f32465c066aed391418f93ba94c5133bc8e5a",
+    "src/core/mars/exploration/multiplayer/AresColonyVoicePanel.tsx":
+      "0fcfee2bd7e9ddc88221ef963cbb1b76890ffe88fd20f1db01c45e02d8962675",
+    "supabase/config.toml":
+      "c037b41612fa34849aaf5cc24e73f718b8ab8b4120fdb455d0464e12c405c05b",
+    "supabase/functions/ares-colony-voice-revoke/.npmrc":
+      "2cc495d5b8918533470e2666eccfcc0532a2a75699e8ad7c887163c83322ab55",
+    "supabase/functions/ares-colony-voice-revoke/deno.json":
+      "ae97dc88b198860287daea830449c4e19f00c8f01d1a1df2bbea54cf4bad37f4",
+    "supabase/functions/ares-colony-voice-revoke/deno.lock":
+      "9e12af446c74b98249ee34d037fd15175781d2cdf9e5be619c2d3e1ca43a87fa",
+    "supabase/functions/ares-colony-voice-revoke/index.ts":
+      "7e14b20f07c934fa5e8923d11a13ccba62f7974720fd9701d64db2abaa6e1d6f",
+    "supabase/functions/ares-colony-voice-token/deno.json":
+      "a9d96073a1744d376bcea948d0ca7870d2e0a441a18fc262d609a32b6a284ee6",
+    "supabase/functions/ares-colony-voice-token/deno.lock":
+      "07c28024e407d6b429350dae6825f743ea210eef9578324c2e3f50f700eeb232",
+    "supabase/functions/ares-colony-voice-token/index.ts":
+      "849029c714fd0925891089c43ac2cd49b70f9fee42a8df9e10c5d4334603d0c7",
+    "supabase/migrations/20261124151406_ares_colony_voice_revocation_queue.sql":
+      "9f53f464aad443e4d790e018258f588fac879e24222237eebb92e9b2b14cdc04",
     "supabase/functions/x-verification-status/index.ts":
       "ea33955ebeb2952738ac23880671254a8119bd49e58fa723f07c61e5ce7469f0",
   };

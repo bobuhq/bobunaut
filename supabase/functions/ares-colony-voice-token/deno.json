@@ -1,0 +1,7 @@
+{
+  "nodeModulesDir": "none",
+  "imports": {
+    "livekit-server-sdk": "npm:livekit-server-sdk@2.20.1",
+    "@supabase/supabase-js": "npm:@supabase/supabase-js@2"
+  }
+}
