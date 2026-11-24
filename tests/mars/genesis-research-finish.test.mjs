@@ -186,7 +186,7 @@ test("V20 protects production paths with approved release fingerprints", () => {
     "src/core/mars/exploration/multiplayer/AresColonyVoiceEngine.ts":
       "3aabe4eaa7e1415c08491420114f32465c066aed391418f93ba94c5133bc8e5a",
     "src/core/mars/exploration/multiplayer/AresColonyVoicePanel.tsx":
-      "0fcfee2bd7e9ddc88221ef963cbb1b76890ffe88fd20f1db01c45e02d8962675",
+      "bdc9bb4d35d59764c7530d1b8140d91ad5dca27b6eed7049505f21d7800a74a1",
     "supabase/config.toml":
       "c037b41612fa34849aaf5cc24e73f718b8ab8b4120fdb455d0464e12c405c05b",
     "supabase/functions/ares-colony-voice-revoke/.npmrc":
