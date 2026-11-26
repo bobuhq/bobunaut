@@ -347,10 +347,9 @@ function MarsExploreScene({
     !restoredPosition &&
     resumeParams.get("flightEntry") === "1" &&
     landedHandoff === null;
-  // BOBU_V12_REPLACES_OLD_ARES: V12 mounts after flight handoff only.
-  // Mars globe entry and its 5.6-second transition are owned by untouched routes.
+  // Render the existing campus during flight and walking.
+  // Mars globe entry remains unchanged.
   const localV11Enabled =
-    !flying &&
     (!restoring || restoreState.status === "ready");
 
   const interactive =
@@ -804,9 +803,13 @@ function MarsExploreScene({
       <MarsExplorationTerrain resources={terrain} />
       <MarsSurfaceRocks />
       {/* BOBU_V12_REPLACES_OLD_ARES: old Genesis campus renderer removed. */}
-      {/* One V12 campus; mount only after flight completion. */}
+      {/* One persistent campus across flight and walking. */}
       {localV11Enabled && <LocalV11Boundary><Suspense fallback={null}>
-        <LocalV11Campus targetRef={bobuRef} onRuntime={setLocalCampusRuntime}/>
+        <LocalV11Campus
+          targetRef={bobuRef}
+          onRuntime={setLocalCampusRuntime}
+          parkedShip={landedHandoff?.ship ?? null}
+        />
       </Suspense></LocalV11Boundary>}
       <AresGroundDust />
       {landedHandoff && <AresParkedSpacecraft position={landedHandoff.ship} yaw={landedHandoff.yaw} />}
@@ -841,7 +844,7 @@ function MarsExploreScene({
         }
       />
 
-      <CampusHubRearOpening enabled={localV11Enabled && localCampusRuntime!==null}>
+      <CampusHubRearOpening enabled={!flying && localV11Enabled && localCampusRuntime!==null}>
       <AresCommandHub
         targetRef={bobuRef}
         onMission={(mission) => {

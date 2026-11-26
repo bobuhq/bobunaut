@@ -105,7 +105,13 @@ function IndependentRelays({ terrain, relaySites }: { terrain: AresGenesisTerrai
 // Keep the existing public component API: the current opt-in, on-foot ARES
 // bridge mounts SeparateV11Campus; no ARES files or controls need editing.
 export type CampusRuntime={checkpointGeometryReady:boolean;interiorAt:(x:number,z:number)=>boolean;cameraEnvironmentAt:(x:number,z:number)=>CameraEnvironment|null;obstacles:MarsCollisionObstacle[];walkableSurface:(terrain:AresGenesisTerrainData,x:number,z:number)=>number|null};
-export function SeparateV11Campus({ targetRef, onRuntime }: { targetRef?: RefObject<THREE.Group | null>;onRuntime?:(runtime:CampusRuntime|null)=>void }) {
+export function SeparateV11Campus({
+  targetRef, onRuntime, parkedShip,
+}: {
+  targetRef?: RefObject<THREE.Group | null>;
+  onRuntime?: (runtime:CampusRuntime|null)=>void;
+  parkedShip?: [number, number, number] | null;
+}) {
   // BOBU_V13_PER_BUILDING_HULL_AGGREGATION_V1
   // Each building owns its wall obstacles; async GLB loads must not erase a neighbour's walls.
   const [hullsByBuilding,setHullsByBuilding]=useState<Record<string,WallObstacle[]>>({});
@@ -211,7 +217,11 @@ export function SeparateV11Campus({ targetRef, onRuntime }: { targetRef?: RefObj
       terrainAt={terrainAt}
       greenhouse={buildings.find(building => building.id === 'greenhouse')}
       genesis={buildings.find(building => building.id === 'habitat')}
-      parkedShip={surface?.parkedShip}
+      parkedShip={
+        parkedShip === undefined
+          ? surface?.parkedShip
+          : parkedShip ?? undefined
+      }
       mobile={mobile}
     />}
     {terrainAt && <V13FacadeXenonLighting terrainAt={terrainAt} buildings={buildings} mobile={mobile} />}
