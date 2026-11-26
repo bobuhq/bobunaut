@@ -86,25 +86,11 @@ Deno.serve(async (request: Request): Promise<Response> => {
 
   const authenticatedBuilderId = identity.user.id;
 
-  // Existing server-authoritative RPC checks auth.uid(),
-  // active colony membership, and active colony status.
-  const { data, error } = await client.rpc(
-    "get_my_mars_colony_resources",
-  );
+  // All authenticated builders share one ARES Voice room.
+  const colonyId = "00000000-0000-4000-8000-000000000001";
 
-  if (error || !Array.isArray(data) || data.length !== 1) {
-    return respond({ error: "ACTIVE_COLONY_REQUIRED" }, 403, origin);
-  }
-
-  const colonyId: unknown = data[0]?.colony_id;
-
-  if (
-    typeof colonyId !== "string" ||
-    !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-      colonyId,
-    )
-  ) {
-    return respond({ error: "INVALID_COLONY" }, 403, origin);
+  if (identity.user.is_anonymous === true) {
+    return respond({ error: "INVALID_SESSION" }, 401, origin);
   }
 
   const livekitUrl = Deno.env.get("LIVEKIT_URL");

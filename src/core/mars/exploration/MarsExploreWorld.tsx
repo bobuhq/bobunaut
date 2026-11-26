@@ -3902,6 +3902,7 @@ export function MarsExploreWorld() {
           />
         ) : (
           <AresColonyVoicePanel
+            landscape={mobileOrientation === "landscape"}
             key={session.user.id}
             builderId={session.user.id}
             accessToken={session.access_token}

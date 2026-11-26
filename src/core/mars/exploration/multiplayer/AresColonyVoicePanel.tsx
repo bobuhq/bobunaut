@@ -19,12 +19,14 @@ interface Props {
   accessToken: string | null | undefined;
   builderId: string | null | undefined;
   backend?: VoiceBackendClient;
+  landscape?: boolean;
 }
 
 export function AresColonyVoicePanel({
   accessToken,
   builderId,
   backend,
+  landscape = false,
 }: Props) {
   const hasAccessToken = Boolean(accessToken);
   const engineRef = useRef<AresColonyVoiceEngine | null>(null);
@@ -295,152 +297,199 @@ export function AresColonyVoicePanel({
     );
   }
 
-  const buttonStyle: React.CSSProperties = {
-    background: "rgba(16,30,48,.95)",
-    color: "#d8f8ff",
-    border: "1px solid rgba(83,218,255,.5)",
-    borderRadius: 8,
-    padding: "8px 10px",
+  const connected = status === "connected";
+  const connecting = status === "connecting";
+
+  const iconStyle: React.CSSProperties = {
+    width: landscape ? 24 : 34,
+    height: landscape ? 24 : 34,
+    minWidth: landscape ? 24 : 34,
+    display: "grid",
+    placeItems: "center",
+    borderRadius: "50%",
+    background: "rgba(5,7,18,.88)",
+    border: "1px solid rgba(255,255,255,.25)",
+    color: "#e3faff",
     cursor: "pointer",
-    fontSize: 11,
-    fontWeight: 700,
+    fontSize: 16,
+    padding: 0,
+    boxSizing: "border-box",
+    pointerEvents: "auto",
   };
+
+  const voiceColor = connecting
+    ? "#ffc857"
+    : connected
+      ? "#42ff89"
+      : "#ff505d";
 
   return (
     <aside
-      aria-label="Colony Voice"
+      aria-label="ARES Voice"
       style={{
         position: "fixed",
-        top: "38%",
-        right: "max(12px, env(safe-area-inset-right))",
+        top: landscape ? "35px" : "58px",
+        right: landscape ? "178px" : "150px",
         zIndex: 300,
-        width: open ? "min(240px, 72vw)" : "auto",
-        maxWidth: "calc(100vw - 24px)",
-        maxHeight: "min(48dvh, 420px)",
-        overflowY: "auto",
-        boxSizing: "border-box",
-        pointerEvents: "auto",
-        overscrollBehavior: "contain",
-        background: "rgba(5,12,27,.94)",
-        border: "1px solid rgba(83,218,255,.4)",
-        borderRadius: 12,
-        padding: 8,
-        color: "#e3faff",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: landscape ? 4 : 5,
+        pointerEvents: "none",
         fontFamily: "system-ui, sans-serif",
       }}
     >
       <button
         type="button"
-        style={buttonStyle}
-        onClick={() => setOpen(!open)}
-        aria-expanded={open}
+        aria-label={connected ? "Disconnect ARES Voice" : "Connect ARES Voice"}
+        aria-pressed={connected}
+        title={errorMessage || (connected ? "Voice connected" : "Voice off")}
+        disabled={!accessToken || !builderId || connecting}
+        onClick={() => {
+          setOpen(false);
+          void (connected ? leaveVoice() : joinVoice());
+        }}
+        style={{
+          ...iconStyle,
+          color: voiceColor,
+          borderColor: voiceColor,
+          boxShadow: `0 0 8px ${voiceColor}55`,
+        }}
       >
-        {microphone ? "🎙" : "🔇"} COLONY VOICE
+        <svg
+          width="19"
+          height="19"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/>
+          <path d="M10 21h4"/>
+          {!connected && !connecting && <path d="M3 3l18 18"/>}
+        </svg>
       </button>
 
-      {open && (
-        <div style={{ display: "grid", gap: 9, marginTop: 9 }}>
-          <div style={{ fontSize: 11 }}>
-            Status: {status}
-          </div>
+      {connected && (
+        <>
+          <button
+            type="button"
+            aria-label={microphone ? "Mute microphone" : "Enable microphone"}
+            aria-pressed={microphone}
+            title={microphone ? "Microphone on" : "Microphone off"}
+            onClick={() => void toggleMicrophone()}
+            style={{
+              ...iconStyle,
+              color: microphone ? "#42ff89" : "#ff505d",
+              borderColor: microphone ? "#42ff89" : "#ff505d",
+            }}
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              aria-hidden="true"
+            >
+              <rect x="9" y="2" width="6" height="12" rx="3"/>
+              <path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3M9 22h6"/>
+              {!microphone && <path d="M3 3l18 18"/>}
+            </svg>
+          </button>
 
-          {status !== "connected" ? (
+          {audioBlocked && (
             <button
               type="button"
-              style={buttonStyle}
-              disabled={!accessToken || !builderId || status === "connecting"}
-              onClick={() => void joinVoice()}
+              aria-label="Enable voice playback"
+              title="Enable voice playback"
+              onClick={() => void enableAudioPlayback()}
+              style={{ ...iconStyle, color: "#ffc857" }}
             >
-              {status === "connecting"
-                ? "Connecting..."
-                : "JOIN COLONY VOICE"}
+              ♪
             </button>
-          ) : (
-            <>
-              {audioBlocked && (
-                <button
-                  type="button"
-                  style={{
-                    ...buttonStyle,
-                    borderColor: "#ffbf55",
-                    color: "#ffdb90",
-                  }}
-                  onClick={() => void enableAudioPlayback()}
-                >
-                  ENABLE VOICE AUDIO
-                </button>
-              )}
-
-              <button
-                type="button"
-                style={buttonStyle}
-                onClick={() => void toggleMicrophone()}
-                aria-pressed={microphone}
-              >
-                {microphone ? "MUTE MICROPHONE" : "ENABLE MICROPHONE"}
-              </button>
-
-              <div style={{ fontSize: 11 }}>
-                Other members: {members.length}
-              </div>
-
-              {members.map((id) => (
-                <div
-                  key={id}
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    gap: 8,
-                    fontSize: 10,
-                  }}
-                >
-                  <span
-                    title={id}
-                    style={{
-                      color: muted.includes(id)
-                        ? "#82909c"
-                        : speakers.includes(id)
-                          ? "#65ff9a"
-                          : "#e3faff",
-                      textShadow: speakers.includes(id)
-                        ? "0 0 8px #45ff88"
-                        : "none",
-                    }}
-                  >
-                    {muted.includes(id)
-                      ? "🔇 "
-                      : speakers.includes(id)
-                        ? "🟢 "
-                        : "○ "}
-                    {id.slice(0, 8)}
-                  </span>
-                  <button
-                    type="button"
-                    style={buttonStyle}
-                    onClick={() => toggleMemberMute(id)}
-                  >
-                    {muted.includes(id) ? "UNMUTE" : "MUTE"}
-                  </button>
-                </div>
-              ))}
-
-              <button
-                type="button"
-                style={buttonStyle}
-                onClick={() => void leaveVoice()}
-              >
-                LEAVE VOICE
-              </button>
-            </>
           )}
 
-          {errorMessage && (
-            <div role="alert" style={{ color: "#ffae98", fontSize: 10 }}>
-              {errorMessage}
-            </div>
-          )}
+          <button
+            type="button"
+            aria-label="Voice participants"
+            aria-expanded={open}
+            onClick={() => setOpen(value => !value)}
+            style={{ ...iconStyle, fontSize: 12 }}
+          >
+            {members.length}
+          </button>
+        </>
+      )}
+
+      {connected && open && (
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            right: 40,
+            width: "min(164px, 45vw)",
+            maxHeight: "24dvh",
+            overflowY: "auto",
+            background: "rgba(5,12,27,.96)",
+            border: "1px solid #476779",
+            borderRadius: 8,
+            padding: 6,
+            pointerEvents: "auto",
+            color: "#e3faff",
+            fontSize: 10,
+          }}
+        >
+          ARES VOICE · {members.length}
+          {members.map(id => (
+            <button
+              key={id}
+              type="button"
+              onClick={() => toggleMemberMute(id)}
+              aria-pressed={muted.includes(id)}
+              style={{
+                display: "block",
+                width: "100%",
+                marginTop: 4,
+                padding: 5,
+                background: "#142336",
+                border: 0,
+                borderRadius: 4,
+                color: speakers.includes(id) && !muted.includes(id)
+                  ? "#42ff89"
+                  : "#e3faff",
+              }}
+            >
+              {muted.includes(id) ? "🔇" : "♪"} {id.slice(0, 8)}
+            </button>
+          ))}
         </div>
+      )}
+
+      {errorMessage && (
+        <span
+          role="alert"
+          style={{
+            position: "absolute",
+            right: 40,
+            top: 0,
+            width: 140,
+            fontSize: 9,
+            color: "#ffae98",
+            background: "rgba(5,12,27,.9)",
+            padding: 4,
+            borderRadius: 4,
+            overflowWrap: "anywhere",
+            pointerEvents: "none",
+          }}
+        >
+          {errorMessage}
+        </span>
       )}
     </aside>
   );
