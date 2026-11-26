@@ -975,6 +975,14 @@ function MarsExploreScene({
         )}
 
       <AresMultiplayerPresence
+        parkedShip={
+          landedHandoff
+            ? {
+                position: landedHandoff.ship,
+                yaw: landedHandoff.yaw,
+              }
+            : null
+        }
         characterRef={bobuRef}
         builderId={builderId}
         displayName={displayName}

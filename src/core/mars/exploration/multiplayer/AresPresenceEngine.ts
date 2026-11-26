@@ -8,7 +8,41 @@ import {
   supabase,
 } from "../../../../lib/supabase";
 
+export interface AresParkedShipState {
+  position: [number, number, number];
+  yaw: number;
+}
+
+function normalizeParkedShip(
+  value: unknown,
+): AresParkedShipState | null {
+  if (!value || typeof value !== "object") return null;
+
+  const ship = value as Partial<AresParkedShipState>;
+
+  if (
+    !Array.isArray(ship.position) ||
+    ship.position.length !== 3 ||
+    !ship.position.every(
+      n => typeof n === "number" && Number.isFinite(n)
+        && Math.abs(n) <= 10000
+    ) ||
+    typeof ship.yaw !== "number" ||
+    !Number.isFinite(ship.yaw)
+  ) return null;
+
+  return {
+    position: [
+      ship.position[0],
+      ship.position[1],
+      ship.position[2],
+    ],
+    yaw: ship.yaw,
+  };
+}
+
 export interface AresPresenceTransform {
+  parkedShip?: AresParkedShipState | null;
   x: number;
   y: number;
   z: number;
@@ -23,6 +57,7 @@ export interface AresRemoteBuilder {
 }
 
 interface AresPlayerStatePayload {
+  parkedShip?: AresParkedShipState | null;
   builderId: string;
   displayName: string;
   sector: "ares";
@@ -203,6 +238,7 @@ export class AresPresenceEngine {
             displayName:
               payload.displayName,
             transform: {
+              parkedShip: normalizeParkedShip(payload.parkedShip),
               x: payload.x,
               y: payload.y,
               z: payload.z,
@@ -342,9 +378,14 @@ export class AresPresenceEngine {
         ) >
         ROTATION_EPSILON;
 
+      const shipChanged =
+        JSON.stringify(transform.parkedShip ?? null) !==
+        JSON.stringify(this.lastTransform.parkedShip ?? null);
+
       if (
         !positionChanged &&
-        !rotationChanged
+        !rotationChanged &&
+        !shipChanged
       ) {
         return;
       }
@@ -357,6 +398,7 @@ export class AresPresenceEngine {
         displayName:
           this.displayName,
         sector: "ares",
+        parkedShip: normalizeParkedShip(transform.parkedShip),
         x: transform.x,
         y: transform.y,
         z: transform.z,

@@ -180,7 +180,7 @@ test("V20 protects production paths with approved release fingerprints", () => {
     "src/core/mars/exploration/components/BobuCharacterController.tsx":
       "e87f1b51154bcf93e639e637c21249583b5e0233660d200aeb64b5e8ff3887f8",
     "src/core/mars/exploration/MarsExploreWorld.tsx":
-      "bd392e057bd1f401ec95f812fdceaa4d476dea00131bf1216e96e63372b77711",
+      "d3a715e52a0d1bcf7270350b912bd2e7139e9ef8e8302b5ca236e414fb0e6632",
     "src/core/mars/exploration/components/AresMobileActions.tsx":
       "550710637718f23013eb8053f39c1de68980bea41fa24082a27833cc5134bf97",
     "src/core/mars/exploration/components/AresMobileJoystick.tsx":

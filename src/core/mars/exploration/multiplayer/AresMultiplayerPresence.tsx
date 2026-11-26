@@ -11,6 +11,9 @@ import {
 
 import * as THREE from "three";
 
+import { AresParkedSpacecraft } from "../AresParkedSpacecraft";
+import type { AresParkedShipState } from "./AresPresenceEngine";
+
 import {
   AresPresenceEngine,
   type AresRemoteBuilder,
@@ -27,6 +30,7 @@ const REMOTE_STALE_AFTER_MS =
   4000;
 
 interface AresMultiplayerPresenceProps {
+  parkedShip?: AresParkedShipState | null;
   characterRef:
     MutableRefObject<THREE.Group | null>;
   builderId: string;
@@ -41,6 +45,7 @@ interface AresMultiplayerPresenceProps {
 
 export function AresMultiplayerPresence({
   characterRef,
+  parkedShip,
   builderId,
   displayName,
   onOnlineCountChange,
@@ -52,6 +57,12 @@ export function AresMultiplayerPresence({
     useState<
       AresRemoteBuilder[]
     >([]);
+
+  const parkedShipRef = useRef(parkedShip ?? null);
+
+  useEffect(() => {
+    parkedShipRef.current = parkedShip ?? null;
+  }, [parkedShip]);
 
   const connectedRef =
     useRef(false);
@@ -142,6 +153,7 @@ export function AresMultiplayerPresence({
 
           void presenceEngine.updateTransform(
             {
+              parkedShip: parkedShipRef.current,
               x:
                 group.position.x,
               y:
@@ -176,6 +188,7 @@ export function AresMultiplayerPresence({
         if (group) {
           void presenceEngine.updateTransform(
             {
+              parkedShip: parkedShipRef.current,
               x:
                 group.position.x,
               y:
@@ -239,6 +252,7 @@ export function AresMultiplayerPresence({
 
     void presenceEngine
       .updateTransform({
+        parkedShip: parkedShipRef.current,
         x: group.position.x,
         y: group.position.y,
         z: group.position.z,
@@ -253,6 +267,16 @@ export function AresMultiplayerPresence({
 
   return (
     <>
+      {remoteBuilders.map(builder => {
+        const ship = builder.transform.parkedShip;
+        return ship ? (
+          <AresParkedSpacecraft
+            key={`parked-ship-${builder.builderId}`}
+            position={ship.position}
+            yaw={ship.yaw}
+          />
+        ) : null;
+      })}
       {remoteBuilders.map(
         (builder) => (
           <RemoteBuilderVisual
