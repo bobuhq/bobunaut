@@ -83,7 +83,17 @@ export function CinematicLanding({flight=false,obstacles=[],onAresEntry}:{flight
  const controller=useRef<FlightV2|null>(null),input=useRef(emptyInput()),keys=useRef(new Set<string>()),touches=useRef(new Map<number,{action:string;value:number}>()),lastHud=useRef(0),focused=useRef(true);
  const cue=(kind:'extend'|'lock'|'impact'|'shutdown')=>{try{audio.landingCue(kind);}catch(error){console.error('Flight audio failed',error);}};
  const sync=()=>{const next=emptyInput();for(const code of keys.current){const mapping=KEYMAP[code as keyof typeof KEYMAP];if(mapping){const [action,value]=mapping;next[action as keyof typeof next]+=Number(value);}}for(const {action,value} of touches.current.values()){if(action in next)next[action as keyof typeof next]+=value;}for(const k of Object.keys(next) as (keyof typeof next)[])next[k]=Math.max(-1,Math.min(1,next[k]));input.current=next;};
- const release=()=>{keys.current.clear();touches.current.clear();input.current=emptyInput();controller.current?.pause();};
+ const release=()=>{
+  keys.current.clear();
+  touches.current.clear();
+  input.current=emptyInput();
+  activeStickPointer.current=null;
+  mobilePitch.current=0;
+  if(stickKnob.current){
+   stickKnob.current.style.transform='translate3d(0,0,0)';
+  }
+  controller.current?.pause();
+ };
  const action=(name:string)=>{if(exitPhaseRef.current!=='FLIGHT')return;if(name==='gear'){controller.current?.toggleGear();}if(name==='touchdown')controller.current?.requestTouchdown();};
  useEffect(()=>{if(!flight)return;
   const down=(e:KeyboardEvent)=>{if(onFootRef.current||exitPhaseRef.current!=='FLIGHT')return;if(e.target instanceof HTMLInputElement||
@@ -144,7 +154,17 @@ export function CinematicLanding({flight=false,obstacles=[],onAresEntry}:{flight
  const joystick=(e:React.PointerEvent<HTMLDivElement>)=>{
   if(exitPhaseRef.current!=='FLIGHT')return;
   if(e.type==='pointerdown'){
-   if(activeStickPointer.current!==null)return;
+   const previous=activeStickPointer.current;
+   if(previous!==null){
+    if(e.currentTarget.hasPointerCapture(previous))return;
+    activeStickPointer.current=null;
+    clearStick(previous);
+    try{
+     if(e.currentTarget.hasPointerCapture(previous)){
+      e.currentTarget.releasePointerCapture(previous);
+     }
+    }catch{}
+   }
    activeStickPointer.current=e.pointerId;
    try{e.currentTarget.setPointerCapture(e.pointerId);}catch{}
   }
@@ -179,6 +199,71 @@ export function CinematicLanding({flight=false,obstacles=[],onAresEntry}:{flight
    clearStick(100000+t.identifier*2);
   }
  };
+ // BOBU_ARES_JOYSTICK_RECOVERY_V1
+ useEffect(()=>{
+  if(!flight)return;
+
+  const resetFlightStick=()=>{
+   const id=activeStickPointer.current;
+   activeStickPointer.current=null;
+   if(id!==null)clearStick(id);
+
+   // Remove only the native joystick fallback axes.
+   for(const key of Array.from(touches.current.keys())){
+    const candidate=key>=0?key:-key-1;
+    if(candidate>=100000 && candidate<700000 &&
+       candidate%2===0){
+     touches.current.delete(key);
+    }
+   }
+
+   mobilePitch.current=0;
+   if(stickKnob.current){
+    stickKnob.current.style.transform='translate3d(0,0,0)';
+   }
+   sync();
+  };
+
+  const endPointer=(event:PointerEvent)=>{
+   if(activeStickPointer.current===event.pointerId){
+    resetFlightStick();
+   }
+  };
+
+  const endTouch=(event:TouchEvent)=>{
+   for(const touch of Array.from(event.changedTouches)){
+    const id=100000+touch.identifier*2;
+    if(touches.current.has(id)||touches.current.has(-id-1)){
+     clearStick(id);
+    }
+   }
+   if(event.touches.length===0)resetFlightStick();
+  };
+
+  const visibility=()=>{
+   if(document.hidden)resetFlightStick();
+  };
+
+  window.addEventListener('pointerup',endPointer,true);
+  window.addEventListener('pointercancel',endPointer,true);
+  window.addEventListener('touchend',endTouch,true);
+  window.addEventListener('touchcancel',endTouch,true);
+  window.addEventListener('blur',resetFlightStick);
+  window.addEventListener('pagehide',resetFlightStick);
+  document.addEventListener('visibilitychange',visibility);
+
+  return()=>{
+   window.removeEventListener('pointerup',endPointer,true);
+   window.removeEventListener('pointercancel',endPointer,true);
+   window.removeEventListener('touchend',endTouch,true);
+   window.removeEventListener('touchcancel',endTouch,true);
+   window.removeEventListener('blur',resetFlightStick);
+   window.removeEventListener('pagehide',resetFlightStick);
+   document.removeEventListener('visibilitychange',visibility);
+   resetFlightStick();
+  };
+ },[flight]);
+
  // Swipe the unobstructed 3D canvas to steer yaw and pitch; never steal joystick/button touches.
  useEffect(()=>{
   if(!flight||onFoot)return;

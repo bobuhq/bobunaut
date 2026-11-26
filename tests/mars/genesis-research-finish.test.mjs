@@ -184,7 +184,7 @@ test("V20 protects production paths with approved release fingerprints", () => {
     "src/core/mars/exploration/components/AresMobileActions.tsx":
       "550710637718f23013eb8053f39c1de68980bea41fa24082a27833cc5134bf97",
     "src/core/mars/exploration/components/AresMobileJoystick.tsx":
-      "5b77d24db946c17939e41dfdafdf278edc7740489485be3132a0fed3d8bf44b0",
+      "2023354e147d143fe9bdf10a6483a5a835793aa89839eca8f4b5252cb8c0b177",
     "src/core/mars/exploration/components/AresRenderQuality.tsx":
       "52ea6c46290775b015b3b74ac71af2f0f02f93abae0e60d3105f77ca09f78a49",
     "src/core/mars/exploration/components/MarsFollowCamera.tsx":
@@ -195,6 +195,8 @@ test("V20 protects production paths with approved release fingerprints", () => {
       "4a503a988f6608c958fbef47050921eb4723e7bd73a01e577bd4cacfc02e9899",
     "src/core/mars/exploration/commandhub/AresCommandHubWalkableSurface.ts":
       "9e42a20e2b584330e8fdd9dcc4fdd218a38e323949cc7c1981db2d5da8ac87f8",
+    "src/core/mars/exploration/flight/CinematicLanding.tsx":
+      "7ac178b85c9e43a7a2a5a8ea68d85b70c6e97d35ce03fa4a27408b6027d10719",
     "src/core/mars/exploration/missions/AresHiddenMissionService.ts":
       "f03f58c4ba424646163085e7903459a17eb6de9f293c9fd2a6844e34145e48a8",
     "src/core/mars/exploration/missions/AresMissionTerminal.tsx":

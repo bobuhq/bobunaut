@@ -55,9 +55,27 @@ export function AresMobileJoystick({
     const onVisibilityChange = () => {
       if (document.hidden) stop();
     };
+    const endPointer = (event: PointerEvent) => {
+      if (activePointerRef.current === event.pointerId) stop();
+    };
+
+    const endTouch = (event: TouchEvent) => {
+      if (event.touches.length === 0) stop();
+    };
+
+    window.addEventListener("pointerup", endPointer, true);
+    window.addEventListener("pointercancel", endPointer, true);
+    window.addEventListener("touchend", endTouch, true);
+    window.addEventListener("touchcancel", endTouch, true);
+    window.addEventListener("pagehide", stop);
     window.addEventListener("blur", stop);
     document.addEventListener("visibilitychange", onVisibilityChange);
     return () => {
+      window.removeEventListener("pointerup", endPointer, true);
+      window.removeEventListener("pointercancel", endPointer, true);
+      window.removeEventListener("touchend", endTouch, true);
+      window.removeEventListener("touchcancel", endTouch, true);
+      window.removeEventListener("pagehide", stop);
       window.removeEventListener("blur", stop);
       document.removeEventListener("visibilitychange", onVisibilityChange);
       stop();
@@ -128,12 +146,24 @@ export function AresMobileJoystick({
   const handlePointerDown = (
     event: ReactPointerEvent<HTMLDivElement>,
   ) => {
-    if (event.button !== 0 || activePointerRef.current !== null) return;
+    if (event.button !== 0) return;
+
+    const previous = activePointerRef.current;
+    if (previous !== null) {
+      if (event.currentTarget.hasPointerCapture(previous)) return;
+      reset();
+      try {
+        if (event.currentTarget.hasPointerCapture(previous)) {
+          event.currentTarget.releasePointerCapture(previous);
+        }
+      } catch {}
+    }
+
     activePointerRef.current = event.pointerId;
 
-    event.currentTarget.setPointerCapture(
-      event.pointerId,
-    );
+    try {
+      event.currentTarget.setPointerCapture(event.pointerId);
+    } catch {}
 
     updateFromPointer(
       event.clientX,
