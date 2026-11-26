@@ -17,12 +17,59 @@ export function usesAresMobileVisuals() {
   return isBobuNativeMars() && hasCoarseAresPointer();
 }
 
+// ARES V26 Android safe rendering.
+export function usesAresAndroidSafeRendering(): boolean {
+  return typeof navigator !== "undefined" &&
+    /Android/i.test(navigator.userAgent);
+}
+
+function androidRenderPolicy() {
+  const memory = (navigator as Navigator & {
+    deviceMemory?: number;
+  }).deviceMemory;
+
+  const cores = navigator.hardwareConcurrency;
+
+  const weak =
+    !Number.isFinite(memory) ||
+    !Number.isFinite(cores) ||
+    (memory ?? 0) <= 4 ||
+    cores <= 4;
+
+  return weak
+    ? { ceiling: 0.5, floor: 0.4, budget: 200_000 }
+    : { ceiling: 0.75, floor: 0.5, budget: 350_000 };
+}
+
+function androidDprCeiling(width: number, height: number) {
+  const policy = androidRenderPolicy();
+
+  return Math.min(
+    window.devicePixelRatio || 1,
+    policy.ceiling,
+    Math.sqrt(policy.budget / Math.max(1, width * height)),
+  );
+}
+
+export function getAresInitialDpr(): number {
+  if (!usesAresAndroidSafeRendering()) return 1;
+
+  return androidDprCeiling(
+    window.innerWidth,
+    window.innerHeight,
+  );
+}
+
 const WALKING_PIXEL_BUDGET = 1_600_000;
 const NATIVE_HD_PIXEL_BUDGET = 2_200_000;
 const WALKING_PREFERRED_DPR = 1.25;
 const WALKING_UPGRADE_DELAY_SECONDS = 30;
 
 function getDprLimit(width: number, height: number, mobileOutdoorWalking: boolean) {
+  if (usesAresAndroidSafeRendering()) {
+    return androidDprCeiling(width, height);
+  }
+
   const mobile = hasCoarseAresPointer();
   const nativeMobile = mobile && isBobuNativeMars();
   if (mobileOutdoorWalking) {
@@ -92,6 +139,50 @@ export function AresRenderQuality({
     if (document.hidden) {
       sample.elapsed = sample.count = sample.fastWindows = 0;
       stallState.current.count = 0;
+      return;
+    }
+
+    // Android quality remains conservative across flight,
+    // landing, interior and walking transitions.
+    if (usesAresAndroidSafeRendering()) {
+      const ceiling = androidDprCeiling(width, height);
+      const floor = Math.min(ceiling, androidRenderPolicy().floor);
+
+      // Never exceed the safe pixel budget.
+      if (dpr > ceiling) {
+        current.current = ceiling;
+        onDprChange(ceiling);
+        sample.elapsed = sample.count = 0;
+        return;
+      }
+
+      // Foreground stalls and sustained slow rendering
+      // may lower resolution but never raise it.
+      sample.elapsed += Math.min(delta, 0.25);
+      sample.count += 1;
+
+      if (sample.elapsed >= 2) {
+        const average = sample.elapsed / sample.count;
+        sample.elapsed = sample.count = 0;
+
+        if (average > 0.04) {
+          const next = Math.min(
+            dpr,
+            Math.max(floor, dpr - 0.1),
+          );
+
+          if (next < dpr) {
+            current.current = next;
+            onDprChange(next);
+
+            markAresStage("android-safe-dpr-reduced", {
+              dpr: next,
+              averageFrameMs: average * 1000,
+            });
+          }
+        }
+      }
+
       return;
     }
 

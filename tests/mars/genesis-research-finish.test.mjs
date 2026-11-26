@@ -180,13 +180,13 @@ test("V20 protects production paths with approved release fingerprints", () => {
     "src/core/mars/exploration/components/BobuCharacterController.tsx":
       "e87f1b51154bcf93e639e637c21249583b5e0233660d200aeb64b5e8ff3887f8",
     "src/core/mars/exploration/MarsExploreWorld.tsx":
-      "6ca9aaca799776db7dcf94b009b2b19c1de12a8b9423dbf877bd0fb3ee2990f2",
+      "a1e8a4531c3c2c9d5539e4ef0d57a7688ed8ea48ae879f2efaac53288bcb58ab",
     "src/core/mars/exploration/components/AresMobileActions.tsx":
       "550710637718f23013eb8053f39c1de68980bea41fa24082a27833cc5134bf97",
     "src/core/mars/exploration/components/AresMobileJoystick.tsx":
       "2023354e147d143fe9bdf10a6483a5a835793aa89839eca8f4b5252cb8c0b177",
     "src/core/mars/exploration/components/AresRenderQuality.tsx":
-      "52ea6c46290775b015b3b74ac71af2f0f02f93abae0e60d3105f77ca09f78a49",
+      "30ac05e92813d8ee1563eb88c2db3a17b9d00a8b1d66535faa110bf7664e2686",
     "src/core/mars/exploration/components/MarsFollowCamera.tsx":
       "e930e65374888e33902f8bd63d059838c3b243f309d5cb2a667d40eb16563f1d",
     "src/core/mars/exploration/commandhub/AresCommandHub.tsx":

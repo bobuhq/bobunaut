@@ -12,7 +12,7 @@ const { outputText } = ts.transpileModule(source, {
   compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
 });
 
-function mountQuality({ mobile = true, narrow = false, native = false, outdoorWalking = false, dpr = 3, width = 800, height = 400 } = {}) {
+function mountQuality({ mobile = true, narrow = false, native = false, outdoorWalking = false, dpr = 3, width = 800, height = 400, android = false, memory, cores } = {}) {
   let frame;
   const effects = [];
   const visibilityListeners = new Set();
@@ -43,10 +43,18 @@ function mountQuality({ mobile = true, narrow = false, native = false, outdoorWa
     require: id => modules[id],
     window: {
       devicePixelRatio: dpr,
+      innerWidth: width,
+      innerHeight: height,
       location: { pathname: "/mars" },
       matchMedia: query => ({ matches: mobile || (narrow && query.includes("max-width")) }),
     },
-    navigator: { userAgent: native ? "BOBU-Mobile" : "Safari" },
+    navigator: {
+      userAgent: android
+        ? (native ? "Android BOBU-Mobile" : "Android Chrome")
+        : (native ? "BOBU-Mobile" : "Safari"),
+      deviceMemory: memory,
+      hardwareConcurrency: cores,
+    },
     document,
     performance: { now: () => now },
   });
@@ -65,6 +73,7 @@ function mountQuality({ mobile = true, narrow = false, native = false, outdoorWa
   effects[1]();
   return {
     get dpr() { return renderDpr; },
+    initialDpr() { return exports.getAresInitialDpr(); },
     resize(nextWidth, nextHeight) {
       width = nextWidth;
       height = nextHeight;
@@ -256,4 +265,87 @@ test("a hidden-tab gap is excluded from a desktop foreground quality window", ()
   desktop.advance(20, 1);
   desktop.advance(0.016, 125);
   assert.equal(desktop.dpr, 2);
+});
+
+
+test("V26 weak Android begins at DPR 0.5 and reduces under load", () => {
+  const q = mountQuality({
+    android: true, native: true, memory: 4, cores: 4,
+  });
+
+  assert.equal(q.initialDpr(), 0.5);
+  assert.equal(q.dpr, 0.5);
+
+  q.advance(0.06, 100);
+  assert.ok(Math.abs(q.dpr - 0.4) < 1e-9);
+
+  q.advance(0.01, 5000);
+  assert.ok(Math.abs(q.dpr - 0.4) < 1e-9);
+});
+
+test("V26 Android without hardware information uses safe defaults", () => {
+  const q = mountQuality({ android: true, native: true });
+  assert.equal(q.initialDpr(), 0.5);
+  assert.equal(q.dpr, 0.5);
+});
+
+test("V26 stronger Android stays within conservative limits", () => {
+  const q = mountQuality({
+    android: true, native: true, memory: 8, cores: 8,
+  });
+
+  assert.equal(q.initialDpr(), 0.75);
+  assert.equal(q.dpr, 0.75);
+
+  q.advance(0.06, 500);
+  assert.ok(Math.abs(q.dpr - 0.5) < 1e-9);
+
+  q.advance(0.01, 5000);
+  assert.ok(Math.abs(q.dpr - 0.5) < 1e-9);
+});
+
+test("V26 Android pixel budget takes precedence over the DPR floor", () => {
+  const q = mountQuality({
+    android: true, width: 2000, height: 2000,
+  });
+
+  const expected = Math.sqrt(200000 / 4000000);
+  assert.equal(q.initialDpr(), expected);
+  assert.equal(q.dpr, expected);
+
+  q.advance(0.06, 500);
+  assert.equal(q.dpr, expected);
+
+  q.resize(800, 400);
+  q.advance(0.01, 5000);
+  assert.equal(q.dpr, expected);
+});
+
+test("V26 Android landing and walking never raise resolution", () => {
+  const q = mountQuality({
+    android: true, native: true, memory: 4, cores: 4,
+  });
+
+  q.advance(0.06, 100);
+  const reduced = q.dpr;
+
+  q.setOutdoorWalking(true);
+  q.advance(0.01, 5000);
+
+  assert.equal(q.dpr, reduced);
+
+  q.setOutdoorWalking(false);
+  q.advance(0.01, 5000);
+
+  assert.equal(q.dpr, reduced);
+});
+
+test("V26 Android browser and native WebView use the same safe ceiling", () => {
+  for (const native of [true, false]) {
+    const q = mountQuality({
+      android: true, native, memory: 4, cores: 8,
+    });
+
+    assert.equal(q.dpr, 0.5);
+  }
 });

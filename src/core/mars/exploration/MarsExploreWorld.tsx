@@ -75,7 +75,7 @@ import {
 
 import * as THREE from "three";
 import { Html } from "@react-three/drei";
-import { AresRenderQuality, hasCoarseAresPointer, usesAresMobileVisuals } from "./components/AresRenderQuality";
+import { AresRenderQuality, hasCoarseAresPointer, usesAresMobileVisuals, usesAresAndroidSafeRendering, getAresInitialDpr } from "./components/AresRenderQuality";
 import { markAresStage, observeAresFrameGaps, observeAresLongTasks, startAresStage } from "./engine/aresPerformance";
 import { AresRenderDiagnostics } from "./components/AresRenderDiagnostics";
 import { AresSpacecraftReflection } from "./flight/AresSpacecraft";
@@ -1070,7 +1070,8 @@ export function MarsExploreWorld() {
       window.removeEventListener("bobu:ares-walking-ready", onReady);
   }, []);
 
-  const [renderDpr, setRenderDpr] = useState(1);
+  const [renderDpr, setRenderDpr] = useState(getAresInitialDpr);
+  const [androidSafeRendering] = useState(usesAresAndroidSafeRendering);
   const outdoorWalkingCheck = useRef<(() => boolean) | null>(null);
   const [mobileRenderer] = useState(hasCoarseAresPointer);
 
@@ -3931,7 +3932,7 @@ export function MarsExploreWorld() {
       )}
 
       <Canvas
-        shadows={!mobileRenderer}
+        shadows={!mobileRenderer && !androidSafeRendering}
         camera={{
           position: [
             0,
@@ -3944,10 +3945,14 @@ export function MarsExploreWorld() {
         }}
         dpr={renderDpr}
         onCreated={({ gl }) => {
-          if (usesAresMobileVisuals()) gl.transmissionResolutionScale = 0.65;
+          if (androidSafeRendering) {
+            gl.transmissionResolutionScale = 0.25;
+          } else if (usesAresMobileVisuals()) {
+            gl.transmissionResolutionScale = 0.65;
+          }
         }}
         gl={{
-          antialias: !mobileRenderer || usesAresMobileVisuals(),
+          antialias: !androidSafeRendering && (!mobileRenderer || usesAresMobileVisuals()),
           alpha: false,
           powerPreference:
             "high-performance",
