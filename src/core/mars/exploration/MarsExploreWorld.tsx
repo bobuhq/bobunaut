@@ -301,6 +301,12 @@ function MarsExploreScene({
   colonyBuildingsRefreshKey,
 }: MarsExploreSceneProps) {
   useAresArrivalSurface();
+
+  const multiplayerAttackRef = useRef<{
+    id: string;
+    kind: "punch" | "spin";
+    expiresAt: number;
+  } | null>(null);
   const bobuRef =
     useRef<THREE.Group | null>(
       null,
@@ -929,6 +935,7 @@ function MarsExploreScene({
         collisionObstacles={walkingCollisionObstacles}
       >
         <BobuExplorerV2Visual
+          multiplayerAttackRef={multiplayerAttackRef}
           analogMovementRef={analogMovementRef}
           onSpinReadyChange={onSpinReadyChange}
           onLeftArmReadyChange={onLeftArmReadyChange}
@@ -979,6 +986,7 @@ function MarsExploreScene({
         )}
 
       <AresMultiplayerPresence
+        multiplayerAttackRef={multiplayerAttackRef}
         parkedShip={
           landedHandoff
             ? {

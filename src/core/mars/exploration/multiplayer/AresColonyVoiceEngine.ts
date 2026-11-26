@@ -1,3 +1,4 @@
+import { getAresVoiceGain } from "./AresVoiceProximity";
 import {
   Room,
   RoomEvent,
@@ -214,6 +215,33 @@ export class AresColonyVoiceEngine {
     HTMLMediaElement
   >();
 
+  refreshProximityAudio(): void {
+    const listener = this.room
+      ? getVoiceBuilderId(this.room.localParticipant.identity)
+      : null;
+
+    for (const [track, element] of this.audioElements) {
+      const owner = this.audioOwners.get(track);
+
+      const gain =
+        listener &&
+        owner &&
+        this.voiceAuthorized &&
+        !this.mutedBuilders.has(owner)
+          ? getAresVoiceGain(listener, owner)
+          : 0;
+
+      element.muted = gain <= 0;
+
+      if ("setVolume" in track &&
+          typeof track.setVolume === "function") {
+        track.setVolume(gain);
+      } else {
+        element.volume = gain;
+      }
+    }
+  }
+
   async join(accessToken: string): Promise<void> {
     if (this.room || this.connecting) {
       throw new Error("VOICE_ALREADY_CONNECTED");
@@ -290,9 +318,8 @@ export class AresColonyVoiceEngine {
           const element = track.attach();
 
           element.autoplay = true;
-          element.muted =
-            !this.voiceAuthorized ||
-            this.mutedBuilders.has(builderId);
+          // Unknown or distant players start silent.
+          element.muted = true;
 
           this.audioOwners.set(track, builderId);
 
@@ -300,6 +327,7 @@ export class AresColonyVoiceEngine {
 
           document.body.appendChild(element);
           this.audioElements.set(track, element);
+          this.refreshProximityAudio();
         },
       );
 
@@ -369,12 +397,7 @@ export class AresColonyVoiceEngine {
 
       this.voiceAuthorized = true;
 
-      for (const [track, element] of this.audioElements) {
-        const owner = this.audioOwners.get(track);
-
-        element.muted =
-          !owner || this.mutedBuilders.has(owner);
-      }
+      this.refreshProximityAudio();
 
       // No microphone permission requested on join.
       // Publishing requires an explicit user action.
@@ -450,12 +473,7 @@ export class AresColonyVoiceEngine {
       this.mutedBuilders.delete(builderId);
     }
 
-    for (const [track, element] of this.audioElements) {
-      if (this.audioOwners.get(track) === builderId) {
-        element.muted =
-          !this.voiceAuthorized || muted;
-      }
-    }
+    this.refreshProximityAudio();
   }
 
   getSpeakingBuilderIds(): string[] {
