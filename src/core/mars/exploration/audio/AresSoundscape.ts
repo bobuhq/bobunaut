@@ -14,7 +14,7 @@ export class AresSoundscape {
     const now = context.currentTime;
     this.root = this.gain(0, context.destination);
     this.root.gain.setValueAtTime(0, now);
-    this.root.gain.linearRampToValueAtTime(1, now + 2.5);
+    this.root.gain.linearRampToValueAtTime(0.25, now + 2.5);
     this.exterior = this.gain(1, this.root);
     this.interior = this.gain(0, this.root);
     this.crystal = this.gain(0, this.root);
