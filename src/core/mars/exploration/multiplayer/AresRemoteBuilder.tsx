@@ -15,13 +15,14 @@ import {
 } from "@react-three/fiber";
 
 import * as THREE from "three";
+import { clone as cloneSkeleton } from "three/examples/jsm/utils/SkeletonUtils.js";
 
 import type {
   AresRemoteBuilder as AresRemoteBuilderState,
 } from "./AresPresenceEngine";
 
 const BOBU_EXPLORER_MODEL_URL =
-  "/models/bobu/bobu-explorer-v1.glb";
+  "/models/bobu/bobu-explorer-v2-clean.glb";
 
 interface AresRemoteBuilderProps {
   builder: AresRemoteBuilderState;
@@ -55,7 +56,7 @@ export function AresRemoteBuilder({
   const scene =
     useMemo(
       () =>
-        gltf.scene.clone(true),
+        cloneSkeleton(gltf.scene),
       [gltf.scene],
     );
 
@@ -79,146 +80,121 @@ export function AresRemoteBuilder({
     });
   }, [scene]);
 
-  const activeAnimationRef =
-    useRef<
-      "Idle" | "Walk" | "Run"
-    >("Idle");
+  type MoveClip = "BOBU_Walk" | "BOBU_Run";
+  type AttackClip = "BOBU_Punch" | "BOBU_SpinAttack";
 
-  const previousNetworkPosition =
-    useRef(
-      new THREE.Vector3(
-        builder.transform.x,
-        builder.transform.y,
-        builder.transform.z,
-      ),
-    );
+  const locomotionRef = useRef<MoveClip | null>(null);
+  const desiredMovementRef = useRef<MoveClip | null>(null);
+  const activeAttackRef = useRef<AttackClip | null>(null);
+  const attackRemainingRef = useRef(0);
+  const lastAttackIdRef = useRef<string | null>(null);
 
-  const previousNetworkUpdateAt =
-    useRef(builder.updatedAt);
+  const previousPosition = useRef(
+    new THREE.Vector3(
+      builder.transform.x,
+      builder.transform.y,
+      builder.transform.z,
+    ),
+  );
 
-  const playAnimation = (
-    animation:
-      | "Idle"
-      | "Walk"
-      | "Run",
-  ) => {
-    if (
-      activeAnimationRef.current ===
-      animation
-    ) {
-      return;
-    }
-
-    const previous =
-      actions[
-        activeAnimationRef.current
-      ];
-
-    const next =
-      actions[animation];
-
-    if (!next) {
-      return;
-    }
-
-    previous?.fadeOut(0.16);
-
-    next
-      .reset()
-      .fadeIn(0.16)
-      .play();
-
-    if (animation === "Run") {
-      next.timeScale = 1.18;
-    } else {
-      next.timeScale = 1;
-    }
-
-    activeAnimationRef.current =
-      animation;
-  };
+  const previousUpdateAt = useRef(builder.updatedAt);
 
   useEffect(() => {
-    const idle =
-      actions.Idle;
+    const t = builder.transform;
+    const previous = previousPosition.current;
 
-    if (!idle) {
-      return;
+    const seconds = Math.max(
+      0.001,
+      (builder.updatedAt - previousUpdateAt.current) / 1000,
+    );
+
+    const speed = Math.hypot(
+      t.x - previous.x,
+      t.z - previous.z,
+    ) / seconds;
+
+    desiredMovementRef.current =
+      speed > 12 ? "BOBU_Run" :
+      speed > 0.12 ? "BOBU_Walk" : null;
+
+    previous.set(t.x, t.y, t.z);
+    previousUpdateAt.current = builder.updatedAt;
+
+    const attack = t.attack;
+
+    if (!attack || attack.id === lastAttackIdRef.current) return;
+
+
+
+    const clip: AttackClip = attack.kind === "punch"
+      ? "BOBU_Punch"
+      : "BOBU_SpinAttack";
+
+    const action = actions[clip];
+    if (!action) return;
+
+    lastAttackIdRef.current = attack.id;
+
+    if (locomotionRef.current) {
+      actions[locomotionRef.current]?.fadeOut(0.12);
+      locomotionRef.current = null;
     }
 
-    idle
-      .reset()
-      .fadeIn(0.16)
+    if (activeAttackRef.current) {
+      actions[activeAttackRef.current]?.stop();
+    }
+
+    activeAttackRef.current = clip;
+    attackRemainingRef.current =
+      attack.kind === "punch" ? 0.7 : 1.5;
+
+    action.reset()
+      .setLoop(THREE.LoopOnce, 1)
+      .setEffectiveTimeScale(attack.kind === "punch" ? 1.3 : 1)
+      .setEffectiveWeight(1)
+      .fadeIn(0.12)
       .play();
 
-    activeAnimationRef.current =
-      "Idle";
+    action.clampWhenFinished = false;
 
+  }, [builder.transform, builder.updatedAt, actions]);
+
+  useEffect(() => {
     return () => {
-      actions.Idle?.stop();
-      actions.Walk?.stop();
-      actions.Run?.stop();
+      for (const action of Object.values(actions)) action?.stop();
     };
   }, [actions]);
 
-  useEffect(() => {
-    const nextPosition =
-      new THREE.Vector3(
-        builder.transform.x,
-        builder.transform.y,
-        builder.transform.z,
-      );
+  useFrame((_, delta) => {
+    if (activeAttackRef.current) {
+      attackRemainingRef.current -= Math.min(delta, 0.1);
 
-    const previousPosition =
-      previousNetworkPosition.current;
+      if (attackRemainingRef.current > 0) return;
 
-    const elapsedMs =
-      Math.max(
-        1,
-        builder.updatedAt -
-          previousNetworkUpdateAt.current,
-      );
-
-    const horizontalDistance =
-      Math.hypot(
-        nextPosition.x -
-          previousPosition.x,
-        nextPosition.z -
-          previousPosition.z,
-      );
-
-    const speed =
-      horizontalDistance /
-      (elapsedMs / 1000);
-
-    let nextAnimation:
-      | "Idle"
-      | "Walk"
-      | "Run" = "Idle";
-
-    if (speed > 4.5) {
-      nextAnimation = "Run";
-    } else if (speed > 0.12) {
-      nextAnimation = "Walk";
+      actions[activeAttackRef.current]?.fadeOut(0.12);
+      activeAttackRef.current = null;
+      locomotionRef.current = null;
     }
 
-    playAnimation(
-      nextAnimation,
-    );
+    const desired = desiredMovementRef.current;
 
-    previousNetworkPosition.current.copy(
-      nextPosition,
-    );
+    if (desired === locomotionRef.current) return;
 
-    previousNetworkUpdateAt.current =
-      builder.updatedAt;
-  }, [
-    builder.transform.x,
-    builder.transform.y,
-    builder.transform.z,
-    builder.updatedAt,
-    actions,
-  ]);
+    if (locomotionRef.current) {
+      actions[locomotionRef.current]?.fadeOut(0.16);
+    }
+
+    if (desired) {
+      actions[desired]?.reset()
+        .setLoop(THREE.LoopRepeat, Infinity)
+        .setEffectiveTimeScale(desired === "BOBU_Run" ? 1.18 : 1)
+        .setEffectiveWeight(1)
+        .fadeIn(0.16)
+        .play();
+    }
+
+    locomotionRef.current = desired;
+  });
 
   useEffect(() => {
     targetPosition.current.set(

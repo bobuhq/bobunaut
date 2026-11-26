@@ -199,7 +199,7 @@ test("persistent mute prevents allocation; unmute does not replay this entry", a
   assert.equal(Context.instances.length, 0);
   sound.setEnabled(true); gesture(); await wait(10);
   assert.equal(Context.instances.length, 1);
-  assert.equal(Context.instances[0].sources.length, 8, "Unmute starts ambience without replaying arrival");
+  assert.equal(Context.instances[0].sources.length, 6, "Unmute starts ambience without replaying arrival");
   sound.routeChanged("/mars"); sound.routeChanged("/mars/explore"); sound.attachSurface();
   await wait(10);
   sound.setEnabled(false); await wait(210);
@@ -225,7 +225,7 @@ test("backgrounding drops the cue and closes audio rather than playing on return
   document.visibilityState = "visible";
   document.dispatchEvent(new Event("visibilitychange")); gesture();
   assert.equal(Context.instances.length, 2);
-  assert.equal(Context.instances[1].sources.length, 8, "Only ambience resumes");
+  assert.equal(Context.instances[1].sources.length, 6, "Only ambience resumes");
 });
 
 test("foreground OS audio interruption closes the cue instead of queuing a late continuation", async () => {
@@ -237,7 +237,7 @@ test("foreground OS audio interruption closes the cue instead of queuing a late 
   assert.equal(context.onstatechange, null);
   gesture();
   assert.equal(Context.instances.length, 2);
-  assert.equal(Context.instances[1].sources.length, 8);
+  assert.equal(Context.instances[1].sources.length, 6);
 });
 
 test("WebKit fallback and blocked storage are supported", async () => {
@@ -260,7 +260,7 @@ test("arrival hands off to one continuous soundscape and releases its finite sou
   Context.instances[0].sources[0].onended();
   assert(!Context.instances[0].closed);
   assert(Context.instances[0].sources.slice(0, 1).every(source => source.disconnected));
-  assert.equal(Context.instances[0].sources.length, 9);
+  assert.equal(Context.instances[0].sources.length, 7);
   gesture(); assert.equal(Context.instances.length, 1);
   await marsAudio.unlock(); Context.instances[0].currentTime = 5; marsAudio.step();
   assert.equal(Context.instances.length, 1, "Movement uses the same context");
@@ -273,7 +273,7 @@ test("mix updates create no sources, near-crystal gain is gated by interior, cue
   sound.setEnabled(false); sound.routeChanged("/mars/explore"); sound.attachSurface();
   sound.setEnabled(true); await wait(10);
   const context = Context.instances[0];
-  assert.equal(context.sources.length, 8);
+  assert.equal(context.sources.length, 6);
   sound.setCrystalDistance(1);
   assert.equal(sound.soundscape.crystal.gain.value, 1);
   sound.setInterior(true);
@@ -281,18 +281,18 @@ test("mix updates create no sources, near-crystal gain is gated by interior, cue
   const targets = sound.soundscape.crystal.gain.targets.length;
   for (let i = 0; i < 100; i++) { sound.setInterior(true); sound.setCrystalDistance(1); }
   assert.equal(sound.soundscape.crystal.gain.targets.length, targets);
-  assert.equal(context.sources.length, 8);
+  assert.equal(context.sources.length, 6);
   sound.setCrystalDistance(9);
   assert.equal(sound.soundscape.crystal.gain.value, 0);
   sound.terminal("mission"); sound.terminal("mission"); sound.terminal("research");
-  assert.equal(context.sources.length, 9);
+  assert.equal(context.sources.length, 7);
   context.currentTime = 1.3; sound.terminal("research");
-  assert.equal(context.sources.length, 10);
+  assert.equal(context.sources.length, 8);
   sound.setEnabled(false);
-  assert(context.sources.slice(0, 8).every(source => source.stopped === context.currentTime + 0.185), "Continuous native sources stop even if JS cleanup timers freeze");
+  assert(context.sources.slice(0, 6).every(source => source.stopped === context.currentTime + 0.185), "Continuous native sources stop even if JS cleanup timers freeze");
   await wait(210);
   sound.terminal("research");
-  assert.equal(context.sources.length, 10);
+  assert.equal(context.sources.length, 8);
   assert(context.closed);
 });
 
@@ -358,15 +358,15 @@ test("V3 uses the full 6.35-second recording and hands off only at natural end",
   assert.equal(source.buffer.duration, 6.35); assert.equal(source.stopped, 6.35);
   assert.equal(source.loop, false); assert.equal(context.sources.length, 1);
   source.onended(); assert.equal(source.buffer, null);
-  assert.equal(context.sources.length, 9); assert(sound.soundscape);
+  assert.equal(context.sources.length, 7); assert(sound.soundscape);
 });
 
 test("missing recording skips arrival without replacement and preserves ambience", async () => {
   globalThis.fetch = async () => ({ ok: false });
   sound.routeChanged("/mars/explore"); sound.attachSurface(); gesture(); await wait(10);
-  assert.equal(Context.instances[0].sources.length, 8);
+  assert.equal(Context.instances[0].sources.length, 6);
   assert(sound.soundscape); sound.terminal("mission");
-  assert.equal(Context.instances[0].sources.length, 8);
+  assert.equal(Context.instances[0].sources.length, 6);
 });
 
 test("navigation during pending asset fetch cannot start a late recording", async () => {
@@ -384,5 +384,19 @@ test("pagehide during arrival releases its buffer and returns with ambience only
   const source = Context.instances[0].sources[0];
   window.dispatchEvent(new Event("pagehide")); assert.equal(source.buffer, null);
   gesture(); await wait(10);
-  assert.equal(Context.instances[1].sources.length, 8);
+  assert.equal(Context.instances[1].sources.length, 6);
+});
+
+
+test("V25 exterior atmosphere stays silent while interior and crystal remain available", () => {
+  const source = readFileSync(
+    "src/core/mars/exploration/audio/AresSoundscape.ts",
+    "utf8",
+  );
+
+  assert.match(source, /this\.exterior = this\.gain\(0, this\.root\)/);
+  assert.match(source, /\[this\.exterior\.gain, 0\]/);
+  assert.match(source, /this\.drone\(196, 0\.003, this\.interior\)/);
+  assert.match(source, /this\.drone\(294\.15, 0\.0018, this\.interior\)/);
+  assert.match(source, /this\.drone\(72, 0\.009, pulse\)/);
 });

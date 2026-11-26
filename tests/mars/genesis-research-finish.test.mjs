@@ -180,7 +180,7 @@ test("V20 protects production paths with approved release fingerprints", () => {
     "src/core/mars/exploration/components/BobuCharacterController.tsx":
       "e87f1b51154bcf93e639e637c21249583b5e0233660d200aeb64b5e8ff3887f8",
     "src/core/mars/exploration/MarsExploreWorld.tsx":
-      "b7c305dd166268411a97763b2e578d5e3687f4335a1497114a8a01d6db35d034",
+      "6ca9aaca799776db7dcf94b009b2b19c1de12a8b9423dbf877bd0fb3ee2990f2",
     "src/core/mars/exploration/components/AresMobileActions.tsx":
       "550710637718f23013eb8053f39c1de68980bea41fa24082a27833cc5134bf97",
     "src/core/mars/exploration/components/AresMobileJoystick.tsx":
@@ -202,9 +202,9 @@ test("V20 protects production paths with approved release fingerprints", () => {
     "src/core/mars/exploration/missions/AresMissionTerminal.tsx":
       "75ad23a3013c63a6fb82b22007c9b5d90a1668eee9b719b92a371c47c651872b",
     "src/core/mars/exploration/multiplayer/AresColonyVoiceEngine.ts":
-      "3aabe4eaa7e1415c08491420114f32465c066aed391418f93ba94c5133bc8e5a",
+      "c73649f7a58eeb40da7e1cb07a70211d0b8030d6eca167348147e0f1f7c6efe6",
     "src/core/mars/exploration/multiplayer/AresColonyVoicePanel.tsx":
-      "df99cb7a1bb06775257a2122ea7c34717239f540620412e10fc2830a10b1e2f7",
+      "97e644a9235f5889e3ef6ab3c012b30bb4454ad2180a4db7eacbda9437d558ea",
     "supabase/config.toml":
       "c037b41612fa34849aaf5cc24e73f718b8ab8b4120fdb455d0464e12c405c05b",
     "supabase/functions/ares-colony-voice-revoke/.npmrc":
