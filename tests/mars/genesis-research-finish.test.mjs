@@ -180,7 +180,7 @@ test("V20 protects production paths with approved release fingerprints", () => {
     "src/core/mars/exploration/components/BobuCharacterController.tsx":
       "e87f1b51154bcf93e639e637c21249583b5e0233660d200aeb64b5e8ff3887f8",
     "src/core/mars/exploration/MarsExploreWorld.tsx":
-      "5772809db6d0dda2fa0669a848e1705dc9954ed3116bd91eaba1be681379c923",
+      "bd392e057bd1f401ec95f812fdceaa4d476dea00131bf1216e96e63372b77711",
     "src/core/mars/exploration/components/AresMobileActions.tsx":
       "550710637718f23013eb8053f39c1de68980bea41fa24082a27833cc5134bf97",
     "src/core/mars/exploration/components/AresMobileJoystick.tsx":
@@ -202,7 +202,7 @@ test("V20 protects production paths with approved release fingerprints", () => {
     "src/core/mars/exploration/multiplayer/AresColonyVoiceEngine.ts":
       "3aabe4eaa7e1415c08491420114f32465c066aed391418f93ba94c5133bc8e5a",
     "src/core/mars/exploration/multiplayer/AresColonyVoicePanel.tsx":
-      "bdc9bb4d35d59764c7530d1b8140d91ad5dca27b6eed7049505f21d7800a74a1",
+      "df99cb7a1bb06775257a2122ea7c34717239f540620412e10fc2830a10b1e2f7",
     "supabase/config.toml":
       "c037b41612fa34849aaf5cc24e73f718b8ab8b4120fdb455d0464e12c405c05b",
     "supabase/functions/ares-colony-voice-revoke/.npmrc":
@@ -218,9 +218,11 @@ test("V20 protects production paths with approved release fingerprints", () => {
     "supabase/functions/ares-colony-voice-token/deno.lock":
       "07c28024e407d6b429350dae6825f743ea210eef9578324c2e3f50f700eeb232",
     "supabase/functions/ares-colony-voice-token/index.ts":
-      "849029c714fd0925891089c43ac2cd49b70f9fee42a8df9e10c5d4334603d0c7",
+      "5a4450c9f059b4cc82d159c61c2cd01e3eea676085e08f44ea5788ca620c264e",
     "supabase/migrations/20261124151406_ares_colony_voice_revocation_queue.sql":
       "9f53f464aad443e4d790e018258f588fac879e24222237eebb92e9b2b14cdc04",
+    "supabase/migrations/20261126072035_ares_voice_public_access_v1.sql":
+      "5b5a037eb9b3675117d12e40f2013b38430722b65dc77366bcdedb26c2b806af",
     "supabase/functions/x-verification-status/index.ts":
       "ea33955ebeb2952738ac23880671254a8119bd49e58fa723f07c61e5ce7469f0",
   };
