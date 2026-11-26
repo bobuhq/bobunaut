@@ -18,31 +18,7 @@ export class AresSoundscape {
     this.exterior = this.gain(1, this.root);
     this.interior = this.gain(0, this.root);
     this.crystal = this.gain(0, this.root);
-    // A small procedural noise buffer, shared by two asynchronous wind layers.
-    // Overlapped endpoints avoid an energy seam; differing rates + slow filter
-    // modulation prevent a recognizable short repeated weather pattern.
-    const rate = 22050, length = rate * 17, overlap = rate / 2;
-    const buffer = context.createBuffer(1, length, rate);
-    const data = buffer.getChannelData(0);
-    const tail = new Float32Array(overlap);
-    for (let i = 0; i < length; i++) data[i] = Math.random() * 2 - 1;
-    for (let i = 0; i < overlap; i++) tail[i] = Math.random() * 2 - 1;
-    for (let i = 0; i < overlap; i++) {
-      const phase = i / overlap * Math.PI / 2;
-      data[i] = tail[i] * Math.cos(phase) + data[i] * Math.sin(phase);
-    }
-    // Noise samples are already independent across the seam, just as elsewhere
-    // in the buffer. Filtering removes abrupt high-frequency sample energy.
-    for (const [speed, offset, cutoff] of [[0.79, 0, 260], [1.13, 7.3, 530]]) {
-      const noise = context.createBufferSource();
-      noise.buffer = buffer; noise.loop = true; noise.playbackRate.value = speed;
-      this.track(noise);
-      const filter = context.createBiquadFilter(); filter.type = "lowpass";
-      filter.frequency.value = cutoff; filter.Q.value = 0.45; this.nodes.add(filter);
-      noise.connect(filter); filter.connect(this.gain(0.018, this.exterior));
-      this.modulate(filter.frequency, 0.037 * speed, 90);
-      noise.start(now, offset);
-    }
+    // Procedural wind noise disabled to prevent audible crackling.
     this.drone(72, 0.0025, this.exterior);
     this.drone(108.1, 0.0018, this.exterior);
     this.drone(196, 0.003, this.interior);
