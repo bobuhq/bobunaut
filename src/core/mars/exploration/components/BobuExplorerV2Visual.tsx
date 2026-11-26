@@ -11,11 +11,6 @@ type MovementClip = "BOBU_Walk" | "BOBU_Run";
 type AttackClip = "BOBU_Punch" | "BOBU_SpinAttack";
 
 type Props = {
-  multiplayerAttackRef?: MutableRefObject<{
-    id: string;
-    kind: "punch" | "spin";
-    expiresAt: number;
-  } | null>;
   stairStateRef?: MutableRefObject<boolean>;
   analogMovementRef?: MutableRefObject<{
     x: number;
@@ -31,7 +26,6 @@ const MOVEMENT_KEYS = new Set([
 ]);
 
 export function BobuExplorerV2Visual({
-  multiplayerAttackRef,
   stairStateRef,
   analogMovementRef,
   onSpinReadyChange,
@@ -111,14 +105,6 @@ export function BobuExplorerV2Visual({
         locomotionRef.current = null;
       }
 
-      if (multiplayerAttackRef && (kind === "punch" || kind === "spin")) {
-        multiplayerAttackRef.current = {
-          id: crypto.randomUUID(),
-          kind,
-          expiresAt: Date.now() + 2200,
-        };
-      }
-
       attackRef.current = clip;
       attackRemainingRef.current = kind === "punch" ? 0.7 : 1.5;
 
@@ -154,7 +140,7 @@ export function BobuExplorerV2Visual({
         action?.stop();
       }
     };
-  }, [actions, onSpinReadyChange, onLeftArmReadyChange, multiplayerAttackRef]);
+  }, [actions, onSpinReadyChange, onLeftArmReadyChange]);
 
   useFrame((_state, delta) => {
     if (attackRef.current) {

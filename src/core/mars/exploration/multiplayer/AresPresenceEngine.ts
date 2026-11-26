@@ -41,25 +41,7 @@ function normalizeParkedShip(
   };
 }
 
-export interface AresAttackState {
-  id: string;
-  kind: "punch" | "spin";
-}
-
-function normalizeAttack(value: unknown): AresAttackState | null {
-  if (!value || typeof value !== "object") return null;
-  const attack = value as Partial<AresAttackState>;
-  if (
-    typeof attack.id !== "string" ||
-    !attack.id.length ||
-    attack.id.length > 100 ||
-    (attack.kind !== "punch" && attack.kind !== "spin")
-  ) return null;
-  return { id: attack.id, kind: attack.kind };
-}
-
 export interface AresPresenceTransform {
-  attack?: AresAttackState | null;
   parkedShip?: AresParkedShipState | null;
   x: number;
   y: number;
@@ -75,7 +57,6 @@ export interface AresRemoteBuilder {
 }
 
 interface AresPlayerStatePayload {
-  attack?: AresAttackState | null;
   parkedShip?: AresParkedShipState | null;
   builderId: string;
   displayName: string;
@@ -257,7 +238,6 @@ export class AresPresenceEngine {
             displayName:
               payload.displayName,
             transform: {
-              attack: normalizeAttack(payload.attack),
               parkedShip: normalizeParkedShip(payload.parkedShip),
               x: payload.x,
               y: payload.y,
@@ -398,9 +378,6 @@ export class AresPresenceEngine {
         ) >
         ROTATION_EPSILON;
 
-      const attackChanged =
-        transform.attack?.id !== this.lastTransform.attack?.id;
-
       const shipChanged =
         JSON.stringify(transform.parkedShip ?? null) !==
         JSON.stringify(this.lastTransform.parkedShip ?? null);
@@ -408,8 +385,7 @@ export class AresPresenceEngine {
       if (
         !positionChanged &&
         !rotationChanged &&
-        !shipChanged &&
-        !attackChanged
+        !shipChanged
       ) {
         return;
       }
@@ -422,7 +398,6 @@ export class AresPresenceEngine {
         displayName:
           this.displayName,
         sector: "ares",
-        attack: normalizeAttack(transform.attack),
         parkedShip: normalizeParkedShip(transform.parkedShip),
         x: transform.x,
         y: transform.y,

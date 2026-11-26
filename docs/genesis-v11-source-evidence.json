@@ -2,7 +2,7 @@
   "schema": 1,
   "scope": "repository geometry only; not production certification",
   "productionCertified": false,
-  "releaseDigest": "266d6eb8af31e978d72e42d3e3023a7d30ec06034a02dfe2928276b402fd2a85",
+  "releaseDigest": "42f123bd93886497417a0ddbbc728503ba0afe7d0a1c232b99384667cc44672a",
   "sourceDigests": {
     "src/core/mars/exploration/engine/AresGenesisTerrainData.ts": "adbe51a6aefd27b8de4e317886754a72607a006eb9d33ba1388b9bbf19f1cc30",
     "public/mars/ares-genesis/ares-genesis-height-16.bin": "62b26ba12a7da83b2ddf58d46398231deacb993a996321b89db078bf364b47aa",
@@ -12,7 +12,7 @@
     "src/core/mars/exploration/colony/AresColonyCoordinateSystem.ts": "b0dc6681e41515eb82f599a305dc0e3339d6680057090a33872cdcb38138ee47",
     "src/core/mars/exploration/landmarks/AresExplorationLandmarks.tsx": "b271d32d4cb90f48d4d36c54aca6bb143154280ff6af2feae7c9104eb1cb1b19",
     "supabase/migrations/20260830170000_create_ares_landmark_discovery_v1.sql": "8c7fda53ad51f764a794af1c4fe514eed3771e132cda78e74a9161eb44e36320",
-    "src/core/mars/exploration/MarsExploreWorld.tsx": "6ca9aaca799776db7dcf94b009b2b19c1de12a8b9423dbf877bd0fb3ee2990f2",
+    "src/core/mars/exploration/MarsExploreWorld.tsx": "b7c305dd166268411a97763b2e578d5e3687f4335a1497114a8a01d6db35d034",
     "supabase/migrations/20260830005000_create_ares_hidden_mission_engine_v1.sql": "af7ae123417a097c97600fb4d574a84bd7f993eded61ba2cd21ae47fd6f93d78",
     "src/core/mars/exploration/guidance/AresGuidanceSystem.tsx": "e854c9edbff73b1beea4a26f42e33491ee47837c4d964099fe5cb35b7e7c892d"
   },

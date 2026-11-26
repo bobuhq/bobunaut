@@ -15,12 +15,12 @@ export class AresSoundscape {
     this.root = this.gain(0, context.destination);
     this.root.gain.setValueAtTime(0, now);
     this.root.gain.linearRampToValueAtTime(0.25, now + 2.5);
-    this.exterior = this.gain(0, this.root);
+    this.exterior = this.gain(1, this.root);
     this.interior = this.gain(0, this.root);
     this.crystal = this.gain(0, this.root);
     // Procedural wind noise disabled to prevent audible crackling.
-    // Exterior atmosphere disabled.
-    // Preserve interior, crystal and gameplay audio.
+    this.drone(72, 0.0025, this.exterior);
+    this.drone(108.1, 0.0018, this.exterior);
     this.drone(196, 0.003, this.interior);
     this.drone(294.15, 0.0018, this.interior);
     // Quiet harmonic reactor, with a positive, slow amplitude envelope.
@@ -87,7 +87,7 @@ export class AresSoundscape {
     const now = this.context.currentTime;
     // Complementary targets keep the bed level stable through the doorway.
     for (const [parameter, value] of [
-      [this.exterior.gain, 0],
+      [this.exterior.gain, inside ? 0 : 1],
       [this.interior.gain, inside ? 1 : 0],
       [this.crystal.gain, Number.isFinite(resonance) ? Math.max(0, Math.min(1, resonance)) : 0],
     ] as const) {

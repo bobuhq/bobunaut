@@ -161,14 +161,6 @@ export function AresColonyVoicePanel({
     };
   }, [engine]);
 
-  useEffect(() => {
-    const timer = window.setInterval(() => {
-      engine.refreshProximityAudio();
-    }, 125);
-
-    return () => window.clearInterval(timer);
-  }, [engine]);
-
   async function joinVoice(): Promise<void> {
     if (actionRef.current || !accessToken || !builderId) return;
 

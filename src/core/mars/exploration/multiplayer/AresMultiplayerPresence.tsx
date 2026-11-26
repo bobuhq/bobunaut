@@ -1,9 +1,4 @@
 import {
-  publishAresVoicePositions,
-  clearAresVoicePositions,
-} from "./AresVoiceProximity";
-
-import {
   useEffect,
   useRef,
   useState,
@@ -35,11 +30,6 @@ const REMOTE_STALE_AFTER_MS =
   4000;
 
 interface AresMultiplayerPresenceProps {
-  multiplayerAttackRef?: MutableRefObject<{
-    id: string;
-    kind: "punch" | "spin";
-    expiresAt: number;
-  } | null>;
   parkedShip?: AresParkedShipState | null;
   characterRef:
     MutableRefObject<THREE.Group | null>;
@@ -54,7 +44,6 @@ interface AresMultiplayerPresenceProps {
 }
 
 export function AresMultiplayerPresence({
-  multiplayerAttackRef,
   characterRef,
   parkedShip,
   builderId,
@@ -70,14 +59,6 @@ export function AresMultiplayerPresence({
     >([]);
 
   const parkedShipRef = useRef(parkedShip ?? null);
-
-  const currentAttack = () => {
-    const attack = multiplayerAttackRef?.current;
-
-    return attack && attack.expiresAt > Date.now()
-      ? { id: attack.id, kind: attack.kind }
-      : null;
-  };
 
   useEffect(() => {
     parkedShipRef.current = parkedShip ?? null;
@@ -173,7 +154,6 @@ export function AresMultiplayerPresence({
           void presenceEngine.updateTransform(
             {
               parkedShip: parkedShipRef.current,
-              attack: currentAttack(),
               x:
                 group.position.x,
               y:
@@ -209,7 +189,6 @@ export function AresMultiplayerPresence({
           void presenceEngine.updateTransform(
             {
               parkedShip: parkedShipRef.current,
-              attack: currentAttack(),
               x:
                 group.position.x,
               y:
@@ -252,30 +231,7 @@ export function AresMultiplayerPresence({
     displayName,
     characterRef,
     onOnlineCountChange,
-    multiplayerAttackRef,
   ]);
-
-  useEffect(() => {
-    const timer = window.setInterval(() => {
-      const group = characterRef.current;
-
-      if (!group || !connectedRef.current) {
-        clearAresVoicePositions(builderId);
-        return;
-      }
-
-      publishAresVoicePositions(
-        builderId,
-        group.position,
-        presenceEngine.getRemoteBuilders(),
-      );
-    }, 125);
-
-    return () => {
-      window.clearInterval(timer);
-      clearAresVoicePositions(builderId);
-    };
-  }, [builderId, characterRef, presenceEngine]);
 
   useFrame(() => {
     if (
@@ -297,7 +253,6 @@ export function AresMultiplayerPresence({
     void presenceEngine
       .updateTransform({
         parkedShip: parkedShipRef.current,
-        attack: currentAttack(),
         x: group.position.x,
         y: group.position.y,
         z: group.position.z,
