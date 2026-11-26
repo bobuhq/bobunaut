@@ -795,7 +795,7 @@ function MarsExploreScene({
         ]}
         intensity={hasCoarseAresPointer() && navigator.userAgent.includes("BOBU-Mobile") ? 3.1 : 2.65}
         color="#ffd7bd"
-        castShadow
+        castShadow={!flying}
         shadow-mapSize-width={1024}
         shadow-mapSize-height={1024}
       />

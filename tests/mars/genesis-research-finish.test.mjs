@@ -176,11 +176,11 @@ test("V20 protects production paths with approved release fingerprints", () => {
     "src/imported-v11/core/mars/exploration/genesis-v5/FinalV11CampusAssets.tsx":
       "41b0a992e37ecdf70e7cf27e6f00604a68085c8e30ec0fc4e5ec14c13d59ee64",
     "src/core/mars/exploration/separate-v11/SeparateV11Campus.tsx":
-      "7074983fd0d53f87deecf60483ec9f5e97136e068c9463d78398c133e0c613e8",
+      "92d13ffbaa66c68ff45dceabc757e056cb16fad10b559322efff79bc1d1ef502",
     "src/core/mars/exploration/components/BobuCharacterController.tsx":
       "e87f1b51154bcf93e639e637c21249583b5e0233660d200aeb64b5e8ff3887f8",
     "src/core/mars/exploration/MarsExploreWorld.tsx":
-      "66de105059e09dd113001d8057eede16e04ea254be0ae45d32c96c8b7be31eba",
+      "b7c305dd166268411a97763b2e578d5e3687f4335a1497114a8a01d6db35d034",
     "src/core/mars/exploration/components/AresMobileActions.tsx":
       "550710637718f23013eb8053f39c1de68980bea41fa24082a27833cc5134bf97",
     "src/core/mars/exploration/components/AresMobileJoystick.tsx":

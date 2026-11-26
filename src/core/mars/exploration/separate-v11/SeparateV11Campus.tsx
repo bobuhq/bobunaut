@@ -53,7 +53,10 @@ class BuildingBoundary extends Component<{ children: ReactNode; name: string }, 
   render() { return this.state.failed ? null : this.props.children; }
 }
 
-function IndividualBuilding({ building,onHullObstacles,onAssetReady }: {
+function IndividualBuilding({
+  building,onHullObstacles,onAssetReady,flightMode,
+}: {
+  flightMode: boolean;
   building: PlannedBuilding;
   onHullObstacles:(id:string,o:WallObstacle[])=>void;
   onAssetReady:(id:string,ready:boolean)=>void;
@@ -69,9 +72,9 @@ function IndividualBuilding({ building,onHullObstacles,onAssetReady }: {
   return <group name={'v11-individual-' + building.id} position={[building.worldX, 0, building.worldZ]}>
     <CampusAssets plan={building.plan} traversable onHullObstacles={hullObstacles} onAssetReady={reportAssetReady}/>
     <CampusArchitecture plan={building.plan} traversable />
-    {building.id === 'habitat' && <GenesisResearchDisplays site={site} />}
-    {building.id === 'habitat' && <GenesisResearchFinish site={site} />}
-    {building.id === 'greenhouse' && <GreenhouseGarden deck={site.deck} position={site} />}
+    {!flightMode && building.id === 'habitat' && <GenesisResearchDisplays site={site} />}
+    {!flightMode && building.id === 'habitat' && <GenesisResearchFinish site={site} />}
+    {!flightMode && building.id === 'greenhouse' && <GreenhouseGarden deck={site.deck} position={site} />}
   </group>;
 }
 
@@ -206,9 +209,9 @@ export function SeparateV11Campus({
   if (!terrain) return null;
   return <group name="v11-independent-buildings-no-common-platform">
     {buildings.map(building => <BuildingBoundary key={building.id} name={building.id}>
-      <Suspense fallback={null}><IndividualBuilding building={building} onHullObstacles={updateBuildingHulls} onAssetReady={updateAssetReady}/></Suspense>
+      <Suspense fallback={null}><IndividualBuilding flightMode={flightMode} building={building} onHullObstacles={updateBuildingHulls} onAssetReady={updateAssetReady}/></Suspense>
     </BuildingBoundary>)}
-    {experience&&<CampusInteriorEffects experience={experience} targetRef={targetRef}/>}
+    {!flightMode&&experience&&<CampusInteriorEffects experience={experience} targetRef={targetRef}/>}
     <ConnectedCampusArchitecture terrain={terrain} buildings={buildings} model={model}/>
     {terrainAt && <V13EntranceHalls terrainAt={terrainAt} buildings={buildings} mobile={mobile}/>}
 
