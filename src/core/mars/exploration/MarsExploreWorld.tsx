@@ -809,6 +809,7 @@ function MarsExploreScene({
           targetRef={bobuRef}
           onRuntime={setLocalCampusRuntime}
           parkedShip={landedHandoff?.ship ?? null}
+          flightMode={flying}
         />
       </Suspense></LocalV11Boundary>}
       <AresGroundDust />
