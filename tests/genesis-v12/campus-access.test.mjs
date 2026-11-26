@@ -30,7 +30,8 @@ test('new links and research entrance remain outside verified Water structure en
 });
 test('flight remains production-owned while local camera and ground wiring stay isolated',()=>{
  const world=readFileSync(new URL('../../src/core/mars/exploration/MarsExploreWorld.tsx',import.meta.url),'utf8');
- assert.match(world,/const localV11Enabled = !flying;/);
+ assert.match(world,/const localV11Enabled\s*=\s*\(!restoring\s*\|\|\s*restoreState\.status\s*===\s*"ready"\);/);
+ assert.match(world,/const interactive\s*=\s*!restoring\s*&&\s*!flying\s*&&\s*terrain\s*!==\s*null;/);
  assert.match(world,/<AresFlightSession onEntry=\{enterWalking\}/);
  assert.match(world,/setLandedHandoff\(handoff\)/);
  assert.match(world,/interiorAt=\{localCampusRuntime\?\.interiorAt\}/);assert.match(world,/environmentAt=\{localCampusRuntime\?\.cameraEnvironmentAt\}/);

@@ -24,7 +24,19 @@ test('Chrome: X redirect/reload, recovery, account safety and server claims', {s
  window.port.auth={getUser:async()=>({data:{user:{id:userId,identities}},error:null}),getSession:async()=>({data:{session:{user:{id:userId},access_token:'token'}},error:null}),unlinkIdentity:async x=>{check(x.provider==='x','only X unlink');identities=identities.filter(i=>i!==x);return {error:null}}};
  window.port.functions={invoke:async(name,options)=>{
  check(options.headers.Authorization==='Bearer token','bearer token');if(offline)throw Error('offline');
- if(name==='x-verification-status')return {data:{builder_id:userId,status,verified:status==='rewarded'},error:null};
+ if(name==='x-verification-status'){
+   const x=identities.find(i=>i.provider==='x');
+   const recovery=!x?'missing_identity'
+     :x.id!=='original'?'different_identity'
+     :localStorage.getItem('stage')==='fresh'
+       ?'old_identity':'fresh_identity';
+   return {data:{
+     builder_id:userId,
+     status,
+     verified:status==='rewarded',
+     recovery_state:recovery
+   },error:null};
+  }
  claims++;if(status==='pending')return {error:{context:new Response(JSON.stringify({status:'fresh_x_oauth_required'}),{status:409})}};
  return {data:{verified:true,total_gp:100,already_rewarded:claims>1},error:null};
  }};
@@ -42,8 +54,30 @@ test('Chrome: X redirect/reload, recovery, account safety and server claims', {s
   localStorage.setItem('test-port',JSON.stringify(identities));localStorage.setItem('stage','retry');location.reload();return;
  }
  check(await flow.hasXRecovery('builder'),'reload preserves recovery');
- await flow.prepareXReconnect('builder',true);await flow.beginXLink();link('wrong');await rejects(()=>flow.completeXOAuthCallback());check(claims===0,'wrong account cannot claim');
- await flow.prepareXReconnect('builder',true);link();await flow.completeXOAuthCallback();
+ if(stage==='retry'){
+   await flow.prepareXReconnect('builder',true);
+   await flow.beginXLink();
+   link('wrong');
+   await rejects(()=>flow.completeXOAuthCallback());
+   check(claims===0,'wrong account cannot claim');
+   await rejects(()=>flow.prepareXReconnect('builder',true));
+   check(identities.some(i=>i.id==='wrong'),'wrong account preserved for secure review');
+   check(await flow.hasXRecovery('builder'),'original recovery preserved');
+
+   // Test fixture only: simulate an external authorized resolution.
+   // The application itself must never unlink the wrong identity.
+   identities=identities.filter(i=>i.provider!=='x');
+   await flow.clearXLink();
+   localStorage.setItem('test-port',JSON.stringify(identities));
+   localStorage.setItem('stage','review-resolved');
+   location.reload();
+   return;
+ }
+ check(stage==='review-resolved','explicit test review resolution');
+ await flow.prepareXReconnect('builder',true);
+ await flow.beginXLink();
+ link();
+ await flow.completeXOAuthCallback();
  await rejects(()=>gpRewardService.claimGenesisReward('x','builder'));check((await readXVerification('builder')).pending,'409 remains pending');
  status='relinked';check(!(await readXVerification('builder')).verified,'relinked cannot verify');
  status='rewarded';const before=claims;await Promise.all([gpRewardService.claimGenesisReward('x','builder'),gpRewardService.claimGenesisReward('x','builder')]);check(claims===before+1,'deduplicated claim');
