@@ -173,6 +173,20 @@ export class AresPresenceEngine {
 
   private connected = false;
 
+  private lifecycle = 0;
+
+  private pendingConnectCancel:
+    (() => void) | null = null;
+
+  private removal:
+    Promise<void> | null = null;
+
+  private sendInFlight:
+    object | null = null;
+
+  private remotePacketTimes =
+    new Map<string, number>();
+
   private lastSentAt = 0;
 
   private lastTransform:
@@ -201,8 +215,20 @@ export class AresPresenceEngine {
       );
     }
 
-    if (this.channel) {
-      await this.disconnect();
+    const cleanup = this.channel
+      ? this.disconnect()
+      : this.removal;
+
+    const lifecycle = ++this.lifecycle;
+
+    if (cleanup) {
+      await cleanup;
+    }
+
+    if (lifecycle !== this.lifecycle) {
+      throw new Error(
+        "Ares realtime connection cancelled."
+      );
     }
 
     this.builderId =
@@ -236,6 +262,14 @@ export class AresPresenceEngine {
           PLAYER_STATE_EVENT,
       },
       (message) => {
+        if (
+          this.channel !== channel ||
+          this.lifecycle !== lifecycle ||
+          !this.connected
+        ) {
+          return;
+        }
+
         const payload =
           message.payload;
 
@@ -248,6 +282,21 @@ export class AresPresenceEngine {
         ) {
           return;
         }
+
+        const previousPacketTime =
+          this.remotePacketTimes.get(payload.builderId);
+
+        if (
+          previousPacketTime !== undefined &&
+          payload.updatedAt <= previousPacketTime
+        ) {
+          return;
+        }
+
+        this.remotePacketTimes.set(
+          payload.builderId,
+          payload.updatedAt,
+        );
 
         this.remoteBuilders.set(
           payload.builderId,
@@ -274,62 +323,97 @@ export class AresPresenceEngine {
       },
     );
 
-    await new Promise<void>(
-      (resolve, reject) => {
-        const timeout =
-          window.setTimeout(
-            () => {
-              reject(
-                new Error(
-                  "Ares realtime connection timed out.",
-                ),
-              );
-            },
-            10000,
+    try {
+      await new Promise<void>((resolve, reject) => {
+        let settled = false;
+
+        const isCurrent = () =>
+          this.channel === channel &&
+          this.lifecycle === lifecycle;
+
+        const finish = (error?: Error) => {
+          if (settled) return;
+
+          settled = true;
+          window.clearTimeout(timeout);
+
+          if (this.pendingConnectCancel === cancel) {
+            this.pendingConnectCancel = null;
+          }
+
+          if (error) {
+            reject(error);
+          } else {
+            resolve();
+          }
+        };
+
+        const cancel = () => finish(
+          new Error("Ares realtime connection cancelled.")
+        );
+
+        const timeout = window.setTimeout(() => {
+          finish(
+            new Error("Ares realtime connection timed out.")
+          );
+        }, 10000);
+
+        this.pendingConnectCancel = cancel;
+
+        channel.subscribe((status) => {
+          if (!isCurrent()) return;
+
+          console.info(
+            "[ARES MULTIPLAYER] channel status:",
+            status,
           );
 
-        channel.subscribe(
-          (status) => {
-            console.info(
-              "[ARES MULTIPLAYER] channel status:",
-              status,
-            );
+          if (status === "SUBSCRIBED") {
+            this.connected = true;
+            finish();
+            return;
+          }
 
-            if (
-              status ===
-              "SUBSCRIBED"
-            ) {
-              window.clearTimeout(
-                timeout,
-              );
+          if (
+            status === "CHANNEL_ERROR" ||
+            status === "TIMED_OUT" ||
+            status === "CLOSED"
+          ) {
+            this.connected = false;
+            this.sendInFlight = null;
+            this.lastTransform = null;
+            this.lastSentAt = 0;
 
-              this.connected =
-                true;
+            this.remoteBuilders.clear();
+            this.remotePacketTimes.clear();
 
-              resolve();
+            this.publishRemoteBuilders();
+
+            if (!settled) {
+              finish(new Error(
+                `Ares realtime connection failed: ${status}`
+              ));
               return;
             }
 
-            if (
-              status ===
-                "CHANNEL_ERROR" ||
-              status ===
-                "TIMED_OUT"
-            ) {
-              window.clearTimeout(
-                timeout,
-              );
-
-              reject(
-                new Error(
-                  `Ares realtime connection failed: ${status}`,
-                ),
-              );
+            // CLOSED is terminal. Transient errors retain
+            // the existing SDK channel for automatic rejoin.
+            if (status === "CLOSED") {
+              void this.disconnect().catch(() => undefined);
             }
-          },
-        );
-      },
-    );
+          }
+        });
+      });
+    } catch (error) {
+      if (
+        this.channel === channel &&
+        this.lifecycle === lifecycle
+      ) {
+        await this.disconnect();
+      }
+
+      throw error;
+    }
   }
 
   subscribe(
@@ -362,11 +446,19 @@ export class AresPresenceEngine {
       return;
     }
 
+    const channel = this.channel;
+    const lifecycle = this.lifecycle;
+
+    if (this.sendInFlight) {
+      return;
+    }
+
     const now =
       Date.now();
 
     if (
       !force &&
+      now >= this.lastSentAt &&
       now - this.lastSentAt <
         PRESENCE_SEND_INTERVAL_MS
     ) {
@@ -432,28 +524,52 @@ export class AresPresenceEngine {
         updatedAt: now,
       };
 
-    const response =
-      await this.channel.send({
+    const sendToken = {};
+    this.sendInFlight = sendToken;
+
+    // Throttle attempts even when acknowledgement fails.
+    this.lastSentAt = now;
+
+    try {
+      const response = await channel.send({
         type: "broadcast",
-        event:
-          PLAYER_STATE_EVENT,
+        event: PLAYER_STATE_EVENT,
         payload,
       });
 
-    if (
-      response !== "ok"
-    ) {
-      console.warn(
-        "[ARES MULTIPLAYER] broadcast response:",
-        response,
-      );
+      if (
+        this.channel !== channel ||
+        this.lifecycle !== lifecycle ||
+        !this.connected ||
+        this.sendInFlight !== sendToken
+      ) {
+        return;
+      }
+
+      if (response !== "ok") {
+        console.warn(
+          "[ARES MULTIPLAYER] broadcast response:",
+          response,
+        );
+        return;
+      }
+
+      this.lastTransform = {
+        x: payload.x,
+        y: payload.y,
+        z: payload.z,
+        rotationY: payload.rotationY,
+        attack: payload.attack,
+        parkedShip: payload.parkedShip,
+      };
+    } catch {
+      // Failed sends remain eligible for a later retry.
+      // Never expose transport details or authentication data.
+    } finally {
+      if (this.sendInFlight === sendToken) {
+        this.sendInFlight = null;
+      }
     }
-
-    this.lastSentAt = now;
-
-    this.lastTransform = {
-      ...transform,
-    };
   }
 
   getRemoteBuilders():
@@ -486,6 +602,8 @@ export class AresPresenceEngine {
           builderId,
         );
 
+        this.remotePacketTimes.delete(builderId);
+
         changed = true;
       }
     }
@@ -508,24 +626,49 @@ export class AresPresenceEngine {
     }
   }
 
-  async disconnect():
-    Promise<void> {
-    const channel =
-      this.channel;
+  async disconnect(): Promise<void> {
+    const channel = this.channel;
 
+    this.lifecycle++;
     this.channel = null;
     this.connected = false;
+
+    const cancel = this.pendingConnectCancel;
+    this.pendingConnectCancel = null;
+
+    cancel?.();
+
+    this.sendInFlight = null;
     this.lastTransform = null;
     this.lastSentAt = 0;
 
     this.remoteBuilders.clear();
+    this.remotePacketTimes.clear();
 
     this.publishRemoteBuilders();
 
     if (channel) {
-      await supabase.removeChannel(
-        channel,
-      );
+      const removal = (async () => {
+        const result = await supabase.removeChannel(channel);
+
+        if (result !== "ok") {
+          throw new Error(
+            "Ares realtime channel cleanup failed."
+          );
+        }
+      })();
+
+      this.removal = removal;
+
+      try {
+        await removal;
+      } finally {
+        if (this.removal === removal) {
+          this.removal = null;
+        }
+      }
+    } else if (this.removal) {
+      await this.removal;
     }
   }
 }

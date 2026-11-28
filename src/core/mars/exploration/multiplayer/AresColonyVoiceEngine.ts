@@ -315,6 +315,12 @@ export class AresColonyVoiceEngine {
             return;
           }
 
+          // Repeated subscription events must not create
+          // duplicate playback elements for the same track.
+          if (this.audioElements.has(track)) {
+            return;
+          }
+
           const element = track.attach();
 
           element.autoplay = true;
@@ -334,17 +340,29 @@ export class AresColonyVoiceEngine {
       room.on(
         RoomEvent.TrackUnsubscribed,
         (track: RemoteTrack) => {
+          if (generation !== this.generation) {
+            return;
+          }
+
           this.removeAudio(track);
         },
       );
 
       room.on(RoomEvent.Disconnected, () => {
-        if (this.isCurrentRoom(room, generation)) {
+        const current =
+          this.isCurrentRoom(room, generation);
+
+        const pending =
+          this.pendingRoom === room &&
+          this.generation === generation;
+
+        if (current || pending) {
           this.generation++;
           this.stopHeartbeat();
 
           this.voiceAuthorized = false;
           this.room = null;
+          this.pendingRoom = null;
           this.connecting = false;
 
           this.cleanupAudio();
